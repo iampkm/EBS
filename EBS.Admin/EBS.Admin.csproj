@@ -1117,22 +1117,6 @@
       <Project>{867f0957-0862-4c10-83c3-dca12e188ff3}</Project>
       <Name>EBS.Infrastructure</Name>
     </ProjectReference>
-    <ProjectReference Include="..\EBS.Query.Api\EBS.Query.Service.csproj">
-      <Project>{d559de7f-aeef-4a03-887c-a887388a7aa0}</Project>
-      <Name>EBS.Query.Service</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\EBS.QueryApi\EBS.Query.csproj">
-      <Project>{b1b9cc0c-a096-4eb0-b892-dddad004d4d8}</Project>
-      <Name>EBS.Query</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\EBS.Service.Api\EBS.Command.Service.csproj">
-      <Project>{50592a16-0137-45e2-8fa8-544bfba6726b}</Project>
-      <Name>EBS.Command.Service</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\EBS.Service\EBS.Command.csproj">
-      <Project>{37213fcd-0a93-4f5e-a0f4-65849ee58a4c}</Project>
-      <Name>EBS.Command</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

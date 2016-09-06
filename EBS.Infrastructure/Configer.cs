@@ -29,7 +29,7 @@ namespace EBS.Infrastructure
         {
             get
             {
-                return new string[] { "EBS.Command", "EBS.Command.Service", "EBS.Query", "EBS.Query.Service", "EBS.Domain", };
+                return new string[] { "EBS.Application", "EBS.Application.Facade", "EBS.Query", "EBS.Query.Service", "EBS.Domain", };
             }
         }
     }
