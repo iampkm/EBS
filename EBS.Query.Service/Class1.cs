@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EBS.Query.Api
+namespace EBS.Query.Service
 {
     public class Class1
     {
