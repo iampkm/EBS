@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dapper.DBContext;
-namespace EBS.Domain.Accounts
+namespace EBS.Domain.Entity
 {
-   public class Role:AggregateRoot<int>
+    public class Role : BaseEntity
     {
        public Role(string name, string description)
        {

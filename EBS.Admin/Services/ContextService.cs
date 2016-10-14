@@ -1,7 +1,7 @@
 ﻿using System.Web;
 using System.Web.Security;
 using Newtonsoft.Json;
-using EBS.Command.Models;
+using EBS.Application.DTO;
 namespace EBS.Admin.Services
 {
     public class ContextService : IContextService

@@ -64,6 +64,7 @@
     <Compile Include="Events\IEventPublisher.cs" />
     <Compile Include="Events\ISubscriptionService.cs" />
     <Compile Include="Events\SubscriptionService.cs" />
+    <Compile Include="Extension\ArrayExtension.cs" />
     <Compile Include="Extension\EnumExtension.cs" />
     <Compile Include="Extension\MD5Extension.cs" />
     <Compile Include="Extension\stringExtension.cs" />

@@ -10,7 +10,7 @@
     <!-- Tell the browser to be responsive to screen width -->
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <!-- Bootstrap 3.3.6 -->
-    <link rel="stylesheet" href="/Content/bootstrap.min.css">
+    <link rel="stylesheet" href="/Content/bootstrap/css/bootstrap.min.css">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="/Content/AdminLTE/css/font-awesome.min.css">
     <!-- Ionicons -->
@@ -54,6 +54,7 @@
                     </div>
                     <!-- /.col -->
                     <div class="col-xs-4">
+                        <input type="hidden" v-model="reurnUrl" value="@ViewBag.ReturnUrl" />
                         <button type="submit" class="btn btn-primary btn-block btn-flat" v-on:click.prevent="Login">Sign In</button>
                     </div>
                     <!-- /.col -->
@@ -93,16 +94,18 @@
                     password: "",
                     remmberMe: false,
                     errorMsg: '',
+                    validateCode: '',
+                    returnUrl:'',
                 },
                 methods: {
                     Login: function () {
-                        var v_vue = this;
+                        var self = this;                     
                         $.post("/Account/Login", { UserName: this.userName, Password: this.password, RemmberMe: this.remmberMe }, function (result) {
                             if (result.success) {
                                 window.location.href = result.returnUrl;
                             }
                             else {
-                                v_vue.errorMsg = result.error;
+                                self.errorMsg = result.error;
                             }
                         }, "json");
                     }

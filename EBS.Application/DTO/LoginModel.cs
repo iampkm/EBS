@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.Results;
-namespace EBS.Application.Models
+namespace EBS.Application.DTO
 {
    public class LoginModel
     {
@@ -42,7 +42,6 @@ namespace EBS.Application.Models
    {
        public int AccountId { get; set; }
        public string UserName { get; set; }
-
        public string NickName { get; set; }
        public int RoleId { get; set; }
       

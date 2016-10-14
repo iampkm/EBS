@@ -40,7 +40,7 @@ namespace EBS.Infrastructure
             var assemblies = typeFinder.LoadAssemblies();
             //builder.RegisterAssemblyTypes(assemblies).AsImplementedInterfaces();
             builder.RegisterAssemblyTypes(assemblies).Where(t => t.Name.EndsWith("Service")).AsImplementedInterfaces();
-            builder.RegisterAssemblyTypes(assemblies).Where(t => t.Name.EndsWith("Logic")).AsImplementedInterfaces();
+            builder.RegisterAssemblyTypes(assemblies).Where(t => t.Name.EndsWith("Facade")).AsImplementedInterfaces();
 
             //register event
             var consumers = typeFinder.FindClassesOfType(typeof(IConsumer<>)).ToList();

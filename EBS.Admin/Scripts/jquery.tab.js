@@ -1,6 +1,6 @@
 ﻿(function ($, window) {
     //控件的数据源,数据结构{key:xxx,tabs:[{index:x,title:x,url:x,icon:x,navbarid:x}]}
-    var _tabDatas = [];
+     var _tabDatas = [];   
     //获取所选的Tab信息
     $.fn.aceselecttab = function (options) {
         // 默认参数
@@ -88,7 +88,7 @@
             title: "",
             //地址
             url: "",
-            //图标
+            //图标icon-home
             icon: "icon-home",
             //头部Log横向条的ID
             navbarid: "navbar"
@@ -124,6 +124,12 @@
         //加载数据
         var _initData = function () {
             var allowDo = true;
+            // 初始化一个首页tab
+            if (_tabDatas.length == 0)
+            {
+                _tabDatas = [{ key: htmlID, tabs: [{ index: 0, title: "首 页",icon:"fa fa-home" }] }];  //初始化一个静态的tab 首页
+            }          
+
             if (_tabDatas.length == 0) {
                 var _tabData = { key: htmlID, tabs: [] };
                 opt.index = 0;
@@ -185,10 +191,10 @@
                 tabTitles += "<li class=\"active\" id=\"" + htmlID + "-title-li-" + 0 + "\">";
                 //---------------------------------------------------
                 tabTitles += "<a data-toggle=\"tab\" href=\"#" + htmlID + "-content-" + 0 + "\">";
-                tabTitles += " <i class=\"green " + opt.icon + " bigger-110\"></i>";
+                tabTitles += " <i class=\"text-success " + opt.icon + " bigger-110\"></i>";
                 tabTitles += opt.title;
                 //tabTitles += "<i class=\"red icon-remove bigger-110\"></i>";
-               // tabTitles+="<i class=\"fa fa-times\"></i>"
+                //tabTitles+="<i class=\"fa fa-times\"></i>"
                 tabTitles += "</a>";
                 //---------------------------------------------------
                 tabTitles += "</li>";
@@ -211,7 +217,7 @@
                 //有列表头部
                 var listHtml = "<li id=\"" + htmlID + "-title-li-" + (_tabs.length - 1) + "\">";
                 listHtml += "<a data-toggle=\"tab\" href=\"#" + htmlID + "-content-" + (_tabs.length - 1) + "\">";
-                listHtml += " <i class=\"green " + opt.icon + " bigger-110\"></i>";
+                listHtml += " <i class=\"text-success " + opt.icon + " bigger-110\"></i>";
                 listHtml += opt.title;
                // listHtml += "<i class=\"red icon-remove bigger-110\" style=\"cursor:pointer\"></i>";
                 listHtml += "<i class=\"fa fa-times\" style=\"cursor:pointer\"></i>";
@@ -223,10 +229,10 @@
                 var tabTitles = "<li id=\"" + htmlID + "-title-li-" + (_tabs.length - 1) + "\">";
                 //---------------------------------------------------
                 tabTitles += "<a data-toggle=\"tab\" href=\"#" + htmlID + "-content-" + (_tabs.length - 1) + "\">";
-                tabTitles += " <i class=\"green " + opt.icon + " bigger-110\"></i>";
+                tabTitles += " <i class=\"text-success " + opt.icon + " bigger-110\"></i>";
                 tabTitles += opt.title;
                // tabTitles += "<i class=\"red icon-remove bigger-110\" style=\"cursor:pointer\"></i>";
-                listHtml += "<i class=\"fa fa-times\" style=\"cursor:pointer\"></i>";
+                tabTitles += "<i class=\"fa fa-times bigger-110\" style=\"cursor:pointer\"></i>";
                 tabTitles += "</a>";
                 //---------------------------------------------------
                 tabTitles += "</li>";
@@ -248,7 +254,7 @@
             //主页Tab内容区域的高度
             window.onresize = _autoHieght;
             $(function () {
-                _autoHieght();
+              _autoHieght();
             });
         };
         //处理Tab页卡太多的问题
@@ -264,7 +270,7 @@
                     var tabTitles = "<li id=\"" + htmlID + "-title-li-" + i + "\">";
                     //---------------------------------------------------
                     tabTitles += "<a data-toggle=\"tab\" href=\"#" + htmlID + "-content-" + i + "\">";
-                    tabTitles += " <i class=\"green " + tabs[i].icon + " bigger-110\"></i>";
+                    tabTitles += " <i class=\"text-success " + tabs[i].icon + " bigger-110\"></i>";
                     tabTitles += tabs[i].title;
                     if (i != 0) {
                         // tabTitles += "<i class=\"red icon-remove bigger-110\" style=\"cursor:pointer\"></i>";
@@ -287,7 +293,7 @@
                 //添加列表选项卡
                 var listTab = "<li class=\"dropdown\" >";
                 listTab += "<a style=\"cursor:pointer\" data-toggle=\"dropdown\" class=\"dropdown-toggle\" href=\"#\">";
-                listTab += "<i class=\"green icon-list bigger-110\" ></i>";
+                listTab += "<i class=\"text-success fa fa-list bigger-110\" ></i>";
                 listTab += "</a>";
                 listTab += "<ul class=\"dropdown-menu dropdown-info\">";
                 listTab += "</ul>";
@@ -310,7 +316,7 @@
                     if (i > showCount - 1) {
                         listHtml += "<li id=\"" + htmlID + "-title-li-" + i + "\">";
                         listHtml += "<a data-toggle=\"tab\" href=\"#" + htmlID + "-content-" + i + "\">";
-                        listHtml += " <i class=\"green " + tabs[i].icon + " bigger-110\"></i>";
+                        listHtml += " <i class=\"text-success " + tabs[i].icon + " bigger-110\"></i>";
                         listHtml += tabs[i].title;
                         // listHtml += "<i class=\"red icon-remove bigger-110\" style=\"cursor:pointer\"></i>";
                         listHtml += "<i class=\"fa fa-times\" style=\"cursor:pointer\"></i>";
@@ -360,7 +366,6 @@
             //处理Tab页卡太多的问题
             _tabList();
 
-
             //可视区域的高度
             var documentHeight = parseInt(document.documentElement.clientHeight);
             //取得浏览器的userAgent字符串
@@ -382,8 +387,6 @@
                 //2为谷歌版本的一个偏差值
                 //减1主要是为了给底部留一条缝隙
                 documentHeight -= 3;
-
-
             }
             else {
                 //减1主要是为了给底部留一条缝隙
@@ -394,49 +397,28 @@
             $("#" + htmlID + "> div > div").css("height", contentHeight + "px");
 
             //下拉列表的样式调整
-
             //如果有最后那个下拉列表
 
             if ($("#" + htmlID + " > ul > li[class*='dropdown']").size() == 1) {
 
                 //修改显示位置，避免被挡住
-
                 var dropdown = $("#" + htmlID + " > ul > li[class*='dropdown']").children().last()
-
                 //列表的宽度
-
                 var listWidth = $("#" + htmlID + " > ul > li[class*='dropdown']").outerWidth(true);
-
                 //+2border宽度
-
                 dropdown.css("left", "-" + (dropdown.outerWidth(true) - listWidth + 3) + "px");
-
                 //列表高度处理,如果小于他的三分之二就不处理，大于就处理
-
                 var listHeight = dropdown.outerHeight(true);
-
                 var flag = parseInt(contentHeight * 2 / 3);
-
                 if (listHeight > flag) {
-
                     dropdown.css("height", flag).css("overflow-y", "scroll");
-
                 } else {
-
                     dropdown.css("height", listHeight);
-
                 }
-
-
-
             }
         }
-
-
         // 启动插件
         _init();
-
-
         // 链式调用
         return this;
     };

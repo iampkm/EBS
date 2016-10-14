@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EBS.Application.Facade
+namespace EBS.Domain.ValueObject
 {
-    public class Class1
+    public enum LoginStatus
     {
+        Login = 1, LogOut = 2
     }
 }

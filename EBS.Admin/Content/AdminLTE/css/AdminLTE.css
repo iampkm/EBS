@@ -21,11 +21,16 @@ body {
 body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-family: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  /*font-family: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;*/
+    font-family: Microsoft YaHei,'宋体', Tahoma, Helvetica, Arial, "\5b8b\4f53", sans-serif;
   font-weight: 400;
   overflow-x: hidden;
   overflow-y: auto;
 }
+/**自定义字体*/
+/*button, input, select, textarea, h1, h2, h3, h4, h5, h6 {
+    font-family: Microsoft YaHei,'宋体', Tahoma, Helvetica, Arial, "\5b8b\4f53", sans-serif;
+}*/
 /* Layout */
 .wrapper {
   min-height: 100%;
@@ -163,7 +168,8 @@ h6,
 .h4,
 .h5,
 .h6 {
-  font-family: 'Source Sans Pro', sans-serif;
+  /*font-family: 'Source Sans Pro', sans-serif;*/
+   font-family: Microsoft YaHei,'宋体', Tahoma, Helvetica, Arial, "\5b8b\4f53", sans-serif;
 }
 /* General Links */
 a {
@@ -2476,7 +2482,8 @@ a:focus {
 }
 .nav-tabs-custom > .nav-tabs {
   margin: 0;
-  border-bottom-color: #f4f4f4;
+  /*border-bottom-color: #f4f4f4;*/
+   border-bottom-color: #cccccc;
   border-top-right-radius: 3px;
   border-top-left-radius: 3px;
 }
@@ -2515,8 +2522,8 @@ a:focus {
 }
 .nav-tabs-custom > .nav-tabs > li.active > a {
   border-top-color: transparent;
-  border-left-color: #f4f4f4;
-  border-right-color: #f4f4f4;
+  border-left-color: #cccccc;
+  border-right-color: #cccccc;
 }
 .nav-tabs-custom > .nav-tabs > li:first-of-type {
   margin-left: 0;
@@ -2537,7 +2544,7 @@ a:focus {
   border-left-width: 1px;
 }
 .nav-tabs-custom > .nav-tabs.pull-right > li:first-of-type.active > a {
-  border-left-color: #f4f4f4;
+  border-left-color: #cccccc;
   border-right-color: transparent;
 }
 .nav-tabs-custom > .nav-tabs > li.header {
@@ -2651,24 +2658,36 @@ a:focus {
 .table > thead > tr > td,
 .table > tbody > tr > td,
 .table > tfoot > tr > td {
-  border-top: 1px solid #f4f4f4;
+  border-top: 1px solid #cccccc;
 }
 .table > thead > tr > th {
-  border-bottom: 2px solid #f4f4f4;
+  border-bottom: 2px solid #cccccc;
 }
 .table tr td .progress {
   margin-top: 5px;
 }
 .table-bordered {
-  border: 1px solid #f4f4f4;
+  border: 1px solid #cccccc;
 }
+/*-add new by guo-*/
+.table>tbody>tr.active>td, .table>tbody>tr.active>th, .table>tbody>tr>td.active, .table>tbody>tr>th.active, .table>tfoot>tr.active>td, .table>tfoot>tr.active>th, .table>tfoot>tr>td.active, .table>tfoot>tr>th.active, .table>thead>tr.active>td, .table>thead>tr.active>th, .table>thead>tr>td.active, .table>thead>tr>th.active {
+    background-color: #d9edf7;
+    color:#3c8dbc;
+}
+.table-hover > tbody > tr:hover {          
+    background-color: #d9edf7;   /*-#d2d6de-*/
+}
+.table-striped > tbody > tr {
+  background-color: #d2d6de;  /*-#d9edf7-*/
+}
+/*-add new by guo-*/
 .table-bordered > thead > tr > th,
 .table-bordered > tbody > tr > th,
 .table-bordered > tfoot > tr > th,
 .table-bordered > thead > tr > td,
 .table-bordered > tbody > tr > td,
 .table-bordered > tfoot > tr > td {
-  border: 1px solid #f4f4f4;
+  border: 1px solid #999999;
 }
 .table-bordered > thead > tr > th,
 .table-bordered > thead > tr > td {
@@ -2984,10 +3003,10 @@ table.text-center th {
   }
 }
 .modal-header {
-  border-bottom-color: #f4f4f4;
+  border-bottom-color: #cccccc;
 }
 .modal-footer {
-  border-top-color: #f4f4f4;
+  border-top-color: #cccccc;
 }
 .modal-primary .modal-header,
 .modal-primary .modal-footer {

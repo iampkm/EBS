@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using EBS.Infrastructure.Caching;
 using EBS.Infrastructure.Events;
-using EBS.Domain.Accounts;
+using EBS.Domain.Entity;
 namespace EBS.Domain
 {
     public class CacheEventCustomer: IConsumer<Account>

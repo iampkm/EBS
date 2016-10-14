@@ -27,7 +27,9 @@ namespace EBS.Admin
             // register admin service
            builder.RegisterType<AuthenticationService>().As<IAuthenticationService>().InstancePerLifetimeScope();
            builder.RegisterType<ContextService>().As<IContextService>().InstancePerLifetimeScope();
-           builder.RegisterType<DapperDBContext>().As<IDBContext>().WithParameter("connectionStringName", "masterDB");                                                                                   
+            // register database connection
+           builder.RegisterType<DapperDBContext>().As<IDBContext>().WithParameter("connectionStringName", "masterDB");
+           builder.RegisterType<QueryService>().As<IQuery>().WithParameter("connectionStringName", "masterDB");                                                                         
           // builder.RegisterInstance(new DapperDBContext(Configer.MasterDB)).As<IDBContext>().InstancePerLifetimeScope();
           // builder.RegisterType<DapperDBContext>().WithParameter(Configer.MasterDB).As<IDBContext>().SingleInstance();
            // builder.RegisterAssemblyTypes(webAssembly);

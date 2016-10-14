@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EBS.Domain.Accounts
+namespace EBS.Domain.ValueObject
 {
     public enum AccountStatus
     {

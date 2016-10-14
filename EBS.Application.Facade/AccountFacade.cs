@@ -1,42 +1,27 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EBS.Command;
-using EBS.Domain.Accounts;
+using EBS.Domain.Entity;
+using EBS.Domain.Service;
 using Dapper.DBContext;
-using EBS.Application.Models;
 using EBS.Application;
-using FluentValidation;
+using EBS.Application.DTO;
 namespace EBS.Command.Service
 {
     public class AccountFacade : IAccountFacade 
     {
         IDBContext _db;
-       // IAccountLogic _accountLogic;
+        AccountService _accountService;
         public AccountFacade(IDBContext dbContext)
         {
             this._db = dbContext;
-           // this._accountLogic = accountLogic;
+            _accountService = new AccountService(this._db);
+        
         }       
 
         public AccountInfo Login(LoginModel model)
         {
             model.Validate();
-            var account = this._db.Table.Find<Account>(a => a.UserName == model.UserName);
-            if (account == null) throw new Exception("用户名或密码错误!");
-            if (account.VerifyAccount(model.UserName, model.Password))
-            {
-                AccountLoginHistory loginHistory = new AccountLoginHistory(account.Id, account.UserName, model.IpAddress);
-                this._db.Insert<AccountLoginHistory>(loginHistory);
-                this._db.SaveChange();
-                return new AccountInfo() {  AccountId = account.Id, UserName = account.UserName, RoleId = account.RoleId};
-            }
-            else
-            {
-                throw new Exception("用户名或密码错误!");
-            }            
+            var account = _accountService.CheckAccount(model.UserName, model.Password, model.IpAddress);
+            return new AccountInfo() { AccountId = account.Id, UserName = account.UserName, RoleId = account.RoleId };
         }
     }
 }

@@ -4,8 +4,8 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using EBS.Admin.Services;
-using EBS.Command;
-using EBS.Command.Models;
+using EBS.Application;
+using EBS.Application.DTO;
 using Newtonsoft.Json;
 namespace EBS.Admin.Controllers
 {
@@ -13,16 +13,17 @@ namespace EBS.Admin.Controllers
     public class AccountController : Controller
     {
         private readonly IAuthenticationService _authenticationService;
-        private readonly IAccountService _accountService;
-        public AccountController(IAuthenticationService authenticationService, IAccountService accountService)
+        private readonly IAccountFacade _accountFacade;
+        public AccountController(IAuthenticationService authenticationService, IAccountFacade accountFacade)
         {
             this._authenticationService = authenticationService;
-            this._accountService = accountService;
+            this._accountFacade = accountFacade;
         }
         //
         // GET: /Account/
-        public ActionResult Index()
+        public ActionResult Index(string returnUrl)
         {
+            ViewBag.ReturnUrl = returnUrl;
             return View();
         }
         [HttpGet]
@@ -34,7 +35,7 @@ namespace EBS.Admin.Controllers
         public ActionResult Login(LoginModel model)
         {
             model.IpAddress = Request.UserHostAddress;
-            var account = this._accountService.Login(model);
+            var account = this._accountFacade.Login(model);
             var accountInfo= JsonConvert.SerializeObject(account);
             this._authenticationService.SignIn(account.UserName, accountInfo, model.RememberMe);
            // return RedirectToAction("DashBoard", "Home"); 

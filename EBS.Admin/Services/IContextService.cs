@@ -1,4 +1,4 @@
-﻿using EBS.Command.Models;
+﻿using EBS.Application.DTO;
 namespace EBS.Admin.Services
 {
     public interface IContextService

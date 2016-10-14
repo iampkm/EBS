@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EBS.Query.Service
+namespace EBS.Application
 {
-    public class Class1
+   public class IRoleFacade
     {
     }
 }
