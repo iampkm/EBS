@@ -71,7 +71,6 @@
     <Compile Include="Entity\ProductSpecificationOption.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Entity\Role.cs" />
-    <Compile Include="ValueObject\Pager.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Infrastructure\EBS.Infrastructure.csproj">

@@ -1,0 +1,132 @@
+﻿<template id="grid-template">
+    <style>
+        .table-fixed-data {
+            width: 100%;
+            /*border-right: 1px solid #cccccc;
+            border-bottom: 1px solid #cccccc;*/
+        }
+        .table-fixed-data table {
+            margin: 0px;
+        }
+        .table-fixed-hidden {
+            margin-top: -40px !important;
+        }
+        #search {
+            margin-bottom: 10px;
+        }
+        .table-fixed-body {
+            overflow-x: auto;
+            overflow-y: auto;          
+        }
+        .fixed-table-pagination .pagination-detail, .fixed-table-pagination div.pagination {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        .fixed-table-pagination .pagination-info {
+            line-height: 34px;
+            margin-right: 5px;
+        }
+        .fixed-table-pagination .page-list {
+            display: inline-block;
+        }
+        .fixed-table-pagination div.pagination .pagination {
+            margin: 0;
+        }
+    </style>
+    <div class="table-container">
+        <slot name="customSearch"></slot>
+        <div class="table-toolBar row" style="margin-bottom:10px;">
+            <div class="col-xs-4 col-md-4">
+                <div class="input-group">
+                    <span class="input-group-addon" v-if="showSearch"><i class="fa fa-search"></i></span>
+                    <input name="query" class="form-control" placeholder="表内搜索" v-model="filterKey" v-if="showSearch">
+                    <slot name="customButtons"></slot>                    
+                </div>
+            </div>
+            <div class="col-xs-1 col-md-1">
+                <span v-show="showLoading">loading...</span>
+            </div>
+            <div class="col-xs-7 col-md-7">
+                <div class="btn-group pull-right">
+                    <div class="btn-group" title="选择列">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                            <i class="glyphicon glyphicon-th icon-th"></i>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li v-for="key in columns" class="list-group-item"><label style="cursor:pointer"><input type="checkbox" v-model="key.visible" /> {{key.localName}}</label></li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-default" type="button" title="刷新" v-on:click="loadData"><i class="glyphicon glyphicon-refresh icon-refresh"></i></button>
+                    <button class="btn btn-default" type="button" title="显示分页" v-on:click="showPage"><i class="glyphicon glyphicon-list"></i></button>
+                    @*<button class="btn btn-default" title="导出excel"><i class="glyphicon glyphicon-export icon-share"></i></button>*@
+                </div>
+            </div>
+        </div>
+        <div class="table-fixed-data">
+            <div id="tbHeader" class="table-fixed-header">
+                <table class="table  table-bordered table-hover ">
+                    <thead>
+                        <tr>
+                            <th class="text-center" width="{{indexWidth}}"></th>
+                            <th v-if="showCheckbox" width="30px"><input v-on:click="checkAll($event.target.checked)" type="checkbox" /></th>
+                            <template v-for="key in columns">
+                                <template v-if="key.visible">
+                                    <th v-on:click="sortBy(key.name)" v-bind:class="{active: sortKey == key.name}" v-bind:style="{width:key.width}">
+                                        <div>
+                                            {{key.localName | capitalize}}
+                                            <span class="glyphicon" v-bind:class="sortOrders[key.name] > 0 ? ' glyphicon-triangle-top' : 'glyphicon-triangle-bottom'"></span>
+                                        </div>
+                                    </th>
+                                </template>
+                            </template>
+                            <th></th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div id="tbBody" class="table-fixed-body" v-bind:style="{height:height}">
+                <table class="table table-bordered table-hover">
+                    <tbody>
+                        <tr v-for="(index,entry) in data | filterBy filterKey | orderBy sortKey sortOrders[sortKey]" v-on:click="selectRow(index)" style="cursor: pointer">
+                            <td class="text-center" width="{{indexWidth}}">{{index+1}}</td>
+                            <td v-if="showCheckbox" width="30px"><input type="checkbox" v-model="data[index].checked" /></td>
+                            <template v-for="key in columns">
+                                <template v-if="key.visible">
+                                    <td v-bind:style="{width:key.width}">{{{setColumnStyle(key.style,entry[key.name],entry[id])}}}</td>
+                                </template>
+                            </template>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="fixed-table-pagination" v-if="showPagination">
+                <div class="pull-left pagination-detail">
+                    <span class="pagination-info">总共<span class="text-red"> {{total}} </span>条记录 每页 </span>
+                    <div class="page-list">
+                        <div class="btn-group dropup">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                <span class="page-size">{{pageSize}}</span> <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li v-for="page in pageSizes"><a v-on:click.prevent="changePageSize(page)">{{page}}</a></li>
+                            </ul>
+                        </div> 记录
+                    </div>
+                </div>
+                <div class="pull-right pagination">
+                    <ul class="pagination" style="cursor:pointer">
+                        <li><a v-on:click.prevent="goFirst()">首页</a></li>
+                        <li><a v-on:click.prevent="goPrevious()">上一页</a></li>
+                        <li v-for="page in maxPageNumber" v-bind:class="{active:getPageNumber(page) == pageIndex}"><a v-on:click.prevent="gotoPage(getPageNumber(page))">{{getPageNumber(page)}}</a></li>
+                        <li><a title="下{{pageNumber}}页" v-on:click.prevent="gotoPage(getNextPitchNumber())">...</a></li>
+                        <li><a v-on:click.prevent="goLast()">{{pages}}</a></li>
+                        <li><a v-on:click.prevent="goNext()">下一页</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div> 
+</template>

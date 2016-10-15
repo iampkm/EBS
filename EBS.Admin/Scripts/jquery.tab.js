@@ -240,7 +240,7 @@
             }
             //内容
             var tabContents = "<div id=\"" + htmlID + "-content-" + (_tabs.length - 1) + "\" class=\"tab-pane\">";
-            //---------------------------------------------------
+            //---------------------------------------------------  
             tabContents += "<iframe width=\"100%\" height=\"100%\" src=\"" + opt.url + "\" frameborder=\"0\" marginwidth=\"0\" marginheight=\"0\" scrolling=\"auto\"></iframe>";
             //---------------------------------------------------
             tabContents += "</div>"
@@ -394,8 +394,7 @@
             }
             //主要由tab-content的padding引起.总高度-头部条高度-tabtitle高度
             var contentHeight = documentHeight - (parseInt($("#" + htmlID + " > ul").outerHeight(true)) + parseInt($("#" + opt.navbarid).outerHeight(true)));
-            $("#" + htmlID + "> div > div").css("height", contentHeight + "px");
-
+            $("#" + htmlID + "> div > div").css("height", contentHeight + "px");           
             //下拉列表的样式调整
             //如果有最后那个下拉列表
 

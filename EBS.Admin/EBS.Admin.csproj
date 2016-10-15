@@ -1150,6 +1150,14 @@
       <Project>{867f0957-0862-4c10-83c3-dca12e188ff3}</Project>
       <Name>EBS.Infrastructure</Name>
     </ProjectReference>
+    <ProjectReference Include="..\EBS.Query.Service\EBS.Query.Service.csproj">
+      <Project>{4c1e6e83-3d15-43af-8484-3847d47eb75a}</Project>
+      <Name>EBS.Query.Service</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EBS.Query\EBS.Query.csproj">
+      <Project>{a2914150-71a6-4088-94bd-56f03da06622}</Project>
+      <Name>EBS.Query</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
