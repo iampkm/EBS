@@ -41,11 +41,47 @@ namespace EBS.Domain.Service
             }            
         }
 
-        public void Create(Account account)
-        { 
-            
+        public void Create(Account model)
+        {
+            if (_db.Table.Exists<Account>(n => n.UserName == model.UserName))
+            {
+                throw new Exception("名称重复!");
+            }
+            model.Password = "123456";  //初始密码123456
+            //加密密码
+            model.EncryptionPassword();
+            _db.Insert(model);
         }
 
-       
+        public void Update(Account model)
+        {
+            Account entity = _db.Table.Find<Account>(n => n.Id == model.Id);
+            entity.NickName = model.NickName;
+            entity.RoleId = model.RoleId;
+            entity.LastUpdateDate = DateTime.Now;
+            _db.Update(entity);
+        }
+
+        public void ChangePassword(int id, string oldPassword, string newPassword)
+        {
+            Account entity = _db.Table.Find<Account>(n => n.Id == id);
+            if (!entity.CheckAccountAndPassword(entity.UserName, oldPassword))
+            {
+                throw new Exception("原密码不正确!");
+            }
+            entity.Password = newPassword;
+            entity.EncryptionPassword();
+            entity.LastUpdateDate = DateTime.Now;
+            _db.Update(entity);
+        }
+
+        public void ResetPassword(int id)
+        {
+            Account entity = _db.Table.Find<Account>(n => n.Id == id);
+            entity.Password = "123456";
+            entity.EncryptionPassword();
+            entity.LastUpdateDate = DateTime.Now;
+            _db.Update(entity);
+        }
     }
 }

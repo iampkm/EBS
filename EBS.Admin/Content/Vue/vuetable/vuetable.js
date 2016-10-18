@@ -46,7 +46,7 @@
                         localName: column,
                         visible: true,
                         width: self.columnWidth + 'px',
-                        style: '',
+                        style: ''                        
                     }
                 } else {
                     obj = {

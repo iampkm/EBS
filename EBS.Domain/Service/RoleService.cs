@@ -22,8 +22,7 @@ namespace EBS.Domain.Service
             {
                 throw new Exception("名称重复!");
             }
-            _db.Insert(model);
-            _db.SaveChange();
+            _db.Insert(model);           
         }
 
         public void Update(Role model)
@@ -32,8 +31,10 @@ namespace EBS.Domain.Service
             {
                 throw new Exception("名称重复!");
             }
-            _db.Update(model);
-            _db.SaveChange();
+            var entity = _db.Table.Find<Role>(m => m.Id == model.Id);
+            entity.Name = model.Name;
+            entity.Description = model.Description;
+            _db.Update(entity);
         }
 
         public void Delete(string ids)
@@ -43,8 +44,15 @@ namespace EBS.Domain.Service
                 throw new Exception("id 参数为空");
             }
             var arrIds = ids.Split(',').ToIntArray();
+            foreach (var id in arrIds)
+            {
+                if (_db.Table.Exists<RoleMenu>(m => m.RoleId == id))
+                {
+                    _db.Delete<RoleMenu>(m => m.RoleId == id);
+                }
+            }           
             _db.Delete<Role>(arrIds);
-            _db.SaveChange();
+            //删除权限
         }
     }
 }

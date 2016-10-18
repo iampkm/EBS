@@ -42,8 +42,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AccountQueryService.cs" />
     <Compile Include="MenuQueryService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RoleQueryService.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Domain\EBS.Domain.csproj">

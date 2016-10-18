@@ -7,6 +7,10 @@ using EBS.Admin.Services;
 using EBS.Application;
 using EBS.Application.DTO;
 using Newtonsoft.Json;
+using EBS.Query;
+using EBS.Query.DTO;
+using EBS.Domain.Entity;
+using Dapper.DBContext;
 namespace EBS.Admin.Controllers
 {
 
@@ -14,21 +18,33 @@ namespace EBS.Admin.Controllers
     {
         private readonly IAuthenticationService _authenticationService;
         private readonly IAccountFacade _accountFacade;
-        public AccountController(IAuthenticationService authenticationService, IAccountFacade accountFacade)
+        private IAccountQuery _accountQuery;
+        private IQuery _query;
+        public AccountController(IAuthenticationService authenticationService,IQuery query , IAccountFacade accountFacade,IAccountQuery accountQuery)
         {
             this._authenticationService = authenticationService;
+            this._query = query;
             this._accountFacade = accountFacade;
+            this._accountQuery = accountQuery;
         }
         //
         // GET: /Account/
-        public ActionResult Index(string returnUrl)
+        public ActionResult Index()
         {
-            ViewBag.ReturnUrl = returnUrl;
+           
             return View();
         }
+
+        public JsonResult LoadData(Pager page,int? id , string userName, string nickName)
+        {           
+            var rows = _accountQuery.GetPageList(page, id, userName, nickName);
+            return Json(new { success = true, data = rows, total = page.Total }, JsonRequestBehavior.AllowGet);
+        }
+
         [HttpGet]
-        public ActionResult Login()
+        public ActionResult Login(string returnUrl)
         {
+            ViewBag.ReturnUrl = returnUrl;
             return View();
         }
         [HttpPost]
@@ -46,6 +62,61 @@ namespace EBS.Admin.Controllers
         {
             _authenticationService.SignOut();
             return RedirectToAction("Index", "Home");
+        }
+
+        public ActionResult Create()
+        {
+            //加载权限资源          
+            ViewBag.Roles = _query.FindAll<Role>();
+            return View();
+        }
+        [HttpPost]
+        public JsonResult Create(CreateAccountModel model)
+        {
+            _accountFacade.Create(model);
+            return Json(new { success = true });
+        }
+        public ActionResult Edit(int id)
+        {
+            var model = _query.Find<Account>(id);
+            ViewBag.Roles = _query.FindAll<Role>();
+            return View(model);
+        }
+
+        [HttpPost]
+        public JsonResult Edit(EditAccountModel model)
+        {
+            _accountFacade.Edit(model);
+            return Json(new { success = true });
+        }
+
+        public JsonResult Actived(int id)
+        {
+            _accountFacade.ActiveAccount(id);
+            return Json(new { success = true });
+        }
+
+        public JsonResult Disabled(int id)
+        {
+            _accountFacade.DisabledAccount(id);
+            return Json(new { success = true });
+        }
+
+        public JsonResult ResetPassword(int id)
+        {
+            _accountFacade.ResetPassword(id);
+            return Json(new { success = true });
+        }
+
+        public ActionResult ChangePassword()
+        {
+            return View();
+        }
+         [HttpPost]
+        public JsonResult ChangePassword(int id, string oldPassword, string newPassword)
+        {
+            _accountFacade.ChangePassword(id, oldPassword,newPassword);
+            return Json(new { success = true });
         }
     }
 }

@@ -30,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Dapper.DBContext">
+      <HintPath>..\packages\Dapper.DBContext.0.2.0\lib\net45\Dapper.DBContext.dll</HintPath>
+    </Reference>
     <Reference Include="FluentValidation, Version=6.2.1.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\FluentValidation.6.2.1.0\lib\Net45\FluentValidation.dll</HintPath>
@@ -43,12 +46,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DTO\AccountModel.cs" />
     <Compile Include="DTO\LoginModel.cs" />
     <Compile Include="DTO\MenuModel.cs" />
+    <Compile Include="DTO\RoleModel.cs" />
     <Compile Include="IAccountFacade.cs" />
     <Compile Include="IMenuFacade.cs" />
     <Compile Include="IRoleFacade.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EBS.Domain\EBS.Domain.csproj">
+      <Project>{5dd4ab82-555f-4f86-8613-2cdce5df0e43}</Project>
+      <Name>EBS.Domain</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -168,7 +168,7 @@
                                 <!-- Menu Footer-->
                                 <li class="user-footer">
                                     <div class="pull-left">
-                                        <a href="#" class="btn btn-default btn-flat">Profile</a>
+                                        <a href="javascript:showTab('修改密码','/Account/ChangePassword')" class="btn btn-warning btn-flat">修改密码</a>
                                     </div>
                                     <div class="pull-right">
                                         <a href="#" class="btn btn-default btn-flat">Sign out</a>
@@ -265,7 +265,7 @@
                             </span>
                         </a>
                     </li>
-                    @Html.Action("MenuTree", "Home")
+                   @Html.Action("MenuTree", "Home")                  
                 </ul>
             </section>
             <!-- /.sidebar -->
@@ -536,9 +536,9 @@
     <!-- ./wrapper -->
     <!-- jQuery 2.2.3 -->
     <script src="/Scripts/jquery-2.1.3.min.js"></script>
-    <script src="/Scripts/vue.min.js"></script>
+    @*<script src="/Scripts/vue.min.js"></script>
     <script src="/Content/Vue/vuetrap/vue-strap.js"></script>
-    <script src="/Content/Vue/vuetrap/vue-strap-lang.js"></script>
+    <script src="/Content/Vue/vuetrap/vue-strap-lang.js"></script>*@
     <!-- Bootstrap 3.3.6 -->
     <script src="/Scripts/bootstrap.min.js"></script>
     <!-- SlimScroll -->
@@ -547,30 +547,13 @@
     <script src="/Content/AdminLTE/plugins/fastclick/fastclick.js"></script>
     <!-- AdminLTE App -->
     <script src="/Content/AdminLTE/js/app.min.js"></script>
-    <script src="~/Scripts/bootbox.min.js"></script>
+    @*<script src="~/Scripts/bootbox.min.js"></script>*@
     <!-- AdminLTE for demo purposes -->
     @*<script src="/Content/AdminLTE/js/demo.js"></script>*@
     <script src="/Scripts/jquery.tab.js"></script>
     <script>
         $(function () {
-
-            //添加
-           // $("#main-tab").aceaddtab({ title: "页面a", url: "/home/index" });
-            for (var i = 0; i < 2; i++)
-            {
-                $("#main-tab").aceaddtab({ title: "页面" + i, url: "/menu/index/" });
-               // $("#main-tab").aceaddtab({ title: "页面" + i+1, url: "/home/about/"+i });
-            }
            
-           // $("#main-tab").aceaddtab({ title: "页面c", url: "/home/about" });
-            //选择
-            //  var a = $("#main-tab").aceselecttab();
-            //  alert(a.title)
-
-            //设置选择
-            //  $("#main-tab").aceshowtab({ index: 5 })
-            //  bootbox.setLocale("zh_CN");
-           // _autoHieght();
         });
 
         function showTab(tabName, link)

@@ -33,12 +33,10 @@ namespace EBS.Admin.Controllers
 
         public ActionResult DashBoard()
         {
-            
-
             return View();
         }
 
-        public ActionResult MenuTree()
+        private string loadMenu()
         {
             // load menu,加载当前用户的
             //  
@@ -59,14 +57,19 @@ namespace EBS.Admin.Controllers
                     </li>
              * 
              */
-            
+
             foreach (var topMenu in menus.Where(m => m.ParentId == 0))
             {
-                builder.AppendFormat("<li class=\"treeview\"><a href=\"javascript:showTab('{0}','{1}')\"><i class=\"fa fa-dashboard\"></i><span>{0}</span><span class=\"pull-right-container\"><i class=\"fa fa-angle-left pull-right\"></i></span></a>",topMenu.Name, topMenu.Url );
+                builder.AppendFormat("<li class=\"treeview\"><a href=\"javascript:showTab('{0}','{1}')\"><i class=\"fa fa-dashboard\"></i><span>{0}</span><span class=\"pull-right-container\"><i class=\"fa fa-angle-left pull-right\"></i></span></a>", topMenu.Name, topMenu.Url);
                 AddChildMenu(builder, topMenu, menus);
-                builder.Append("</li>");    
+                builder.Append("</li>");
             }
-            ViewBag.Menus = builder.ToString();
+           return builder.ToString();
+        }
+
+        public ActionResult MenuTree()
+        {
+            ViewBag.Menus = loadMenu();
             return PartialView();
         }
 

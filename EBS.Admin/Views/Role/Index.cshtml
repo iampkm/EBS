@@ -1,0 +1,89 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<!-- demo root element -->
+<div id="app">
+    <div class="box box-primary">
+        <div class="box-header">
+            @*<h3 class="box-title">菜单管理</h3>*@
+            <ol class="breadcrumb" style="padding:0px;margin:1px;">
+                <li><a href="/Menu/Index"><i class="fa fa-dashboard"></i> 角色管理</a></li>
+                @*<li class="active">Dashboard</li>*@
+            </ol>
+        </div>
+        <div class="box-body">
+            <vue-table v-ref:vtable v-bind:columns="gridColumns"
+                       v-bind:url="url"
+                       v-bind:args="searchArgs" v-bind:data.sync="rows">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                    <div class="col-xs-3">
+                        <input class="form-control" v-model="searchArgs.name" placeholder="输入角色名" debounce="500" />
+                    </div>
+                </div>
+                <span class="input-group-btn" slot="customButtons">
+                    <a class="btn btn-warning btn-flat" href="/Role/Create">新 增</a>
+                    <button type="button" class="btn btn-default btn-flat" v-on:click="remove()">删 除</button>
+                </span>
+            </vue-table>
+        </div>
+        <!-- /.box-body -->
+    </div>
+    <div class="clearfix"></div>
+</div>
+@{Html.RenderPartial("VueTableTemplate");}
+@section scripts{
+    <script src="~/Content/Vue/vuetable/vuetable.js"></script>
+    <script>
+
+        // bootstrap the demo
+        var demo = new Vue({
+            el: '#app',
+            data: {
+                searchQuery: '',
+                gridColumns: [
+                    { name: 'Name', localName: '角色名', style: "<a href='/Role/Edit/{id}'>{column}</a>" },
+                    { name: 'Description', localName: '描述' }
+                ],
+                url: "/Role/LoadData",
+                searchArgs: { name: '' },
+                rows: []
+            },
+            methods: {
+                remove: function () {
+                    var v_ids = "";
+                    this.rows.forEach(function (item, index) {
+                        if (item.checked) {
+                            v_ids = item.Id + ",";
+                        }
+                    });
+                    if (v_ids == "") {
+                        bootbox.alert("请选择一条记录");
+                        return;
+                    }
+                    v_ids = v_ids.substring(0, v_ids.length - 1);
+                    v_self = this;
+                    bootbox.confirm("您确定删除该记录？", function (result) {
+                        if (result) {
+                            $.post("/Role/Delete", { ids: v_ids }, function (result) {
+                                if (result.success) {
+                                    v_self.$refs.vtable.loadData();
+                                }
+                                else {
+                                    bootbox.alert(result.error);
+                                }
+                            }, "json");
+                        }
+                    });
+                }
+            }
+        })
+
+    </script>
+}
+
+
+
+
+
+

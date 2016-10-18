@@ -4,25 +4,43 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dapper.DBContext;
+using EBS.Infrastructure.Extension;
 namespace EBS.Domain.Entity
 {
     public class Role : BaseEntity
     {
-       public Role(string name, string description)
-       {
-           this.Name = name;
-           this.Description = description;
-           this.Items = new List<Menu>();
-       }
-       public string Name { get; private set; }
+        public Role(string name, string description, int id = 0)
+        {
+            this.Id = id;
+            this.Name = name;
+            this.Description = description;
+            this.Items = new List<RoleMenu>();
+        }
+        public string Name { get; set; }
 
-       public string Description { get; private set; }
+        public string Description { get; set; }
 
-       public virtual List<Menu> Items { get; private set; }
+        public virtual List<RoleMenu> Items { get; private set; }
 
-       public void AssignMenus(List<Menu> items)
-       {
-           this.Items = items;
-       }
+        public void AssignMenus(string menuIds)
+        {
+            var arr = menuIds.Split(',').ToIntArray();
+            this.Items.Clear();
+            foreach (var menuId in arr)
+            {
+                RoleMenu entity = new RoleMenu()
+                {
+                    MenuId = menuId,
+                    RoleId = this.Id
+                };
+                this.Items.Add(entity);
+            }
+        }
+
+        public void LoadMenus(List<RoleMenu> items)
+        {
+            this.Items = items;
+        }
+
     }
 }

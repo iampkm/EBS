@@ -42,15 +42,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DTO\AccountInfo.cs" />
     <Compile Include="DTO\MenuInfo.cs" />
     <Compile Include="DTO\Pager.cs" />
+    <Compile Include="IAccountQuery.cs" />
     <Compile Include="IMenuQuery.cs" />
+    <Compile Include="IRoleQuery.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Domain\EBS.Domain.csproj">
       <Project>{5dd4ab82-555f-4f86-8613-2cdce5df0e43}</Project>
       <Name>EBS.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EBS.Infrastructure\EBS.Infrastructure.csproj">
+      <Project>{867f0957-0862-4c10-83c3-dca12e188ff3}</Project>
+      <Name>EBS.Infrastructure</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

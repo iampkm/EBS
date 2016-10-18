@@ -23,6 +23,10 @@ namespace EBS.Application.Facade
         public void Create(MenuModel model)
         {
             model.Validate();
+            if (_db.Table.Exists<Menu>(m => m.Name == model.Name))
+            {
+                throw new Exception(string.Format("{0}已经存在", model.Name));
+            }
             Menu menu = new Menu(model.Name, model.Url, model.Icon, model.ParentId, model.DisplayOrder,(MenuUrlType)model.UrlType);
             _menuService.Create(menu);
         }
