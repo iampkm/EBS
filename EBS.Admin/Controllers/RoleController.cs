@@ -1,21 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Linq;
 using System.Web.Mvc;
 using EBS.Application;
 using EBS.Application.DTO;
 using Dapper.DBContext;
 using EBS.Domain.Entity;
-using EBS.Domain.ValueObject;
-using System.Dynamic;
-using EBS.Infrastructure.Extension;
 using EBS.Query;
 using EBS.Query.DTO;
 using Newtonsoft.Json;
-using EBS.Application.DTO;
+using EBS.Admin.Services;
 namespace EBS.Admin.Controllers
 {
+      [Permission]
     public class RoleController : Controller
     {
         IQuery _query;

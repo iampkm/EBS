@@ -17,13 +17,16 @@ namespace EBS.Domain.Service
             this._db = dbcontext;
         }
 
-        public Account CheckAccount(string userName,string password,string ipAddress)
+        public Account CheckAccount(string userName, string password, string ipAddress)
         {
-            var account = this._db.Table.Find<Account>(a => a.UserName == userName);
+            int accountId = 0;
+            int.TryParse(userName, out accountId);
+
+            var account = this._db.Table.Find<Account>(a => a.UserName == userName || a.Id == accountId);
             if (account == null) throw new Exception("用户名或密码错误!");
             account.CheckAccountState();
             account.CheckLoginFailedTimes();
-            if (account.CheckAccountAndPassword(userName, password))
+            if (account.CheckPassword(password))
             {
                 this._db.Update(account);
                 this._db.Insert(new AccountLoginHistory(account.Id, account.UserName, ipAddress));
@@ -38,7 +41,7 @@ namespace EBS.Domain.Service
                     this._db.SaveChange();
                 }
                 throw new Exception("用户名或密码错误!");
-            }            
+            }
         }
 
         public void Create(Account model)
@@ -55,7 +58,7 @@ namespace EBS.Domain.Service
 
         public void Update(Account model)
         {
-            Account entity = _db.Table.Find<Account>(n => n.Id == model.Id);
+            Account entity = _db.Table.Find<Account>(model.Id);
             entity.NickName = model.NickName;
             entity.RoleId = model.RoleId;
             entity.LastUpdateDate = DateTime.Now;
@@ -64,8 +67,9 @@ namespace EBS.Domain.Service
 
         public void ChangePassword(int id, string oldPassword, string newPassword)
         {
-            Account entity = _db.Table.Find<Account>(n => n.Id == id);
-            if (!entity.CheckAccountAndPassword(entity.UserName, oldPassword))
+            Account entity = _db.Table.Find<Account>(id);
+            if (entity == null) throw new Exception("账号不存在");
+            if (!entity.CheckPassword(oldPassword))
             {
                 throw new Exception("原密码不正确!");
             }
@@ -77,7 +81,8 @@ namespace EBS.Domain.Service
 
         public void ResetPassword(int id)
         {
-            Account entity = _db.Table.Find<Account>(n => n.Id == id);
+            Account entity = _db.Table.Find<Account>(id);
+            if (entity == null) throw new Exception("账号不存在");
             entity.Password = "123456";
             entity.EncryptionPassword();
             entity.LastUpdateDate = DateTime.Now;

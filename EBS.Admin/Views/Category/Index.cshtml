@@ -1,0 +1,231 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+@section styles{
+    <link href="~/Content/zTree.min.css" rel="stylesheet" />
+    <style>
+        .ztree li span {
+            font-size: 14px;
+        }
+    </style>
+}
+<!-- demo root element -->
+<div id="app" class="box box-primary">
+    <div class="box-header with-border">
+        <ol class="breadcrumb" style="padding:0px;margin:1px;">
+            <li><a href="/Category/Index"><i class="fa fa-dashboard"></i>品类管理</a></li>
+        </ol>
+    </div>
+    <!-- /.box-header -->
+    <!-- form start -->
+    <form v-on:submit.prevent="onSubmit">
+        <div class="box-body">
+            <div class="row" >
+                <div class="col-xs-6 col-sm-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <button type="button" class="btn btn-success btn-flat" v-on:click="create()">
+                                <span class="glyphicon glyphicon-plus">新增</span>
+                            </button>
+                            <button type="button" class="btn btn-success btn-flat" v-on:click="edit()"><span class="glyphicon glyphicon-pencil">修改</span></button>
+                            <button type="button" class="btn btn-success btn-flat" v-on:click="remove()"><span class="glyphicon glyphicon-trash">删除</span></button>
+                            <button type="button" class="btn btn-success btn-flat" v-on:click="cancelSelect()"><span class="glyphicon glyphicon-minus">取消选择</span></button> 
+                        </div>
+                        <div class="panel-body">
+                            <ul id="ztree" class="ztree"></ul>
+                        </div>                      
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.box-body -->
+        <div class="box-footer">
+
+        </div>
+    </form>
+    <!-- /.box-footer -->
+    <v-modal v-bind:title="modalTitle" ok-text="保 存" cancel-text="取 消" v-bind:callback="onSubmit" v-bind:show.sync="modal" v-bind:effect="fade" width="800">
+        <div slot="modal-body" class="modal-body">
+            <div class="row">
+                <div class="form-group col-sm-4 col-xs-4">
+                    <label for="inputPassword3" class="control-label">父类名：</label>
+                    <input type="hidden" v-model="model.parentId" />
+                    <input type="text" class="form-control" v-model="model.parentName" disabled />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4 col-xs-4">
+                    <v-input type="text" label="品类名：" v-bind:value.sync="model.text" placeholder="输入品类名" required icon></v-input>
+                </div>
+            </div>
+        </div>
+    </v-modal>
+</div>
+@section scripts{
+    <script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
+    <script>
+        $("doucument").ready(function () {
+
+            var vue = new Vue({
+                components: {
+                    'v-modal': VueStrap.modal,
+                    'v-input': VueStrap.input,
+                    'v-form': VueStrap.formGroup
+                },
+                el: '#app',
+                data: {
+                    modal: false,
+                    modalTitle:"新增品类",
+                    valid: false,
+                    operate:'add',
+                    model: {
+                        id:'',
+                        name: '',
+                        parentId: '',
+                        parentName:'',
+                        text:'',
+                    },
+                },
+                methods: {
+                    onSubmit: function () {
+                        //获取选择节点                       
+                        var v_data = this.model; 
+                        var v_url ="/Category/Create" ;
+                        if(this.operate=="edit"){
+                            v_url ="/Category/Edit" ; 
+                        }
+                        var v_self = this;
+                        $.post(v_url, v_data, function (result) {
+                            if (result.success) {
+                                v_self.modal = false;
+                                if(v_self.operate=="add"){
+                                    v_self.model.id = result.id; 
+                                }
+                                v_self.refreshTree();
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
+                    },
+                    refreshTree:function(){
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                        var parentNode = treeObj.getSelectedNodes()[0];
+                        if(this.operate=="add")
+                        {
+                            var newNode = {id:this.model.id, name:this.model.id+" "+this.model.text,pId:this.model.parentId,text:this.model.text };                           
+                            if(parentNode)
+                            {    //有父节点
+                                newNode.pId = parentNode.id;
+                            }
+                            newNode = treeObj.addNodes(parentNode, newNode); 
+                        }
+                        else{
+                            //编辑                           
+                            parentNode.name =parentNode.id + this.model.text;
+                            treeObj.updateNode(parentNode);
+                        }                       
+                    
+                    },
+                    create: function () {                       
+                        this.operate ="add"; 
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                        var selectNode = treeObj.getSelectedNodes()[0];
+                        if(selectNode)
+                        {
+                            this.model.parentId = selectNode.id;
+                            this.model.parentName = selectNode.name;
+                        }
+                        this.modal = true;
+                    },
+                    edit:function(){
+                       
+                        this.operate ="edit";
+                        this.modalTitle="修改品类"
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                        var selectNode = treeObj.getSelectedNodes()[0];
+                        if(selectNode)
+                        {
+                            var parentNode = selectNode.getParentNode();
+                            if(parentNode)
+                            {
+                                this.model.parentId = parentNode.id;
+                                this.model.parentName = parentNode.name;
+                            }                           
+                            this.model.id = selectNode.id;
+                            this.model.name = selectNode.name;
+                            this.model.text = selectNode.text;
+                            this.modal = true;
+                        }
+                        else
+                        {
+                            bootbox.alert("请选择一个要修改的分类");
+                        }                       
+                    },
+                    remove:function(){
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                        var selectNode = treeObj.getSelectedNodes()[0];
+                        if(selectNode==null){
+                            bootbox.alert("请选择一个品类");
+                            return;
+                        }                      
+                        bootbox.confirm("您确定删除该记录？", function (result) {
+                            if (result) {
+                                $.post("/Category/Remove", { id: selectNode.id }, function (result) {                               
+                                    if (result.success) {
+                                        //删除子节点
+                                        treeObj.removeChildNodes(selectNode);
+                                        treeObj.removeNode(selectNode);
+                                    }
+                                    else {
+                                        bootbox.alert(result.error);
+                                    }
+                                }, "json");
+                            }
+                        });       
+                    },
+                    cancelSelect:function()
+                    {
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                        var nodes = treeObj.getSelectedNodes();
+                        if (nodes.length>0) { 
+                            treeObj.cancelSelectedNode(nodes[0]);
+                        }
+                    }
+                },
+                watch:{
+                    'modal':function(val,oldVal)
+                    {
+                        if(!val){
+                            this.model={
+                                id:'',
+                                name: '',
+                                parentId: '',
+                                parentName:'',
+                                text:'',
+                            };
+                        }
+                    }
+                }
+            });
+            var zTreeObj;
+            // zTree 的参数配置，深入使用请参考 API 文档（setting 配置详解）
+            var setting = {
+                data: {
+                    simpleData: {
+                        enable: true,                       
+                    }
+                }
+            };
+            // zTree 的数据属性，深入使用请参考 API 文档（zTreeNode 节点数据详解）
+              var zNodes =@Html.Raw(ViewBag.Tree) ;         
+            zTreeObj = $.fn.zTree.init($("#ztree"), setting, zNodes);
+
+        });
+
+    </script>
+}
+
+
+

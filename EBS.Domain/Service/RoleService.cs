@@ -31,7 +31,7 @@ namespace EBS.Domain.Service
             {
                 throw new Exception("名称重复!");
             }
-            var entity = _db.Table.Find<Role>(m => m.Id == model.Id);
+            var entity = _db.Table.Find<Role>(model.Id);
             entity.Name = model.Name;
             entity.Description = model.Description;
             _db.Update(entity);

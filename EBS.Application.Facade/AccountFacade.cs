@@ -59,7 +59,7 @@ namespace EBS.Command.Service
 
         public void ActiveAccount(int id)
         {
-            var entity = _db.Table.Find<Account>(n => n.Id == id);
+            var entity = _db.Table.Find<Account>(id);
             entity.Actived();
             _db.Update(entity);
             _db.SaveChange();
@@ -67,7 +67,7 @@ namespace EBS.Command.Service
 
         public void DisabledAccount(int id)
         {
-            var entity = _db.Table.Find<Account>(n => n.Id == id);
+            var entity = _db.Table.Find<Account>(id);
             entity.Disabled();
             _db.Update(entity);
             _db.SaveChange();

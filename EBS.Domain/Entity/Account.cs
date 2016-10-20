@@ -79,12 +79,12 @@ namespace EBS.Domain.Entity
             this.LastUpdateDate = DateTime.Now;
         }
 
-        public bool CheckAccountAndPassword(string userName, string password)
+        public bool CheckPassword(string password)
         {
-            if (userName != this.UserName)
-            {
-                return false;
-            }
+            //if (userName != this.UserName)
+            //{
+            //    return false;
+            //}
             MD5 md5Prider = MD5.Create();
             if (!md5Prider.VerifyMd5Hash(password, this.Password))
             {

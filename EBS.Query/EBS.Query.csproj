@@ -43,9 +43,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DTO\AccountInfo.cs" />
+    <Compile Include="DTO\CategoryTreeNode.cs" />
     <Compile Include="DTO\MenuInfo.cs" />
     <Compile Include="DTO\Pager.cs" />
     <Compile Include="IAccountQuery.cs" />
+    <Compile Include="ICategoryQuery.cs" />
     <Compile Include="IMenuQuery.cs" />
     <Compile Include="IRoleQuery.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

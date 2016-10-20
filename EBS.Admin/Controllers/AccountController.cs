@@ -11,6 +11,7 @@ using EBS.Query;
 using EBS.Query.DTO;
 using EBS.Domain.Entity;
 using Dapper.DBContext;
+using EBS.Infrastructure;
 namespace EBS.Admin.Controllers
 {
 
@@ -20,23 +21,22 @@ namespace EBS.Admin.Controllers
         private readonly IAccountFacade _accountFacade;
         private IAccountQuery _accountQuery;
         private IQuery _query;
-        public AccountController(IAuthenticationService authenticationService,IQuery query , IAccountFacade accountFacade,IAccountQuery accountQuery)
+        public AccountController(IAuthenticationService authenticationService, IQuery query, IAccountFacade accountFacade, IAccountQuery accountQuery)
         {
             this._authenticationService = authenticationService;
             this._query = query;
             this._accountFacade = accountFacade;
             this._accountQuery = accountQuery;
         }
-        //
-        // GET: /Account/
+        [Permission]
         public ActionResult Index()
         {
-           
+
             return View();
         }
 
-        public JsonResult LoadData(Pager page,int? id , string userName, string nickName)
-        {           
+        public JsonResult LoadData(Pager page, int? id, string userName, string nickName)
+        {
             var rows = _accountQuery.GetPageList(page, id, userName, nickName);
             return Json(new { success = true, data = rows, total = page.Total }, JsonRequestBehavior.AllowGet);
         }
@@ -52,9 +52,9 @@ namespace EBS.Admin.Controllers
         {
             model.IpAddress = Request.UserHostAddress;
             var account = this._accountFacade.Login(model);
-            var accountInfo= JsonConvert.SerializeObject(account);
+            var accountInfo = JsonConvert.SerializeObject(account);
             this._authenticationService.SignIn(account.UserName, accountInfo, model.RememberMe);
-           // return RedirectToAction("DashBoard", "Home"); 
+            // return RedirectToAction("DashBoard", "Home"); 
             return Json(new { success = true, returnUrl = "/Home/DashBoard" });
         }
 
@@ -63,7 +63,7 @@ namespace EBS.Admin.Controllers
             _authenticationService.SignOut();
             return RedirectToAction("Index", "Home");
         }
-
+        [Permission]
         public ActionResult Create()
         {
             //加载权限资源          
@@ -76,6 +76,7 @@ namespace EBS.Admin.Controllers
             _accountFacade.Create(model);
             return Json(new { success = true });
         }
+        [Permission]
         public ActionResult Edit(int id)
         {
             var model = _query.Find<Account>(id);
@@ -107,15 +108,17 @@ namespace EBS.Admin.Controllers
             _accountFacade.ResetPassword(id);
             return Json(new { success = true });
         }
-
+        [Permission]
         public ActionResult ChangePassword()
         {
             return View();
         }
-         [HttpPost]
-        public JsonResult ChangePassword(int id, string oldPassword, string newPassword)
+        [HttpPost]
+        public JsonResult ChangePassword(string oldPassword, string newPassword)
         {
-            _accountFacade.ChangePassword(id, oldPassword,newPassword);
+            // 获取当前用户
+            var contextService= AppContext.Current.Resolve<IContextService>();
+            _accountFacade.ChangePassword(contextService.CurrentAccount.AccountId, oldPassword, newPassword);
             return Json(new { success = true });
         }
     }

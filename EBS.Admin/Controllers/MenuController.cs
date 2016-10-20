@@ -12,8 +12,10 @@ using System.Dynamic;
 using EBS.Infrastructure.Extension;
 using EBS.Query;
 using EBS.Query.DTO;
+using EBS.Admin.Services;
 namespace EBS.Admin.Controllers
 {
+     [Permission]
     public class MenuController : Controller
     {
         IQuery _query;
