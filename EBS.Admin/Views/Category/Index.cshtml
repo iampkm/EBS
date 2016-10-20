@@ -21,7 +21,7 @@
     <!-- form start -->
     <form v-on:submit.prevent="onSubmit">
         <div class="box-body">
-            <div class="row" >
+            <div class="row">
                 <div class="col-xs-6 col-sm-6">
                     <div class="panel panel-default">
                         <div class="panel-heading">
@@ -30,11 +30,11 @@
                             </button>
                             <button type="button" class="btn btn-success btn-flat" v-on:click="edit()"><span class="glyphicon glyphicon-pencil">修改</span></button>
                             <button type="button" class="btn btn-success btn-flat" v-on:click="remove()"><span class="glyphicon glyphicon-trash">删除</span></button>
-                            <button type="button" class="btn btn-success btn-flat" v-on:click="cancelSelect()"><span class="glyphicon glyphicon-minus">取消选择</span></button> 
+                            <button type="button" class="btn btn-success btn-flat" v-on:click="cancelSelect()"><span class="glyphicon glyphicon-minus">取消选择</span></button>
                         </div>
                         <div class="panel-body">
                             <ul id="ztree" class="ztree"></ul>
-                        </div>                      
+                        </div>
                     </div>
                 </div>
             </div>
@@ -89,18 +89,18 @@
                 },
                 methods: {
                     onSubmit: function () {
-                        //获取选择节点                       
-                        var v_data = this.model; 
+                        //获取选择节点
+                        var v_data = this.model;
                         var v_url ="/Category/Create" ;
                         if(this.operate=="edit"){
-                            v_url ="/Category/Edit" ; 
+                            v_url ="/Category/Edit" ;
                         }
                         var v_self = this;
                         $.post(v_url, v_data, function (result) {
                             if (result.success) {
                                 v_self.modal = false;
                                 if(v_self.operate=="add"){
-                                    v_self.model.id = result.id; 
+                                    v_self.model.id = result.id;
                                 }
                                 v_self.refreshTree();
                             }
@@ -114,22 +114,23 @@
                         var parentNode = treeObj.getSelectedNodes()[0];
                         if(this.operate=="add")
                         {
-                            var newNode = {id:this.model.id, name:this.model.id+" "+this.model.text,pId:this.model.parentId,text:this.model.text };                           
+                            var nodeName = "["+this.model.id+"] "+ this.model.text;
+                            var newNode = {id:this.model.id, name:nodeName,pId:this.model.parentId,text:this.model.text };
                             if(parentNode)
                             {    //有父节点
                                 newNode.pId = parentNode.id;
                             }
-                            newNode = treeObj.addNodes(parentNode, newNode); 
+                            newNode = treeObj.addNodes(parentNode, newNode);
                         }
                         else{
-                            //编辑                           
-                            parentNode.name =parentNode.id + this.model.text;
+                            //编辑
+                            parentNode.name ="["+parentNode.id+"] " + this.model.text;
                             treeObj.updateNode(parentNode);
-                        }                       
-                    
+                        }
+
                     },
-                    create: function () {                       
-                        this.operate ="add"; 
+                    create: function () {
+                        this.operate ="add";
                         var treeObj = $.fn.zTree.getZTreeObj("ztree");
                         var selectNode = treeObj.getSelectedNodes()[0];
                         if(selectNode)
@@ -140,7 +141,7 @@
                         this.modal = true;
                     },
                     edit:function(){
-                       
+
                         this.operate ="edit";
                         this.modalTitle="修改品类"
                         var treeObj = $.fn.zTree.getZTreeObj("ztree");
@@ -152,7 +153,7 @@
                             {
                                 this.model.parentId = parentNode.id;
                                 this.model.parentName = parentNode.name;
-                            }                           
+                            }
                             this.model.id = selectNode.id;
                             this.model.name = selectNode.name;
                             this.model.text = selectNode.text;
@@ -161,7 +162,7 @@
                         else
                         {
                             bootbox.alert("请选择一个要修改的分类");
-                        }                       
+                        }
                     },
                     remove:function(){
                         var treeObj = $.fn.zTree.getZTreeObj("ztree");
@@ -169,10 +170,10 @@
                         if(selectNode==null){
                             bootbox.alert("请选择一个品类");
                             return;
-                        }                      
+                        }
                         bootbox.confirm("您确定删除该记录？", function (result) {
                             if (result) {
-                                $.post("/Category/Remove", { id: selectNode.id }, function (result) {                               
+                                $.post("/Category/Remove", { id: selectNode.id }, function (result) {
                                     if (result.success) {
                                         //删除子节点
                                         treeObj.removeChildNodes(selectNode);
@@ -183,13 +184,13 @@
                                     }
                                 }, "json");
                             }
-                        });       
+                        });
                     },
                     cancelSelect:function()
                     {
                         var treeObj = $.fn.zTree.getZTreeObj("ztree");
                         var nodes = treeObj.getSelectedNodes();
-                        if (nodes.length>0) { 
+                        if (nodes.length>0) {
                             treeObj.cancelSelectedNode(nodes[0]);
                         }
                     }
@@ -214,12 +215,12 @@
             var setting = {
                 data: {
                     simpleData: {
-                        enable: true,                       
+                        enable: true,
                     }
                 }
             };
             // zTree 的数据属性，深入使用请参考 API 文档（zTreeNode 节点数据详解）
-              var zNodes =@Html.Raw(ViewBag.Tree) ;         
+            var zNodes =@Html.Raw(ViewBag.Tree) ;
             zTreeObj = $.fn.zTree.init($("#ztree"), setting, zNodes);
 
         });

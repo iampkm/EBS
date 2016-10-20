@@ -51,11 +51,14 @@
     <Compile Include="Entity\Account.cs" />
     <Compile Include="Entity\Brand.cs" />
     <Compile Include="Entity\RoleMenu.cs" />
+    <Compile Include="Entity\Supplier.cs" />
     <Compile Include="Service\AccountService.cs" />
     <Compile Include="Entity\AccountLoginHistory.cs" />
+    <Compile Include="Service\BrandService.cs" />
     <Compile Include="Service\CategoryService.cs" />
     <Compile Include="Service\RoleService.cs" />
     <Compile Include="ValueObject\AccountStatus.cs" />
+    <Compile Include="ValueObject\CooperateWay.cs" />
     <Compile Include="ValueObject\LoginStatus.cs" />
     <Compile Include="Entity\Menu.cs" />
     <Compile Include="Service\MenuService.cs" />

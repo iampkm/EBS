@@ -1,0 +1,161 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<!-- demo root element -->
+<div id="app">
+    <div class="box box-primary">
+        <div class="box-header">
+            <ol class="breadcrumb" style="padding:0px;margin:1px;">
+                <li><a href="/Brand/Index"><i class="fa fa-dashboard"></i> 品牌管理</a></li>
+            </ol>
+        </div>
+        <div class="box-body">
+            <vue-table v-ref:vtable v-bind:columns="gridColumns"
+                       v-bind:url="url"
+                       v-bind:args="searchArgs" v-bind:data.sync="rows">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                    <div class="col-xs-3">
+                        <input class="form-control" v-model="searchArgs.name" placeholder="输入品牌名" debounce="500" />
+                    </div>
+                </div>
+                <span class="input-group-btn" slot="customButtons">               
+                    <button type="button" class="btn btn-warning btn-flat" v-on:click="create()">新 增</button>
+                    <button type="button" class="btn btn-default btn-flat" v-on:click="edit()">修 改</button>
+                    <button type="button" class="btn btn-default btn-flat" v-on:click="remove()">删 除</button>
+                </span>
+            </vue-table>
+        </div>
+        <!-- /.box-body -->
+    </div>
+   
+    <v-modal v-bind:title="modalTitle" ok-text="保 存" cancel-text="取 消" v-bind:callback="onSubmit" v-bind:show.sync="modal" v-bind:effect="fade" width="800">
+        <div slot="modal-body" class="modal-body">            
+            <div class="row">
+                <div class="col-sm-4 col-xs-4">
+                    <input type="hidden" v-model="model.id" />  
+                    <v-input type="text" label="品牌名：" v-bind:value.sync="model.name" placeholder="输入品牌名" required icon></v-input>
+                </div>
+            </div>
+        </div>
+    </v-modal>
+    <div class="clearfix"></div>
+</div>
+@{Html.RenderPartial("VueTableTemplate");}
+@section scripts{
+    <script src="~/Content/Vue/vuetable/vuetable.js"></script>
+    <script>
+
+        // bootstrap the demo
+        var demo = new Vue({
+            components: {
+                'v-modal': VueStrap.modal,
+                'v-input': VueStrap.input,
+                'v-form': VueStrap.formGroup
+            },
+            el: '#app',
+            data: {
+                searchQuery: '',
+                gridColumns: [
+                    { name: 'Id', localName: '编号' },
+                    { name: 'Name', localName: '品牌名' }
+
+                ],
+                url: "/Brand/LoadData",
+                searchArgs: { name: '' },
+                rows: [],
+                modal: false,
+                modalTitle: "新增品牌",
+                valid: false,
+                operate: 'add',
+                model: {
+                    id: '',
+                    name: ''                   
+                },
+            },
+            methods: {
+                onSubmit: function () {
+                    //获取选择节点
+                    var v_data = this.model;
+                    var v_url = "/Brand/Create";
+                    if (this.operate == "edit") {
+                        v_url = "/Brand/Edit";
+                    }
+                    var v_self = this;
+                    $.post(v_url, v_data, function (result) {
+                        if (result.success) {
+                            v_self.modal = false;
+                            v_self.$refs.vtable.loadData();
+                        }
+                        else {
+                            bootbox.alert(result.error);
+                        }
+                    }, "json");
+                },
+                create: function () {
+                    this.operate ="add";                   
+                    this.modal = true;
+                },
+                edit:function(){
+                    this.operate ="edit";
+                    this.modalTitle="修改品牌"
+                    var selectItems = this.selectRow();
+                    if (selectItems.length>0)
+                    {                        
+                        this.model.id = selectItems[0].Id;
+                        this.model.name = selectItems[0].Name;                       
+                        this.modal = true;
+                    }
+                    else
+                    {
+                        bootbox.alert("请选择一个要修改的品牌");
+                    }
+                },
+                remove: function () {
+                    var v_ids = "";
+                    this.rows.forEach(function (item, index) {
+                        if (item.checked) {
+                            v_ids = item.Id + ",";
+                        }
+                    });
+                    if (v_ids == "") {
+                        bootbox.alert("请选择一条记录");
+                        return;
+                    }
+                    v_ids = v_ids.substring(0, v_ids.length - 1);
+                    v_self = this;
+                    bootbox.confirm("您确定删除该记录？", function (result) {
+                        if (result) {
+                            $.post("/Brand/Delete", { ids: v_ids }, function (result) {
+                                if (result.success) {
+                                    v_self.$refs.vtable.loadData();
+                                }
+                                else {
+                                    bootbox.alert(result.error);
+                                }
+                            }, "json");
+                        }
+                    });
+                },
+                selectRow: function () {
+                    var data = new Array();
+                    this.rows.forEach(function (item, index) {
+                        if (item.checked) {
+                            data.push(item);
+                        }
+                    });
+                    return data;
+                }
+            }
+        })
+
+    </script>
+}
+
+
+
+
+
+
+
+

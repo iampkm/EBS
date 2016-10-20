@@ -33,28 +33,8 @@ namespace EBS.Admin.Controllers
             return View();
         }
         public JsonResult LoadData(Pager page, string name)
-        {
-            //IEnumerable<Menu> rows;
-            //dynamic param = new ExpandoObject();
-            //string where = "";
-            //if (!string.IsNullOrEmpty(name))
-            //{
-            //    where += "and t0.Name like @Name ";
-            //    param.Name = string.Format("%{0}%", name);
-            //}
-            //if (page.IsPaging)
-            //{
-            //    rows = this._query.FindPage<Menu>(page.PageIndex, page.PageSize).Where<Menu>(where, param);
-            //    page.Total = this._query.Count<Menu>(where, param);              
-            //}
-            //else
-            //{
-            //    rows = this._query.FindAll<Menu>();
-            //    page.Total = this._query.Count<Menu>();
-            //}
-
+        {            
             var rows= _menuQuery.GetList(page, name);
-
             return Json(new { success = true, data = rows, total = page.Total }, JsonRequestBehavior.AllowGet);
         }
 
