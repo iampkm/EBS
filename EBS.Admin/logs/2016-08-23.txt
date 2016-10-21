@@ -1,2 +1,0 @@
-2016-08-23 16:21:56.0106|Info|app context had Start  this is /home/index
-2016-08-23 16:22:01.7204|Info|about

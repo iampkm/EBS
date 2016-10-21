@@ -32,6 +32,21 @@
         .fixed-table-pagination div.pagination .pagination {
             margin: 0;
         }
+        .loading {
+            position: absolute;
+            top: 45%;
+            left: 45%;
+            width: auto;
+            z-index: 101;
+            padding: 6px 20px 6px 30px;
+            text-align: center;
+            font-weight: 700;
+            display: none;
+            border: 2px solid #AAA;
+            font-size: 14px;
+            /*background: url(../img/indicator.gif) 8px center no-repeat #FFF;*/
+            background-color:#b6ff00;
+        }
     </style>
     <div class="table-container">
         <slot name="customSearch"></slot>
@@ -44,7 +59,7 @@
                 </div>
             </div>
             <div class="col-xs-1 col-md-1">
-                <span v-show="showLoading">loading...</span>
+                @*<span v-show="showLoading" class="loading">loading...</span>*@
             </div>
             <div class="col-xs-7 col-md-7">
                 <div class="btn-group pull-right">
@@ -64,6 +79,7 @@
             </div>
         </div>
         <div class="table-fixed-data">
+            <div v-show="showLoading" class="loading">loading...</div>
             <div id="tbHeader" class="table-fixed-header">
                 <table class="table  table-bordered table-hover ">
                     <thead>

@@ -1,0 +1,145 @@
+﻿@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+@section styles{
+    <link href="~/Content/zTree.min.css" rel="stylesheet" />
+    <style>
+        .ztree li span {
+            font-size: 14px;
+        }
+    </style>
+}
+<!-- demo root element -->
+<div id="app">
+    <div class="box box-primary">
+        <div class="box-header">
+            @*<h3 class="box-title">商品管理</h3>*@
+            <ol class="breadcrumb" style="padding:0px;margin:1px;">
+                <li><a href="/Product/Index"><i class="fa fa-dashboard"></i> 商品管理</a></li>
+            </ol>
+        </div>
+        <div class="box-body">
+            <div class="row">
+                <div class="col-xs-10 col-sm-10">
+                    <vue-table v-ref:vtable v-bind:columns="gridColumns"
+                               v-bind:url="url"
+                               v-bind:args="searchArgs" v-bind:data.sync="rows">
+                        <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                            <div class="col-xs-2">
+                                <input class="form-control" v-model="searchArgs.codeOrBarCode" placeholder="商品编码/条码" debounce="500" />
+                            </div>
+                            <div class="col-xs-2">
+                                <input class="form-control" v-model="searchArgs.name" placeholder="商品名称" debounce="500" />
+                            </div> 
+                            <div class="col-xs-2">
+                                <div class="input-group">
+                                    <span class="input-group-addon">品牌</span>
+                                    <select name="brand" class="form-control" v-model="searchArgs.brand">
+                                        <option value="0">-请选择-</option>
+                                        @foreach (var item in ViewBag.Brands)
+                                        {
+                                            <option value="@item.Id">@item.Name</option>
+                                        }
+                                    </select>
+                                </div>
+
+                            </div>                            
+                        </div>
+                        <span class="input-group-btn" slot="customButtons">
+                            <a class="btn btn-warning btn-flat" href="/Product/Create">新 增</a>
+                            <button type="button" class="btn btn-default btn-flat" v-on:click="remove()">删 除</button>
+                        </span>
+                    </vue-table>                    
+                </div>
+                <div class="col-xs-2 col-sm-2">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">品类查询</div>
+                        <div class="panel-body" style="padding:2px;overflow-y:auto">
+                            <ul id="ztree" class="ztree"></ul>
+                        </div>
+                    </div>                   
+                </div>
+            </div>
+
+        </div>
+        <!-- /.box-body -->
+    </div>
+    <div class="clearfix"></div>
+</div>
+@{Html.RenderPartial("VueTableTemplate");}
+@section scripts{
+<script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
+    <script src="~/Content/Vue/vuetable/vuetable.js"></script> 
+    <script>
+        $("doucument").ready(function () {
+            var vue = new Vue({
+                el: '#app',
+                data: {
+                    searchQuery: '',
+                    gridColumns: [
+                        { name: 'Name', localName: '商品名', style: "<a href='/Product/Edit/{id}'>{column}</a>", width: '200' },
+                        { name: 'CategoryName', localName: '品类' },
+                         { name: 'Brand', localName: '品牌' },
+                        { name: 'Code', localName: 'SKU编码' },
+                        { name: 'Specification', localName: '规格' },
+                        { name: 'SalePrice', localName: '售价' },
+                        { name: 'WholeSalePrice', localName: '批发价' },
+                        { name: 'CostPrice', localName: '平均成本价' },
+                        { name: 'IsPublish', localName: '上架',width:'80' }
+                    ],
+                    url: "/Product/LoadData",
+                    searchArgs: { name: '',brand:'0',codeOrBarCode:'' },
+                    rows: []
+                },
+                methods: {
+                    remove: function () {
+                        var v_ids = "";
+                        this.rows.forEach(function (item, index) {
+                            if (item.checked) {
+                                v_ids = item.Id + ",";
+                            }
+                        });
+                        if (v_ids == "") {
+                            bootbox.alert("请选择一条记录");
+                            return;
+                        }
+                        v_ids = v_ids.substring(0, v_ids.length - 1);
+                        v_self = this;
+                        bootbox.confirm("您确定删除该记录？", function (result) {
+                            if (result) {
+                                $.post("/Product/Delete", { ids: v_ids }, function (result) {
+                                    if (result.success) {
+                                        v_self.$refs.vtable.loadData();
+                                    }
+                                    else {
+                                        bootbox.alert(result.error);
+                                    }
+                                }, "json");
+                            }
+                        });
+                    }
+                }
+            });
+
+            var zTreeObj;
+            // zTree 的参数配置，深入使用请参考 API 文档（setting 配置详解）
+            var setting = {
+                data: {
+                    simpleData: {
+                        enable: true,
+                    }
+                }
+            };
+            // zTree 的数据属性，深入使用请参考 API 文档（zTreeNode 节点数据详解）
+            var zNodes =@Html.Raw(ViewBag.Tree) ;
+            zTreeObj = $.fn.zTree.init($("#ztree"), setting, zNodes);
+        })
+
+
+
+    </script>
+}
+
+
+
+

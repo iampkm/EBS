@@ -49,6 +49,7 @@
     <Compile Include="BrandFacade.cs" />
     <Compile Include="CategoryFacade.cs" />
     <Compile Include="MenuFacade.cs" />
+    <Compile Include="ProductFacade.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RoleFacade.cs" />
   </ItemGroup>

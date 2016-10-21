@@ -46,6 +46,7 @@
     <Compile Include="BrandQueryService.cs" />
     <Compile Include="CategoryQueryService.cs" />
     <Compile Include="MenuQueryService.cs" />
+    <Compile Include="ProductQueryService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RoleQueryService.cs" />
   </ItemGroup>
