@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2016-10-21 15:20:33                          */
+/* Created on:     2016/10/22 8:41:29                           */
 /*==============================================================*/
 
 
@@ -21,6 +21,8 @@ drop table if exists InventoryHistory;
 drop table if exists Menu;
 
 drop table if exists Product;
+
+drop index idx_productSKU_code on ProductSKU;
 
 drop table if exists ProductSKU;
 
@@ -102,7 +104,7 @@ alter table Brand comment '品牌';
 /*==============================================================*/
 create table Category
 (
-   Id                   nvarchar(18) not null comment '编号',
+   Id                   int not null comment '编号',
    Name                 nvarchar(64) comment '分类名',
    FullName             nvarchar(256) comment '全名',
    Level                int comment '层级',
@@ -116,7 +118,7 @@ alter table Category comment '商品分类';
 /*==============================================================*/
 create table Inventory
 (
-   Id                   int not null comment '编号',
+   Id                   int not null auto_increment comment '编号',
    ProductSKUId         int comment 'SKU编码',
    WarehouseId          int comment '仓库编码',
    SaleQuantity         int comment '销售库存',
@@ -132,7 +134,7 @@ create table Inventory
 /*==============================================================*/
 create table InventoryHistory
 (
-   Id                   int not null comment '编号',
+   Id                   int not null auto_increment comment '编号',
    ProductSKUId         int comment 'SKU编码',
    WarehouseId          int comment '仓库编码',
    ActualQuantity       int comment '实际库存数',
@@ -140,7 +142,8 @@ create table InventoryHistory
    CreatedOn            datetime comment '创建时间',
    CreatedBy            int comment '创建人',
    BillId               int comment '单据系统码',
-   BillCode             varchar(20) comment '单据编码'
+   BillCode             varchar(20) comment '单据编码',
+   primary key (Id)
 );
 
 alter table InventoryHistory comment '库存历史记录';
@@ -167,7 +170,7 @@ alter table Menu comment '系统菜单';
 /*==============================================================*/
 create table Product
 (
-   Id                   int not null comment '编号',
+   Id                   int not null auto_increment comment '编号',
    Name                 nvarchar(50) comment '商品名',
    ShowName             nvarchar(500) comment '显示名称',
    SellingPoint         nvarchar(100) comment '卖点',
@@ -176,8 +179,14 @@ create table Product
    InputRate            decimal comment '进项税率',
    OutRate              decimal comment '销项税率',
    IsGift               bool comment '是否赠品',
+   Length               decimal comment '长',
+   Width                decimal comment '宽',
+   Height               decimal comment '高',
+   Weight               decimal comment '重量',
    Description          text comment '详情描述',
    Keywords             nvarchar(1000) comment '关键字',
+   IsPublish            bool comment '是否上架',
+   CreatedOn            datetime comment '创建时间',
    primary key (Id)
 );
 
@@ -188,7 +197,7 @@ alter table Product comment '商品表';
 /*==============================================================*/
 create table ProductSKU
 (
-   Id                   int not null comment '编号',
+   Id                   int not null auto_increment comment '编号',
    ProductId            int comment '商品编码',
    Code                 nvarchar(20) comment '编码',
    BarCode              nvarchar(50) comment '条码',
@@ -198,18 +207,21 @@ create table ProductSKU
    SalePrice            decimal(8,2) comment '销售价',
    WholeSalePrice       decimal(8,2) comment '批发价',
    CostPrice            decimal(8,2) comment '平均成本价',
-   Length               decimal comment '长',
-   Width                decimal comment '宽',
-   Height               decimal comment '高',
-   Weight               decimal comment '重量',
    SubSkuCode           varchar(20) comment '子SKU代码',
    SubSkuQuantity       int comment '子SKU数量',
    CreatedOn            datetime comment '创建时间',
-   IsPublish            bool comment '是否上架',
    primary key (Id)
 );
 
 alter table ProductSKU comment '商品SKU';
+
+/*==============================================================*/
+/* Index: idx_productSKU_code                                   */
+/*==============================================================*/
+create unique index idx_productSKU_code on ProductSKU
+(
+   Code
+);
 
 /*==============================================================*/
 /* Table: ProductSpecification                                  */
@@ -229,7 +241,7 @@ alter table ProductSpecification comment '商品规格';
 /*==============================================================*/
 create table ProductSpecificationMapping
 (
-   Id                   int not null comment '编号',
+   Id                   int not null auto_increment comment '编号',
    ProductId            int comment '商品Id',
    ProductSpecificationId int comment '商品规格Id',
    ProductSpecificationOptionId int comment '规格选项Id',
@@ -243,7 +255,7 @@ alter table ProductSpecificationMapping comment '商品规格映射';
 /*==============================================================*/
 create table ProductSpecificationOption
 (
-   Id                   int not null comment '编号',
+   Id                   int not null auto_increment comment '编号',
    ProductSpecificationId int comment '规格项编码',
    Value                nvarchar(100) comment '值',
    primary key (Id)
@@ -337,7 +349,7 @@ alter table StoreInventoryHistory comment '门店库存历史记录';
 /*==============================================================*/
 create table Warehouse
 (
-   Id                   int not null,
+   Id                   int not null auto_increment,
    Code                 nvarchar(20) comment '代码',
    Name                 nvarchar(50) comment '仓库名',
    Region               nvarchar(50) comment '区域',
