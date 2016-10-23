@@ -29,11 +29,8 @@ namespace EBS.Admin.Controllers
         }
         public ActionResult Index()
         {
-            var treeNodes = _categoryQuery.GetCategoryTree();
-            var tree = JsonConvert.SerializeObject(treeNodes);
-            ViewBag.Tree = tree;
-            var brands= _query.FindAll<Brand>();
-            ViewBag.Brands = brands;
+            LoadCategory();
+            LoadBrand();
             return View();
         }
 
@@ -43,5 +40,48 @@ namespace EBS.Admin.Controllers
 
             return Json(new { success = true, data = rows, total = page.Total }, JsonRequestBehavior.AllowGet);
         }
-	}
+
+        private void LoadCategory()
+        {
+            var treeNodes = _categoryQuery.GetCategoryTree();
+            var tree = JsonConvert.SerializeObject(treeNodes);
+            ViewBag.Tree = tree;
+        }
+        private void LoadBrand()
+        {
+            var brands = _query.FindAll<Brand>();
+            ViewBag.Brands = brands;
+        }
+
+        public ActionResult Create()
+        {
+            
+            LoadCategory();
+            LoadBrand();
+
+            //显示当前品类 规格名
+          
+
+            return View();
+        }
+
+        public JsonResult LoadProductSpecification(string categoryId)
+        {
+           var specs = _query.FindAll<ProductSpecification>(n=>n.CategoryId == categoryId);
+            List<ProductAttrbuteValue> list = new List<ProductAttrbuteValue>();
+            foreach (var spec in specs)
+            {
+                var values = _query.FindAll<ProductSpecificationOption>(n => n.ProductSpecificationId == spec.Id);
+                list.Add(new ProductAttrbuteValue() { Ppecification = spec, Options = values.ToList() });
+            }
+
+            return Json(new { success = true, productSpecifications = specs,options = list }, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult LoadProductSpecificationOptions(int id)
+        {
+            var values = _query.FindAll<ProductSpecificationOption>(n=>n.ProductSpecificationId == id);
+            return Json(new { success = true,  productSpecificationOptions = values }, JsonRequestBehavior.AllowGet);
+        }
+    }
 }

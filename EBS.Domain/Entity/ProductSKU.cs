@@ -8,6 +8,10 @@ namespace EBS.Domain.Entity
 {
    public class ProductSku:BaseEntity
     {
+        public ProductSku()
+        {
+            this.CreatedOn = DateTime.Now;
+        }
        /// <summary>
        /// 商品编码
        /// </summary>
@@ -43,23 +47,7 @@ namespace EBS.Domain.Entity
         /// <summary>
         /// 移动平均成本价
         /// </summary>
-       public decimal CostPrice { get; set; }
-        /// <summary>
-        /// 长  单位：厘米
-        /// </summary>
-       public decimal Length { get; set; }
-       /// <summary>
-       ///  宽  单位：厘米
-       /// </summary>
-       public decimal Width { get; set; }
-       /// <summary>
-       ///高  单位：厘米
-       /// </summary>
-       public decimal Height { get; set; }
-       /// <summary>
-       /// 重量 单位：  千克
-       /// </summary>
-       public decimal Weight { get; set; }
+       public decimal CostPrice { get; set; }       
        /// <summary>
        /// 子SKU编码 ：  用于整件拆零，例如一条烟 20包 ，这里配置一包烟的 SKU 编码
        /// </summary>
@@ -72,9 +60,6 @@ namespace EBS.Domain.Entity
        /// 创建时间
        /// </summary>
        public DateTime CreatedOn { get; set; }
-       /// <summary>
-       /// 是否发布上架
-       /// </summary>
-       public bool IsPublish { get; set; }
+
     }
 }
