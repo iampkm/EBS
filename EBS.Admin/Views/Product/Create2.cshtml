@@ -1,0 +1,512 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+@section styles{
+<link href="~/Content/zTree.min.css" rel="stylesheet" />
+<link href="~/Content/AdminLTE/plugins/select2/select2.css" rel="stylesheet" />
+<style>
+    .ztree li span {
+        font-size: 14px;
+    }
+</style>
+}
+<!-- demo root element -->
+<div id="app" class="box box-primary">
+    <div class="box-header with-border">
+        <ol class="breadcrumb" style="padding:0px;margin:1px;">
+            <li><a href="/Product/Index"><i class="fa fa-dashboard"></i>商品管理</a></li>
+            <li class="active"><a href="/Product/Create">新增商品</a></li>
+        </ol>
+    </div>
+    <!-- /.box-header -->
+    <!-- form start -->
+    <form v-on:submit.prevent="onSubmit">
+        <div class="box-body">
+            <v-form v-bind:valid.sync="valid">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" class="active"><a href="#home" role="tab" data-toggle="tab">基础信息</a></li>
+                    <li role="presentation"><a href="#profile" role="tab" data-toggle="tab">商品属性</a></li>
+                </ul>
+                <!-- Tab panes -->
+                <div class="tab-content">
+                    <!-- 基础信息-->
+                    <div role="tabpanel" class="tab-pane active" id="home">
+                        <div class="row">
+                            <div class="form-group col-sm-4 col-xs-4"> 
+                                <input type="hidden"  v-model="model.id"/>                               
+                                <label for="categoryId" class="control-label">品类 *：</label>
+                                <input type="hidden" class="form-control" v-model="model.categoryId">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="选择品类" v-model="model.categoryName" readonly>
+                                    <div class="input-group-btn">
+                                        <button type="button" class="btn btn-default btn-flat" v-on:click="showCategory()">
+                                            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-4 col-xs-4">
+                                <label for="brand" class="control-label">&nbsp;</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon">品牌*</span>
+                                    <select name="brand" class="form-control" v-model="model.brandId">
+                                        <option value="0">-请选择-</option>
+                                        @foreach (var item in ViewBag.Brands)
+                                        {
+                                        <option value="@item.Id">@item.Name</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-xs-4 col-sm-4">
+                                <v-input type="text" label="商品名*：" v-bind:value.sync="model.name" placeholder="商品名，限制10字内" maxLength="10" required icon></v-input>
+                            </div>
+                            <div class="col-xs-4 col-sm-4">
+                                <v-input type="text" label="促销名*：" v-bind:value.sync="model.showName" placeholder="带规格，带促销语长名称" maxLength="500" required icon></v-input>
+                            </div>
+                            <div class="col-xs-4 col-sm-4">
+                                <v-input type="text" label="卖点描述：" v-bind:value.sync="model.sellingPoint" placeholder="销售卖点，商品特色等信息" maxLength="100" icon></v-input>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-xs-4 col-sm-4">
+                                <label for="brand" class="control-label">&nbsp;</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon">销项税率*</span>
+                                    <select name="brand" class="form-control" v-model="model.outRate">
+                                        <option value="0">-请选择-</option>
+                                        <option value="17">-17%-</option>
+                                        <option value="13">-13%-</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-4 col-sm-4">
+                                <label for="brand" class="control-label">&nbsp;</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon">进项税率*</span>
+                                    <select name="brand" class="form-control" v-model="model.inputRate">
+                                        <option value="0">-请选择-</option>
+                                        <option value="17">-17%-</option>
+                                        <option value="13">-13%-</option>
+                                    </select>
+                                </div>
+                            </div>                           
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-sm-2 col-xs-2">
+                                <label  class="control-label"><input type="checkbox" v-model="isMoreSku" />多规格：</label>
+                                
+                            </div>
+                            <div class="form-group col-sm-2 col-xs-2">
+                                <label  class="control-label"><input type="checkbox"  v-model="model.isGift" />是否赠品：</label>
+                               
+                            </div>
+                            <div class="form-group col-sm-2 col-xs-2">
+                                <label  class="control-label"><input type="checkbox" v-model="model.isPublish" />是否上架：</label>
+                               
+                            </div>
+                        </div>
+                        <div class="row" v-show="isMoreSku">
+                            <div class="form-group col-sm-12 col-xs-12">
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                
+                                                <th style="width:20%">规格名 <button class="btn btn-flat btn-warning">新增规格</button></th>
+                                                <th>规格选项*</th>                                               
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="index in selectSkuCount">                                                
+                                                <td>
+                                                    <div class="form-group input-group">
+                                                        @*<span class="input-group-addon">规格</span>*@
+                                                        <select name="brand" class="form-control" v-model="selectSku[index].nameId" v-on:change="getSkuValue(index)">
+                                                            <option value="0" selected>-请选择-</option>
+                                                            <option v-for="item in categorySku[0].skuNames" v-bind:value="item.Id">{{item.Name}}</option>
+                                                        </select>                                                        
+                                                    </div>                                                   
+                                                </td>
+                                                <td>                                                  
+                                                    <div class="form-group"  > 
+                                                        <template v-for="item in categorySku[index].skuValues">
+                                                            <label>
+                                                                <input type="checkbox" v-bind:value="item.Id" v-model="selectSku[index].valueIds" />{{item.Value}}
+                                                            </label>
+                                                        </template>   
+                                                        <div class="btn-group" style="margin-left:15px;">
+                                                            <button class="btn btn-flat btn-success" title="添加行" v-on:click="addRow()"><span class="fa fa-plus"></span></button>
+                                                            <button class="btn btn-flat btn-success" title="删除行" v-show="index>0" v-on:click="removeRow(index)"><span class="fa fa-trash"></span></button>
+                                                        </div>                                                                                           
+                                                    </div>                                       
+                                                </td>                                              
+                                            </tr>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td><button class="btn btn-flat btn-success" v-on:click="generateSKU()">生成商品SKU数据</button></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>                                      
+                                                <th>规格*</th>
+                                                <th>条码*</th>
+                                                <th>市场价*</th>
+                                                <th>销售价*</th>
+                                                <th>批发价</th>
+                                                <th>整件数量</th>
+                                                <th>单件编码</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in productSkus">
+                                                <td><v-input type="text" v-bind:value.sync="item.specification" placeholder="规格" maxlength="100" required icon></v-input></td>
+                                                <td><v-input type="text" v-bind:value.sync="item.braCode" placeholder="条码" maxlength="100" required icon></v-input></td>
+                                                <td><v-input type="text" v-bind:value.sync="item.marketPrice" placeholder="市场价" maxlength="100" required icon></v-input></td>
+                                                <td><v-input type="text" v-bind:value.sync="item.salePrice" placeholder="销售价" maxlength="100" required icon></v-input></td>
+                                                <td><v-input type="text" v-bind:value.sync="item.wholeSalePrice" placeholder="批发价" maxLength="100" icon></v-input></td>
+                                                <td><v-input type="text" v-bind:value.sync="item.subSkuQuantity" placeholder="整件数量" maxLength="100" icon></v-input></td>
+                                                <td><v-input type="text" v-bind:value.sync="item.subSkuCode" placeholder="单件编码" maxLength="100" icon></v-input></td>
+                                            </tr>
+                                        </tbody>                                       
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 扩展信息-->
+                    <div role="tabpanel" class="tab-pane" id="profile">
+                        <div class="row">
+                            <div class="col-xs-4 col-sm-4">
+                                <v-input type="text" label="SEO关键字：" v-bind:value.sync="model.keywords" placeholder="搜索关键字 多个空格分隔" maxLength="200" icon></v-input>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-3 col-sm-3">
+                                <v-input type="text" label="长：" v-bind:value.sync="model.length" placeholder="长 单位：厘米" icon></v-input>
+                            </div>
+                            <div class="col-xs-3 col-sm-3">
+                                <v-input type="text" label="宽：" v-bind:value.sync="model.width" placeholder="宽 单位：厘米" icon></v-input>
+                            </div>
+                            <div class="col-xs-3 col-sm-3">
+                                <v-input type="text" label="高：" v-bind:value.sync="model.height" placeholder="高 单位：厘米" maxLength="100" icon></v-input>
+                            </div>
+                            <div class="col-xs-3 col-sm-3">
+                                <v-input type="text" label="重量：" v-bind:value.sync="model.weight" placeholder="重量 单位：千克" maxLength="100" icon></v-input>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </v-form>
+        </div>
+        <!-- /.box-body -->
+        <div class="box-footer">
+            <div class="row">
+                <div class="col-sm-4 col-xs-4">
+                    <button type="submit" class="btn btn-warning btn-flat" v-bind:disabled="!valid">保 存</button>
+                    <a class="btn btn-default btn-flat" href="/Product/Index">取 消</a>
+                </div>
+            </div>
+        </div>
+    </form>
+    <!-- modal -->
+    <v-modal title="选择品类" ok-text="确 定" cancel-text="取 消" v-bind:callback="selectCategory" v-bind:show.sync="modal" v-bind:effect="fade" width="300">
+        <div slot="modal-body" class="modal-body">
+            <div style="height:400px;overflow-y:auto">
+                <ul id="ztree" class="ztree"></ul>
+            </div>
+        </div>
+    </v-modal>
+</div>
+@section scripts{
+<script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
+<script>
+    $("doucument").ready(function () {
+
+        var demo = new Vue({
+            components: {
+                'v-modal': VueStrap.modal,
+                'v-input': VueStrap.input,
+                'v-form': VueStrap.formGroup
+            },
+            el: '#app',
+            data: {
+                modal:false,
+                valid: false,
+                model: {
+                    id:0,
+                    name: '',
+                    showName:'',
+                    sellingPoint:'',
+                    inputRate:17,
+                    outRate:17,
+                    keywords:'',
+                    isGift:false,
+                    isPublish:true,
+                    description:'',
+                    categoryId:'0',
+                    categoryName:'',
+                    brandId:'0',                   
+                    length:'',
+                    width:'',
+                    height:'',
+                    weight:''
+                },  
+                isMoreSku:false,
+                categorySku:[{skuNames:{},skuValues:{}}],
+                selectSku:[{nameId:0,valueIds:[]}],
+                selectSkuCount:1,
+                productSkus:[{specification:'',braCode:'',marketPrice:'',salePrice:'',wholeSalePrice:'',subSkuCode:'',subSkuQuantity:''}],
+            },
+            methods: {
+                onSubmit: function () {
+                    //获取选择节点
+                    // 基础信息
+                    // sku 组合信息
+
+                    $.post("/Product/Create", v_data, function (result) {
+                        if (result.success) {
+                            bootbox.alert("保存成功！", function () {
+                                window.location.href = "/Product/Index";
+                            });
+                        }
+                        else {
+                            bootbox.alert(result.error);
+                        }
+                    }, "json");
+                },
+                showCategory:function(){ this.modal = true;}  ,
+                selectCategory:function(){
+                    var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                    var nodes = treeObj.getSelectedNodes();
+                    if(nodes.length==0){
+                        bootbox.alert("请选择品类");
+                        return;
+                    }
+                    if(nodes[0].id.length/2<3) //选中三级叶子节点
+                    {
+                        bootbox.alert("分类必须选到3级节点");
+                        return;
+                    }
+                    // 设置 选中的分类
+                    this.model.categoryId = nodes[0].id;
+                    this.model.categoryName = nodes[0].name;
+                    this.modal = false;
+                },
+                getSkuValue:function(index)
+                {
+                    var selectSpecificationId = this.selectSku[index].nameId;
+                    var hadSelecteds= this.selectSku.filter(function(item){
+                        return item.nameId==selectSpecificationId; 
+                    });
+                    if(hadSelecteds.length>1){
+                        bootbox.alert("该规格已经过");
+                        return;
+                    }                   
+                    _self = this;
+                    $.get("/Product/LoadProductSpecificationOptions",{id:selectSpecificationId},function(result){
+                        if (result.success) {                          
+                            _self.categorySku[index].skuValues = result.productSpecificationOptions;                                
+                        }
+                        else {
+                            bootbox.alert(result.error);
+                        }
+                    },"json");
+                },              
+                generateSKU:function(){
+                    //获取选择的SKU和选项值
+                    _self =this;
+                    var skuArray=new Array();
+                    for(var i=0;i<_self.selectSku.length;i++)
+                    {
+                        var skuValue = new Array();
+                        for(var j=0;j<_self.selectSku[i].valueIds.length;j++)
+                        {
+                            var optionId = _self.selectSku[i].valueIds[j];
+                            var optionNames = _self.categorySku[i].skuValues.filter(function(item){
+                                return item.Id==optionId                               
+                            });
+                            skuValue.push({valId:optionId,valName:optionNames[0].Value});
+                        }
+                      
+                        skuArray.push({nameId:_self.selectSku[i].nameId,values:skuValue});
+                    }
+                    var result = combine(skuArray);
+                    
+                    //附加到数组上
+                    _self.productSkus = [];
+                    for(var i=0;i<result.values.length;i++)
+                    {
+                        var item = result.values[i];
+                        _self.productSkus.push({specification:item.valName,braCode:'',marketPrice:'',salePrice:'',wholeSalePrice:'',subSkuCode:'',subSkuQuantity:''}) ;
+                    }
+
+                    function combine(dataArray){
+                        // dataArray 格式: [{nameId:0,valueIds[{valId:0,valName:''}]}]
+                        // 合并成 dataArray[0] {specification:'nameid1:valId1,nameid2:valId1...',specification:'valName valName valName ...'}
+                        var len = dataArray.length;
+                        if(len<2){
+                            return dataArray[0];
+                        }
+                        // 合并第一个和第二个数组数据
+                        var len1 = dataArray[0].values.length;
+                        var len2 = dataArray[1].values.length;
+                        var newlen = len1 * len2;
+                        var temp = new Array(newlen);
+                        var index = 0;
+                        for (var i = 0; i < len1; i++) {
+                            for (var j = 0; j < len2; j++) {
+                                temp[index] = {
+                                    valId:dataArray[0].values[i].valId+","+dataArray[1].values[j].valId+",",
+                                    valName:dataArray[0].values[i].valName.replace(/^\s+|\s+$/g,"")+" "+dataArray[1].values[j].valName+" "                                   
+                                };
+                                index++;
+                            }
+                        }
+                        var newArray = new Array(len- 1);
+                        newArray[0] = {nameId:'',values:temp};
+                        //newArray[0] = temp;
+                        if (len > 2) {
+                            var _count = 1;
+                            for(var i=2;i<len;i++)
+                            {
+                                newArray[_count] = dataArray[i];
+                                _count ++;
+                            }
+                        }
+                        console.log(newArray);
+                        return combine(newArray);
+                    }
+                },
+                addRow:function(){
+                    this.selectSkuCount = this.selectSkuCount+1;
+                    this.selectSku.push({nameId:0,valueIds:[]});
+                    this.categorySku.push({skuNames:{},skuValues:{}});                  
+                },
+                removeRow:function(index){
+                    this.selectSkuCount = this.selectSkuCount-1;
+                    this.selectSku.splice(index,1);
+                    this.categorySku.splice(index,1);;
+                },
+            },
+            watch:{
+                'isMoreSku':function(val, oldVal){
+                    _self = this;
+                    if(val){
+                        //加载SKU 数据
+                        if(_self.model.categoryId=="0"){
+                            bootbox.alert("请选择分类");
+                            _self.isMoreSku = false;
+                            return;
+                        }
+                        $.get("/Product/LoadProductSpecification",{categoryId:_self.model.categoryId},function(result){
+                            if (result.success) {
+                                _self.categorySku[0].skuNames = result.productSpecifications; 
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        },"json");
+                    }
+                    else
+                    {
+                        _self.productSkus=[];
+                        _self.productSkus.push({specification:'',braCode:'',marketPrice:'',salePrice:'',wholeSalePrice:'',subSkuCode:'',subSkuQuantity:''});
+                           // productSkus:[{specification:'',braCode:'',marketPrice:'',salePrice:'',wholeSalePrice:'',subSkuCode:'',subSkuQuantity:''}],
+                    }
+                }
+            }
+        });
+        var zTreeObj;
+        // zTree 的参数配置，深入使用请参考 API 文档（setting 配置详解）
+        var setting = {           
+            data: {
+                simpleData: {
+                    enable: true,
+                    rootPId: 0
+                }
+            },
+            callback:{
+                onClick:function(event, treeId, treeNode){
+                    //点击展开/折叠节点
+                    var treeObj = $.fn.zTree.getZTreeObj("ztree");                  
+                    var open = !treeNode.open;
+                    treeObj.expandNode(treeNode, open, false, false);                  
+                }
+            }
+        };
+        // zTree 的数据属性，深入使用请参考 API 文档（zTreeNode 节点数据详解）
+        var zNodes =@Html.Raw(ViewBag.Tree) ;
+        // tree
+        zTreeObj = $.fn.zTree.init($("#ztree"), setting, zNodes);
+
+    });
+
+   
+
+    // doubleArrays 数据格式：
+    //var doubleArrays = [
+    //                   [{valId:"1",valCode:"M",valName:"大码"},{valId:"2",valCode:"L",valName:"小码"}],   //规格1：尺码
+    //                   [{valId:"3",valCode:"R",valName:"红色"},{valId:"4",valCode:"W",valName:"白色"}],  //规格2：颜色
+    //                   [{valId:"5",valCode:"C",valName:"长"},{valId:"6",valCode:"D",valName:"短"}]  //规格3：长度
+    //];
+
+    // 笛卡尔乘积公式
+    function doExchange(doubleArrays) {
+        var len = doubleArrays.length;
+        if (len >= 2) {
+            var len1 = doubleArrays[0].length;
+            var len2 = doubleArrays[1].length;
+            var newlen = len1 * len2;
+            var temp = new Array(newlen);
+            var index = 0;
+            for (var i = 0; i < len1; i++) {
+                for (var j = 0; j < len2; j++) {
+                    temp[index] = {
+                        valId:doubleArrays[0][i].valId + "_" + doubleArrays[1][j].valId,
+                        //valCode:doubleArrays[0][i].valCode + "_" + doubleArrays[1][j].valCode,
+                        valName:doubleArrays[0][i].valId + "_" + doubleArrays[1][j].valName
+                    };
+                    index++;
+                }
+            }
+            var newArray = new Array(len- 1);
+            newArray[0] = temp;
+            if (len > 2) {
+                var _count = 1;
+                for(var i=2;i<len;i++)
+                {
+                    newArray[_count] = doubleArrays[i];
+                    _count ++;
+                }
+            }
+            console.log(newArray);
+            return doExchange(newArray);
+        }
+        else {
+            return doubleArrays[0];
+        }
+    }
+
+</script>
+}
+
+
+
+
+

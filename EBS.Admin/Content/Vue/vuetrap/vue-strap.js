@@ -5916,7 +5916,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      if (!this.canValidate) {
 	        return true;
 	      }
-	      var value = (this.value || '').trim();
+	        // var value = (this.value || '').trim();
+	      var value = (this.value || '');
 	      if (!value) {
 	        return !this.required;
 	      }

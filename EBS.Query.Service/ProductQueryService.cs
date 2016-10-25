@@ -17,9 +17,8 @@ namespace EBS.Query.Service
         {
             this._query = query;
         }
-        public IEnumerable<Product> GetPageList(Pager page, string name)
-        {
-            IEnumerable<Product> rows;
+        public IEnumerable<ProductDto> GetPageList(Pager page, string name,string codeOrBarCode,string categoryId,int brandId)
+        {            
             dynamic param = new ExpandoObject();
             string where = "";
             if (!string.IsNullOrEmpty(name))
@@ -27,16 +26,30 @@ namespace EBS.Query.Service
                 where += "and t0.Name like @Name ";
                 param.Name = string.Format("%{0}%", name);
             }
-            if (page.IsPaging)
+            if (!string.IsNullOrEmpty(codeOrBarCode))
             {
-                rows = this._query.FindPage<Product>(page.PageIndex, page.PageSize).Where<Product>(where, param);
-                page.Total = this._query.Count<Product>(where, param);
+                where += "and (t0.Code=@CodeOrBarCode or t0.BarCode=@CodeOrBarCode) ";
+                param.CodeOrBarCode = codeOrBarCode;
             }
-            else
+            if (!string.IsNullOrEmpty(categoryId))
             {
-                rows = this._query.FindAll<Product>();
-                page.Total = this._query.Count<Product>();
+                where += "and t0.CategoryId like @CategoryId ";
+                param.CategoryId = string.Format("{0}%", categoryId);
             }
+            if (brandId > 0)
+            {
+                where += "and t0.BrandId=@BrandId ";
+                param.BrandId = brandId;
+            }
+            string sql = @"select t0.Id,t0.Name,t0.Code,t0.BarCode,t0.Specification,t0.SalePrice,t0.IsPublish,t1.Name as CategoryName,t2.Name as BrandName 
+from productSku t0 inner join category t1 on t0.CategoryId = t1.Id
+inner join brand t2 on t0.BrandId = t2.Id
+where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
+             //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<ProductSku>(where, param);
+            sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
+            var rows = this._query.FindAll<ProductDto>(sql, param);
+            page.Total = this._query.Count<ProductSku>(where, param);
+           
             return rows;
         }
     }

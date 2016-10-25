@@ -9,6 +9,6 @@ namespace EBS.Query
 {
    public interface IProductQuery
     {
-       IEnumerable<Product> GetPageList(Pager page, string name);
+       IEnumerable<ProductDto> GetPageList(Pager page, string name, string codeOrBarCode, string categoryId, int brandId);
     }
 }

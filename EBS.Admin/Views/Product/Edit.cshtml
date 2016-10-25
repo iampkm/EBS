@@ -1,4 +1,5 @@
-﻿@{
+﻿@model EBS.Domain.Entity.ProductSku
+@{
     ViewBag.Title = "Index";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
@@ -81,10 +82,10 @@
                             <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="规格*：" v-bind:value.sync="model.specification" placeholder="规格" maxlength="100" required icon></v-input></div>
                             <div class="form-group col-sm-2 col-xs-3">
                                 <label class="control-label">单位：</label>
-                                    <div class="input-group">
-                                        <!-- /btn-group -->
-                                        <input type="text" class="form-control" v-model="model.unit" placeholder="单位">
-                                        @*<div class="input-group-btn">
+                                <div class="input-group">
+                                    <!-- /btn-group -->
+                                    <input type="text" class="form-control" v-model="model.unit" placeholder="单位">
+                                    @*<div class="input-group-btn">
                                             <button type="button" class="btn btn-flat btn-warning dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                                                 选择单位
                                                 <span class="fa fa-caret-down"></span>
@@ -95,41 +96,41 @@
                                                <a href="#" v-on:click.prevent="selectedUnit('架')">架</a></li>
 
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('套')">套</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('个')">个</a></li>                                              
+                                                <li><a href="#" v-on:click.prevent="selectedUnit('个')">个</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('只')">只</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('头')">头</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('张')">张</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('件')">件</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('支')">支</a></li>                                              
+                                                <li><a href="#" v-on:click.prevent="selectedUnit('支')">支</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('根')">根</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('条')">条</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('把')">把</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('块')">块</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('卷')">卷</a></li>                                              
+                                                <li><a href="#" v-on:click.prevent="selectedUnit('卷')">卷</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('片')">片</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('组')">组</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('份')">份</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('双')">双</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('对')">对</a></li>                                              
+                                                <li><a href="#" v-on:click.prevent="selectedUnit('对')">对</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('盘')">盘</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('筒')">筒</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('箱')">箱</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('罐')">罐</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('桶')">桶</a></li>                                               
+                                                <li><a href="#" v-on:click.prevent="selectedUnit('桶')">桶</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('册')">册</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('本')">本</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('袋')">袋</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('盒')">盒</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('合')">合</a></li>                                               
+                                                <li><a href="#" v-on:click.prevent="selectedUnit('合')">合</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('打')">打</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('包')">包</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('粒')">粒</a></li>                                               
-                                            </ul> 
+                                                <li><a href="#" v-on:click.prevent="selectedUnit('粒')">粒</a></li>
+                                            </ul>
                                         </div>*@
-                                    </div>
-</div>                           
+                                </div>
+                            </div>
                             <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="整件数量：" v-bind:value.sync="model.subSkuQuantity" pattern="^[-+]?\d*$" placeholder="整件数量" maxlength="100" icon></v-input></div>
-                            <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="单件编码：" v-bind:value.sync="model.subSkuCode" placeholder="单件编码" maxlength="100" icon></v-input></div> 
+                            <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="单件编码：" v-bind:value.sync="model.subSkuCode" placeholder="单件编码" maxlength="100" icon></v-input></div>
                         </div>
                         <div class="form-group row">
                             <div class="col-xs-4 col-sm-4">
@@ -156,7 +157,7 @@
                                     </select>
                                 </div>
                             </div>
-                        </div>                       
+                        </div>
                         <div class="row">
                             <div class="form-group col-sm-2 col-xs-3">
                                 <label class="control-label"><input type="checkbox" v-model="model.isGift" />是赠品：</label>
@@ -190,7 +191,7 @@
                         </div>
                         <div class="row">
                             <div class="col-xs-4 col-sm-4">
-                                <v-input type="textarea" label="商品描述：" v-bind:value.sync="model.description" placeholder="商品详细描述"  icon></v-input>
+                                <v-input type="textarea" label="商品描述：" v-bind:value.sync="model.description" placeholder="商品详细描述" icon></v-input>
                             </div>
                         </div>
                     </div>
@@ -220,6 +221,9 @@
 @section scripts{
     <script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
     <script>
+        String.prototype.trim=function(){
+            return this.replace(/(^\s*)|(\s*$)/g, "");
+        }
     $("doucument").ready(function () {
 
         var demo = new Vue({
@@ -233,37 +237,37 @@
                 modal:false,
                 valid: false,
                 model: {
-                    id:0,
-                    code:'',
-                    name: '',
-                    showName:'',
-                    sellingPoint:'',
-                    inputRate:17,
-                    outRate:17,
-                    keywords:'',
-                    isGift:false,
-                    isPublish:true,
-                    description:'',
-                    categoryId:'0',
-                    categoryName:'',
-                    brandId:'0',
-                    length:'',
-                    width:'',
-                    height:'',
-                    weight:'',
-                    specification:'',braCode:'',marketPrice:'',salePrice:'',wholeSalePrice:'',subSkuCode:'',subSkuQuantity:'',
-                    unit:'',Description:''
-                }               
+                    id:@Model.Id,
+                    code:'@Model.Code',
+                    name: '@Model.Name',
+                    showName:'@Model.ShowName',
+                    sellingPoint:'@Model.SellingPoint',
+                    inputRate:@Model.InputRate,
+                    outRate:@Model.OutRate,
+                    keywords:'@Model.Keywords',
+                    isGift:@Model.IsGift.ToString().ToLower(),
+                    isPublish:@Model.IsPublish.ToString().ToLower(),
+                    description:'@Model.Description',
+                    categoryId:'@Model.CategoryId',
+                    categoryName:'@ViewBag.categoryName',
+                    brandId:@Model.BrandId,
+                    length:@Model.Length,
+                    width:@Model.Weight,
+                    height:@Model.Height,
+                    weight:@Model.Weight,
+                    specification:'@Model.Specification',barCode:'@Model.BarCode',marketPrice:@Model.MarketPrice,salePrice:@Model.SalePrice,wholeSalePrice:@Model.WholeSalePrice,
+                    subSkuCode:'@Model.SubSkuCode',subSkuQuantity:@Model.SubSkuQuantity,
+                    unit:'@Model.Unit'
+                }
             },
             methods: {
-                onSubmit: function () {                   
+                onSubmit: function () {
                     var _self = this;
                     var v_data = _self.model;
-                    $.post("/Product/Create", v_data, function (result) {
+                    $.post("/Product/Edit", v_data, function (result) {
                         if (result.success) {
                             bootbox.alert("保存成功！", function () {
-                                 window.location.href = "/Product/Create";
-                              //  _self.clear();
+                                 window.location.href = "/Product/Index";                             
                             });
                         }
                         else {
@@ -292,35 +296,9 @@
                 selectedUnit:function(unit)
                 {
                     this.model.unit = unit;
-                },
-                clear:function(){
-                    this.model = {
-                        id:0,
-                        code:'',
-                        name: '',
-                        showName:'',
-                        sellingPoint:'',
-                        inputRate:17,
-                        outRate:17,
-                        keywords:'',
-                        isGift:false,
-                        isPublish:true,
-                        description:'',
-                        categoryId:'0',
-                        categoryName:'',
-                        brandId:'0',
-                        length:'',
-                        width:'',
-                        height:'',
-                        weight:'',
-                        specification:'',barCode:'',marketPrice:'',salePrice:'',wholeSalePrice:'',subSkuCode:'',subSkuQuantity:'',
-                        unit:'',Description:''
-                    } ; 
-                    this.valid = false;
                 }
-                
             },
-            watch:{               
+            watch:{
             }
         });
         var zTreeObj;
@@ -349,5 +327,7 @@
     });
     </script>
 }
+
+
 
 

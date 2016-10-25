@@ -34,9 +34,9 @@ namespace EBS.Admin.Controllers
             return View();
         }
 
-        public JsonResult LoadData(Pager page, string name)
+        public JsonResult LoadData(Pager page, string name, string codeOrBarCode, string categoryId, int brandId)
         {
-            var rows = _productQuery.GetPageList(page, name);
+            var rows = _productQuery.GetPageList(page, name, codeOrBarCode,categoryId,brandId);
 
             return Json(new { success = true, data = rows, total = page.Total }, JsonRequestBehavior.AllowGet);
         }
@@ -58,30 +58,66 @@ namespace EBS.Admin.Controllers
             
             LoadCategory();
             LoadBrand();
-
             //显示当前品类 规格名
-          
-
             return View();
         }
-
-        public JsonResult LoadProductSpecification(string categoryId)
+        [HttpPost]
+        public JsonResult Create(ProductModel model)
         {
-           var specs = _query.FindAll<ProductSpecification>(n=>n.CategoryId == categoryId);
-            List<ProductAttrbuteValue> list = new List<ProductAttrbuteValue>();
-            foreach (var spec in specs)
-            {
-                var values = _query.FindAll<ProductSpecificationOption>(n => n.ProductSpecificationId == spec.Id);
-                list.Add(new ProductAttrbuteValue() { Ppecification = spec, Options = values.ToList() });
-            }
-
-            return Json(new { success = true, productSpecifications = specs,options = list }, JsonRequestBehavior.AllowGet);
+            this._productFacade.Create(model);
+            return Json(new { success = true });
+        }
+        public ActionResult Edit(int id)
+        {
+           
+            LoadCategory();
+            LoadBrand();
+            //显示当前品类 规格名
+            var model = _query.Find<ProductSku>(id);
+            ViewBag.categoryName = _query.Find<Category>(model.CategoryId).Name;         
+            return View(model);
+        }
+        [HttpPost]
+        public JsonResult Edit(ProductModel model)
+        {
+            this._productFacade.Edit(model);
+            return Json(new { success = true });
         }
 
-        public JsonResult LoadProductSpecificationOptions(int id)
+        public JsonResult PublishToggle(string ids, bool isPublish)
         {
-            var values = _query.FindAll<ProductSpecificationOption>(n=>n.ProductSpecificationId == id);
-            return Json(new { success = true,  productSpecificationOptions = values }, JsonRequestBehavior.AllowGet);
+            this._productFacade.PublishToggle(ids, isPublish);
+            return Json(new { success = true });
         }
+
+        #region 商品SKU 规格设计使用，已经作废
+        //public ActionResult Create2() {
+        //    LoadCategory();
+        //    LoadBrand();
+        //    //显示当前品类 规格名
+        //    return View();
+        //}
+
+       
+        //// 按照商品规格模式开发使用
+        //public JsonResult LoadProductSpecification(string categoryId)
+        //{
+        //    var specs = _query.FindAll<ProductSpecification>(n => n.CategoryId == categoryId);
+        //    List<ProductAttrbuteValue> list = new List<ProductAttrbuteValue>();
+        //    foreach (var spec in specs)
+        //    {
+        //        var values = _query.FindAll<ProductSpecificationOption>(n => n.ProductSpecificationId == spec.Id);
+        //        list.Add(new ProductAttrbuteValue() { Ppecification = spec, Options = values.ToList() });
+        //    }
+
+        //    return Json(new { success = true, productSpecifications = specs, options = list }, JsonRequestBehavior.AllowGet);
+        //}
+
+        //public JsonResult LoadProductSpecificationOptions(int id)
+        //{
+        //    var values = _query.FindAll<ProductSpecificationOption>(n => n.ProductSpecificationId == id);
+        //    return Json(new { success = true, productSpecificationOptions = values }, JsonRequestBehavior.AllowGet);
+        //}
+        #endregion
     }
 }

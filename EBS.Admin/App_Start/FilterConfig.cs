@@ -8,6 +8,7 @@ namespace EBS.Admin
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {           
             filters.Add(new CustomHandleErrorAttribute());
+            filters.Add(new JsonRequestBehaviorAttribute());
            // filters.Add(new HandleErrorAttribute());
         }
     }

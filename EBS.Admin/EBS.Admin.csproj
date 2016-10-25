@@ -156,6 +156,7 @@
     <Compile Include="Services\AuthenticationService.cs" />
     <Compile Include="Services\ContextService.cs" />
     <Compile Include="Services\CustomHandleErrorAttribute.cs" />
+    <Compile Include="Services\JsonRequestBehaviorAttribute.cs" />
     <Compile Include="Services\PermissionAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\IAuthenticationService.cs" />
@@ -1172,7 +1173,9 @@
     <Content Include="Views\Category\Index.cshtml" />
     <Content Include="Views\Brand\Index.cshtml" />
     <Content Include="Views\Product\Index.cshtml" />
+    <Content Include="Views\Product\Create2.cshtml" />
     <Content Include="Views\Product\Create.cshtml" />
+    <Content Include="Views\Product\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">

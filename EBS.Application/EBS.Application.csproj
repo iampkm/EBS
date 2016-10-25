@@ -51,12 +51,14 @@
     <Compile Include="DTO\MenuModel.cs" />
     <Compile Include="DTO\ProductModel.cs" />
     <Compile Include="DTO\RoleModel.cs" />
+    <Compile Include="DTO\StoreModel.cs" />
     <Compile Include="IAccountFacade.cs" />
     <Compile Include="IBrandFacade.cs" />
     <Compile Include="ICategoryFacade.cs" />
     <Compile Include="IMenuFacade.cs" />
     <Compile Include="IProductFacade.cs" />
     <Compile Include="IRoleFacade.cs" />
+    <Compile Include="IStoreFacade.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
