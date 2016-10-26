@@ -1,0 +1,91 @@
+﻿@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<!-- demo root element -->
+<div id="app" class="box box-primary">
+    <div class="box-header with-border">
+        <ol class="breadcrumb" style="padding:0px;margin:1px;">
+            <li><a href="/Store/Index"><i class="fa fa-dashboard"></i>门店管理</a></li>
+            <li class="active"><a href="/Store/Create">注册门店</a></li>
+        </ol>
+    </div>
+    <!-- /.box-header -->
+    <!-- form start -->
+    <form v-on:submit.prevent="onSubmit">
+        <div class="box-body">
+            <v-form v-bind:valid.sync="valid">
+                <div class="row">
+                    <div class="col-sm-4 col-xs-4">
+                        <input type="hidden" v-model="model.id" />
+                        <v-input type="text" label="门店名：" v-bind:value.sync="model.name" maxlength="30" placeholder="门店名" required icon></v-input>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-sm-4 col-xs-4">
+                        <v-input type="text" label="联系人：" v-bind:value.sync="model.contact" placeholder="联系人" required icon></v-input>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-sm-4 col-xs-4">
+                        <v-input type="text" label="电话：" v-bind:value.sync="model.phone" placeholder="电话" required icon></v-input>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-sm-4 col-xs-4">
+                        <v-input type="text" label="地址：" v-bind:value.sync="model.address" placeholder="地址" required icon></v-input>
+                    </div>
+                </div>
+            </v-form>
+        </div>
+        <div class="box-footer">
+            <div class="row">
+                <div class="col-sm-4 col-xs-4">
+                    <button type="submit" class="btn btn-warning btn-flat" v-bind:disabled="!valid">保 存</button>
+                    <a class="btn btn-default btn-flat" href="/Store/Index">取 消</a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+@section scripts{
+    <script>
+        $("doucument").ready(function () {
+            var demo = new Vue({
+                components: {
+                    'v-input': VueStrap.input,
+                    'v-form': VueStrap.formGroup
+                },
+                el: '#app',
+                data: {
+                    valid: false,
+                    model: {
+                        id:0,
+                        name: '',
+                        contact: '',
+                        phone: '',
+                        address:''
+                    },
+                },
+                methods: {
+                    onSubmit: function () {
+                        //获取选择节点
+                        var v_data = this.model;                      
+                        $.post("/Store/Create", v_data, function (result) {
+                            if (result.success) {
+                                bootbox.alert("保存成功！", function () {
+                                    window.location.href = "/Store/Index";
+                                });
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
+                    }
+                }
+            });
+
+        });
+
+
+    </script>
+}

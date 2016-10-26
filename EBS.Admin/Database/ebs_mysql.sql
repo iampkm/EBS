@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2016-10-25 14:12:34                          */
+/* Created on:     2016-10-26 14:33:13                          */
 /*==============================================================*/
 
 
@@ -9,6 +9,8 @@ drop index idx_account_username on Account;
 drop table if exists Account;
 
 drop table if exists AccountLoginHistory;
+
+drop table if exists Area;
 
 drop table if exists Brand;
 
@@ -28,6 +30,14 @@ drop index idx_productSKU_code on ProductSKU;
 
 drop table if exists ProductSKU;
 
+drop table if exists PurchaseContract;
+
+drop table if exists PurchaseContractItem;
+
+drop table if exists PurchaseOrder;
+
+drop table if exists PurchaseOrderItem;
+
 drop table if exists Role;
 
 drop table if exists RoleMenu;
@@ -37,6 +47,8 @@ drop table if exists Store;
 drop table if exists StoreInventory;
 
 drop table if exists StoreInventoryHistory;
+
+drop table if exists Supplier;
 
 drop table if exists Warehouse;
 
@@ -82,6 +94,21 @@ create table AccountLoginHistory
 );
 
 alter table AccountLoginHistory comment '账号登录历史';
+
+/*==============================================================*/
+/* Table: Area                                                  */
+/*==============================================================*/
+create table Area
+(
+   Id                   char(6) not null comment '编号',
+   Name                 nvarchar(64) comment '区域名',
+   ShowName             nvarchar(64) comment '显示名称',
+   FullName             nvarchar(256) comment '区域全民',
+   Level                int comment '层级',
+   primary key (Id)
+);
+
+alter table Area comment '区域表';
 
 /*==============================================================*/
 /* Table: Brand                                                 */
@@ -224,6 +251,78 @@ create unique index idx_productSKU_code on ProductSKU
 );
 
 /*==============================================================*/
+/* Table: PurchaseContract                                      */
+/*==============================================================*/
+create table PurchaseContract
+(
+   Id                   int not null comment '编号',
+   Code                 nvarchar(100) comment '合同号',
+   Name                 nvarchar(50) comment '合同名称',
+   SupplierId           int comment '供应商Id',
+   Contact              nvarchar(32) comment '联系人',
+   Cooperate            int comment '合作方式',
+   StartDate            datetime comment '开始日期',
+   EndDate              datetime comment '结束日期',
+   CreatedOn            datetime comment '创建时间',
+   CreatedBy            int comment '创建人',
+   UpdatedOn            datetime comment '修改时间',
+   UpdatedBy            int comment '修改人',
+   Status               int comment '状态',
+   primary key (Id)
+);
+
+alter table PurchaseContract comment '采购合同';
+
+/*==============================================================*/
+/* Table: PurchaseContractItem                                  */
+/*==============================================================*/
+create table PurchaseContractItem
+(
+   Id                   int not null comment '编号',
+   PurchaseContractId   int comment '采购合同编号',
+   ProductSKUId         int comment '商品skuid',
+   CostPrice            decimal(8,2) comment '成本价',
+   primary key (Id)
+);
+
+alter table PurchaseContractItem comment '采购合同明细';
+
+/*==============================================================*/
+/* Table: PurchaseOrder                                         */
+/*==============================================================*/
+create table PurchaseOrder
+(
+   Id                   int not null comment '编号',
+   PurchaseContractId   int comment '采购合同编号',
+   Code                 nvarchar(100) comment '订单号',
+   SupplierId           int comment '供应商Id',
+   CreatedOn            datetime comment '创建时间',
+   CreatedBy            int comment '创建人',
+   UpdatedOn            datetime comment '修改时间',
+   UpdatedBy            int comment '修改人',
+   Status               int comment '状态',
+   Total                decimal(8,2) comment '金额',
+   primary key (Id)
+);
+
+alter table PurchaseOrder comment '采购订单';
+
+/*==============================================================*/
+/* Table: PurchaseOrderItem                                     */
+/*==============================================================*/
+create table PurchaseOrderItem
+(
+   Id                   int not null comment '编号',
+   PurchaseOrderId      int comment '采购订单编号',
+   ProductSKUId         int comment '商品skuid',
+   CostPrice            decimal(8,2) comment '成本价',
+   Quantity             int comment '数量',
+   primary key (Id)
+);
+
+alter table PurchaseOrderItem comment '采购订单明细';
+
+/*==============================================================*/
 /* Table: Role                                                  */
 /*==============================================================*/
 create table Role
@@ -303,6 +402,30 @@ create table StoreInventoryHistory
 );
 
 alter table StoreInventoryHistory comment '门店库存历史记录';
+
+/*==============================================================*/
+/* Table: Supplier                                              */
+/*==============================================================*/
+create table Supplier
+(
+   Id                   int not null auto_increment comment '编号',
+   Name                 nvarchar(100) comment '供应商名',
+   ShortName            nvarchar(50) comment '简称',
+   Contact              nvarchar(50) comment '联系人',
+   Phone                nvarchar(50) comment '联系电话',
+   Bank                 nvarchar(50) comment '开户行',
+   BankAccount          nvarchar(50) comment '开户行账号',
+   TaxNo                nvarchar(50) comment '税号',
+   LicenseNo            nvarchar(50) comment '执照号',
+   AreaId               char(6) comment '供货区域',
+   CreatedOn            datetime comment '创建时间',
+   CreatedBy            int comment '创建人',
+   UpdatedOn            datetime comment '修改时间',
+   UpdatedBy            int comment '修改人',
+   primary key (Id)
+);
+
+alter table Supplier comment '供应商';
 
 /*==============================================================*/
 /* Table: Warehouse                                             */

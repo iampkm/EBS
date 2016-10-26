@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entity\Account.cs" />
+    <Compile Include="Entity\Area.cs" />
     <Compile Include="Entity\Brand.cs" />
     <Compile Include="Entity\ProductCodeSequence.cs" />
     <Compile Include="Entity\ProductSpecificationMapping.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="Service\ProductSkuService.cs" />
     <Compile Include="Service\RoleService.cs" />
     <Compile Include="Service\StoreService.cs" />
+    <Compile Include="Service\SupplierService.cs" />
     <Compile Include="ValueObject\AccountStatus.cs" />
     <Compile Include="ValueObject\CooperateWay.cs" />
     <Compile Include="ValueObject\LoginStatus.cs" />

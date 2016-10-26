@@ -43,17 +43,24 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DTO\AccountInfo.cs" />
+    <Compile Include="DTO\AreaTreeNode.cs" />
     <Compile Include="DTO\CategoryTreeNode.cs" />
     <Compile Include="DTO\MenuInfo.cs" />
     <Compile Include="DTO\Pager.cs" />
     <Compile Include="DTO\ProductAttrbuteValue.cs" />
     <Compile Include="DTO\ProductDto.cs" />
+    <Compile Include="DTO\StoreDto.cs" />
     <Compile Include="IAccountQuery.cs" />
+    <Compile Include="IAreaQuery.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="IBrandQuery.cs" />
     <Compile Include="ICategoryQuery.cs" />
     <Compile Include="IMenuQuery.cs" />
     <Compile Include="IProductQuery.cs" />
     <Compile Include="IRoleQuery.cs" />
+    <Compile Include="IStoreQuery.cs" />
+    <Compile Include="ISupplierQuery.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

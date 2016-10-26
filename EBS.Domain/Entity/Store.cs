@@ -20,7 +20,7 @@ namespace EBS.Domain.Entity
         public string Contact { get; set; }       
         public string Phone { get; set; }
         public DateTime CreatedOn { get; set; }
-        public int CreateBy { get; set; }
+        public int CreatedBy { get; set; }
         public string Setting { get; set; }
     }
 }

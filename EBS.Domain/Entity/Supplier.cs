@@ -11,6 +11,12 @@ namespace EBS.Domain.Entity
     /// </summary>
    public class Supplier:BaseEntity
     {
+
+       public Supplier() {
+           this.CreatedOn = DateTime.Now;
+           this.UpdatedOn = DateTime.Now;
+       }
+
        public string Name { get; set; }
        /// <summary>
        /// 简称
@@ -37,8 +43,21 @@ namespace EBS.Domain.Entity
        /// </summary>
        public string BankAccount { get; set; }
        /// <summary>
-       /// 合作方式
+       /// 执照编号
        /// </summary>
-       public CooperateWay Cooperate { get; set; }
+       public string LicenseNo { get; set; }
+
+       /// <summary>
+       /// 供货区域
+       /// </summary>
+       public string AreaId { get; set; }
+
+       public DateTime CreatedOn { get; set; }
+
+       public int CreatedBy { get; set; }
+
+       public DateTime UpdatedOn { get; set; }
+
+       public int UpdatedBy { get; set; }
     }
 }

@@ -52,6 +52,7 @@
     <Compile Include="DTO\ProductModel.cs" />
     <Compile Include="DTO\RoleModel.cs" />
     <Compile Include="DTO\StoreModel.cs" />
+    <Compile Include="DTO\SupplierModel.cs" />
     <Compile Include="IAccountFacade.cs" />
     <Compile Include="IBrandFacade.cs" />
     <Compile Include="ICategoryFacade.cs" />
@@ -59,6 +60,7 @@
     <Compile Include="IProductFacade.cs" />
     <Compile Include="IRoleFacade.cs" />
     <Compile Include="IStoreFacade.cs" />
+    <Compile Include="ISupplierFacade.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

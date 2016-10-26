@@ -1,0 +1,195 @@
+﻿@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+@section styles{
+    <link href="~/Content/zTree.min.css" rel="stylesheet" />
+    <style>
+        .ztree li span {
+            font-size: 14px;
+        }
+    </style>
+}
+<!-- demo root element -->
+<div id="app" class="box box-primary">
+    <div class="box-header with-border">
+        <ol class="breadcrumb" style="padding:0px;margin:1px;">
+            <li><a href="/Supplier/Index"><i class="fa fa-dashboard"></i>供应商管理</a></li>
+            <li class="active"><a href="/Supplier/Create">新增供应商</a></li>
+        </ol>
+    </div>
+    <!-- /.box-header -->
+    <!-- form start -->
+    <form v-on:submit.prevent="onSubmit">
+        <div class="box-body">
+            <v-form v-bind:valid.sync="valid">
+                <div class="row">
+                    <div class="col-sm-4 col-xs-4">
+                        <input type="hidden" v-model="model.id" />
+                        <v-input type="text" label="供应商名：" v-bind:value.sync="model.name" maxlength="30" placeholder="供应商名" required icon></v-input>
+                    </div>
+                    <div class="col-sm-4 col-xs-4">
+                        <input type="hidden" v-model="model.id" />
+                        <v-input type="text" label="简称：" v-bind:value.sync="model.shortName" maxlength="30" placeholder="简称"  icon></v-input>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-sm-4 col-xs-4">
+                        <label for="inputPassword3" class="control-label">供货区域：</label>                       
+                        <input type="hidden" class="form-control" v-model="model.categoryId">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="供货区域" v-model="model.areaName" readonly>
+                            <div class="input-group-btn">
+                                <button type="button" class="btn btn-default btn-flat" v-on:click="showArea()">
+                                    <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>                   
+                </div>
+                <div class="row">
+                    <div class="form-group col-sm-4 col-xs-4">
+                        <v-input type="text" label="联系人：" v-bind:value.sync="model.contact" placeholder="联系人" required icon></v-input>
+                    </div>
+                    <div class="form-group col-sm-4 col-xs-4">
+                        <v-input type="text" label="电话：" v-bind:value.sync="model.phone" placeholder="电话" required icon></v-input>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-sm-4 col-xs-4">
+                        <v-input type="text" label="开户行：" v-bind:value.sync="model.bank" placeholder="开户行" icon></v-input>
+                    </div>
+                    <div class="form-group col-sm-4 col-xs-4">
+                        <v-input type="text" label="开户行账号：" v-bind:value.sync="model.bankAccount" placeholder="开户行账号" icon></v-input>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-sm-4 col-xs-4">
+                        <v-input type="text" label="税号：" v-bind:value.sync="model.taxNo" placeholder="税号" icon></v-input>
+                    </div>
+                    <div class="form-group col-sm-4 col-xs-4">
+                        <v-input type="text" label="执照编号：" v-bind:value.sync="model.licenseNo" placeholder="执照编号" icon></v-input>
+                    </div>
+                </div>
+            </v-form>
+        </div>
+        <div class="box-footer">
+            <div class="row">
+                <div class="col-sm-4 col-xs-4">
+                    <button type="submit" class="btn btn-warning btn-flat" v-bind:disabled="!valid">保 存</button>
+                    <a class="btn btn-default btn-flat" href="/Supplier/Index">取 消</a>
+                </div>
+            </div>
+        </div>
+    </form>
+    <!-- modal -->
+    <v-modal title="选择区域" ok-text="确 定" cancel-text="取 消" v-bind:callback="selectedNode" v-bind:show.sync="modal" v-bind:effect="fade" width="300">
+        <div slot="modal-body" class="modal-body">
+            <div style="height:400px;overflow-y:auto">
+                <ul id="ztree" class="ztree"></ul>
+            </div>
+        </div>
+    </v-modal>
+</div>
+@section scripts{
+<script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
+    <script>
+        $("doucument").ready(function () {
+            var demo = new Vue({
+                components: {
+                    'v-modal': VueStrap.modal,
+                    'v-input': VueStrap.input,
+                    'v-form': VueStrap.formGroup
+                },
+                el: '#app',
+                data: {
+                    valid: false,
+                    modal:false,
+                    model: {
+                        id: 0,
+                        name: '',
+                        shortName:'',
+                        contact: '',
+                        phone: '',
+                        bank: '',
+                        bankAccount: '',
+                        taxNo: '',
+                        licenseNo: '',
+                        areaId:'',
+                        areaName:''
+                    },
+                },
+                methods: {
+                    onSubmit: function () {
+                        //获取选择节点
+                        var v_data = this.model;
+                        $.post("/Supplier/Create", v_data, function (result) {
+                            if (result.success) {
+                                bootbox.alert("保存成功！", function () {
+                                    window.location.href = "/Supplier/Index";
+                                });
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
+                    },
+                    selectedNode:function(){
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                        var nodes = treeObj.getSelectedNodes();
+                        if(nodes.length==0){
+                            bootbox.alert("请选择品类");
+                            return;
+                        }
+                        if(nodes[0].id.length/2<3) //选中三级叶子节点
+                        {
+                            bootbox.alert("分类必须选到3级节点");
+                            return;
+                        }
+                        // 设置 选中的分类
+                        this.model.areaId = nodes[0].id;
+                        this.model.areaName = nodes[0].text;
+                        this.modal = false;
+                    },
+                    showArea:function(){
+                        this.modal = true;
+                    }
+                }
+            });
+            var zTreeObj;
+            // zTree 的参数配置，深入使用请参考 API 文档（setting 配置详解）
+            var setting = {               
+                data: {
+                    simpleData: {
+                        enable: true,
+                        rootPId: 0
+                    }
+                },
+                async: {
+                    enable: true,
+                    url: "/Supplier/LoadChildArea",
+                    type:'get'
+                },
+                callback: {
+                    onClick: function (event, treeId, treeNode) {
+                        //点击展开/折叠节点
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                        var open = !treeNode.open;                     
+                        treeObj.expandNode(treeNode, open, false, false);
+                    }
+                }
+            };
+            //异步加载
+            zTreeObj = $.fn.zTree.init($("#ztree"), setting);            
+
+        });
+
+        function filter(treeId, parentNode, childNodes) {
+            if (!childNodes) return null;
+            for (var i = 0, l = childNodes.length; i < l; i++) {
+                childNodes[i].name = childNodes[i].name.replace(/\.n/g, '.');
+            }
+            return childNodes;
+        }
+
+    </script>
+}

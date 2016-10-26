@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using EBS.Domain.Entity;
 using EBS.Application.DTO;
 namespace EBS.Application
 {
-   public interface IStoreFacade
+   public interface ISupplierFacade
     {
-        void Create(StoreModel model);
-        void Edit(StoreModel model);
+       void Create(SupplierModel model);
+       void Edit(SupplierModel model);
         void Delete(string ids);
     }
 }

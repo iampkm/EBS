@@ -8,6 +8,9 @@ namespace EBS.Application.DTO
 {
    public class StoreModel
     {
+       public StoreModel() {
+           CreatedOn = DateTime.Now;
+       }
        public int Id { get; set; }
         public string Name { get; set; }
         public string SourceKey { get; set; }

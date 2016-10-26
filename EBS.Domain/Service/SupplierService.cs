@@ -8,26 +8,26 @@ using EBS.Domain.Entity;
 using EBS.Infrastructure.Extension;
 namespace EBS.Domain.Service
 {
-   public class StoreService
+   public class SupplierService
     {
         IDBContext _db;
-        public StoreService(IDBContext dbContext)
+        public SupplierService(IDBContext dbContext)
         {
             this._db = dbContext;
         }
 
-        public void Create(Store model)
+        public void Create(Supplier model)
         {
-            if (_db.Table.Exists<Store>(n => n.Name == model.Name))
+            if (_db.Table.Exists<Supplier>(n => n.Name == model.Name))
             {
                 throw new Exception("名称重复!");
             }
             _db.Insert(model);           
         }
 
-        public void Update(Store model)
+        public void Update(Supplier model)
         {
-            if (_db.Table.Exists<Store>(n => n.Name == model.Name && n.Id != model.Id))
+            if (_db.Table.Exists<Supplier>(n => n.Name == model.Name && n.Id != model.Id))
             {
                 throw new Exception("名称重复!");
             }
@@ -41,7 +41,7 @@ namespace EBS.Domain.Service
                 throw new Exception("id 参数为空");
             }
             var arrIds = ids.Split(',').ToIntArray();
-            _db.Delete<Store>(arrIds);
+            _db.Delete<Supplier>(arrIds);
             _db.SaveChange();
             //删除权限
         }

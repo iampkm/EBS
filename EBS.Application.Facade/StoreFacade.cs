@@ -26,18 +26,18 @@ namespace EBS.Application.Facade
                 Name = model.Name,
                 Address = model.Address,
                 Contact = model.Contact,
-                CreateBy = model.CreateBy,
+                CreatedBy = model.CreateBy,
                 CreatedOn = model.CreatedOn,
                 Phone = model.Phone
             };
 
-            _service.Create(entity); // 框架自动实现 子外键关联对象添加
+            _service.Create(entity);
             _db.SaveChange();
         }
 
         public void Edit(StoreModel model)
         {
-            Store entity = new Store();
+            Store entity = _db.Table.Find<Store>(model.Id);
             entity.Id = model.Id;
             entity.Name = model.Name;
             entity.Phone = model.Phone;

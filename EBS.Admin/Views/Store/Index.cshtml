@@ -5,11 +5,9 @@
 <!-- demo root element -->
 <div id="app">
     <div class="box box-primary">
-        <div class="box-header">
-            @*<h3 class="box-title">菜单管理</h3>*@
+        <div class="box-header">          
             <ol class="breadcrumb" style="padding:0px;margin:1px;">
-                <li><a href="/Role/Index"><i class="fa fa-dashboard"></i> 角色管理</a></li>
-                @*<li class="active">Dashboard</li>*@
+                <li><a href="/Store/Index"><i class="fa fa-dashboard"></i> 门店管理</a></li>             
             </ol>
         </div>
         <div class="box-body">
@@ -18,11 +16,11 @@
                        v-bind:args="searchArgs" v-bind:data.sync="rows">
                 <div class="row" style="margin-bottom:10px;" slot="customSearch">
                     <div class="col-xs-3">
-                        <input class="form-control" v-model="searchArgs.name" placeholder="输入角色名" debounce="500" />
+                        <input class="form-control" v-model="searchArgs.name" placeholder="输入门店名" debounce="500" />
                     </div>
                 </div>
                 <span class="input-group-btn" slot="customButtons">
-                    <a class="btn btn-warning btn-flat" href="/Role/Create">新 增</a>
+                    <a class="btn btn-warning btn-flat" href="/Store/Create">新 增</a>
                     <button type="button" class="btn btn-default btn-flat" v-on:click="remove()">删 除</button>
                 </span>
             </vue-table>
@@ -35,17 +33,20 @@
 @section scripts{
     <script src="~/Content/Vue/vuetable/vuetable.js"></script>
     <script>
-
-        // bootstrap the demo
-        var demo = new Vue({
+      
+        var vue = new Vue({
             el: '#app',
             data: {
                 searchQuery: '',
                 gridColumns: [
-                    { name: 'Name', localName: '角色名', style: "<a href='/Role/Edit/{id}'>{column}</a>" },
-                    { name: 'Description', localName: '描述' }
+                    { name: 'Name', localName: '门店名', style: "<a href='/Store/Edit/{id}'>{column}</a>" },
+                    { name: 'Contact', localName: '联系人' },
+                    { name: 'Phone', localName: '电话' },
+                    { name: 'Address', localName: '地址' },
+                    { name: 'CreatedOn', localName: '创建时间',width:'200' },
+
                 ],
-                url: "/Role/LoadData",
+                url: "/Store/LoadData",
                 searchArgs: { name: '' },
                 rows: []
             },
@@ -65,7 +66,7 @@
                     v_self = this;
                     bootbox.confirm("您确定删除该记录？", function (result) {
                         if (result) {
-                            $.post("/Role/Delete", { ids: v_ids }, function (result) {
+                            $.post("/Store/Delete", { ids: v_ids }, function (result) {
                                 if (result.success) {
                                     v_self.$refs.vtable.loadData();
                                 }
@@ -81,9 +82,4 @@
 
     </script>
 }
-
-
-
-
-
 
