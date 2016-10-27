@@ -16,7 +16,7 @@ namespace EBS.Admin.Controllers
 {
     public class PurchaseContractController : Controller
     {
-         IQuery _query;
+        IQuery _query;
         IPurchaseContractQuery _purchaseContractQuery;
         IPurchaseContractFacade _purchaseContractFacade;
         IAreaQuery _areaQuery;
@@ -25,18 +25,18 @@ namespace EBS.Admin.Controllers
             this._query = query;
             this._purchaseContractQuery = purchaseContractQuery;
             this._purchaseContractFacade = purchaseContractFacade;
-            this._areaQuery = areaQuery;         
+            this._areaQuery = areaQuery;
         }
         public ActionResult Index()
         {
-           var suppliers=  _query.FindAll<Supplier>();
-           ViewBag.Suppliers = suppliers;
+            var suppliers = _query.FindAll<Supplier>();
+            ViewBag.Suppliers = suppliers;
             return View();
         }
 
         public JsonResult LoadData(Pager page, string code, string name, int supplierId = 0)
         {
-            var rows = _purchaseContractQuery.GetPageList(page, code, name,supplierId);
+            var rows = _purchaseContractQuery.GetPageList(page, code, name, supplierId);
 
             return Json(new { success = true, data = rows, total = page.Total }, JsonRequestBehavior.AllowGet);
         }
@@ -64,7 +64,7 @@ namespace EBS.Admin.Controllers
         public ActionResult Edit(int id)
         {
             var model = _query.Find<PurchaseContract>(id);
-           // ViewBag.areaName = _query.Find<Area>(model.AreaId).FullName;
+            // ViewBag.areaName = _query.Find<Area>(model.AreaId).FullName;
             return View(model);
         }
 
@@ -80,5 +80,44 @@ namespace EBS.Admin.Controllers
             _purchaseContractFacade.Delete(ids);
             return Json(new { success = true });
         }
-	}
+
+        public JsonResult ImportProduct(string itemsJson)
+        {
+            //var rows = _query.FindAll<ProductSku>().Select(n => new PurchaseContractItemDto()
+            //{
+            //    Id = n.Id,
+            //    Code = n.Code,
+            //    Name = n.Name,
+            //    CategoryName = "123",
+            //    Price = 123.12m,
+            //    Specification = n.Specification
+            //});
+
+            var rows =new List<PurchaseContractItemDto>();
+            rows.Add(
+                new PurchaseContractItemDto()
+                {
+                    Id = 1,
+                    Code = "1111",
+                    Name ="eeeee",
+                    CategoryName = "123",
+                    Price = 123.12m,
+                    Specification = "wer"
+                });
+            rows.Add(
+               new PurchaseContractItemDto()
+               {
+                   Id = 2,
+                   Code = "222",
+                   Name = "eeeeewwwweee",
+                   CategoryName = "55555",
+                   Price = 1123.12m,
+                   Specification = "6666"
+               });
+
+
+            return Json(new { success = true, data = rows });
+        }
+
+    }
 }

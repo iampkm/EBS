@@ -4,7 +4,7 @@ using EBS.Domain.Service;
 using Dapper.DBContext;
 using EBS.Application;
 using EBS.Application.DTO;
-namespace EBS.Command.Service
+namespace EBS.Application.Service
 {
     public class AccountFacade : IAccountFacade
     {

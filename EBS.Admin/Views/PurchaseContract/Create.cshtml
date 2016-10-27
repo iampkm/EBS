@@ -1,14 +1,6 @@
 ﻿@{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
-@section styles{
-    <link href="~/Content/zTree.min.css" rel="stylesheet" />
-    <style>
-        .ztree li span {
-            font-size: 14px;
-        }
-    </style>
-}
 <!-- demo root element -->
 <div id="app" class="box box-primary">
     <div class="box-header with-border">
@@ -40,7 +32,7 @@
                                 <i class="fa fa-calendar"></i>
                                 <span>从</span>
                             </div>
-                            <input type="text" class="form-control datepicker" readonly>
+                            <input type="text" class="form-control datepicker"  v-mode="model.startDate" readonly>
                         </div>
                       
                     </div>
@@ -51,7 +43,7 @@
                                 <i class="fa fa-calendar"></i>
                                 <span>到</span>
                             </div>
-                            <input type="text" class="form-control datepicker" readonly>
+                            <input type="text" class="form-control datepicker" v-mode="model.endDate" readonly>
                             @*<span aria-hidden="true" class="glyphicon glyphicon-remove form-control-feedback"></span>*@
                         </div>           
                     </div>                  
@@ -70,7 +62,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="form-group col-sm-4 col-xs-4">
+                    <div class="form-group col-sm-2 col-xs-3">
                         <v-input type="text" label="联系人：" v-bind:value.sync="model.contact" placeholder="联系人" required icon></v-input>
                     </div>
                 </div>                           
@@ -79,26 +71,34 @@
                         <div class="table-responsive">
                             <table class="table table-bordered">
                                 <caption>
-                                    <h3 class="panel-title"><button type="submit" class="btn btn-success btn-flat">导入商品明细</button><span></span> </h3>
+                                    <h3 class="panel-title"><button type="submit" class="btn btn-success btn-flat" v-on:click="showModal()">导入商品明细</button><span></span> </h3>
                                 </caption>
                                 <thead>                                    
                                     <tr>
                                         <th style="width:30px;"></th>
+                                        <th style="width:50px;">                                           
+                                        </th>
                                         <th style="width:150px;">编码</th>
                                         <th>品名</th>
                                         <th>品类</th>
                                         <th>规格</th>
-                                        <th>价格</th>
+                                        <th style="width:150px;">价格</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>1</td>
-                                        <td>2016101101001</td>
-                                        <td>娇子</td>
-                                        <td>香烟</td>
-                                        <td>20支</td>
-                                        <td>129.12</td>
+                                    <tr v-for="(index,item) in products">
+                                        <td>{{index+1}}</td>
+                                        <td style="width:50px;">
+                                            @*<button class="btn btn-flat btn-success" title="添加行" v-on:click="addRow()"><span class="fa fa-plus"></span></button>*@
+                                            <button class="btn btn-flat btn-success" title="删除行"  v-on:click="removeRow(index)"><span class="fa fa-trash"></span></button>
+                                        </td>
+                                        <td>{{item.code}}</td>
+                                        <td>{{item.name}}</td>
+                                        <td>{{item.categoryName}}</td>
+                                        <td>{{item.specification}}</td>
+                                        <td>
+                                            <v-input type="text" v-bind:value.sync="item.price" pattern="^(([1-9]\d{0,9})|0)(\.\d{1,2})?$" placeholder="价格" required icon></v-input>
+                                       </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -108,20 +108,17 @@
             </v-form>
         </div>
         <div class="box-footer">
-            
+           
         </div>
     </form>
     <!-- modal -->
-    <v-modal title="选择区域" ok-text="确 定" cancel-text="取 消" v-bind:callback="selectedNode" v-bind:show.sync="modal" v-bind:effect="fade" width="300">
+    <v-modal title="导入商品" ok-text="确 定" cancel-text="取 消" v-bind:callback="importProduct" v-bind:show.sync="modal" v-bind:effect="fade" width="300">
         <div slot="modal-body" class="modal-body">
-            <div style="height:400px;overflow-y:auto">
-                <ul id="ztree" class="ztree"></ul>
-            </div>
+            <v-input type="textarea" help="请将excel中商品编号和价格两列粘贴到文本框中" v-bind:value.sync="inputProducts" placeholder="输入商品" required icon></v-input>
         </div>
     </v-modal>
 </div>
 @section scripts{
-    <script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
     <script>
         $("doucument").ready(function () {
             var demo = new Vue({
@@ -137,17 +134,13 @@
                     model: {
                         id: 0,
                         name: '',
-                        shortName: '',
+                        supplierId: '',
                         contact: '',
-                        phone: '',
-                        bank: '',
-                        bankAccount: '',
-                        taxNo: '',
-                        licenseNo: '',
-                        areaId: '',
-                        areaName: '',
-                        startDate:'',
+                        startDate: '',
+                        endDate: ''                       
                     },
+                    products: [{id:0,code:'',name:'',categoryName:'',specification:'',price:''}],
+                    inputProducts:''
                 },
                 methods: {
                     onSubmit: function () {
@@ -164,53 +157,45 @@
                             }
                         }, "json");
                     },
-                    selectedNode: function () {
-                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
-                        var nodes = treeObj.getSelectedNodes();
-                        if (nodes.length == 0) {
-                            bootbox.alert("请选择品类");
-                            return;
-                        }
-                        if (nodes[0].id.length / 2 < 3) //选中三级叶子节点
-                        {
-                            bootbox.alert("分类必须选到3级节点");
-                            return;
-                        }
-                        // 设置 选中的分类
-                        this.model.areaId = nodes[0].id;
-                        this.model.areaName = nodes[0].text;
-                        this.modal = false;
+                    importProduct:function()
+                    {
+                        var data = this.inputProducts;
+                        var _self = this;
+                        //for (var i = 0; i < _self.products.length; i++)
+                        //{
+                        //    var item  = _self.products[i];
+                        //    data += "{productCode:" + item.code + ",price:" + item.price + "},";
+                        //}
+                        //if (data == "")
+                        //{
+                        //    bootbox.alert("请导入商品");
+                        //    return;
+                        //}
+                        //data = data.substring(0, data.length - 1);
+                        //data = "[" + data + "]";
+                        $.post("/PurchaseContract/ImportProduct", { itemJson: data }, function (result) {
+                            if (result.success) {
+                                _self.products = [];
+                                result.data.forEach(function (item) {
+                                    _self.products.push({ id: item.Id, code: item.Code, name: item.Name, categoryName: item.CategoryName, specification: item.Specification, price: item.Price })
+                                });
+                                _self.modal = false;
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
                     },
-                    showArea: function () {
+                    showModal: function () {
                         this.modal = true;
+                    },
+                    removeRow: function (index)
+                    {
+                        this.products.splice(index, 1);
                     }
                 }
             });
-            var zTreeObj;
-            // zTree 的参数配置，深入使用请参考 API 文档（setting 配置详解）
-            var setting = {
-                data: {
-                    simpleData: {
-                        enable: true,
-                        rootPId: 0
-                    }
-                },
-                async: {
-                    enable: true,
-                    url: "/PurchaseContract/LoadChildArea",
-                    type: 'get'
-                },
-                callback: {
-                    onClick: function (event, treeId, treeNode) {
-                        //点击展开/折叠节点
-                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
-                        var open = !treeNode.open;
-                        treeObj.expandNode(treeNode, open, false, false);
-                    }
-                }
-            };
-            //异步加载
-            zTreeObj = $.fn.zTree.init($("#ztree"), setting);
+           
 
             // 日期选择器初始化
             $("input.datepicker").datepicker({
@@ -223,13 +208,7 @@
             });
         });
 
-        function filter(treeId, parentNode, childNodes) {
-            if (!childNodes) return null;
-            for (var i = 0, l = childNodes.length; i < l; i++) {
-                childNodes[i].name = childNodes[i].name.replace(/\.n/g, '.');
-            }
-            return childNodes;
-        }
+       
 
     </script>
 }
