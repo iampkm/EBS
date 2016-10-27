@@ -8,12 +8,14 @@
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <!-- Bootstrap 3.3.6 -->
     <link rel="stylesheet" href="/Content/bootstrap/css/bootstrap.min.css">
+    
     <!-- Font Awesome -->
     <link rel="stylesheet" href="/Content/AdminLTE/css/font-awesome.min.css">
     <!-- Ionicons -->
     @*<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">*@
     <!-- Theme style -->
     <link rel="stylesheet" href="/Content/AdminLTE/css/AdminLTE.css">
+    <link rel="stylesheet" href="/Content/AdminLTE/plugins/datepicker/datepicker3.css">
     <!-- AdminLTE Skins. Choose a skin from the css/skins
          folder instead of downloading all of them to reduce the load. -->
     <link rel="stylesheet" href="/Content/AdminLTE/css/skins/_all-skins.min.css">
@@ -31,12 +33,16 @@
     @RenderBody()
     <!-- ./wrapper -->
     <!-- jQuery 2.2.3 -->
-    <script src="/Scripts/jquery-2.1.3.min.js"></script>
+    @*<script src="http://lib.sinaapp.com/js/jquery/1.9.1/jquery-1.9.1.min.js"></script>*@
+    <script src="~/Scripts/jquery-2.1.3.min.js"></script>
+    @*<script src="/Scripts/jquery-2.1.3.min.js"></script>*@
     <script src="/Scripts/vue.min.js"></script>
     <script src="/Content/Vue/vuetrap/vue-strap.js"></script>
     <script src="/Content/Vue/vuetrap/vue-strap-lang.js"></script>
     <!-- Bootstrap 3.3.6 -->
     <script src="/Scripts/bootstrap.min.js"></script>
+    <script src="/Content/AdminLTE/plugins/datepicker/bootstrap-datepicker.js"></script>
+    <script src="/Content/AdminLTE/plugins/datepicker/locales/bootstrap-datepicker.zh-CN.js"></script>
     <!-- SlimScroll -->
     <script src="/Content/AdminLTE/plugins/slimScroll/jquery.slimscroll.min.js"></script>
     <!-- FastClick -->
@@ -44,12 +50,21 @@
     <!-- AdminLTE App -->
     <script src="/Content/AdminLTE/js/app.min.js"></script>
     <script src="~/Scripts/bootbox.min.js"></script>
-    <!-- AdminLTE for demo purposes -->
-    @*<script src="/Content/AdminLTE/js/demo.js"></script>*@
-    @*<script src="/Scripts/jquery.tab.js"></script>*@
+    
     <script>
-        $(function () {
 
+        // 日期选择器初始化
+       $("input.datepicker").datepicker({
+            format: "yyyy-mm-dd",
+            endDate: new Date(),
+            maxViewMode: 2,
+            clearBtn: true,
+            language: "zh-CN",
+            autoclose: true
+        });
+
+        $(function () {
+            
         });
 
     </script>

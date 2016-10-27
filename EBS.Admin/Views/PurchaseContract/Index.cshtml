@@ -1,0 +1,103 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<!-- demo root element -->
+<div id="app">
+    <div class="box box-primary">
+        <div class="box-header">
+            <ol class="breadcrumb" style="padding:0px;margin:1px;">
+                <li><a href="/PurchaseContract/Index"><i class="fa fa-dashboard"></i> 采购合同管理</a></li>
+            </ol>
+        </div>
+        <div class="box-body">
+            <vue-table v-ref:vtable v-bind:columns="gridColumns"
+                       v-bind:url="url"
+                       v-bind:args="searchArgs" v-bind:data.sync="rows">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                    <div class="col-xs-3 col-sm-2">
+                        <input class="form-control" v-model="searchArgs.code" placeholder="合同编号" debounce="500" />
+                    </div>
+                    <div class="col-xs-3  col-sm-2">
+                        <input class="form-control" v-model="searchArgs.name" placeholder="输入采购合同名称" debounce="500" />
+                    </div>
+                    <div class="col-xs-3  col-sm-2">
+                        <div class="input-group">
+                            <span class="input-group-addon">供应商*</span>
+                            <select name="brand" class="form-control" v-model="searchArgs.supplierId">
+                                <option value="0">-请选择-</option>
+                                @foreach (var item in ViewBag.Suppliers)
+                                {
+                                    <option value="@item.Id">@item.Name</option>
+                                }
+                            </select>
+                        </div>
+
+                    </div>
+                </div>
+                <span class="input-group-btn" slot="customButtons">
+                    <a class="btn btn-warning btn-flat" href="/PurchaseContract/Create">新 增</a>
+                    <button type="button" class="btn btn-default btn-flat" v-on:click="remove()">删 除</button>
+                </span>
+            </vue-table>
+        </div>
+        <!-- /.box-body -->
+    </div>
+    <div class="clearfix"></div>
+</div>
+@{Html.RenderPartial("VueTableTemplate");}
+@section scripts{
+    <script src="~/Content/Vue/vuetable/vuetable.js"></script>
+    <script>
+
+        var vue = new Vue({
+            el: '#app',
+            data: {
+                searchQuery: '',
+                gridColumns: [                   
+                    { name: 'Name', localName: '合同名', style: "<a href='/PurchaseContract/Edit/{id}'>{column}</a>" },
+                    { name: 'Code', localName: '编号' },
+                    { name: 'SupplierName', localName: '供应商' },
+                    { name: 'Contact', localName: '联系人' },
+                    { name: 'CooperateWay', localName: '合作方式' },
+                    { name: 'StartDate', localName: '开始日期' },
+                    { name: 'EndDate', localName: '结束日期' },
+                    { name: 'PurchaseContractStatus', localName: '状态' }
+
+                ],
+                url: "/PurchaseContract/LoadData",
+                searchArgs: {code:'', name: '',supplierId:0 },
+                rows: []
+            },
+            methods: {
+                remove: function () {
+                    var v_ids = "";
+                    this.rows.forEach(function (item, index) {
+                        if (item.checked) {
+                            v_ids = item.Id + ",";
+                        }
+                    });
+                    if (v_ids == "") {
+                        bootbox.alert("请选择一条记录");
+                        return;
+                    }
+                    v_ids = v_ids.substring(0, v_ids.length - 1);
+                    v_self = this;
+                    bootbox.confirm("您确定删除该记录？", function (result) {
+                        if (result) {
+                            $.post("/PurchaseContract/Delete", { ids: v_ids }, function (result) {
+                                if (result.success) {
+                                    v_self.$refs.vtable.loadData();
+                                }
+                                else {
+                                    bootbox.alert(result.error);
+                                }
+                            }, "json");
+                        }
+                    });
+                }
+            }
+        })
+
+    </script>
+}

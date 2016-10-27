@@ -53,6 +53,8 @@
     <Compile Include="Entity\Brand.cs" />
     <Compile Include="Entity\ProductCodeSequence.cs" />
     <Compile Include="Entity\ProductSpecificationMapping.cs" />
+    <Compile Include="Entity\PurchaseContract.cs" />
+    <Compile Include="Entity\PurchaseContractItem.cs" />
     <Compile Include="Entity\RoleMenu.cs" />
     <Compile Include="Entity\Store.cs" />
     <Compile Include="Entity\Supplier.cs" />
@@ -62,11 +64,13 @@
     <Compile Include="Service\CategoryService.cs" />
     <Compile Include="Service\ProductService.cs" />
     <Compile Include="Service\ProductSkuService.cs" />
+    <Compile Include="Service\PurchaseContractService.cs" />
     <Compile Include="Service\RoleService.cs" />
     <Compile Include="Service\StoreService.cs" />
     <Compile Include="Service\SupplierService.cs" />
     <Compile Include="ValueObject\AccountStatus.cs" />
     <Compile Include="ValueObject\CooperateWay.cs" />
+    <Compile Include="ValueObject\DateRange.cs" />
     <Compile Include="ValueObject\LoginStatus.cs" />
     <Compile Include="Entity\Menu.cs" />
     <Compile Include="Service\MenuService.cs" />
@@ -84,6 +88,7 @@
     <Compile Include="Entity\ProductSpecificationOption.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Entity\Role.cs" />
+    <Compile Include="ValueObject\PurchaseContractStatus.cs" />
     <Compile Include="ValueObject\StoreSetting.cs" />
   </ItemGroup>
   <ItemGroup>

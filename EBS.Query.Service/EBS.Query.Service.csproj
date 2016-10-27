@@ -49,6 +49,7 @@
     <Compile Include="MenuQueryService.cs" />
     <Compile Include="ProductQueryService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PurchaseContractQueryService.cs" />
     <Compile Include="RoleQueryService.cs" />
     <Compile Include="StoreQueryService.cs" />
     <Compile Include="SupplierQueryService.cs" />
