@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbstractQueryService.cs" />
     <Compile Include="AccountQueryService.cs" />
     <Compile Include="AreaQueryService.cs" />
     <Compile Include="BrandQueryService.cs" />
@@ -58,6 +59,10 @@
     <ProjectReference Include="..\EBS.Domain\EBS.Domain.csproj">
       <Project>{5dd4ab82-555f-4f86-8613-2cdce5df0e43}</Project>
       <Name>EBS.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EBS.Infrastructure\EBS.Infrastructure.csproj">
+      <Project>{867f0957-0862-4c10-83c3-dca12e188ff3}</Project>
+      <Name>EBS.Infrastructure</Name>
     </ProjectReference>
     <ProjectReference Include="..\EBS.Query\EBS.Query.csproj">
       <Project>{a2914150-71a6-4088-94bd-56f03da06622}</Project>

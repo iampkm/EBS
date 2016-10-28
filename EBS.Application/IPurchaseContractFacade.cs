@@ -8,8 +8,8 @@ namespace EBS.Application
 {
    public interface IPurchaseContractFacade
     {
-        void Create(PurchaseContractModel model);
-        void Edit(PurchaseContractModel model);
+       void Create(CreatePurchaseContract model);
+       void Edit(EditPurchaseContract model);
         void Delete(string ids);
     }
 }

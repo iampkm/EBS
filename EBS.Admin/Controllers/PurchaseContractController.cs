@@ -45,6 +45,8 @@ namespace EBS.Admin.Controllers
         {
             var suppliers = _query.FindAll<Supplier>();
             ViewBag.Suppliers = suppliers;
+            ViewBag.CooperateWays = _purchaseContractQuery.GetCooperateWay();
+            ViewBag.Stores = _query.FindAll<Store>();
             return View();
         }
 
@@ -56,8 +58,15 @@ namespace EBS.Admin.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(PurchaseContractModel model)
+        public JsonResult Create(CreatePurchaseContract model)
         {
+           
+            if (string.IsNullOrEmpty(model.Items)) throw new Exception("商品明细为空");
+            var productPriceList = JsonConvert.DeserializeObject<List<ProductPriceModel>>(model.Items);
+             Dictionary<int, decimal> productPriceDic = new Dictionary<int, decimal>();
+            productPriceList.ForEach(n => productPriceDic.Add(n.Id, n.Price));
+            model.ProductPriceDic = productPriceDic;
+
             _purchaseContractFacade.Create(model);
             return Json(new { success = true });
         }
@@ -69,7 +78,7 @@ namespace EBS.Admin.Controllers
         }
 
         [HttpPost]
-        public JsonResult Edit(PurchaseContractModel model)
+        public JsonResult Edit(EditPurchaseContract model)
         {
             _purchaseContractFacade.Edit(model);
             return Json(new { success = true });
@@ -81,41 +90,9 @@ namespace EBS.Admin.Controllers
             return Json(new { success = true });
         }
 
-        public JsonResult ImportProduct(string itemsJson)
-        {
-            //var rows = _query.FindAll<ProductSku>().Select(n => new PurchaseContractItemDto()
-            //{
-            //    Id = n.Id,
-            //    Code = n.Code,
-            //    Name = n.Name,
-            //    CategoryName = "123",
-            //    Price = 123.12m,
-            //    Specification = n.Specification
-            //});
-
-            var rows =new List<PurchaseContractItemDto>();
-            rows.Add(
-                new PurchaseContractItemDto()
-                {
-                    Id = 1,
-                    Code = "1111",
-                    Name ="eeeee",
-                    CategoryName = "123",
-                    Price = 123.12m,
-                    Specification = "wer"
-                });
-            rows.Add(
-               new PurchaseContractItemDto()
-               {
-                   Id = 2,
-                   Code = "222",
-                   Name = "eeeeewwwweee",
-                   CategoryName = "55555",
-                   Price = 1123.12m,
-                   Specification = "6666"
-               });
-
-
+        public JsonResult ImportProduct(string productCodePriceInput)
+        {                
+            var rows = _purchaseContractQuery.GetPurchaseContractItems(productCodePriceInput);
             return Json(new { success = true, data = rows });
         }
 

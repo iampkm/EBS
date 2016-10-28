@@ -18,10 +18,13 @@ namespace EBS.Domain.Entity
            this.UpdatedOn = DateTime.Now;
        }
 
+       /// <summary>
+       /// 合同代码，自己录入
+       /// </summary>
        public string Code { get; set; }
 
        public string Name { get; set; }
-
+       public int StoreId { get; set; }
        public int SupplierId { get; set; }
        public string Contact { get; set; }
        public CooperateWay Cooperate { get; set; }
@@ -40,7 +43,30 @@ namespace EBS.Domain.Entity
        public string UpdatedBy { get; set; }
        public PurchaseContractStatus Status { get; set; }
 
-       public virtual List<PurchaseContractItem> Items { get; set; }
+       public virtual List<PurchaseContractItem> Items { get; private set; }
 
+       public void AddPurchaseContractItem(List<ProductSku> products, Dictionary<int, decimal> productPriceDic)
+       {
+           foreach (var product in products)
+           {
+               PurchaseContractItem item = new PurchaseContractItem()
+               {                   
+                   CostPrice = productPriceDic[product.Id],
+                   ProductSkuId = product.Id
+               };
+               this.Items.Add(item);
+           }
+       }
+
+       public void GenerateNewCode()
+       {
+           string billType = ((int)BillIdentity.PurchaseContract).ToString(); //  两位
+           string date = DateTime.Now.ToString("yyyMMdd");
+           Random rd = new Random(Guid.NewGuid().GetHashCode());
+           string randomNumber = rd.Next(1, 1000).ToString().PadLeft(3,'0');
+           StringBuilder builder = new StringBuilder(20);
+           builder.AppendFormat("{0}{1}{2}", billType, date, randomNumber);
+           this.Code = builder.ToString();
+       }
     }
 }

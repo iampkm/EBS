@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 using EBS.Query;
 using EBS.Query.DTO;
 using EBS.Domain.Entity;
+using EBS.Domain.ValueObject;
 using Dapper.DBContext;
 using System.Dynamic;
+using EBS.Infrastructure.Extension;
 namespace EBS.Query.Service
 {
    public class PurchaseContractQueryService:IPurchaseContractQuery
@@ -45,6 +47,59 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             page.Total = this._query.Count<PurchaseContract>(where, param);
 
             return rows;
+        }
+
+
+        public IEnumerable<PurchaseContractItemDto> GetPurchaseContractItems(string productCodePriceInput)
+        {
+            if (string.IsNullOrEmpty(productCodePriceInput)) throw new Exception("商品明细为空");     
+            var dic = GetProductDic(productCodePriceInput);
+            string sql = "select p.Id,p.Code,p.`Name`,p.Specification,c.FullName as CategoryName from productsku p inner join category c on p.categoryId = c.Id where p.code in @Codes";
+            var productItems= _query.FindAll<PurchaseContractItemDto>(sql, new { Codes = dic.Keys.ToArray() });
+            foreach (var product in productItems)
+            {
+                product.Price = dic[product.Code];
+            }
+            return productItems;
+        }
+
+        private Dictionary<string, decimal> GetProductDic(string productIds)
+        {
+            Dictionary<string, decimal> dicProductPrice = new Dictionary<string, decimal>(1000);
+            try
+            {
+                string[] productIdArray = productIds.Split('\n');
+                foreach (var item in productIdArray)
+                {
+                    if (item.Contains("\t"))
+                    {
+                        string[] parentIDAndQuantity = item.Split('\t');
+                        if (!dicProductPrice.ContainsKey(parentIDAndQuantity[0].Trim()))
+                        {                           
+                            dicProductPrice.Add(parentIDAndQuantity[0].Trim(), decimal.Parse(parentIDAndQuantity[1]));
+                        }                       
+                    }
+                    else
+                    {
+                        if (!dicProductPrice.ContainsKey(item.Trim()))
+                        {
+                            dicProductPrice.Add(item.Trim(), 0);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("粘贴的格式不正确");
+            }
+            return dicProductPrice;
+        }
+
+
+
+        public IDictionary<int, string> GetCooperateWay()
+        {
+            return typeof(CooperateWay).GetValueToDescription();
         }
     }
 }

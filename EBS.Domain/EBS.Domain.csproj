@@ -69,6 +69,7 @@
     <Compile Include="Service\StoreService.cs" />
     <Compile Include="Service\SupplierService.cs" />
     <Compile Include="ValueObject\AccountStatus.cs" />
+    <Compile Include="ValueObject\BillIdentity.cs" />
     <Compile Include="ValueObject\CooperateWay.cs" />
     <Compile Include="ValueObject\DateRange.cs" />
     <Compile Include="ValueObject\LoginStatus.cs" />

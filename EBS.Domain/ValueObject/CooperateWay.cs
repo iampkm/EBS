@@ -21,11 +21,11 @@ namespace EBS.Domain.ValueObject
         /// <summary>
         /// 代销
         /// </summary>
-        SellByProxy = 2,
+        SellByProxy = 3,
          [Description("联营")]
         /// <summary>
         /// 联营
         /// </summary>
-        SellJoin = 3
+        SellJoin = 5
     }
 }

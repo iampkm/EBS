@@ -48,6 +48,7 @@
     <Compile Include="DTO\MenuInfo.cs" />
     <Compile Include="DTO\Pager.cs" />
     <Compile Include="DTO\ProductAttrbuteValue.cs" />
+    <Compile Include="DTO\ProductCodePriceDto.cs" />
     <Compile Include="DTO\ProductDto.cs" />
     <Compile Include="DTO\PurchaseContractDto.cs" />
     <Compile Include="DTO\PurchaseContractItemDto.cs" />

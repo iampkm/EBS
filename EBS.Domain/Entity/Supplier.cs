@@ -16,6 +16,10 @@ namespace EBS.Domain.Entity
            this.CreatedOn = DateTime.Now;
            this.UpdatedOn = DateTime.Now;
        }
+       /// <summary>
+       /// 供应商增加一个编码，1开头经销，3开头代销，5开头联营。   4位编码  例如  1001 
+       /// </summary>
+       public string Code { get; set; }  
 
        public string Name { get; set; }
        /// <summary>
@@ -59,5 +63,7 @@ namespace EBS.Domain.Entity
        public DateTime UpdatedOn { get; set; }
 
        public int UpdatedBy { get; set; }
+
+       // qq ,address
     }
 }

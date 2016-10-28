@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{8B017D4B-0D31-4001-AF6E-E6A11BC0BEC5}</ProjectGuid>
+    <ProjectGuid>{A5C0F73E-917A-49BB-9D8B-9D02CEC48B17}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EBS.Application.Facade</RootNamespace>
-    <AssemblyName>EBS.Application.Facade</AssemblyName>
+    <RootNamespace>EBS.Application.DTO</RootNamespace>
+    <AssemblyName>EBS.Application.DTO</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,15 +30,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dapper.DBContext">
-      <HintPath>..\packages\Dapper.DBContext.0.2.0\lib\net45\Dapper.DBContext.dll</HintPath>
-    </Reference>
     <Reference Include="FluentValidation">
       <HintPath>..\packages\FluentValidation.6.2.1.0\lib\Net45\FluentValidation.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -49,26 +42,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AccountFacade.cs" />
-    <Compile Include="BrandFacade.cs" />
-    <Compile Include="CategoryFacade.cs" />
-    <Compile Include="MenuFacade.cs" />
-    <Compile Include="ProductFacade.cs" />
+    <Compile Include="AccountModel.cs" />
+    <Compile Include="LoginModel.cs" />
+    <Compile Include="MenuModel.cs" />
+    <Compile Include="ProductModel.cs" />
+    <Compile Include="ProductPrice.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PurchaseContractFacade.cs" />
-    <Compile Include="RoleFacade.cs" />
-    <Compile Include="StoreFacade.cs" />
-    <Compile Include="SupplierFacade.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\EBS.Application\EBS.Application.csproj">
-      <Project>{4d990d98-582b-495c-832e-f6cb93426a14}</Project>
-      <Name>EBS.Application</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\EBS.Domain\EBS.Domain.csproj">
-      <Project>{5dd4ab82-555f-4f86-8613-2cdce5df0e43}</Project>
-      <Name>EBS.Domain</Name>
-    </ProjectReference>
+    <Compile Include="PurchaseContractModel.cs" />
+    <Compile Include="RoleModel.cs" />
+    <Compile Include="StoreModel.cs" />
+    <Compile Include="SupplierModel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

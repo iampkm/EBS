@@ -13,18 +13,18 @@
     <!-- form start -->
     <form v-on:submit.prevent="onSubmit">
         <div class="box-body">
-            <div class="row">
-                <div class="form-group col-sm-4 col-xs-4">
-                    <button type="submit" class="btn btn-warning btn-flat" v-bind:disabled="!valid">保 存</button>                    
-                    <a class="btn btn-default btn-flat" href="/PurchaseContract/Index">取 消</a>
-                </div>
-            </div>
             <v-form v-bind:valid.sync="valid">
+                <div class="row">
+                    <div class="form-group col-sm-4 col-xs-4">
+                        <button type="submit" class="btn btn-warning btn-flat" v-bind:disabled="!valid">保 存</button>
+                        <a class="btn btn-default btn-flat" href="/PurchaseContract/Index">取 消</a>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-sm-4 col-xs-4">
                         <input type="hidden" v-model="model.id" />
                         <v-input type="text" label="采购合同名：" v-bind:value.sync="model.name" maxlength="30" placeholder="采购合同名" required icon></v-input>
-                    </div> 
+                    </div>
                     <div class="form-group col-sm-2 col-xs-3">
                         <label for="inputPassword3" class="control-label">合同日期：</label>
                         <div class="input-group date" @*data-provide="datepicker"*@>
@@ -32,30 +32,56 @@
                                 <i class="fa fa-calendar"></i>
                                 <span>从</span>
                             </div>
-                            <input type="text" class="form-control datepicker"  v-mode="model.startDate" readonly>
+                            <input type="text" class="form-control datepicker" v-model="model.startDate" readonly>
                         </div>
-                      
+
                     </div>
                     <div class="form-group col-sm-2 col-xs-3">
                         <label for="inputPassword3" class="control-label">&nbsp;</label>
-                        <div class="input-group date validate has-feedback has-error">
+                        <div class="input-group date ">
+                            <!---validate has-feedback has-error-->
                             <div class="input-group-addon">
                                 <i class="fa fa-calendar"></i>
                                 <span>到</span>
                             </div>
-                            <input type="text" class="form-control datepicker" v-mode="model.endDate" readonly>
+                            <input type="text" class="form-control datepicker" v-model="model.endDate" readonly>
                             @*<span aria-hidden="true" class="glyphicon glyphicon-remove form-control-feedback"></span>*@
-                        </div>           
-                    </div>                  
+                        </div>
+                    </div>
                 </div>
                 <div class="row">
                     <div class="form-group col-sm-2 col-xs-3">
                         <label for="inputPassword3" class="control-label">供应商：</label>
                         <div class="input-group">
                             <span class="input-group-addon">供应商*</span>
-                            <select name="brand" class="form-control" v-model="searchArgs.supplierId">
+                            <select name="brand" class="form-control" v-model="model.supplierId">
                                 <option value="0">-请选择-</option>
                                 @foreach (var item in ViewBag.Suppliers)
+                                {
+                                    <option value="@item.Id">@item.Name</option>
+                                }
+                            </select>
+                        </div>
+                       
+                    </div>
+                    <div class="form-group col-sm-2 col-xs-3">
+                        <label for="inputPassword3" class="control-label">合作方式：</label>
+                        <div class="input-group">
+                            <span class="input-group-addon">合作方式*</span>
+                            <select name="brand" class="form-control" v-model="model.cooperate">                               
+                                @foreach (var item in ViewBag.CooperateWays)
+                                {
+                                    <option value="@item.Key">@item.Value</option>
+                                }
+                            </select>
+                        </div>                     
+                    </div>
+                    <div class="form-group col-sm-2 col-xs-3">
+                        <label for="inputPassword3" class="control-label">门店：</label>
+                        <div class="input-group">
+                            <span class="input-group-addon">门店*</span>
+                            <select name="brand" class="form-control" v-model="model.cooperate">
+                                @foreach (var item in ViewBag.Stores)
                                 {
                                     <option value="@item.Id">@item.Name</option>
                                 }
@@ -65,18 +91,21 @@
                     <div class="form-group col-sm-2 col-xs-3">
                         <v-input type="text" label="联系人：" v-bind:value.sync="model.contact" placeholder="联系人" required icon></v-input>
                     </div>
-                </div>                           
+                </div>
+
                 <div class="row">
                     <div class="col-xs-12 col-sm-12">
                         <div class="table-responsive">
                             <table class="table table-bordered">
                                 <caption>
-                                    <h3 class="panel-title"><button type="submit" class="btn btn-success btn-flat" v-on:click="showModal()">导入商品明细</button><span></span> </h3>
+                                    <h3 class="panel-title">
+                                        <button type="button" class="btn btn-success btn-flat" v-on:click="showModal()">导入商品明细</button>
+                                    </h3>
                                 </caption>
-                                <thead>                                    
+                                <thead>
                                     <tr>
                                         <th style="width:30px;"></th>
-                                        <th style="width:50px;">                                           
+                                        <th style="width:50px;">
                                         </th>
                                         <th style="width:150px;">编码</th>
                                         <th>品名</th>
@@ -90,22 +119,22 @@
                                         <td>{{index+1}}</td>
                                         <td style="width:50px;">
                                             @*<button class="btn btn-flat btn-success" title="添加行" v-on:click="addRow()"><span class="fa fa-plus"></span></button>*@
-                                            <button class="btn btn-flat btn-success" title="删除行"  v-on:click="removeRow(index)"><span class="fa fa-trash"></span></button>
+                                            <button type="button" class="btn btn-flat btn-success" title="删除行" v-on:click="removeRow(index)"><span class="fa fa-trash"></span></button>
                                         </td>
                                         <td>{{item.code}}</td>
                                         <td>{{item.name}}</td>
                                         <td>{{item.categoryName}}</td>
                                         <td>{{item.specification}}</td>
                                         <td>
-                                            <v-input type="text" v-bind:value.sync="item.price" pattern="^(([1-9]\d{0,9})|0)(\.\d{1,2})?$" placeholder="价格" required icon></v-input>
-                                       </td>
+                                            <v-input type="text" v-bind:value.sync="products[index].price" pattern="^(([1-9]\d{0,9})|0)(\.\d{1,2})?$" placeholder="价格" required icon></v-input>
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
-                    </div>                                       
+                    </div>
                 </div>
-            </v-form>
+            </v-form>       
         </div>
         <div class="box-footer">
            
@@ -125,7 +154,8 @@
                 components: {
                     'v-modal': VueStrap.modal,
                     'v-input': VueStrap.input,
-                    'v-form': VueStrap.formGroup                   
+                    'v-form': VueStrap.formGroup,
+                    'v-datepicker': VueStrap.datepicker,
                 },
                 el: '#app',
                 data: {
@@ -134,10 +164,12 @@
                     model: {
                         id: 0,
                         name: '',
-                        supplierId: '',
+                        supplierId: 0,
                         contact: '',
                         startDate: '',
-                        endDate: ''                       
+                        endDate: '',
+                        cooperate:1,
+                        items:'',
                     },
                     products: [{id:0,code:'',name:'',categoryName:'',specification:'',price:''}],
                     inputProducts:''
@@ -145,7 +177,32 @@
                 methods: {
                     onSubmit: function () {
                         //获取选择节点
-                        var v_data = this.model;
+                        var _self = this;
+                        var v_data = _self.model;
+                        var data = "";
+                        for (var i = 0; i < _self.products.length; i++)
+                        {
+                            var item  = _self.products[i];
+                            data += "{\"Id\":" + item.id + ",\"Price\":" + item.price + "},";
+                        }
+                        if (data == "")
+                        {
+                            bootbox.alert("请导入商品");
+                            return;
+                        }
+                        data = data.substring(0, data.length - 1);
+                        data = "[" + data + "]";
+                        _self.model.items = data;
+                        // 日期校验
+                        if (_self.model.startDate == "" || _self.model.endDate == "") {
+                            bootbox.alert("请输入合同日期");
+                            return;
+                        }
+                        if (new Date(_self.model.endDate) < new Date(_self.model.startDate))
+                        {
+                            bootbox.alert("结束日期不能大于开始日期");
+                            return;
+                        }                     
                         $.post("/PurchaseContract/Create", v_data, function (result) {
                             if (result.success) {
                                 bootbox.alert("保存成功！", function () {
@@ -160,20 +217,8 @@
                     importProduct:function()
                     {
                         var data = this.inputProducts;
-                        var _self = this;
-                        //for (var i = 0; i < _self.products.length; i++)
-                        //{
-                        //    var item  = _self.products[i];
-                        //    data += "{productCode:" + item.code + ",price:" + item.price + "},";
-                        //}
-                        //if (data == "")
-                        //{
-                        //    bootbox.alert("请导入商品");
-                        //    return;
-                        //}
-                        //data = data.substring(0, data.length - 1);
-                        //data = "[" + data + "]";
-                        $.post("/PurchaseContract/ImportProduct", { itemJson: data }, function (result) {
+                        var _self = this;                       
+                        $.post("/PurchaseContract/ImportProduct", { productCodePriceInput: data }, function (result) {
                             if (result.success) {
                                 _self.products = [];
                                 result.data.forEach(function (item) {
@@ -200,7 +245,7 @@
             // 日期选择器初始化
             $("input.datepicker").datepicker({
                 format: "yyyy-mm-dd",
-                endDate: new Date(),
+                //endDate: new Date(),
                 maxViewMode: 2,
                 clearBtn: true,
                 language: "zh-CN",

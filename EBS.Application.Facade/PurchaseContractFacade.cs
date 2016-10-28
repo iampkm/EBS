@@ -7,7 +7,9 @@ using EBS.Application;
 using Dapper.DBContext;
 using EBS.Domain.Service;
 using EBS.Domain.Entity;
+using EBS.Domain.ValueObject;
 using EBS.Application.DTO;
+using Newtonsoft.Json;
 namespace EBS.Application.Facade
 {
     public class PurchaseContractFacade : IPurchaseContractFacade
@@ -21,42 +23,39 @@ namespace EBS.Application.Facade
             _db = dbContext;
             _service = new PurchaseContractService(this._db);
         }
-        public void Create(PurchaseContractModel model)
+        public void Create(CreatePurchaseContract model)
         {
             PurchaseContract entity = new PurchaseContract()
             {
-                Name = model.Name,
-                Code = model.Code,
-                Cooperate = Domain.ValueObject.CooperateWay.SellBySelf,
+                Name = model.Name,               
+                Cooperate = (CooperateWay)model.Cooperate,
                 SupplierId = model.SupplierId,
-                Status = Domain.ValueObject.PurchaseContractStatus.Create,
+                Status = PurchaseContractStatus.Create,
                 StartDate = model.StartDate,
                 EndDate = model.EndDate,
                 CreatedBy = model.CreatedBy,
                 UpdatedBy = model.CreatedBy,
-                Contact = model.Contact
+                Contact = model.Contact,
+                StoreId = model.StoreId,
                // Items = model.Items
             };
-
-            _service.Create(entity);
+            _service.Create(entity,model.ProductPriceDic);
             _db.SaveChange();
         }
-
-        public void Edit(PurchaseContractModel model)
+       
+        public void Edit(EditPurchaseContract model)
         {
             PurchaseContract entity = _db.Table.Find<PurchaseContract>(model.Id);
             entity.Name = model.Name;
-          
-                entity.Code = model.Code;
-                entity.Cooperate = Domain.ValueObject.CooperateWay.SellBySelf;
-                entity.SupplierId = model.SupplierId;
-                entity.Status = Domain.ValueObject.PurchaseContractStatus.Create;
-                entity.StartDate = model.StartDate;
-                entity.EndDate = model.EndDate;
-                entity.CreatedBy = model.CreatedBy;
-                entity.UpdatedBy = model.CreatedBy;
-                entity.Contact = model.Contact;
-              //  entity.Items = model.Items; 
+            entity.Cooperate = Domain.ValueObject.CooperateWay.SellBySelf;
+            entity.SupplierId = model.SupplierId;
+            entity.Status = Domain.ValueObject.PurchaseContractStatus.Create;
+            entity.StartDate = model.StartDate;
+            entity.EndDate = model.EndDate;
+            entity.CreatedBy = model.CreatedBy;
+            entity.UpdatedBy = model.CreatedBy;
+            entity.Contact = model.Contact;
+            //  entity.Items = model.Items; 
             _service.Update(entity);
             _db.SaveChange();
         }
