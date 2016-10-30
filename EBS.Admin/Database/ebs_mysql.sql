@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2016-10-26 14:33:13                          */
+/* Created on:     2016/10/30 22:15:11                          */
 /*==============================================================*/
 
 
@@ -30,9 +30,13 @@ drop index idx_productSKU_code on ProductSKU;
 
 drop table if exists ProductSKU;
 
+drop index idx_purcontract_code on PurchaseContract;
+
 drop table if exists PurchaseContract;
 
 drop table if exists PurchaseContractItem;
+
+drop index idx_PurchaseOrder_code on PurchaseOrder;
 
 drop table if exists PurchaseOrder;
 
@@ -47,6 +51,8 @@ drop table if exists Store;
 drop table if exists StoreInventory;
 
 drop table if exists StoreInventoryHistory;
+
+drop index idx_supplier_code on Supplier;
 
 drop table if exists Supplier;
 
@@ -255,12 +261,12 @@ create unique index idx_productSKU_code on ProductSKU
 /*==============================================================*/
 create table PurchaseContract
 (
-   Id                   int not null comment '编号',
-   Code                 nvarchar(100) comment '合同号',
+   Id                   int not null auto_increment comment '编号',
+   Code                 nvarchar(50) comment '合同号',
    Name                 nvarchar(50) comment '合同名称',
+   StoreId              int comment '门店Id',
    SupplierId           int comment '供应商Id',
    Contact              nvarchar(32) comment '联系人',
-   Cooperate            int comment '合作方式',
    StartDate            datetime comment '开始日期',
    EndDate              datetime comment '结束日期',
    CreatedOn            datetime comment '创建时间',
@@ -274,11 +280,19 @@ create table PurchaseContract
 alter table PurchaseContract comment '采购合同';
 
 /*==============================================================*/
+/* Index: idx_purcontract_code                                  */
+/*==============================================================*/
+create unique index idx_purcontract_code on PurchaseContract
+(
+   Code
+);
+
+/*==============================================================*/
 /* Table: PurchaseContractItem                                  */
 /*==============================================================*/
 create table PurchaseContractItem
 (
-   Id                   int not null comment '编号',
+   Id                   int not null auto_increment comment '编号',
    PurchaseContractId   int comment '采购合同编号',
    ProductSKUId         int comment '商品skuid',
    CostPrice            decimal(8,2) comment '成本价',
@@ -292,9 +306,10 @@ alter table PurchaseContractItem comment '采购合同明细';
 /*==============================================================*/
 create table PurchaseOrder
 (
-   Id                   int not null comment '编号',
+   Id                   int not null auto_increment comment '编号',
    PurchaseContractId   int comment '采购合同编号',
-   Code                 nvarchar(100) comment '订单号',
+   Code                 nvarchar(20) comment '订单号',
+   StoreId              int comment '门店Id',
    SupplierId           int comment '供应商Id',
    CreatedOn            datetime comment '创建时间',
    CreatedBy            int comment '创建人',
@@ -308,11 +323,19 @@ create table PurchaseOrder
 alter table PurchaseOrder comment '采购订单';
 
 /*==============================================================*/
+/* Index: idx_PurchaseOrder_code                                */
+/*==============================================================*/
+create unique index idx_PurchaseOrder_code on PurchaseOrder
+(
+   Code
+);
+
+/*==============================================================*/
 /* Table: PurchaseOrderItem                                     */
 /*==============================================================*/
 create table PurchaseOrderItem
 (
-   Id                   int not null comment '编号',
+   Id                   int not null auto_increment comment '编号',
    PurchaseOrderId      int comment '采购订单编号',
    ProductSKUId         int comment '商品skuid',
    CostPrice            decimal(8,2) comment '成本价',
@@ -409,10 +432,14 @@ alter table StoreInventoryHistory comment '门店库存历史记录';
 create table Supplier
 (
    Id                   int not null auto_increment comment '编号',
+   Code                 nvarchar(20) comment '合同号',
    Name                 nvarchar(100) comment '供应商名',
+   Type                 int comment '供应商类别',
    ShortName            nvarchar(50) comment '简称',
    Contact              nvarchar(50) comment '联系人',
    Phone                nvarchar(50) comment '联系电话',
+   QQ                   nvarchar(30),
+   Address              nvarchar(100),
    Bank                 nvarchar(50) comment '开户行',
    BankAccount          nvarchar(50) comment '开户行账号',
    TaxNo                nvarchar(50) comment '税号',
@@ -426,6 +453,14 @@ create table Supplier
 );
 
 alter table Supplier comment '供应商';
+
+/*==============================================================*/
+/* Index: idx_supplier_code                                     */
+/*==============================================================*/
+create unique index idx_supplier_code on Supplier
+(
+   Code
+);
 
 /*==============================================================*/
 /* Table: Warehouse                                             */

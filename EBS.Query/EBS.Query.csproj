@@ -53,6 +53,7 @@
     <Compile Include="DTO\PurchaseContractDto.cs" />
     <Compile Include="DTO\PurchaseContractItemDto.cs" />
     <Compile Include="DTO\StoreDto.cs" />
+    <Compile Include="DTO\SupplierDto.cs" />
     <Compile Include="IAccountQuery.cs" />
     <Compile Include="IAreaQuery.cs">
       <SubType>Code</SubType>

@@ -38,10 +38,12 @@ namespace EBS.Application.DTO
        public string Code { get; set; }
 
        public string Name { get; set; }
+        public int StoreId { get; set; }
 
        public int SupplierId { get; set; }
        public string Contact { get; set; }
-       public int Cooperate { get; set; }
+       public int Status { get; set; }
+
        /// <summary>
        /// 合同开始日期
        /// </summary>
@@ -50,7 +52,7 @@ namespace EBS.Application.DTO
        /// 合同开始日期
        /// </summary>
        public DateTime EndDate { get; set; }
-       public string CreatedBy { get; set; }
+       public string UpdatedBy { get; set; }
        /// <summary>
        ///  id,price 键值对
        /// </summary>

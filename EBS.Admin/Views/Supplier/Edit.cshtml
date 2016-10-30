@@ -15,7 +15,7 @@
     <div class="box-header with-border">
         <ol class="breadcrumb" style="padding:0px;margin:1px;">
             <li><a href="/Supplier/Index"><i class="fa fa-dashboard"></i>供应商管理</a></li>
-            <li class="active"><a href="/Supplier/Create">修改供应商</a></li>
+            <li class="active"><a href="/Supplier/Edit/{{model.id}}">修改供应商</a></li>
         </ol>
     </div>
     <!-- /.box-header -->
@@ -26,16 +26,15 @@
                 <div class="row">
                     <div class="col-sm-4 col-xs-4">
                         <input type="hidden" v-model="model.id" />
-                        <v-input type="text" label="供应商名：" v-bind:value.sync="model.name" maxlength="30" placeholder="供应商名" required icon></v-input>
-                    </div>
-                    <div class="col-sm-4 col-xs-4">
-                        <input type="hidden" v-model="model.id" />
-                        <v-input type="text" label="简称：" v-bind:value.sync="model.shortName" maxlength="30" placeholder="简称" icon></v-input>
+                        <v-input type="text" label="供应商名*：" v-bind:value.sync="model.name" maxlength="30" placeholder="供应商名" required icon></v-input>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="form-group col-sm-4 col-xs-4">
-                        <label for="inputPassword3" class="control-label">供货区域：</label>
+                    <div class="col-sm-2 col-xs-3">
+                        <v-input type="text" label="简称*：" v-bind:value.sync="model.shortName" minlength="2" maxlength="4" placeholder="2~4个汉子简称" required icon></v-input>
+                    </div>
+                    <div class="form-group col-sm-2 col-xs-3">
+                        <label for="inputPassword3" class="control-label">供货区域*：</label>
                         <input type="hidden" class="form-control" v-model="model.categoryId">
                         <div class="input-group">
                             <input type="text" class="form-control" placeholder="供货区域" v-model="model.areaName" readonly>
@@ -46,28 +45,61 @@
                             </div>
                         </div>
                     </div>
+                    <div class="form-group col-sm-2 col-xs-3">
+                        <label for="inputPassword3" class="control-label">类别*：</label>
+                        <div class="input-group">
+                            @*<span class="input-group-addon">类别</span>*@
+                            <select name="brand" class="form-control" v-model="model.type">
+                                @foreach (var item in ViewBag.SupplierTypes)
+                                {
+                                    <option value="@item.Key">@item.Value</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
                 </div>
                 <div class="row">
-                    <div class="form-group col-sm-4 col-xs-4">
-                        <v-input type="text" label="联系人：" v-bind:value.sync="model.contact" placeholder="联系人" required icon></v-input>
+                    <div class="col-sm-4 col-xs-4">
+                        <v-input type="text" label="编码 *：" v-bind:value.sync="model.code" minlength="7" maxlength="7" placeholder="供应商类别1位+区域2位+简称4位" required icon>
+                        </v-input>
+                        <input type="hidden" v-model="newCode" />
                     </div>
-                    <div class="form-group col-sm-4 col-xs-4">
-                        <v-input type="text" label="电话：" v-bind:value.sync="model.phone" placeholder="电话" required icon></v-input>
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-4">
+                            <label for="inputPassword3" class="control-label">&nbsp;</label>
+                            <div class="input-group">
+                                <button type="button" class="btn btn-flat" v-on:click="checkCode" v-bind:class="buttonClass">{{buttonText}}</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="form-group col-sm-4 col-xs-4">
+                    <div class="col-sm-4 col-xs-4">
+                        <v-input type="text" label="地址*：" v-bind:value.sync="model.address" maxlength="50" placeholder="地址" required icon></v-input>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-sm-2 col-xs-3">
+                        <v-input type="text" label="联系人*：" v-bind:value.sync="model.contact" placeholder="联系人" required icon></v-input>
+                    </div>
+                    <div class="form-group col-sm-2 col-xs-3">
+                        <v-input type="text" label="电话*：" v-bind:value.sync="model.phone" placeholder="电话" required icon></v-input>
+                    </div>
+                    <div class="form-group col-sm-2 col-xs-3">
+                        <v-input type="text" label="QQ：" v-bind:value.sync="model.qq" placeholder="QQ" icon></v-input>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-sm-2 col-xs-3">
                         <v-input type="text" label="开户行：" v-bind:value.sync="model.bank" placeholder="开户行" icon></v-input>
                     </div>
-                    <div class="form-group col-sm-4 col-xs-4">
+                    <div class="form-group col-sm-2 col-xs-3">
                         <v-input type="text" label="开户行账号：" v-bind:value.sync="model.bankAccount" placeholder="开户行账号" icon></v-input>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="form-group col-sm-4 col-xs-4">
+                    <div class="form-group col-sm-2 col-xs-3">
                         <v-input type="text" label="税号：" v-bind:value.sync="model.taxNo" placeholder="税号" icon></v-input>
                     </div>
-                    <div class="form-group col-sm-4 col-xs-4">
+                    <div class="form-group col-sm-2 col-xs-3">
                         <v-input type="text" label="执照编号：" v-bind:value.sync="model.licenseNo" placeholder="执照编号" icon></v-input>
                     </div>
                 </div>
@@ -93,6 +125,8 @@
 </div>
 @section scripts{
     <script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
+<script src="~/Content/jquery/py/pinyin_dict_firstletter.js"></script>
+<script src="~/Content/jquery/py/pinyinUtil.js"></script>
     <script>
         $("doucument").ready(function () {
             var demo = new Vue({
@@ -108,6 +142,7 @@
                     model: {
                         id: @Model.Id,
                         name: '@Model.Name',
+                        code:'@Model.Code',
                         shortName: '@Model.ShortName',
                         contact: '@Model.Contact',
                         phone: '@Model.Phone',
@@ -116,8 +151,14 @@
                         taxNo: '@Model.TaxNo',
                         licenseNo: '@Model.LicenseNo',
                         areaId: '@Model.AreaId',
-                        areaName: '@ViewBag.areaName'
+                        areaName: '@ViewBag.areaName',
+                        type:'@((int)Model.Type)',
+                        qq: '@Model.QQ',
+                        address: '@Model.Address'
+
                     },
+                    buttonText: '检查编号',
+                    buttonClass:"btn-default"
                 },
                 methods: {
                     onSubmit: function () {
@@ -153,6 +194,43 @@
                     },
                     showArea: function () {
                         this.modal = true;
+                    },
+                    checkCode: function (value)
+                    {
+                        var _self = this;                      
+                        var value = _self.model.code;
+                        $.ajax({
+                            type: "post",
+                            url: "/Supplier/CheckCode",
+                            data: { code: value },
+                            dataType: "json",
+                            success: function (result) {
+                                if (result.success) {
+                                    _self.buttonText = result.data ? "未使用" : '已使用';
+                                    _self.buttonClass = result.data ? "btn-success" : 'btn-danger';
+                                     
+                                }
+                            }
+                        });                      
+                    }
+                },
+                computed: {
+                    newCode: function () {
+                        var _code = "";
+                        if (this.model.shortName != "") {
+                            var _letter = pinyinUtil.getFirstLetter(this.model.shortName);
+                            _code = _code + _letter;
+                        }
+                        if (this.model.areaId != "")
+                        {
+                            _code = this.model.areaId.substring(0, 2) + _code;
+                        }
+                        if (this.model.type != "0")
+                        {
+                            _code = this.model.type + _code;
+                        }                                         
+                        this.model.code = _code;                       
+                        return _code;
                     }
                 }
             });
@@ -184,13 +262,13 @@
 
         });
 
-        function filter(treeId, parentNode, childNodes) {
-            if (!childNodes) return null;
-            for (var i = 0, l = childNodes.length; i < l; i++) {
-                childNodes[i].name = childNodes[i].name.replace(/\.n/g, '.');
-            }
-            return childNodes;
-        }
+        //function filter(treeId, parentNode, childNodes) {
+        //    if (!childNodes) return null;
+        //    for (var i = 0, l = childNodes.length; i < l; i++) {
+        //        childNodes[i].name = childNodes[i].name.replace(/\.n/g, '.');
+        //    }
+        //    return childNodes;
+        //}
 
     </script>
 }

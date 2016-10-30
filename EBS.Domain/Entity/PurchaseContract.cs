@@ -27,7 +27,6 @@ namespace EBS.Domain.Entity
        public int StoreId { get; set; }
        public int SupplierId { get; set; }
        public string Contact { get; set; }
-       public CooperateWay Cooperate { get; set; }
        /// <summary>
        /// 合同开始日期
        /// </summary>
@@ -49,8 +48,9 @@ namespace EBS.Domain.Entity
        {
            foreach (var product in products)
            {
-               PurchaseContractItem item = new PurchaseContractItem()
-               {                   
+                PurchaseContractItem item = new PurchaseContractItem()
+                {
+                   PurchaseContractId = this.Id,                 
                    CostPrice = productPriceDic[product.Id],
                    ProductSkuId = product.Id
                };
@@ -58,15 +58,15 @@ namespace EBS.Domain.Entity
            }
        }
 
-       public void GenerateNewCode()
-       {
-           string billType = ((int)BillIdentity.PurchaseContract).ToString(); //  两位
-           string date = DateTime.Now.ToString("yyyMMdd");
-           Random rd = new Random(Guid.NewGuid().GetHashCode());
-           string randomNumber = rd.Next(1, 1000).ToString().PadLeft(3,'0');
-           StringBuilder builder = new StringBuilder(20);
-           builder.AppendFormat("{0}{1}{2}", billType, date, randomNumber);
-           this.Code = builder.ToString();
-       }
+       //public void GenerateNewCode()
+       //{
+       //    string billType = ((int)BillIdentity.PurchaseContract).ToString(); //  两位
+       //    string date = DateTime.Now.ToString("yyyMMdd");
+       //    Random rd = new Random(Guid.NewGuid().GetHashCode());
+       //    string randomNumber = rd.Next(1, 1000).ToString().PadLeft(3,'0');
+       //    StringBuilder builder = new StringBuilder(20);
+       //    builder.AppendFormat("{0}{1}{2}", billType, date, randomNumber);
+       //    this.Code = builder.ToString();
+       //}
     }
 }

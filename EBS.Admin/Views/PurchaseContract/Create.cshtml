@@ -21,9 +21,12 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-sm-4 col-xs-4">
+                    <div class="col-sm-2 col-xs-3">
                         <input type="hidden" v-model="model.id" />
-                        <v-input type="text" label="采购合同名：" v-bind:value.sync="model.name" maxlength="30" placeholder="采购合同名" required icon></v-input>
+                        <v-input type="text" label="合同编号*：" v-bind:value.sync="model.code" maxlength="30" placeholder="合同编号" required icon></v-input>
+                    </div>
+                    <div class="col-sm-2 col-xs-3">                       
+                        <v-input type="text" label="合同名*：" v-bind:value.sync="model.name" maxlength="50" placeholder="合同名" required icon></v-input>
                     </div>
                     <div class="form-group col-sm-2 col-xs-3">
                         <label for="inputPassword3" class="control-label">合同日期：</label>
@@ -53,34 +56,22 @@
                     <div class="form-group col-sm-2 col-xs-3">
                         <label for="inputPassword3" class="control-label">供应商：</label>
                         <div class="input-group">
-                            <span class="input-group-addon">供应商*</span>
+                            @*<span class="input-group-addon">供应商*</span>*@
                             <select name="brand" class="form-control" v-model="model.supplierId">
                                 <option value="0">-请选择-</option>
                                 @foreach (var item in ViewBag.Suppliers)
                                 {
-                                    <option value="@item.Id">@item.Name</option>
+                                    <option value="@item.Id">[@item.Code]@item.Name</option>
                                 }
                             </select>
                         </div>
                        
-                    </div>
-                    <div class="form-group col-sm-2 col-xs-3">
-                        <label for="inputPassword3" class="control-label">合作方式：</label>
-                        <div class="input-group">
-                            <span class="input-group-addon">合作方式*</span>
-                            <select name="brand" class="form-control" v-model="model.cooperate">                               
-                                @foreach (var item in ViewBag.CooperateWays)
-                                {
-                                    <option value="@item.Key">@item.Value</option>
-                                }
-                            </select>
-                        </div>                     
-                    </div>
+                    </div>                   
                     <div class="form-group col-sm-2 col-xs-3">
                         <label for="inputPassword3" class="control-label">门店：</label>
                         <div class="input-group">
-                            <span class="input-group-addon">门店*</span>
-                            <select name="brand" class="form-control" v-model="model.cooperate">
+                            @*<span class="input-group-addon">门店*</span>*@
+                            <select name="brand" class="form-control" v-model="model.storeId">
                                 @foreach (var item in ViewBag.Stores)
                                 {
                                     <option value="@item.Id">@item.Name</option>
@@ -163,13 +154,14 @@
                     modal: false,
                     model: {
                         id: 0,
+                        code:'',
+                        storeId:0,
                         name: '',
                         supplierId: 0,
                         contact: '',
                         startDate: '',
                         endDate: '',
-                        cooperate:1,
-                        items:'',
+                        items:''
                     },
                     products: [{id:0,code:'',name:'',categoryName:'',specification:'',price:''}],
                     inputProducts:''

@@ -15,7 +15,10 @@
                        v-bind:url="url"
                        v-bind:args="searchArgs" v-bind:data.sync="rows">
                 <div class="row" style="margin-bottom:10px;" slot="customSearch">
-                    <div class="col-xs-3">
+                    <div class="col-xs-3 col-sm-2">
+                        <input class="form-control" v-model="searchArgs.code" placeholder="输入供应编码" debounce="500" />
+                    </div>
+                    <div class="col-xs-3 col-sm-2">
                         <input class="form-control" v-model="searchArgs.name" placeholder="输入供应商名" debounce="500" />
                     </div>
                 </div>
@@ -35,20 +38,24 @@
     <script>
 
         var vue = new Vue({
+            components: {
+                'typeahead': VueStrap.typeahead
+            },
             el: '#app',
             data: {
                 searchQuery: '',
                 gridColumns: [
-                    { name: 'Name', localName: '供应商名', style: "<a href='/Supplier/Edit/{id}'>{column}</a>" },
+                    { name: 'Code', localName: '编码', style: "<a href='/Supplier/Edit/{id}'>{column}</a>", width: '100' },
+                    { name: 'Name', localName: '供应商名', width: '300' },
+                    { name: 'AreaName', localName: '供货区域', width: '200' },
+                    { name: 'SupplierType', localName: '类型', width: '100' },
                     { name: 'Contact', localName: '联系人' },
                     { name: 'Phone', localName: '电话' },
-                    { name: 'Bank', localName: '开户银行' },
-                    { name: 'LicenseNo', localName: '执照'},
-                    { name: 'TaxNo', localName: '税号' }
+                    { name: 'QQ', localName: 'QQ' },
 
                 ],
                 url: "/Supplier/LoadData",
-                searchArgs: { name: '' },
+                searchArgs: { name: '', code: '' },
                 rows: []
             },
             methods: {
@@ -77,7 +84,13 @@
                             }, "json");
                         }
                     });
-                }
+                },
+                googleCallback: function (items, targetVM) {
+                    const that = targetVM;
+                    that.reset()
+                    that.value = items.Name;
+                    this.searchArgs.code = that.value
+                },
             }
         })
 

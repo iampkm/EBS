@@ -27,8 +27,8 @@ namespace EBS.Application.Facade
         {
             PurchaseContract entity = new PurchaseContract()
             {
-                Name = model.Name,               
-                Cooperate = (CooperateWay)model.Cooperate,
+                Name = model.Name,  
+                Code = model.Code,             
                 SupplierId = model.SupplierId,
                 Status = PurchaseContractStatus.Create,
                 StartDate = model.StartDate,
@@ -37,7 +37,6 @@ namespace EBS.Application.Facade
                 UpdatedBy = model.CreatedBy,
                 Contact = model.Contact,
                 StoreId = model.StoreId,
-               // Items = model.Items
             };
             _service.Create(entity,model.ProductPriceDic);
             _db.SaveChange();
@@ -47,16 +46,16 @@ namespace EBS.Application.Facade
         {
             PurchaseContract entity = _db.Table.Find<PurchaseContract>(model.Id);
             entity.Name = model.Name;
-            entity.Cooperate = Domain.ValueObject.CooperateWay.SellBySelf;
+            entity.Code = model.Code;
+            entity.StoreId = model.StoreId;
             entity.SupplierId = model.SupplierId;
-            entity.Status = Domain.ValueObject.PurchaseContractStatus.Create;
+            entity.Status = (PurchaseContractStatus)model.Status;
             entity.StartDate = model.StartDate;
             entity.EndDate = model.EndDate;
-            entity.CreatedBy = model.CreatedBy;
-            entity.UpdatedBy = model.CreatedBy;
+            entity.UpdatedBy = model.UpdatedBy;
+            entity.UpdatedOn = DateTime.Now;
             entity.Contact = model.Contact;
-            //  entity.Items = model.Items; 
-            _service.Update(entity);
+            _service.Update(entity,model.ProductPriceDic);
             _db.SaveChange();
         }
 

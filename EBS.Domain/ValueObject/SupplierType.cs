@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 namespace EBS.Domain.ValueObject
 {
     /// <summary>
-    /// 合作方式
+    /// 供应商类别
     /// </summary>
-    public enum CooperateWay
+    public enum SupplierType
     {
          [Description("经销")]
         /// <summary>
@@ -21,11 +21,11 @@ namespace EBS.Domain.ValueObject
         /// <summary>
         /// 代销
         /// </summary>
-        SellByProxy = 3,
+        SellByProxy = 2,
          [Description("联营")]
         /// <summary>
         /// 联营
         /// </summary>
-        SellJoin = 5
+        SellJoin = 3
     }
 }

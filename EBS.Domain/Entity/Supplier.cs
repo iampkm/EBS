@@ -17,7 +17,7 @@ namespace EBS.Domain.Entity
            this.UpdatedOn = DateTime.Now;
        }
        /// <summary>
-       /// 供应商增加一个编码，1开头经销，3开头代销，5开头联营。   4位编码  例如  1001 
+       /// 供应商编码： 经销方式 1+ 区域 11+ 公司检测拼音字母 3位 共6位
        /// </summary>
        public string Code { get; set; }  
 
@@ -26,14 +26,19 @@ namespace EBS.Domain.Entity
        /// 简称
        /// </summary>
        public string ShortName { get; set; }
+
+        public SupplierType Type { get; set; }
        /// <summary>
        /// 联系人
        /// </summary>
        public string Contact { get; set; }
-       /// <summary>
-       /// 电话
-       /// </summary>
-       public string Phone { get; set; }
+        public string QQ { get; set; }
+
+        public string Address { get; set; }
+        /// <summary>
+        /// 电话
+        /// </summary>
+        public string Phone { get; set; }
        /// <summary>
        /// 开户行
        /// </summary>

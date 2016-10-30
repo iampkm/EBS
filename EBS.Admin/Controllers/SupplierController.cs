@@ -32,16 +32,16 @@ namespace EBS.Admin.Controllers
             return View();
         }
 
-        public JsonResult LoadData(Pager page, string name)
+        public JsonResult LoadData(Pager page, string name, string code)
         {
-            var rows = _supplierQuery.GetPageList(page, name);
+            var rows = _supplierQuery.GetPageList(page, name,code);
 
             return Json(new { success = true, data = rows, total = page.Total }, JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult Create()
         {
-           // ViewBag.Tree = LoadChildArea();
+            ViewBag.SupplierTypes = _supplierQuery.GetSupplierType();
             return View();
         }
 
@@ -62,6 +62,7 @@ namespace EBS.Admin.Controllers
         {
             var model = _query.Find<Supplier>(id);
             ViewBag.areaName = _query.Find<Area>(model.AreaId).FullName;
+            ViewBag.SupplierTypes = _supplierQuery.GetSupplierType();
             return View(model);
         }
 
@@ -76,6 +77,20 @@ namespace EBS.Admin.Controllers
         {
             _supplierFacade.Delete(ids);
             return Json(new { success = true });
+        }
+
+        public JsonResult CheckCode(string code)
+        {
+            var result = _query.Exists<Supplier>(n => n.Code == code);
+            return Json(new { success = true,data = !result });
+        }
+
+        public JsonResult GetSupplierByCode(string code)
+        {
+           var rows=  _query.FindAll<Supplier>(n => n.Code.Like(code+"%"));
+            return Json(rows) ;
+           
+           // return Json(new { success = true, data = rows });
         }
 	}
 }

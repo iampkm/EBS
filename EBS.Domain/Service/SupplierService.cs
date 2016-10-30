@@ -18,18 +18,18 @@ namespace EBS.Domain.Service
 
         public void Create(Supplier model)
         {
-            if (_db.Table.Exists<Supplier>(n => n.Name == model.Name))
+            if (_db.Table.Exists<Supplier>(n => n.Code == model.Code))
             {
-                throw new Exception("名称重复!");
+                throw new Exception("编码重复，请修改!");
             }
             _db.Insert(model);           
         }
 
         public void Update(Supplier model)
         {
-            if (_db.Table.Exists<Supplier>(n => n.Name == model.Name && n.Id != model.Id))
+            if (_db.Table.Exists<Supplier>(n => n.Code == model.Code))
             {
-                throw new Exception("名称重复!");
+                throw new Exception("编码重复，请修改!");
             }
             _db.Update(model);
         }

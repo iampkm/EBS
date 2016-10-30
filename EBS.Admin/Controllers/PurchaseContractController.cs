@@ -31,12 +31,13 @@ namespace EBS.Admin.Controllers
         {
             var suppliers = _query.FindAll<Supplier>();
             ViewBag.Suppliers = suppliers;
+            ViewBag.Stores = _query.FindAll<Store>();
             return View();
         }
 
-        public JsonResult LoadData(Pager page, string code, string name, int supplierId = 0)
+        public JsonResult LoadData(Pager page, string code, string name, int supplierId = 0,int storeId =0)
         {
-            var rows = _purchaseContractQuery.GetPageList(page, code, name, supplierId);
+            var rows = _purchaseContractQuery.GetPageList(page, code, name, supplierId,storeId);
 
             return Json(new { success = true, data = rows, total = page.Total }, JsonRequestBehavior.AllowGet);
         }
@@ -45,7 +46,7 @@ namespace EBS.Admin.Controllers
         {
             var suppliers = _query.FindAll<Supplier>();
             ViewBag.Suppliers = suppliers;
-            ViewBag.CooperateWays = _purchaseContractQuery.GetCooperateWay();
+         
             ViewBag.Stores = _query.FindAll<Store>();
             return View();
         }

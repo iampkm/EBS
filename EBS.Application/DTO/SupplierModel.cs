@@ -10,6 +10,8 @@ namespace EBS.Application.DTO
     {
        public int Id { get; set; }
         public string Name { get; set; }
+
+        public string Code { get; set; }
         /// <summary>
         /// 简称
         /// </summary>
@@ -18,6 +20,9 @@ namespace EBS.Application.DTO
         /// 联系人
         /// </summary>
         public string Contact { get; set; }
+        public string QQ { get; set; }
+
+        public string Address { get; set; }
         /// <summary>
         /// 电话
         /// </summary>
@@ -44,6 +49,7 @@ namespace EBS.Application.DTO
         /// </summary>
         public string AreaId { get; set; }
         public int CreatedBy { get; set; }
-        public int UpdatedBy { get; set; }
+
+        public int Type { get; set; }
     }
 }

@@ -19,7 +19,7 @@ namespace EBS.Query.Service
         {
             this._query = query;
         }
-        public IEnumerable<PurchaseContractDto> GetPageList(Pager page, string code, string name, int supplierId)
+        public IEnumerable<PurchaseContractDto> GetPageList(Pager page, string code, string name, int supplierId,int storeId)
         {
             dynamic param = new ExpandoObject();
             string where = "";
@@ -38,8 +38,13 @@ namespace EBS.Query.Service
                 where += "and t0.SupplierId=@SupplierId ";
                 param.SupplierId = supplierId;
             }
-            string sql = @"select t0.Id,t0.Name,t0.Code,t0.SupplierId,t0.Contact,t0.Cooperate,t0.StartDate,t0.EndDate,t0.Status,t1.Name as SupplierName  
-from PurchaseContract t0 inner join supplier t1 on t0.SupplierId = t1.Id
+            if (storeId > 0)
+            {
+                where += "and t0.StoreId=@StoreId ";
+                param.StoreId = storeId;
+            }
+            string sql = @"select t0.Id,t0.Name,t0.Code,t0.SupplierId,t0.Contact,t0.StartDate,t0.EndDate,t0.Status,t1.Code as SupplierCode,t1.Name as SupplierName,t2.Name as StoreName  
+from PurchaseContract t0 inner join supplier t1 on t0.SupplierId = t1.Id inner join store t2 on t0.StoreId = t2.Id
 where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<ProductSku>(where, param);
             sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
@@ -97,9 +102,6 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
 
 
 
-        public IDictionary<int, string> GetCooperateWay()
-        {
-            return typeof(CooperateWay).GetValueToDescription();
-        }
+      
     }
 }

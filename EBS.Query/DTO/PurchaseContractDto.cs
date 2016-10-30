@@ -14,15 +14,18 @@ namespace EBS.Query.DTO
 
         public string Name { get; set; }
 
-        public string SupplierName { get; set; }
-        public string Contact { get; set; }
-        public CooperateWay Cooperate { get; set; }
+        public string SupplierCode { get; set; }
 
-        public string CooperateWay {
+        public string SupplierName { get; set; }
+
+        public string Supplier {
             get {
-                return Cooperate.Description();
+                return string.Format("[{0}]{1}", SupplierCode, SupplierName);
             }
         }
+        public string Contact { get; set; }
+      
+        public string StoreName { get; set; }
         /// <summary>
         /// 合同开始日期
         /// </summary>

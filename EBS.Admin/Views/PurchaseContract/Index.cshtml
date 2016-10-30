@@ -32,7 +32,18 @@
                                 }
                             </select>
                         </div>
-
+                    </div>
+                    <div class="form-group col-sm-2 col-xs-3">                      
+                        <div class="input-group">
+                            <span class="input-group-addon">门店*</span>
+                            <select name="brand" class="form-control" v-model="searchArgs.storeId">
+                                <option value="0">-请选择-</option>
+                                @foreach (var item in ViewBag.Stores)
+                                {
+                                    <option value="@item.Id">@item.Name</option>
+                                }
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <span class="input-group-btn" slot="customButtons">
@@ -54,19 +65,19 @@
             el: '#app',
             data: {
                 searchQuery: '',
-                gridColumns: [                   
-                    { name: 'Name', localName: '合同名', style: "<a href='/PurchaseContract/Edit/{id}'>{column}</a>" },
-                    { name: 'Code', localName: '编号' },
-                    { name: 'SupplierName', localName: '供应商' },
-                    { name: 'Contact', localName: '联系人' },
-                    { name: 'CooperateWay', localName: '合作方式' },
+                gridColumns: [
+                    { name: 'Code', localName: '合同号', style: "<a href='/PurchaseContract/Edit/{id}'>{column}</a>",width:'80' },
+                    { name: 'Name', localName: '合同名' },                   
+                    { name: 'Supplier', localName: '供应商', width: '250' },
+                    { name: 'Contact', localName: '联系人', width: '80' },
+                    { name: 'StoreName', localName: '门店' },
                     { name: 'StartDate', localName: '开始日期' },
                     { name: 'EndDate', localName: '结束日期' },
-                    { name: 'PurchaseContractStatus', localName: '状态' }
+                    { name: 'PurchaseContractStatus', localName: '状态', width: '80' }
 
                 ],
                 url: "/PurchaseContract/LoadData",
-                searchArgs: {code:'', name: '',supplierId:0 },
+                searchArgs: {code:'', name: '',supplierId:0,storeId:0 },
                 rows: []
             },
             methods: {

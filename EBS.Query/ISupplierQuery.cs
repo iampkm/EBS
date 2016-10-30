@@ -9,6 +9,9 @@ namespace EBS.Query
 {
    public interface ISupplierQuery
     {
-        IEnumerable<Supplier> GetPageList(Pager page, string name);
+        IEnumerable<SupplierDto> GetPageList(Pager page, string name, string code);
+
+        IDictionary<int, string> GetSupplierType();
+
     }
 }
