@@ -37,9 +37,9 @@ namespace EBS.Domain.Entity
        public DateTime EndDate { get; set; }
 
        public DateTime CreatedOn { get; set; }
-       public string CreatedBy { get; set; }
+       public int CreatedBy { get; set; }
        public DateTime UpdatedOn { get; set; }
-       public string UpdatedBy { get; set; }
+       public int UpdatedBy { get; set; }
        public PurchaseContractStatus Status { get; set; }
 
        public virtual List<PurchaseContractItem> Items { get; private set; }
@@ -58,15 +58,36 @@ namespace EBS.Domain.Entity
            }
        }
 
-       //public void GenerateNewCode()
-       //{
-       //    string billType = ((int)BillIdentity.PurchaseContract).ToString(); //  两位
-       //    string date = DateTime.Now.ToString("yyyMMdd");
-       //    Random rd = new Random(Guid.NewGuid().GetHashCode());
-       //    string randomNumber = rd.Next(1, 1000).ToString().PadLeft(3,'0');
-       //    StringBuilder builder = new StringBuilder(20);
-       //    builder.AppendFormat("{0}{1}{2}", billType, date, randomNumber);
-       //    this.Code = builder.ToString();
-       //}
+       public void Submit() {
+           if (this.Status != PurchaseContractStatus.Create) {
+               throw new Exception("只能提交新合同");
+           }
+           this.Status = PurchaseContractStatus.WaitingAudit;
+       }
+
+       public void Audit()
+       {
+           if (this.Status != PurchaseContractStatus.WaitingAudit)
+           {
+               throw new Exception("只能审核待审合同");
+           }
+           this.Status = PurchaseContractStatus.Audited;
+       }
+
+       public void Cancel()
+       {
+           if (this.Status == PurchaseContractStatus.Audited)
+           {
+               throw new Exception("已审合同不能作废");
+           }
+           this.Status = PurchaseContractStatus.Cancel;
+       }
+
+       public void EditBy(int editBy)
+       {
+           this.UpdatedBy = editBy;
+           this.UpdatedOn = DateTime.Now;
+       }
+      
     }
 }

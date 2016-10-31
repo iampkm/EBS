@@ -1193,6 +1193,8 @@
     <Content Include="Views\Supplier\Edit.cshtml" />
     <Content Include="Views\PurchaseContract\Index.cshtml" />
     <Content Include="Views\PurchaseContract\Create.cshtml" />
+    <Content Include="Views\PurchaseContract\Edit.cshtml" />
+    <Content Include="Views\PurchaseContract\AuditIndex.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">

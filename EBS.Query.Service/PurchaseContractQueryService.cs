@@ -19,29 +19,34 @@ namespace EBS.Query.Service
         {
             this._query = query;
         }
-        public IEnumerable<PurchaseContractDto> GetPageList(Pager page, string code, string name, int supplierId,int storeId)
+        public IEnumerable<PurchaseContractDto> GetPageList(Pager page, SearchSupplierContract condition)
         {
             dynamic param = new ExpandoObject();
             string where = "";
-            if (!string.IsNullOrEmpty(name))
+            if (!string.IsNullOrEmpty(condition.Name))
             {
                 where += "and t0.Name like @Name ";
-                param.Name = string.Format("%{0}%", name);
+                param.Name = string.Format("%{0}%", condition.Name);
             }
-            if (!string.IsNullOrEmpty(code))
+            if (!string.IsNullOrEmpty(condition.Code))
             {
                 where += "and t0.Code=@Code ";
-                param.Code = code;
-            }           
-            if (supplierId > 0)
+                param.Code = condition.Code;
+            }
+            if (condition.SupplierId > 0)
             {
                 where += "and t0.SupplierId=@SupplierId ";
-                param.SupplierId = supplierId;
+                param.SupplierId = condition.SupplierId;
             }
-            if (storeId > 0)
+            if (condition.StoreId > 0)
             {
                 where += "and t0.StoreId=@StoreId ";
-                param.StoreId = storeId;
+                param.StoreId = condition.StoreId;
+            }
+            if (condition.Status > 0)
+            {
+                where += "and t0.Status=@Status ";
+                param.Status = condition.Status;
             }
             string sql = @"select t0.Id,t0.Name,t0.Code,t0.SupplierId,t0.Contact,t0.StartDate,t0.EndDate,t0.Status,t1.Code as SupplierCode,t1.Name as SupplierName,t2.Name as StoreName  
 from PurchaseContract t0 inner join supplier t1 on t0.SupplierId = t1.Id inner join store t2 on t0.StoreId = t2.Id
@@ -59,13 +64,27 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
         {
             if (string.IsNullOrEmpty(productCodePriceInput)) throw new Exception("商品明细为空");     
             var dic = GetProductDic(productCodePriceInput);
-            string sql = "select p.Id,p.Code,p.`Name`,p.Specification,c.FullName as CategoryName from productsku p inner join category c on p.categoryId = c.Id where p.code in @Codes";
+            string sql = "select p.Id as ProductSkuId,p.Code,p.`Name`,p.Specification,c.FullName as CategoryName from productsku p inner join category c on p.categoryId = c.Id where p.code in @Codes";
             var productItems= _query.FindAll<PurchaseContractItemDto>(sql, new { Codes = dic.Keys.ToArray() });
             foreach (var product in productItems)
             {
-                product.Price = dic[product.Code];
+                product.CostPrice = dic[product.Code];
             }
             return productItems;
+        }
+
+        public IEnumerable<PurchaseContractItemDto> GetPurchaseContractItems(int purchaseContractId)
+        {
+            string sql = "select pc.ProductSkuId,p.Code,p.`Name`,p.Specification,c.FullName as CategoryName,pc.CostPrice from PurchaseContractItem pc inner join  productsku p on pc.productSkuId=p.Id inner join category c on p.categoryId = c.Id where pc.purchaseContractId = @PurchaseContractId";
+            var productItems = _query.FindAll<PurchaseContractItemDto>(sql, new { PurchaseContractId = purchaseContractId });
+            return productItems;
+        }
+
+
+        public Dictionary<int, string> GetPurchaseContractStatus()
+        {
+            var dic = typeof(PurchaseContractStatus).GetValueToDescription();
+            return dic;
         }
 
         private Dictionary<string, decimal> GetProductDic(string productIds)
@@ -100,8 +119,5 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             return dicProductPrice;
         }
 
-
-
-      
     }
 }

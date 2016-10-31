@@ -52,6 +52,7 @@
     <Compile Include="DTO\ProductDto.cs" />
     <Compile Include="DTO\PurchaseContractDto.cs" />
     <Compile Include="DTO\PurchaseContractItemDto.cs" />
+    <Compile Include="DTO\SearchSupplierContract.cs" />
     <Compile Include="DTO\StoreDto.cs" />
     <Compile Include="DTO\SupplierDto.cs" />
     <Compile Include="IAccountQuery.cs" />
@@ -61,6 +62,7 @@
     <Compile Include="IBrandQuery.cs" />
     <Compile Include="ICategoryQuery.cs" />
     <Compile Include="IMenuQuery.cs" />
+    <Compile Include="IProcessHistoryQuery.cs" />
     <Compile Include="IProductQuery.cs" />
     <Compile Include="IPurchaseContractQuery.cs" />
     <Compile Include="IRoleQuery.cs" />

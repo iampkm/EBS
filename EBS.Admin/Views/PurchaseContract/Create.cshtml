@@ -1,6 +1,11 @@
 ﻿@{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
+<style>
+    .dataRow div {
+        margin-bottom: 0px;
+    }
+</style>
 <!-- demo root element -->
 <div id="app" class="box box-primary">
     <div class="box-header with-border">
@@ -72,6 +77,7 @@
                         <div class="input-group">
                             @*<span class="input-group-addon">门店*</span>*@
                             <select name="brand" class="form-control" v-model="model.storeId">
+                                <option value="0">-请选择-</option>
                                 @foreach (var item in ViewBag.Stores)
                                 {
                                     <option value="@item.Id">@item.Name</option>
@@ -96,8 +102,7 @@
                                 <thead>
                                     <tr>
                                         <th style="width:30px;"></th>
-                                        <th style="width:50px;">
-                                        </th>
+                                        <th style="width:50px;"></th>
                                         <th style="width:150px;">编码</th>
                                         <th>品名</th>
                                         <th>品类</th>
@@ -106,18 +111,17 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="(index,item) in products">
+                                    <tr v-for="(index,item) in products" >
                                         <td>{{index+1}}</td>
-                                        <td style="width:50px;">
-                                            @*<button class="btn btn-flat btn-success" title="添加行" v-on:click="addRow()"><span class="fa fa-plus"></span></button>*@
+                                        <td style="width:50px;">                                          
                                             <button type="button" class="btn btn-flat btn-success" title="删除行" v-on:click="removeRow(index)"><span class="fa fa-trash"></span></button>
                                         </td>
-                                        <td>{{item.code}}</td>
-                                        <td>{{item.name}}</td>
-                                        <td>{{item.categoryName}}</td>
-                                        <td>{{item.specification}}</td>
-                                        <td>
-                                            <v-input type="text" v-bind:value.sync="products[index].price" pattern="^(([1-9]\d{0,9})|0)(\.\d{1,2})?$" placeholder="价格" required icon></v-input>
+                                        <td>{{item.Code}}</td>
+                                        <td>{{item.Name}}</td>
+                                        <td>{{item.CategoryName}}</td>
+                                        <td>{{item.Specification}}</td>
+                                        <td class="dataRow">
+                                            <v-input type="text" v-bind:value.sync="products[index].CostPrice" pattern="^(([1-9]\d{0,9})|0)(\.\d{1,2})?$" placeholder="价格" required icon></v-input>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -128,7 +132,12 @@
             </v-form>       
         </div>
         <div class="box-footer">
-           
+            <div class="row">
+                <div class="form-group col-sm-4 col-xs-4">
+                    <button type="submit" class="btn btn-warning btn-flat" v-bind:disabled="!valid">保 存</button>
+                    <a class="btn btn-default btn-flat" href="/PurchaseContract/Index">取 消</a>
+                </div>
+            </div>
         </div>
     </form>
     <!-- modal -->
@@ -162,8 +171,8 @@
                         startDate: '',
                         endDate: '',
                         items:''
-                    },
-                    products: [{id:0,code:'',name:'',categoryName:'',specification:'',price:''}],
+                    },                   
+                    products:[],
                     inputProducts:''
                 },
                 methods: {
@@ -175,7 +184,7 @@
                         for (var i = 0; i < _self.products.length; i++)
                         {
                             var item  = _self.products[i];
-                            data += "{\"Id\":" + item.id + ",\"Price\":" + item.price + "},";
+                            data += "{\"Id\":" + item.ProductSkuId + ",\"Price\":" + item.CostPrice + "},";
                         }
                         if (data == "")
                         {
@@ -213,8 +222,8 @@
                         $.post("/PurchaseContract/ImportProduct", { productCodePriceInput: data }, function (result) {
                             if (result.success) {
                                 _self.products = [];
-                                result.data.forEach(function (item) {
-                                    _self.products.push({ id: item.Id, code: item.Code, name: item.Name, categoryName: item.CategoryName, specification: item.Specification, price: item.Price })
+                                result.data.forEach(function (item) {                                  
+                                    _self.products.push(item);
                                 });
                                 _self.modal = false;
                             }

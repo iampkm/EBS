@@ -9,9 +9,12 @@ namespace EBS.Query
 {
    public interface IPurchaseContractQuery
     {
-       IEnumerable<PurchaseContractDto> GetPageList(Pager page, string code, string name, int supplierId, int storeId);
+       IEnumerable<PurchaseContractDto> GetPageList(Pager page, SearchSupplierContract condition);
 
        IEnumerable<PurchaseContractItemDto> GetPurchaseContractItems(string productCodePriceInput);
+       IEnumerable<PurchaseContractItemDto> GetPurchaseContractItems(int purchaseContractId);
+
+       Dictionary<int, string> GetPurchaseContractStatus();
 
       
     }

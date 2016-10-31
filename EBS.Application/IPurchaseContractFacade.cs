@@ -10,6 +10,8 @@ namespace EBS.Application
     {
        void Create(CreatePurchaseContract model);
        void Edit(EditPurchaseContract model);
-        void Delete(string ids);
+       void Delete(int id, int editBy, string editor, string reason);
+       void Submit(int id, int editBy, string editor);
+       void Audit(int id, int editBy, string editor);
     }
 }

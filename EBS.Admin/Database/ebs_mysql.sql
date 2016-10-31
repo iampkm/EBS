@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2016/10/30 22:15:11                          */
+/* Created on:     2016-10-31 15:12:23                          */
 /*==============================================================*/
 
 
@@ -21,6 +21,10 @@ drop table if exists Inventory;
 drop table if exists InventoryHistory;
 
 drop table if exists Menu;
+
+drop index idx_ProcessHistory_fromId on ProcessHistory;
+
+drop table if exists ProcessHistory;
 
 drop index idx_pcodeseq_guidcode on ProductCodeSequence;
 
@@ -190,6 +194,33 @@ create table Menu
 );
 
 alter table Menu comment '系统菜单';
+
+/*==============================================================*/
+/* Table: ProcessHistory                                        */
+/*==============================================================*/
+create table ProcessHistory
+(
+   Id                   int not null auto_increment comment '编号',
+   CreatedBy            int comment '创建人',
+   CreatedByName        nvarchar(64) comment '创建人名',
+   CreatedOn            datetime comment '创建时间',
+   Status               int comment '状态',
+   FormId               int comment '表单Id',
+   FormType             nvarchar(64) comment '表单类型',
+   Remark               nvarchar(1000) comment '备注',
+   primary key (Id)
+);
+
+alter table ProcessHistory comment '表单处理历史记录';
+
+/*==============================================================*/
+/* Index: idx_ProcessHistory_fromId                             */
+/*==============================================================*/
+create index idx_ProcessHistory_fromId on ProcessHistory
+(
+   FormId,
+   FormType
+);
 
 /*==============================================================*/
 /* Table: ProductCodeSequence                                   */

@@ -51,6 +51,7 @@
     <Compile Include="Entity\Account.cs" />
     <Compile Include="Entity\Area.cs" />
     <Compile Include="Entity\Brand.cs" />
+    <Compile Include="Entity\ProcessHistory.cs" />
     <Compile Include="Entity\ProductCodeSequence.cs" />
     <Compile Include="Entity\ProductSpecificationMapping.cs" />
     <Compile Include="Entity\PurchaseContract.cs" />
@@ -62,6 +63,7 @@
     <Compile Include="Entity\AccountLoginHistory.cs" />
     <Compile Include="Service\BrandService.cs" />
     <Compile Include="Service\CategoryService.cs" />
+    <Compile Include="Service\ProcessHistoryService.cs" />
     <Compile Include="Service\ProductService.cs" />
     <Compile Include="Service\ProductSkuService.cs" />
     <Compile Include="Service\PurchaseContractService.cs" />
@@ -70,6 +72,7 @@
     <Compile Include="Service\SupplierService.cs" />
     <Compile Include="ValueObject\AccountStatus.cs" />
     <Compile Include="ValueObject\BillIdentity.cs" />
+    <Compile Include="ValueObject\FormType.cs" />
     <Compile Include="ValueObject\SupplierType.cs" />
     <Compile Include="ValueObject\DateRange.cs" />
     <Compile Include="ValueObject\LoginStatus.cs" />

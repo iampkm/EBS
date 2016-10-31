@@ -15,7 +15,7 @@ namespace EBS.Domain.ValueObject
         WaitingAudit = 2,
         [Description("已审")]
         Audited = 3,
-        [Description("终止")]
+        [Description("作废")]
         Cancel = 4
     }
 }

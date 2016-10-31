@@ -29,11 +29,23 @@ namespace EBS.Query.DTO
         /// <summary>
         /// 合同开始日期
         /// </summary>
-        public string StartDate { get; set; }
+        public DateTime StartDate { get; set; }
+
+        public string StartTime { get {
+            return StartDate.ToString("yyyy-MM-dd");
+        } }
+
         /// <summary>
         /// 合同开始日期
         /// </summary>
-        public string EndDate { get; set; }       
+        public DateTime EndDate { get; set; }
+        public string EndTime
+        {
+            get
+            {
+                return EndDate.ToString("yyyy-MM-dd");
+            }
+        }
         public PurchaseContractStatus Status { get; set; }
 
         public string PurchaseContractStatus

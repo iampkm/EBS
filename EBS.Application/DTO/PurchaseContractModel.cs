@@ -23,7 +23,9 @@ namespace EBS.Application.DTO
         /// 合同开始日期
         /// </summary>
         public DateTime EndDate { get; set; }      
-        public string CreatedBy { get; set; }
+        public int CreatedBy { get; set; }
+
+        public string CreatedByName { get; set; }
        /// <summary>
        ///  id,price 键值对
        /// </summary>
@@ -52,7 +54,9 @@ namespace EBS.Application.DTO
        /// 合同开始日期
        /// </summary>
        public DateTime EndDate { get; set; }
-       public string UpdatedBy { get; set; }
+       public int UpdatedBy { get; set; }
+
+       public string UpdatedByName { get; set; }
        /// <summary>
        ///  id,price 键值对
        /// </summary>

@@ -8,16 +8,20 @@ namespace EBS.Query.DTO
 {
    public class PurchaseContractItemDto
     {
-         public int Id { get; set; }
-
+         public int ProductSkuId { get; set; }
+         /// <summary>
+         /// 商品名
+         /// </summary>
          public string Name { get; set; }
-
+       /// <summary>
+       /// 商品编码
+       /// </summary>
          public string Code { get; set; }
 
          public string CategoryName { get; set; }
 
         public string Specification { get; set; }
 
-         public decimal Price { get; set; }
+         public decimal CostPrice { get; set; }
     }
 }

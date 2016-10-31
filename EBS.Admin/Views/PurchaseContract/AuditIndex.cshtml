@@ -7,7 +7,7 @@
     <div class="box box-primary">
         <div class="box-header">
             <ol class="breadcrumb" style="padding:0px;margin:1px;">
-                <li><a href="/PurchaseContract/Index"><i class="fa fa-dashboard"></i> 采购合同管理</a></li>
+                <li><a href="/PurchaseContract/AuditIndex"><i class="fa fa-dashboard"></i>审核合同</a></li>
             </ol>
         </div>
         <div class="box-body">
@@ -48,33 +48,24 @@
                     <div class="form-group col-sm-2 col-xs-3">
                         <div class="input-group">
                             <span class="input-group-addon">状态</span>
-                            <select name="brand" class="form-control" v-model="searchArgs.status">
-                                <option value="0">-请选择-</option>
+                            <select name="brand" class="form-control" v-model="searchArgs.status">   
+                                <option value="0">-请选择-</option>                            
                                 @foreach (var item in ViewBag.Status)
                                 {
                                     <option value="@item.Key">@item.Value</option>
                                 }
                             </select>
                         </div>
-                    </div>                   
+                    </div>
                 </div>
-                <span class="input-group-btn" slot="customButtons">
-                    <a class="btn btn-warning btn-flat" href="/PurchaseContract/Create">新 增</a>
-                    <button type="button" class="btn btn-success btn-flat" v-on:click="submitAudit()">提交审核</button>
-                    <button type="button" class="btn btn-danger btn-flat" v-on:click="remove()">作 废</button>
+                <span class="input-group-btn" slot="customButtons">                 
+                    <button type="button" class="btn btn-success btn-flat" v-on:click="audit()">审 核</button>                  
                 </span>
             </vue-table>
         </div>
         <!-- /.box-body -->
     </div>
     <div class="clearfix"></div>
-    <!-- modal -->
-    <v-modal title="作废原因" ok-text="确 定" cancel-text="取 消" v-bind:callback="callback" v-bind:show.sync="modal" v-bind:effect="fade" width="300">
-        <div slot="modal-body" class="modal-body">
-            <input type="hidden" v-model="selectedId" />
-            <v-input type="textarea" v-bind:value.sync="removeReason" placeholder="请录入作废理由" required icon></v-input>
-        </div>
-    </v-modal>
 </div>
 @{Html.RenderPartial("VueTableTemplate");}
 @section scripts{
@@ -82,15 +73,10 @@
     <script>
 
         var vue = new Vue({
-            components: {
-                'v-modal': VueStrap.modal,
-                'v-input': VueStrap.input
-            },
             el: '#app',
             data: {
                 modal: false,
                 selectedId: 0,
-                removeReason:'',
                 searchQuery: '',
                 gridColumns: [
                     { name: 'Code', localName: '合同号', style: "<a href='/PurchaseContract/Edit/{id}'>{column}</a>" },
@@ -104,38 +90,11 @@
 
                 ],
                 url: "/PurchaseContract/LoadData",
-                searchArgs: { code: '', name: '', supplierId: 0, storeId: 0,status:0 },
+                searchArgs: { code: '', name: '', supplierId: 0, storeId: 0, status: @ViewBag.waitingAudit },
                 rows: []
             },
-            methods: {
-                remove: function () {
-                    var selectRow = this.rows.filter(function (item, index) {
-                        if (item.checked) {
-                            return true;
-                        }
-                    });
-                    if (selectRow.length == 0) {
-                        bootbox.alert("请选择一条记录");
-                        return;
-                    }
-                    this.selectedId = selectRow[0].Id;
-                    this.modal = true;
-                },
-                callback:function(){
-                    var v_self = this;
-                    var selectId = v_self.selectedId;
-                    var remark = v_self.removeReason;
-                    $.post("/PurchaseContract/Delete", { id: selectId, reason: remark }, function (result) {
-                        if (result.success) {
-                            v_self.$refs.vtable.loadData();
-                            v_self.modal = false;
-                        }
-                        else {
-                            bootbox.alert(result.error);
-                        }
-                    }, "json");
-                },
-                submitAudit: function () {
+            methods: {                           
+                audit: function () {
                     var selectRow = this.rows.filter(function (item, index) {
                         if (item.checked) {
                             return true;
@@ -147,9 +106,9 @@
                     }
                     var selectId = selectRow[0].Id;
                     v_self = this;
-                    bootbox.confirm("您确定提交该记录？", function (result) {
+                    bootbox.confirm("您确定审核该记录？", function (result) {
                         if (result) {
-                            $.post("/PurchaseContract/Submit", { id: selectId }, function (result) {
+                            $.post("/PurchaseContract/Audit", { id: selectId }, function (result) {
                                 if (result.success) {
                                     v_self.$refs.vtable.loadData();
                                 }
@@ -159,7 +118,7 @@
                             }, "json");
                         }
                     });
-                }                
+                }
             }
         })
 
