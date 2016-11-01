@@ -30,6 +30,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AutoMapper, Version=5.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.5.1.1\lib\net45\AutoMapper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Dapper.DBContext">
       <HintPath>..\packages\Dapper.DBContext.0.2.0\lib\net45\Dapper.DBContext.dll</HintPath>
     </Reference>
@@ -52,6 +56,8 @@
     <Compile Include="AccountFacade.cs" />
     <Compile Include="BrandFacade.cs" />
     <Compile Include="CategoryFacade.cs" />
+    <Compile Include="Mapping\AutoMappingExtension.cs" />
+    <Compile Include="Mapping\ModelExtension.cs" />
     <Compile Include="MenuFacade.cs" />
     <Compile Include="ProductFacade.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -69,6 +75,9 @@
       <Project>{5dd4ab82-555f-4f86-8613-2cdce5df0e43}</Project>
       <Name>EBS.Domain</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

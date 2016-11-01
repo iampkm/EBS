@@ -10,6 +10,7 @@ using EBS.Domain.Entity;
 using EBS.Domain.ValueObject;
 using EBS.Application.DTO;
 using Newtonsoft.Json;
+using EBS.Application.Facade.Mapping;
 namespace EBS.Application.Facade
 {
     public class PurchaseContractFacade : IPurchaseContractFacade
@@ -40,6 +41,8 @@ namespace EBS.Application.Facade
                 Contact = model.Contact,
                 StoreId = model.StoreId,
             };
+            model.toDic();
+            entity = model.MapTo<PurchaseContract>();
             _service.Create(entity,model.ProductPriceDic);
             var reason = "创建合同";
             _processHistoryService.Track(model.CreatedBy, model.CreatedByName, (int)entity.Status, entity.Id, FormType.PurchaseContract, reason);

@@ -77,11 +77,11 @@ namespace EBS.Admin.Controllers
         public JsonResult Create(CreatePurchaseContract model)
         {
 
-            if (string.IsNullOrEmpty(model.Items)) throw new Exception("商品明细为空");
-            var productPriceList = JsonConvert.DeserializeObject<List<ProductPriceModel>>(model.Items);
-            Dictionary<int, decimal> productPriceDic = new Dictionary<int, decimal>();
-            productPriceList.ForEach(n => productPriceDic.Add(n.Id, n.Price));
-            model.ProductPriceDic = productPriceDic;
+            //if (string.IsNullOrEmpty(model.Items)) throw new Exception("商品明细为空");
+            //var productPriceList = JsonConvert.DeserializeObject<List<ProductPriceModel>>(model.Items);
+            //Dictionary<int, decimal> productPriceDic = new Dictionary<int, decimal>();
+            //productPriceList.ForEach(n => productPriceDic.Add(n.Id, n.Price));
+            //model.ProductPriceDic = productPriceDic;
             model.CreatedBy = _context.CurrentAccount.AccountId;
             model.CreatedByName = _context.CurrentAccount.NickName;
             _purchaseContractFacade.Create(model);

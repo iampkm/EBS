@@ -8,6 +8,12 @@ namespace EBS.Domain.Entity
 {
     public class StorePurchaseOrderItem : BaseEntity
     {
+        public StorePurchaseOrderItem(int productSkuId,decimal contractPrice,int storePurchaseOrderId,int quantity) {
+            this.StorePurchaseOrderId = StorePurchaseOrderId;
+            this.ProductSkuId = productSkuId;
+            this.ContractPrice = contractPrice;
+            this.Quantity = quantity; 
+        }
        public int StorePurchaseOrderId {get;set;}
        /// <summary>
        /// 商品SKUID

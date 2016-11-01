@@ -8,10 +8,12 @@ namespace EBS.Domain.Entity
 {
     public class StorePurchaseOrder : BaseEntity
     {
-        public StorePurchaseOrder() {
+        private List<StorePurchaseOrderItem> _items;
+        public StorePurchaseOrder()
+        {
             this.CreatedOn = DateTime.Now;
             this.UpdatedOn = DateTime.Now;
-            this.Items = new List<StorePurchaseOrderItem>();
+            _items = new List<StorePurchaseOrderItem>();
             this.Status = PurchaseOrderStatus.Create;
         }
         /// <summary>
@@ -28,13 +30,21 @@ namespace EBS.Domain.Entity
         public DateTime UpdatedOn { get; set; }
         public int UpdatedBy { get; set; }
 
-        public virtual List<StorePurchaseOrderItem> Items { get; private set; }
-
-        public void AddItems(StorePurchaseOrderItem item)        
+        public virtual IEnumerable<StorePurchaseOrderItem> Items
         {
-            this.Items.Add(item);
-            this.Total = this.Items.Sum(n => n.Price * n.ActualQuantity);
+            get
+            {
+                return _items;
+            }
         }
+
+        public void AddItem(int productSkuId, decimal contractPrice, int storePurchaseOrderId, int quantity)
+        {
+            StorePurchaseOrderItem item = new StorePurchaseOrderItem(productSkuId, contractPrice, this.Id, quantity);
+            this._items.Add(item);
+        }
+
+
 
     }
 }
