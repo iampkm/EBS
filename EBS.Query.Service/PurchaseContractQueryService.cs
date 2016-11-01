@@ -68,14 +68,14 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             var productItems= _query.FindAll<PurchaseContractItemDto>(sql, new { Codes = dic.Keys.ToArray() });
             foreach (var product in productItems)
             {
-                product.CostPrice = dic[product.Code];
+                product.ContractPrice = dic[product.Code];
             }
             return productItems;
         }
 
         public IEnumerable<PurchaseContractItemDto> GetPurchaseContractItems(int purchaseContractId)
         {
-            string sql = "select pc.ProductSkuId,p.Code,p.`Name`,p.Specification,c.FullName as CategoryName,pc.CostPrice from PurchaseContractItem pc inner join  productsku p on pc.productSkuId=p.Id inner join category c on p.categoryId = c.Id where pc.purchaseContractId = @PurchaseContractId";
+            string sql = "select pc.ProductSkuId,p.Code,p.`Name`,p.Specification,c.FullName as CategoryName,pc.ContractPrice from PurchaseContractItem pc inner join  productsku p on pc.productSkuId=p.Id inner join category c on p.categoryId = c.Id where pc.purchaseContractId = @PurchaseContractId";
             var productItems = _query.FindAll<PurchaseContractItemDto>(sql, new { PurchaseContractId = purchaseContractId });
             return productItems;
         }

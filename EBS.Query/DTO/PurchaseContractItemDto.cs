@@ -21,7 +21,9 @@ namespace EBS.Query.DTO
          public string CategoryName { get; set; }
 
         public string Specification { get; set; }
-
-         public decimal CostPrice { get; set; }
+       /// <summary>
+       /// 合同价
+       /// </summary>
+         public decimal ContractPrice { get; set; }
     }
 }

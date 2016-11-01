@@ -10,7 +10,10 @@ namespace EBS.Domain.Entity
     {
        public int PurchaseContractId {get;set;}
        public int ProductSkuId { get; set; }
-       public decimal CostPrice { get; set; }
+       /// <summary>
+       /// 合同价
+       /// </summary>
+       public decimal ContractPrice { get; set; }
 
         // 淘汰，正常，滞销，只销不进，只进不销
     }

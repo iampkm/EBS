@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DTO\AccountModel.cs" />
+    <Compile Include="DTO\CreateStorePurchaseOrder.cs" />
     <Compile Include="DTO\LoginModel.cs" />
     <Compile Include="DTO\MenuModel.cs" />
     <Compile Include="DTO\ProductModel.cs" />

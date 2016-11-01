@@ -125,7 +125,7 @@
                                         <td>{{item.CategoryName}}</td>
                                         <td>{{item.Specification}}</td>
                                         <td class="dataRow">
-                                            <v-input type="text" v-bind:value.sync="products[index].CostPrice" pattern="^(([1-9]\d{0,9})|0)(\.\d{1,2})?$" placeholder="价格" required icon></v-input>
+                                            <v-input type="text" v-bind:value.sync="products[index].ContractPrice" pattern="^(([1-9]\d{0,9})|0)(\.\d{1,2})?$" placeholder="价格" required icon></v-input>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -219,7 +219,7 @@
                         var data = "";
                         for (var i = 0; i < _self.products.length; i++) {
                             var item = _self.products[i];
-                            data += "{\"Id\":" + item.ProductSkuId + ",\"Price\":" + item.CostPrice + "},";
+                            data += "{\"Id\":" + item.ProductSkuId + ",\"Price\":" + item.ContractPrice + "},";
                         }
                         if (data == "") {
                             bootbox.alert("请导入商品");

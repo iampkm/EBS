@@ -51,7 +51,7 @@ namespace EBS.Domain.Entity
                 PurchaseContractItem item = new PurchaseContractItem()
                 {
                    PurchaseContractId = this.Id,                 
-                   CostPrice = productPriceDic[product.Id],
+                   ContractPrice = productPriceDic[product.Id],
                    ProductSkuId = product.Id
                };
                this.Items.Add(item);

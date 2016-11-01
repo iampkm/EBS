@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2016-10-31 15:12:23                          */
+/* Created on:     2016-11-01 14:49:48                          */
 /*==============================================================*/
 
 
@@ -11,6 +11,10 @@ drop table if exists Account;
 drop table if exists AccountLoginHistory;
 
 drop table if exists Area;
+
+drop index idx_BillSequence_guidcode on BillSequence;
+
+drop table if exists BillSequence;
 
 drop table if exists Brand;
 
@@ -54,7 +58,17 @@ drop table if exists Store;
 
 drop table if exists StoreInventory;
 
+drop table if exists StoreInventoryBitch;
+
 drop table if exists StoreInventoryHistory;
+
+drop index idx_StorePurchaseOrder_code on StorePurchaseOrder;
+
+drop table if exists StorePurchaseOrder;
+
+drop index idx_StorePOrderItem_BatchNo on StorePurchaseOrderItem;
+
+drop table if exists StorePurchaseOrderItem;
 
 drop index idx_supplier_code on Supplier;
 
@@ -119,6 +133,26 @@ create table Area
 );
 
 alter table Area comment '区域表';
+
+/*==============================================================*/
+/* Table: BillSequence                                          */
+/*==============================================================*/
+create table BillSequence
+(
+   Id                   int not null auto_increment,
+   GuidCode             nvarchar(32) comment 'guid代码',
+   primary key (Id)
+);
+
+alter table BillSequence comment '单据序列号';
+
+/*==============================================================*/
+/* Index: idx_BillSequence_guidcode                             */
+/*==============================================================*/
+create unique index idx_BillSequence_guidcode on BillSequence
+(
+   GuidCode
+);
 
 /*==============================================================*/
 /* Table: Brand                                                 */
@@ -326,7 +360,7 @@ create table PurchaseContractItem
    Id                   int not null auto_increment comment '编号',
    PurchaseContractId   int comment '采购合同编号',
    ProductSKUId         int comment '商品skuid',
-   CostPrice            decimal(8,2) comment '成本价',
+   ContractPrice        decimal(8,2) comment '合同价',
    primary key (Id)
 );
 
@@ -340,7 +374,8 @@ create table PurchaseOrder
    Id                   int not null auto_increment comment '编号',
    PurchaseContractId   int comment '采购合同编号',
    Code                 nvarchar(20) comment '订单号',
-   StoreId              int comment '门店Id',
+   Type                 int comment '单据类型:  进货 1，退货 2',
+   WarehouseId          int comment '仓库Id',
    SupplierId           int comment '供应商Id',
    CreatedOn            datetime comment '创建时间',
    CreatedBy            int comment '创建人',
@@ -369,8 +404,11 @@ create table PurchaseOrderItem
    Id                   int not null auto_increment comment '编号',
    PurchaseOrderId      int comment '采购订单编号',
    ProductSKUId         int comment '商品skuid',
-   CostPrice            decimal(8,2) comment '成本价',
+   ContractPrice        decimal(8,2) comment '合同价',
+   Price                decimal(8,2) comment '进价',
    Quantity             int comment '数量',
+   ActualQuantity       int comment '实际数量',
+   IsGift               bool comment '赠品是否赠品',
    primary key (Id)
 );
 
@@ -426,7 +464,7 @@ alter table Store comment '门店';
 /*==============================================================*/
 create table StoreInventory
 (
-   Id                   int not null comment '编号',
+   Id                   int not null auto_increment comment '编号',
    ProductSKUId         int comment 'SKU编码',
    StoreId              int comment '门店编码',
    SaleQuantity         int comment '销售库存',
@@ -440,11 +478,31 @@ create table StoreInventory
 alter table StoreInventory comment '门店库存';
 
 /*==============================================================*/
+/* Table: StoreInventoryBitch                                   */
+/*==============================================================*/
+create table StoreInventoryBitch
+(
+   Id                   int not null auto_increment comment '编号',
+   ProductSKUId         int comment 'SKU编码',
+   StoreId              int comment '仓库编码',
+   BatchNo              int comment '批次号',
+   Quantity             int comment '实际库存数',
+   ProductionDate       datetime comment '生产日期',
+   ShelfLife            int comment '保质期',
+   Price                decimal(8,2) comment '进价',
+   CreatedOn            datetime comment '创建时间',
+   CreatedBy            int comment '创建人',
+   primary key (Id)
+);
+
+alter table StoreInventoryBitch comment '门店商品批次';
+
+/*==============================================================*/
 /* Table: StoreInventoryHistory                                 */
 /*==============================================================*/
 create table StoreInventoryHistory
 (
-   Id                   int not null comment '编号',
+   Id                   int not null auto_increment comment '编号',
    ProductSKUId         int comment 'SKU编码',
    StoreId              int comment '仓库编码',
    Quantity             int comment '实际库存数',
@@ -452,10 +510,72 @@ create table StoreInventoryHistory
    CreatedOn            datetime comment '创建时间',
    CreatedBy            int comment '创建人',
    BillId               int comment '单据系统码',
-   BillCode             varchar(20) comment '单据编码'
+   BillCode             varchar(20) comment '单据编码',
+   BillType             int comment '单据类型',
+   BatchNo              nvarchar(50) comment '批次号',
+   Price                decimal(8,2) comment '进价',
+   primary key (Id)
 );
 
 alter table StoreInventoryHistory comment '门店库存历史记录';
+
+/*==============================================================*/
+/* Table: StorePurchaseOrder                                    */
+/*==============================================================*/
+create table StorePurchaseOrder
+(
+   Id                   int not null auto_increment comment '编号',
+   PurchaseContractId   int comment '采购合同编号',
+   Code                 nvarchar(20) comment '订单号',
+   StoreId              int comment '门店Id',
+   SupplierId           int comment '供应商Id',
+   CreatedOn            datetime comment '创建时间',
+   CreatedBy            int comment '创建人',
+   UpdatedOn            datetime comment '修改时间',
+   UpdatedBy            int comment '修改人',
+   Status               int comment '状态',
+   Total                decimal(8,2) comment '金额',
+   primary key (Id)
+);
+
+alter table StorePurchaseOrder comment '门店采购订单';
+
+/*==============================================================*/
+/* Index: idx_StorePurchaseOrder_code                           */
+/*==============================================================*/
+create unique index idx_StorePurchaseOrder_code on StorePurchaseOrder
+(
+   Code
+);
+
+/*==============================================================*/
+/* Table: StorePurchaseOrderItem                                */
+/*==============================================================*/
+create table StorePurchaseOrderItem
+(
+   Id                   int not null auto_increment comment '编号',
+   StorePurchaseOrderId int comment '门店采购订单编号',
+   ProductSKUId         int comment '商品skuid',
+   ContractPrice        decimal(8,2) comment '合同价',
+   Price                decimal(8,2) comment '进价',
+   Quantity             int comment '数量',
+   ActualQuantity       int comment '实际数量',
+   IsGift               bool comment '赠品是否赠品',
+   ProductionDate       datetime comment '生产日期',
+   BatchNo              nvarchar(50) comment '批次号',
+   ShelfLife            int comment '保质期',
+   primary key (Id)
+);
+
+alter table StorePurchaseOrderItem comment '门店采购订单明细';
+
+/*==============================================================*/
+/* Index: idx_StorePOrderItem_BatchNo                           */
+/*==============================================================*/
+create unique index idx_StorePOrderItem_BatchNo on StorePurchaseOrderItem
+(
+   BatchNo
+);
 
 /*==============================================================*/
 /* Table: Supplier                                              */
@@ -501,7 +621,8 @@ create table Warehouse
    Id                   int not null auto_increment,
    Code                 nvarchar(20) comment '代码',
    Name                 nvarchar(50) comment '仓库名',
-   Region               nvarchar(50) comment '区域',
+   AreaId               nvarchar(50) comment '区域',
+   Address              nvarchar(100) comment '地址',
    primary key (Id)
 );
 
