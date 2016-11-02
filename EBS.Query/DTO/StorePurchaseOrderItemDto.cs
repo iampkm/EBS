@@ -27,24 +27,24 @@ namespace EBS.Query.DTO
        public decimal ContractPrice { get; set; }
 
        public decimal Price { get; set; }
-       /// <summary>
-       /// 预订数量
-       /// </summary>
-       public int Quantity { get; set; }
-
-       /// <summary>
-       /// 预订件数
-       /// </summary>
-       public int WholeQuantity { get; set; }
-
-       /// <summary>
-       /// 单件数量
-       /// </summary>
-       public int SubSkuQuantity { get; set; }
+      
+        /// <summary>
+        /// 件数： 1件，2件
+        /// </summary>
+       public  int PackageQuantity { get; set;}
+        /// <summary>
+        /// 单件数量 1*12 1*24
+        /// </summary>
+        public int SinglePackageQuantity { get; set; }
+        /// <summary>
+        /// 预订数量
+        /// </summary>
+        public int Quantity { get; set; }
+      
        /// <summary>
        /// 实收件数
        /// </summary>
-       public int ActualWholeQuantity { get; set; }
+       public int ActualPackageQuantity { get; set; }
        /// <summary>
        /// 实收数量
        /// </summary>
