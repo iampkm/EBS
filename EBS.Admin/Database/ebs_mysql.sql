@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2016-11-01 14:49:48                          */
+/* Created on:     2016-11-02 15:13:25                          */
 /*==============================================================*/
 
 
@@ -58,15 +58,13 @@ drop table if exists Store;
 
 drop table if exists StoreInventory;
 
-drop table if exists StoreInventoryBitch;
+drop table if exists StoreInventoryBatch;
 
 drop table if exists StoreInventoryHistory;
 
 drop index idx_StorePurchaseOrder_code on StorePurchaseOrder;
 
 drop table if exists StorePurchaseOrder;
-
-drop index idx_StorePOrderItem_BatchNo on StorePurchaseOrderItem;
 
 drop table if exists StorePurchaseOrderItem;
 
@@ -90,6 +88,7 @@ create table Account
    Status               int comment '状态',
    LoginErrorCount      int comment '登录错误次数',
    LastUpdateDate       datetime comment '最后修改时间',
+   StoreId              int comment '门店',
    primary key (Id)
 );
 
@@ -478,24 +477,25 @@ create table StoreInventory
 alter table StoreInventory comment '门店库存';
 
 /*==============================================================*/
-/* Table: StoreInventoryBitch                                   */
+/* Table: StoreInventoryBatch                                   */
 /*==============================================================*/
-create table StoreInventoryBitch
+create table StoreInventoryBatch
 (
    Id                   int not null auto_increment comment '编号',
    ProductSKUId         int comment 'SKU编码',
    StoreId              int comment '仓库编码',
-   BatchNo              int comment '批次号',
+   SupplierId           int comment '供应商Id',
    Quantity             int comment '实际库存数',
    ProductionDate       datetime comment '生产日期',
    ShelfLife            int comment '保质期',
    Price                decimal(8,2) comment '进价',
    CreatedOn            datetime comment '创建时间',
    CreatedBy            int comment '创建人',
+   BatchNo              nvarchar(20) comment '批次号',
    primary key (Id)
 );
 
-alter table StoreInventoryBitch comment '门店商品批次';
+alter table StoreInventoryBatch comment '门店商品批次';
 
 /*==============================================================*/
 /* Table: StoreInventoryHistory                                 */
@@ -512,7 +512,7 @@ create table StoreInventoryHistory
    BillId               int comment '单据系统码',
    BillCode             varchar(20) comment '单据编码',
    BillType             int comment '单据类型',
-   BatchNo              nvarchar(50) comment '批次号',
+   BatchNo              nvarchar(20) comment '批次号',
    Price                decimal(8,2) comment '进价',
    primary key (Id)
 );
@@ -525,16 +525,22 @@ alter table StoreInventoryHistory comment '门店库存历史记录';
 create table StorePurchaseOrder
 (
    Id                   int not null auto_increment comment '编号',
-   PurchaseContractId   int comment '采购合同编号',
    Code                 nvarchar(20) comment '订单号',
    StoreId              int comment '门店Id',
+   SupplierCode         nvarchar(20) comment '供应商单号',
    SupplierId           int comment '供应商Id',
    CreatedOn            datetime comment '创建时间',
    CreatedBy            int comment '创建人',
-   UpdatedOn            datetime comment '修改时间',
-   UpdatedBy            int comment '修改人',
+   CreatedByName        nvarchar(50) comment '创建人名',
+   ReceivedBy           int comment '收货人',
+   ReceivedOn           datetime comment '收货日期',
+   ReceivedByName       varchar(50) comment '收货人名',
+   StoragedBy           int comment '入库人',
+   StoragedByName       nvarchar(50) comment '入库人名',
+   StoragedOn           datetime comment '入库日期',
    Status               int comment '状态',
-   Total                decimal(8,2) comment '金额',
+   IsGift               bool comment '是否赠品',
+   BatchNo              nvarchar(20) comment '批次号',
    primary key (Id)
 );
 
@@ -560,22 +566,12 @@ create table StorePurchaseOrderItem
    Price                decimal(8,2) comment '进价',
    Quantity             int comment '数量',
    ActualQuantity       int comment '实际数量',
-   IsGift               bool comment '赠品是否赠品',
    ProductionDate       datetime comment '生产日期',
-   BatchNo              nvarchar(50) comment '批次号',
    ShelfLife            int comment '保质期',
    primary key (Id)
 );
 
 alter table StorePurchaseOrderItem comment '门店采购订单明细';
-
-/*==============================================================*/
-/* Index: idx_StorePOrderItem_BatchNo                           */
-/*==============================================================*/
-create unique index idx_StorePOrderItem_BatchNo on StorePurchaseOrderItem
-(
-   BatchNo
-);
 
 /*==============================================================*/
 /* Table: Supplier                                              */

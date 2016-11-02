@@ -63,6 +63,7 @@
     <Compile Include="IPurchaseContractFacade.cs" />
     <Compile Include="IRoleFacade.cs" />
     <Compile Include="IStoreFacade.cs" />
+    <Compile Include="IStorePurchaseOrderFacade.cs" />
     <Compile Include="ISupplierFacade.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

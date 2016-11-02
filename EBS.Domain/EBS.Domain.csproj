@@ -59,6 +59,7 @@
     <Compile Include="Entity\PurchaseContractItem.cs" />
     <Compile Include="Entity\RoleMenu.cs" />
     <Compile Include="Entity\Store.cs" />
+    <Compile Include="Entity\StoreAccount.cs" />
     <Compile Include="Entity\StoreInventory.cs" />
     <Compile Include="Entity\StoreInventoryHistory.cs" />
     <Compile Include="Entity\StorePurchaseOrder.cs" />

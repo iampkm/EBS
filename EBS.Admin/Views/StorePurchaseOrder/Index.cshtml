@@ -1,0 +1,169 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<!-- demo root element -->
+<div id="app">
+    <div class="box box-primary">
+        <div class="box-header">
+            <ol class="breadcrumb" style="padding:0px;margin:1px;">
+                <li><a href="/StorePurchaseOrder/Index"><i class="fa fa-dashboard"></i> 采购单管理</a></li>
+            </ol>
+        </div>
+        <div class="box-body">
+            <vue-table v-ref:vtable v-bind:columns="gridColumns"
+                       v-bind:url="url"
+                       v-bind:args="searchArgs" v-bind:data.sync="rows">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                    <div class="col-xs-3 col-sm-2">
+                        <input class="form-control" v-model="searchArgs.code" placeholder="单编号" debounce="500" />
+                    </div>
+                    <div class="col-xs-3 col-sm-2">
+                        <input class="form-control" v-model="searchArgs.productCodeOrBarCode" placeholder="商品编码/条码" debounce="500" />
+                    </div>                   
+                    <div class="col-xs-3  col-sm-2">
+                        <div class="input-group">
+                            <span class="input-group-addon">供应商</span>
+                            <select name="brand" class="form-control" v-model="searchArgs.supplierId">
+                                <option value="0">-请选择-</option>
+                                @foreach (var item in ViewBag.Suppliers)
+                                {
+                                    <option value="@item.Id">@item.Name</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-2 col-xs-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">门店</span>
+                            <select name="brand" class="form-control" v-model="searchArgs.storeId">
+                                <option value="0">-请选择-</option>
+                                @foreach (var item in ViewBag.Stores)
+                                {
+                                    <option value="@item.Id">@item.Name</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-2 col-xs-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">状态</span>
+                            <select name="brand" class="form-control" v-model="searchArgs.status">
+                                <option value="0">-请选择-</option>
+                                @foreach (var item in ViewBag.Status)
+                                {
+                                    <option value="@item.Key">@item.Value</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <span class="input-group-btn" slot="customButtons">
+                    <a class="btn btn-warning btn-flat" href="/StorePurchaseOrder/Create">新 增</a>
+                    <button type="button" class="btn btn-success btn-flat" v-on:click="submitAudit()">提交审核</button>
+                    <button type="button" class="btn btn-danger btn-flat" v-on:click="remove()">作 废</button>
+                </span>
+            </vue-table>
+        </div>
+        <!-- /.box-body -->
+    </div>
+    <div class="clearfix"></div>
+    <!-- modal -->
+    <v-modal title="作废原因" ok-text="确 定" cancel-text="取 消" v-bind:callback="callback" v-bind:show.sync="modal" v-bind:effect="fade" width="300">
+        <div slot="modal-body" class="modal-body">
+            <input type="hidden" v-model="selectedId" />
+            <v-input type="textarea" v-bind:value.sync="removeReason" placeholder="请录入作废理由" required icon></v-input>
+        </div>
+    </v-modal>
+</div>
+@{Html.RenderPartial("VueTableTemplate");}
+@section scripts{
+    <script src="~/Content/Vue/vuetable/vuetable.js"></script>
+    <script>
+
+        var vue = new Vue({
+            components: {
+                'v-modal': VueStrap.modal,
+                'v-input': VueStrap.input
+            },
+            el: '#app',
+            data: {
+                modal: false,
+                selectedId: 0,
+                removeReason: '',
+                searchQuery: '',
+                gridColumns: [
+                { name: 'Code', localName: '采购单号', style: "<a href='/StorePurchaseOrder/Edit/{id}'>{column}</a>" },
+                { name: 'StoreName', localName: '门店' },
+                { name: 'Supplier', localName: '供应商', width: '250' },
+                { name: 'PurchaseOrderStatus', localName: '状态', width: '80' },
+                { name: 'UpdateTime', localName: '经手人' },
+                { name: 'UpdateByName', localName: '处理时间' },
+
+                ],
+                url: "/StorePurchaseOrder/LoadData",
+                searchArgs: { code: '', supplierId: 0, storeId: 0, status: 0 ,productCodeOrBarCode:''},
+                rows: []
+            },
+            methods: {
+                remove: function () {
+                    var selectRow = this.rows.filter(function (item, index) {
+                        if (item.checked) {
+                            return true;
+                        }
+                    });
+                    if (selectRow.length == 0) {
+                        bootbox.alert("请选择一条记录");
+                        return;
+                    }
+                    this.selectedId = selectRow[0].Id;
+                    this.modal = true;
+                },
+                callback: function () {
+                    var v_self = this;
+                    var selectId = v_self.selectedId;
+                    var remark = v_self.removeReason;
+                    $.post("/StorePurchaseOrder/Delete", { id: selectId, reason: remark }, function (result) {
+                        if (result.success) {
+                            v_self.$refs.vtable.loadData();
+                            v_self.modal = false;
+                        }
+                        else {
+                            bootbox.alert(result.error);
+                        }
+                    }, "json");
+                },
+                submitAudit: function () {
+                    var selectRow = this.rows.filter(function (item, index) {
+                        if (item.checked) {
+                            return true;
+                        }
+                    });
+                    if (selectRow.length == 0) {
+                        bootbox.alert("请选择一条记录");
+                        return;
+                    }
+                    var selectId = selectRow[0].Id;
+                    v_self = this;
+                    bootbox.confirm("您确定提交该记录？", function (result) {
+                        if (result) {
+                            $.post("/StorePurchaseOrder/Submit", { id: selectId }, function (result) {
+                                if (result.success) {
+                                    v_self.$refs.vtable.loadData();
+                                }
+                                else {
+                                    bootbox.alert(result.error);
+                                }
+                            }, "json");
+                        }
+                    });
+                }
+            }
+        })
+
+    </script>
+}
+
+
+
+

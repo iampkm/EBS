@@ -147,6 +147,7 @@
     <Compile Include="Controllers\PurchaseContractController.cs" />
     <Compile Include="Controllers\RoleController.cs" />
     <Compile Include="Controllers\StoreController.cs" />
+    <Compile Include="Controllers\StorePurchaseOrderController.cs" />
     <Compile Include="Controllers\SupplierController.cs" />
     <Compile Include="FluentValidationResource.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -261,6 +262,8 @@
     <Content Include="Content\jquery\py\pinyin_dict_firstletter.js" />
     <Content Include="Content\Vue\autocomplete\vue-autocomplete.js" />
     <Content Include="Content\Vue\autocomplete\vue-autocomplete.min.js" />
+    <Content Include="Content\Vue\vue-focus\vue-focus.js" />
+    <Content Include="Content\Vue\vue-focus\vue-focus.min.js" />
     <Content Include="Content\Vue\vue-resource\vue-resource.js" />
     <Content Include="Content\Vue\vue-resource\vue-resource.min.js" />
     <Content Include="Content\Vue\vuemodal\vModal.js" />
@@ -1195,6 +1198,8 @@
     <Content Include="Views\PurchaseContract\Create.cshtml" />
     <Content Include="Views\PurchaseContract\Edit.cshtml" />
     <Content Include="Views\PurchaseContract\AuditIndex.cshtml" />
+    <Content Include="Views\StorePurchaseOrder\Index.cshtml" />
+    <Content Include="Views\StorePurchaseOrder\Create.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">

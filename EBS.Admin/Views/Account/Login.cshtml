@@ -54,7 +54,7 @@
                     </div>
                     <!-- /.col -->
                     <div class="col-xs-4">
-                        <input type="hidden" v-model="reurnUrl" value="@ViewBag.ReturnUrl" />
+                        <input type="hidden" v-model="reurnUrl" />
                         <button type="submit" class="btn btn-primary btn-block btn-flat" v-on:click.prevent="Login">Sign In</button>
                     </div>
                     <!-- /.col -->
@@ -95,14 +95,15 @@
                     remmberMe: false,
                     errorMsg: '',
                     validateCode: '',
-                    returnUrl:'',
+                    returnUrl: '@ViewBag.ReturnUrl',
                 },
                 methods: {
                     Login: function () {
                         var self = this;                     
                         $.post("/Account/Login", { UserName: this.userName, Password: this.password, RemmberMe: this.remmberMe }, function (result) {
                             if (result.success) {
-                                window.location.href = result.returnUrl;
+                               // window.location.href = result.returnUrl;
+                                top.location.href = result.returnUrl;
                             }
                             else {
                                 self.errorMsg = result.error;

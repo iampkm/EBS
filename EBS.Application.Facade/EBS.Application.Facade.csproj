@@ -64,6 +64,7 @@
     <Compile Include="PurchaseContractFacade.cs" />
     <Compile Include="RoleFacade.cs" />
     <Compile Include="StoreFacade.cs" />
+    <Compile Include="StorePurchaseOrderFacade.cs" />
     <Compile Include="SupplierFacade.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -55,7 +55,8 @@ namespace EBS.Admin.Controllers
             var accountInfo = JsonConvert.SerializeObject(account);
             this._authenticationService.SignIn(account.UserName, accountInfo, model.RememberMe);
             // return RedirectToAction("DashBoard", "Home"); 
-            return Json(new { success = true, returnUrl = "/Home/DashBoard" });
+            var url = string.IsNullOrEmpty(model.ReturnUrl) ? "/Home/DashBoard" : model.ReturnUrl;
+            return Json(new { success = true, returnUrl = url });
         }
 
         public ActionResult LogOut()

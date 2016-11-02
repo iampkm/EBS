@@ -16,6 +16,8 @@ namespace EBS.Application.DTO
        public bool RememberMe{ get; set; }
        public string IpAddress { get; set; }
 
+       public string ReturnUrl { get; set; }
+
        public void Validate()
        {
            LoginModelValidator validator = new LoginModelValidator();

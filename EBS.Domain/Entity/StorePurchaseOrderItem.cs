@@ -35,18 +35,12 @@ namespace EBS.Domain.Entity
        /// 实际收货数量
        /// </summary>
         public int ActualQuantity {get;set;}
-       /// <summary>
-       /// 是否赠品
-       /// </summary>
-        public bool IsGift {get;set;}
+
        /// <summary>
        /// 生产日期
        /// </summary>
         public DateTime ProductionDate {get;set;}
-        /// <summary>
-        /// 批次号
-        /// </summary>
-        public int BatchNo {get;set;}
+
         /// <summary>
         /// 保质期：单位天
         /// </summary>

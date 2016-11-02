@@ -16,7 +16,7 @@ namespace EBS.Application.DTO
         public int SupplierId { get; set; }
         public int StoreId { get; set; }
         public int CreatedBy { get; set; }
-        public int CreatedByName { get; set; }
+        public string CreatedByName { get; set; }
        /// <summary>
        /// 商品明细json 串
        /// </summary>
