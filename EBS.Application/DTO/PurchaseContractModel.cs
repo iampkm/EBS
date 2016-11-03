@@ -27,10 +27,9 @@ namespace EBS.Application.DTO
 
         public string CreatedByName { get; set; }
        /// <summary>
-       ///  id,price 键值对
+       ///  productId,price 
        /// </summary>
         public string Items { get; set; }
-        public Dictionary<int, decimal> ProductPriceDic { get; set; }
        
     }
 
@@ -44,8 +43,6 @@ namespace EBS.Application.DTO
 
        public int SupplierId { get; set; }
        public string Contact { get; set; }
-       public int Status { get; set; }
-
        /// <summary>
        /// 合同开始日期
        /// </summary>
@@ -61,7 +58,6 @@ namespace EBS.Application.DTO
        ///  id,price 键值对
        /// </summary>
        public string Items { get; set; }
-       public Dictionary<int, decimal> ProductPriceDic { get; set; }
 
    }
 }

@@ -16,12 +16,12 @@
     </div>
     <!-- /.box-header -->
     <!-- form start -->
-    <form v-on:submit.prevent="onSubmit">
+    <form @*v-on:submit.prevent="onSubmit"*@>
         <div class="box-body">
-            <v-form v-bind:valid.sync="valid">
+            @*<v-form v-bind:valid.sync="valid">*@
                 <div class="row">
                     <div class="form-group col-sm-4 col-xs-4">
-                        <button type="submit" class="btn btn-warning btn-flat" v-bind:disabled="!valid">保 存</button>
+                        <button type="submit" class="btn btn-warning btn-flat" v-on:click="onSubmit" @*v-bind:disabled="!valid"*@>保 存</button>
                         <a class="btn btn-default btn-flat" href="/PurchaseContract/Index">取 消</a>
                     </div>
                 </div>
@@ -52,8 +52,7 @@
                                 <i class="fa fa-calendar"></i>
                                 <span>到</span>
                             </div>
-                            <input type="text" class="form-control datepicker" v-model="model.endDate" readonly>
-                            @*<span aria-hidden="true" class="glyphicon glyphicon-remove form-control-feedback"></span>*@
+                            <input type="text" class="form-control datepicker" v-model="model.endDate" readonly>                           
                         </div>
                     </div>
                 </div>
@@ -121,7 +120,8 @@
                                         <td>{{item.CategoryName}}</td>
                                         <td>{{item.Specification}}</td>
                                         <td class="dataRow">
-                                            <v-input type="text" v-bind:value.sync="products[index].ContractPrice" pattern="^(([1-9]\d{0,9})|0)(\.\d{1,2})?$" placeholder="价格" required icon></v-input>
+                                            <input type="text" class="form-control" name="ContractPrice" v-model="item.ContractPrice" v-on:keyup.enter="inputNext($event)" />
+                                            @*<v-input type="text" v-bind:value.sync="item.ContractPrice" pattern="^(([1-9]\d{0,9})|0)(\.\d{1,2})?$" placeholder="价格" required icon></v-input>*@
                                         </td>
                                     </tr>
                                 </tbody>
@@ -129,12 +129,12 @@
                         </div>
                     </div>
                 </div>
-            </v-form>       
+            @*</v-form>*@       
         </div>
         <div class="box-footer">
             <div class="row">
                 <div class="form-group col-sm-4 col-xs-4">
-                    <button type="submit" class="btn btn-warning btn-flat" v-bind:disabled="!valid">保 存</button>
+                    <button type="submit" class="btn btn-warning btn-flat" v-on:click="onSubmit" @*v-bind:disabled="!valid"*@>保 存</button>
                     <a class="btn btn-default btn-flat" href="/PurchaseContract/Index">取 消</a>
                 </div>
             </div>
@@ -184,7 +184,7 @@
                         for (var i = 0; i < _self.products.length; i++)
                         {
                             var item  = _self.products[i];
-                            data += "{\"Id\":" + item.ProductSkuId + ",\"Price\":" + item.ContractPrice + "},";
+                            data += "{\"ProductId\":" + item.ProductId + ",\"ContractPrice\":" + item.ContractPrice + "},";
                         }
                         if (data == "")
                         {
@@ -238,10 +238,19 @@
                     removeRow: function (index)
                     {
                         this.products.splice(index, 1);
+                    },
+                    inputNext: function (event) {
+                        var target = event.target;
+                        var row = $(target).parent().parent();
+                        if (row.next().length > 0) {
+                            row.next().find("input[name='ContractPrice']").focus().select();
+                        }
+                        else {
+                            this.onSubmit();
+                        }
                     }
                 }
-            });
-           
+            });           
 
             // 日期选择器初始化
             $("input.datepicker").datepicker({
@@ -253,7 +262,6 @@
                 autoclose: true              
             });
         });
-
        
 
     </script>

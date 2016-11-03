@@ -1,4 +1,4 @@
-﻿@model EBS.Domain.Entity.ProductSku
+﻿@model EBS.Domain.Entity.Product
 @{
     ViewBag.Title = "Index";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
@@ -17,7 +17,7 @@
     <div class="box-header with-border">
         <ol class="breadcrumb" style="padding:0px;margin:1px;">
             <li><a href="/Product/Index"><i class="fa fa-dashboard"></i>商品管理</a></li>
-            <li class="active"><a href="/Product/Create">新增商品</a></li>
+            <li class="active"><a href="/Product/Edit/{{model.id}}">修改商品</a></li>
         </ol>
     </div>
     <!-- /.box-header -->
@@ -41,7 +41,7 @@
                                 <div class="input-group">
                                     <input type="text" class="form-control" placeholder="选择品类" v-model="model.categoryName" readonly>
                                     <div class="input-group-btn">
-                                        <button type="button" class="btn btn-default btn-flat" v-on:click="showCategory()">
+                                        <button type="button" class="btn btn-default btn-flat" v-on:click="showCategory()" disabled >
                                             <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
                                         </button>
                                     </div>
@@ -73,13 +73,14 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="市场价：" v-bind:value.sync="model.marketPrice" pattern="^(([1-9]\d{0,9})|0)(\.\d{1,2})?$" placeholder="市场价" maxlength="100" required icon></v-input></div>
-                            <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="销售价*：" v-bind:value.sync="model.salePrice" pattern="^(([1-9]\d{0,9})|0)(\.\d{1,2})?$" placeholder="销售价" maxlength="100" required icon></v-input></div>
+                            <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="原价：" v-bind:value.sync="model.oldPrice" pattern="^(([1-9]\d{0,9})|0)(\.\d{1,2})?$" placeholder="原价价" maxlength="100" icon></v-input></div>
+                            <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="销售价*：" v-bind:value.sync="model.salePrice" pattern="^(([1-9]\d{0,9})|0)(\.\d{1,2})?$" placeholder="销售价" maxlength="100"  icon></v-input></div>
                             <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="批发价：" v-bind:value.sync="model.wholeSalePrice" pattern="^(([1-9]\d{0,9})|0)(\.\d{1,2})?$" placeholder="批发价" maxlength="100" icon></v-input></div>
                         </div>
                         <div class="row">
                             <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="条码：" v-bind:value.sync="model.barCode" placeholder="条码" maxlength="100" icon></v-input></div>
                             <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="规格*：" v-bind:value.sync="model.specification" placeholder="规格" maxlength="100" required icon></v-input></div>
+                            <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="件规：" v-bind:value.sync="model.specificationQuantity" placeholder="件规，多个逗号分隔" maxlength="100" required icon></v-input></div>
                             <div class="form-group col-sm-2 col-xs-3">
                                 <label class="control-label">单位：</label>
                                 <div class="input-group">
@@ -129,8 +130,8 @@
                                         </div>*@
                                 </div>
                             </div>
-                            <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="整件数量：" v-bind:value.sync="model.subSkuQuantity" pattern="^[-+]?\d*$" placeholder="整件数量" maxlength="100" icon></v-input></div>
-                            <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="单件编码：" v-bind:value.sync="model.subSkuCode" placeholder="单件编码" maxlength="100" icon></v-input></div>
+                            <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="拆零编码：" v-bind:value.sync="model.subSkuCode" placeholder="拆零编码" maxlength="100" icon></v-input></div>
+                            <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="拆零数量：" v-bind:value.sync="model.subSkuQuantity" pattern="^[-+]?\d*$" placeholder="拆零数量" maxlength="100" icon></v-input></div>
                         </div>
                         <div class="form-group row">
                             <div class="col-xs-4 col-sm-4">
@@ -255,8 +256,8 @@
                     width:@Model.Weight,
                     height:@Model.Height,
                     weight:@Model.Weight,
-                    specification:'@Model.Specification',barCode:'@Model.BarCode',marketPrice:@Model.MarketPrice,salePrice:@Model.SalePrice,wholeSalePrice:@Model.WholeSalePrice,
-                    subSkuCode:'@Model.SubSkuCode',subSkuQuantity:@Model.SubSkuQuantity,
+                    specification:'@Model.Specification',barCode:'@Model.BarCode',oldPrice:@Model.OldPrice,salePrice:@Model.SalePrice,wholeSalePrice:@Model.WholeSalePrice,
+                    subSkuCode:'@Model.SubSkuCode',subSkuQuantity:@Model.SubSkuQuantity,specificationQuantity:'@Model.SpecificationQuantity',
                     unit:'@Model.Unit'
                 }
             },
@@ -297,8 +298,6 @@
                 {
                     this.model.unit = unit;
                 }
-            },
-            watch:{
             }
         });
         var zTreeObj;

@@ -59,7 +59,7 @@
                 </div>
             </div>
             <div class="col-xs-1 col-md-1">
-                @*<span v-show="showLoading" class="loading">loading...</span>*@
+                <span v-show="showLoading" class="loading">loading...</span>
             </div>
             <div class="col-xs-7 col-md-7">
                 <div class="btn-group pull-right">
@@ -78,10 +78,9 @@
                 </div>
             </div>
         </div>
-        <div class="table-fixed-data">
-            <div v-show="showLoading" class="loading">loading...</div>
+        <div class="table-fixed-data">           
             <div id="tbHeader" class="table-fixed-header">
-                <table class="table  table-bordered table-hover ">
+                <table class="table table-bordered table-hover ">
                     <thead>
                         <tr>
                             <th class="text-center" width="{{indexWidth}}"></th>
@@ -112,7 +111,7 @@
                                     <td v-bind:style="{width:key.width}">{{{setColumnStyle(key.style,entry[key.name],entry[id])}}}</td>
                                 </template>
                             </template>
-                            <td></td>
+                            <td><slot name="customColumn"></slot></td>
                         </tr>
                     </tbody>
                 </table>

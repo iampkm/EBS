@@ -111,6 +111,8 @@ namespace EBS.Application.DTO
         /// 子SKU 可拆数量  ： 用于整件拆零，
         /// </summary>
         public int SubSkuQuantity { get; set; }
+
+        public string Unit { get; set; }
         /// <summary>
         /// 创建时间
         /// </summary>

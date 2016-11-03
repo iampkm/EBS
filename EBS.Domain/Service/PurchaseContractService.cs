@@ -16,39 +16,26 @@ namespace EBS.Domain.Service
             this._db = dbContext;
         }
 
-        public void Create(PurchaseContract model,Dictionary<int,decimal> productPriceDic)
+        public void Create(PurchaseContract model)
         {           
             // 同一个门店，同一个时间段内，与一个供应商，同一种经营方式只能有一个合同
             if (_db.Table.Exists<PurchaseContract>(n => n.Code == model.Code))
             {
                 throw new Exception("合同编号已经存在"); 
             }
-
-            //var entity = _db.Table.Find<PurchaseContract>(n => n.SupplierId == model.SupplierId && n.StoreId == model.StoreId && n.Status == ValueObject.PurchaseContractStatus.Audited);
-            //if (entity != null)
-            //{
-            //    var timeIsOk = entity.StartDate > model.EndDate || entity.EndDate < model.StartDate;
-            //    if (!timeIsOk)
-            //    {
-            //        throw new Exception(string.Format("当前合同与{0}合同时间重叠了", entity.Code));
-            //    }
-            //}
-            //add items
-            var products = _db.Table.Find<Product>(productPriceDic.Keys.ToArray()).ToList();
-            model.AddPurchaseContractItem(products, productPriceDic);
-            
             _db.Insert(model);           
         }
 
-        public void Update(PurchaseContract model, Dictionary<int, decimal> productPriceDic)
+        public void Update(PurchaseContract model)
         {
             if (_db.Table.Exists<PurchaseContract>(n => n.Code == model.Code && n.Id != model.Id))
             {
                 throw new Exception("合同编码不能重复!");
             }
-            _db.Delete<PurchaseContractItem>(n => n.PurchaseContractId == model.Id);
-            var products = _db.Table.Find<Product>(productPriceDic.Keys.ToArray()).ToList();
-            model.AddPurchaseContractItem(products, productPriceDic);
+            if (_db.Table.Exists<PurchaseContractItem>(n => n.PurchaseContractId == model.Id))
+            {
+                _db.Delete<PurchaseContractItem>(n => n.PurchaseContractId == model.Id);
+            }           
             _db.Insert<PurchaseContractItem>(model.Items.ToArray());
             _db.Update(model);
         }

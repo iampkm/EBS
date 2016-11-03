@@ -30,7 +30,7 @@
                             </div>
                             <div class="col-xs-2">
                                 <input class="form-control" v-model="searchArgs.name" placeholder="商品名称" debounce="500" />
-                            </div> 
+                            </div>
                             <div class="col-xs-2">
                                 <div class="input-group">
                                     <span class="input-group-addon">品牌</span>
@@ -42,15 +42,15 @@
                                         }
                                     </select>
                                 </div>
-
-                            </div>                            
+                            </div>
                         </div>
                         <span class="input-group-btn" slot="customButtons">
                             <a class="btn btn-warning btn-flat" href="/Product/Create">新 增</a>
+                            <a class="btn btn-success btn-flat" v-on:click="showModal">导入商品</a>
                             <button type="button" class="btn btn-default btn-flat" v-on:click="publish(true)">上架</button>
                             <button type="button" class="btn btn-default btn-flat" v-on:click="publish(false)">下架</button>
                         </span>
-                    </vue-table>                    
+                    </vue-table>
                 </div>
                 <div class="col-xs-2 col-sm-2">
                     <div class="panel panel-default">
@@ -58,38 +58,76 @@
                         <div class="panel-body" style="padding:2px;overflow-y:auto">
                             <ul id="ztree" class="ztree"></ul>
                         </div>
-                    </div>                   
+                    </div>
                 </div>
             </div>
-
         </div>
         <!-- /.box-body -->
     </div>
     <div class="clearfix"></div>
+    <!-- modal -->
+    <v-modal title="导入商品" ok-text="导 入" cancel-text="取 消" v-bind:callback="importProduct" v-bind:show.sync="modal" v-bind:effect="fade" width="50%">
+        <div slot="modal-body" class="modal-body">
+            <label>示例格式：</label>（非必填项，值为空)
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th class="text-danger">品名*</th>
+                        <th class="text-danger">品类（三级）*</th>
+                        <th class="text-danger">品牌*</th>
+                        <th class="text-danger">条码*</th>
+                        <th class="text-danger">规格*</th>
+                        <th>件规</th>
+                        <th>单位</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>绵竹大曲52度</th>
+                        <th>010101</th>
+                        <th>1</th>
+                        <th>6901434392386</th>
+                        <th>500ml</th>
+                        <th>1</th>
+                        <th>瓶</th>
+                    </tr>
+                </tbody>
+            </table>
+            <v-input type="textarea" help="请将excel中商品按照如上格式粘贴到此" v-bind:value.sync="productsInput" placeholder="粘贴excel中商品信息" required icon></v-input>
+            <p style="overflow-y:auto;height:200px;">{{{importInfo}}}</p>
+        </div>
+    </v-modal>
 </div>
 @{Html.RenderPartial("VueTableTemplate");}
 @section scripts{
-<script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
-    <script src="~/Content/Vue/vuetable/vuetable.js"></script> 
+    <script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
+    <script src="~/Content/Vue/vuetable/vuetable.js"></script>
     <script>
         $("doucument").ready(function () {
             var vue = new Vue({
+                components: {
+                    'v-modal': VueStrap.modal,
+                    'v-input': VueStrap.input
+                },
                 el: '#app',
                 data: {
+                    modal: false,
                     searchQuery: '',
                     gridColumns: [
                         { name: 'Name', localName: '商品名', style: "<a href='/Product/Edit/{id}'>{column}</a>", width: '200' },
                          { name: 'Code', localName: '编码' },
                           { name: 'BarCode', localName: '条码' },
                         { name: 'CategoryName', localName: '品类' },
-                         { name: 'BrandName', localName: '品牌' },                       
-                        { name: 'Specification', localName: '规格' },                       
+                         { name: 'BrandName', localName: '品牌' },
+                        { name: 'Specification', localName: '规格' },
                         { name: 'SalePrice', localName: '售价' },
                         { name: 'Publish', localName: '上架',width:'80' }
                     ],
                     url: "/Product/LoadData",
                     searchArgs: { name: '',codeOrBarCode:'',categoryId:'',brandId:0, },
-                    rows: []
+                    rows: [],
+                    productsInput:'',
+                    importInfo:''
                 },
                 methods: {
                     remove: function () {
@@ -130,7 +168,7 @@
                             return;
                         }
                         v_ids = v_ids.substring(0, v_ids.length - 1);
-                        v_self = this;                       
+                        v_self = this;
                         $.post("/Product/PublishToggle", { ids: v_ids,isPublish: v_isPublsh}, function (result) {
                             if (result.success) {
                                 v_self.$refs.vtable.loadData();
@@ -139,7 +177,7 @@
                                 bootbox.alert(result.error);
                             }
                         }, "json");
-                       
+
                     },
                     cancelSelect:function(){
                         var treeObj = $.fn.zTree.getZTreeObj("ztree");
@@ -147,7 +185,28 @@
                         if (nodes.length>0) {
                             treeObj.cancelSelectedNode(nodes[0]);
                         }
-                        vue.searchArgs.categoryId =""; 
+                        vue.searchArgs.categoryId ="";
+                    },
+                    showModal: function () {
+                        this.modal = true;
+                    },
+                    importProduct:function()
+                    {
+                        var data = this.productsInput;
+                        if(data==""){return;}
+                        var _self = this;
+                        _self.importInfo ="导入中...";
+                        $.post("/Product/Import", { productsInput: data }, function (result) {
+                            if (result.success) {
+                                _self.importInfo =result.data;
+                                _self.$refs.vtable.loadData();
+                                _self.productsInput = "";
+                            }
+                            else {
+                                _self.importInfo ="";
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
                     },
                 }
             });
@@ -166,7 +225,7 @@
                         var treeObj = $.fn.zTree.getZTreeObj("ztree");
                         var open = !treeNode.open;
                         treeObj.expandNode(treeNode, open, false, false);
-                        vue.searchArgs.categoryId =treeNode.id; 
+                        vue.searchArgs.categoryId =treeNode.id;
                     }
                 }
             };
@@ -179,7 +238,5 @@
 
     </script>
 }
-
-
 
 

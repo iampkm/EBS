@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using AutoMapper.Configuration.Conventions;
 using EBS.Application.DTO;
 using EBS.Domain.Entity;
 using System.Collections;
@@ -26,8 +27,7 @@ namespace EBS.Application.Facade.Mapping
         {
             if (self == null)
                 throw new ArgumentNullException();
-            Mapper.Map(self, self.GetType(), typeof(TResult));
-           // Mapper.CreateMap(self.GetType(), typeof(TResult));
+            Mapper.Initialize(cfg => cfg.CreateMap(self.GetType(), typeof(TResult)));   
             return (List<TResult>)Mapper.Map(self, self.GetType(), typeof(List<TResult>));
         }
         /// <summary>
@@ -40,7 +40,8 @@ namespace EBS.Application.Facade.Mapping
         {
             if (self == null)
                 throw new ArgumentNullException();
-            Mapper.Map(self, self.GetType(), typeof(TResult));
+             Mapper.Initialize(cfg => cfg.CreateMap(self.GetType(), typeof(TResult)));           
+           // Mapper.Map(self, self.GetType(), typeof(TResult));
             return (TResult)Mapper.Map(self, self.GetType(), typeof(TResult));
         }
 

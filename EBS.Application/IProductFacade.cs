@@ -12,5 +12,7 @@ namespace EBS.Application
         void Edit(ProductModel model);
 
         void PublishToggle(string ids, bool isPublish);
+
+        string Import(string productsIpput);
     }
 }

@@ -21,7 +21,7 @@ namespace EBS.Application.Service
         {
             model.Validate();
             var account = _accountService.CheckAccount(model.UserName, model.Password, model.IpAddress);
-            return new AccountInfo() { AccountId = account.Id, UserName = account.UserName, RoleId = account.RoleId };
+            return new AccountInfo() { AccountId = account.Id, UserName = account.UserName, RoleId = account.RoleId ,NickName = account.NickName};
         }
 
 

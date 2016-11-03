@@ -13,19 +13,20 @@ using Newtonsoft.Json;
 using EBS.Admin.Services;
 namespace EBS.Admin.Controllers
 {
+    [Permission]
     public class ProductController : Controller
     {        
         IQuery _query;
         IProductQuery _productQuery;
         IProductFacade _productFacade;
-        ICategoryQuery _categoryQuery;
+        ICategoryQuery _categoryQuery;     
 
         public ProductController(IQuery query, IProductQuery productQuery, IProductFacade productFacade, ICategoryQuery categoryQuery)
         {
             this._query = query;
             this._productQuery = productQuery;
             this._productFacade = productFacade;
-            this._categoryQuery = categoryQuery;
+            this._categoryQuery = categoryQuery;          
         }
         public ActionResult Index()
         {
@@ -63,7 +64,7 @@ namespace EBS.Admin.Controllers
         }
         [HttpPost]
         public JsonResult Create(ProductModel model)
-        {
+        {            
             this._productFacade.Create(model);
             return Json(new { success = true });
         }
@@ -88,6 +89,12 @@ namespace EBS.Admin.Controllers
         {
             this._productFacade.PublishToggle(ids, isPublish);
             return Json(new { success = true });
+        }
+
+        public JsonResult Import(string productsInput)
+        {
+            var error= this._productFacade.Import(productsInput);
+            return Json(new { success = true, data = error });
         }
 
         #region 商品SKU 规格设计使用，已经作废

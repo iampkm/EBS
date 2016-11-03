@@ -11,10 +11,10 @@ namespace EBS.Domain.Entity
     /// </summary>
     public class PurchaseContract : BaseEntity
     {
-
+        List<PurchaseContractItem> _items;
         public PurchaseContract()
         {
-            this.Items = new List<PurchaseContractItem>();
+            this._items = new List<PurchaseContractItem>();
             this.CreatedOn = DateTime.Now;
             this.UpdatedOn = DateTime.Now;
             this.Status = PurchaseContractStatus.Create;
@@ -44,20 +44,13 @@ namespace EBS.Domain.Entity
         public int UpdatedBy { get; set; }
         public PurchaseContractStatus Status { get; set; }
 
-        public virtual List<PurchaseContractItem> Items { get; private set; }
+        public virtual IEnumerable<PurchaseContractItem> Items { get {
+            return this._items;
+        } }
 
-        public void AddPurchaseContractItem(List<Product> products, Dictionary<int, decimal> productPriceDic)
+        public void AddPurchaseContractItem(List<PurchaseContractItem> items)
         {
-            foreach (var product in products)
-            {
-                PurchaseContractItem item = new PurchaseContractItem()
-                {
-                    PurchaseContractId = this.Id,
-                    ContractPrice = productPriceDic[product.Id],
-                    ProductId = product.Id
-                };
-                this.Items.Add(item);
-            }
+            this._items = items;
         }
 
         public void Submit()

@@ -72,19 +72,21 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="市场价：" v-bind:value.sync="model.marketPrice" pattern="^(([1-9]\d{0,9})|0)(\.\d{1,2})?$" placeholder="市场价" maxlength="100" required icon></v-input></div>
-                            <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="销售价*：" v-bind:value.sync="model.salePrice" pattern="^(([1-9]\d{0,9})|0)(\.\d{1,2})?$" placeholder="销售价" maxlength="100" required icon></v-input></div>
+                            <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="原价：" v-bind:value.sync="model.oldPrice" pattern="^(([1-9]\d{0,9})|0)(\.\d{1,2})?$" placeholder="原价价" maxlength="100" icon></v-input></div>
+                            <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="销售价：" v-bind:value.sync="model.salePrice" pattern="^(([1-9]\d{0,9})|0)(\.\d{1,2})?$" placeholder="销售价" maxlength="100" icon></v-input></div>
                             <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="批发价：" v-bind:value.sync="model.wholeSalePrice" pattern="^(([1-9]\d{0,9})|0)(\.\d{1,2})?$" placeholder="批发价" maxlength="100" icon></v-input></div>
                         </div>
                         <div class="row">
                             <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="条码：" v-bind:value.sync="model.barCode" placeholder="条码" maxlength="100" icon></v-input></div>
                             <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="规格*：" v-bind:value.sync="model.specification" placeholder="规格" maxlength="100" required icon></v-input></div>
+                            <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="件规：" v-bind:value.sync="model.specificationQuantity" placeholder="件规，多个逗号分隔" maxlength="100" required icon></v-input></div>
+
                             <div class="form-group col-sm-2 col-xs-3">
                                 <label class="control-label">单位：</label>
-                                    <div class="input-group">
-                                        <!-- /btn-group -->
-                                        <input type="text" class="form-control" v-model="model.unit" placeholder="单位">
-                                        @*<div class="input-group-btn">
+                                <div class="input-group">
+                                    <!-- /btn-group -->
+                                    <input type="text" class="form-control" v-model="model.unit" placeholder="单位">
+                                    @*<div class="input-group-btn">
                                             <button type="button" class="btn btn-flat btn-warning dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                                                 选择单位
                                                 <span class="fa fa-caret-down"></span>
@@ -95,44 +97,44 @@
                                                <a href="#" v-on:click.prevent="selectedUnit('架')">架</a></li>
 
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('套')">套</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('个')">个</a></li>                                              
+                                                <li><a href="#" v-on:click.prevent="selectedUnit('个')">个</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('只')">只</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('头')">头</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('张')">张</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('件')">件</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('支')">支</a></li>                                              
+                                                <li><a href="#" v-on:click.prevent="selectedUnit('支')">支</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('根')">根</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('条')">条</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('把')">把</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('块')">块</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('卷')">卷</a></li>                                              
+                                                <li><a href="#" v-on:click.prevent="selectedUnit('卷')">卷</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('片')">片</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('组')">组</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('份')">份</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('双')">双</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('对')">对</a></li>                                              
+                                                <li><a href="#" v-on:click.prevent="selectedUnit('对')">对</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('盘')">盘</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('筒')">筒</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('箱')">箱</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('罐')">罐</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('桶')">桶</a></li>                                               
+                                                <li><a href="#" v-on:click.prevent="selectedUnit('桶')">桶</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('册')">册</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('本')">本</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('袋')">袋</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('盒')">盒</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('合')">合</a></li>                                               
+                                                <li><a href="#" v-on:click.prevent="selectedUnit('合')">合</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('打')">打</a></li>
                                                 <li><a href="#" v-on:click.prevent="selectedUnit('包')">包</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('粒')">粒</a></li>                                               
-                                            </ul> 
+                                                <li><a href="#" v-on:click.prevent="selectedUnit('粒')">粒</a></li>
+                                            </ul>
                                         </div>*@
-                                    </div>
-</div>                           
-                            <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="整件数量：" v-bind:value.sync="model.subSkuQuantity" pattern="^[-+]?\d*$" placeholder="整件数量" maxlength="100" icon></v-input></div>
-                            <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="单件编码：" v-bind:value.sync="model.subSkuCode" placeholder="单件编码" maxlength="100" icon></v-input></div> 
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="拆零编码：" v-bind:value.sync="model.subSkuCode" placeholder="拆零编码" maxlength="100" icon></v-input></div>
+                            <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="拆零数量：" v-bind:value.sync="model.subSkuQuantity" pattern="^[-+]?\d*$" placeholder="拆零数量" maxlength="100" icon></v-input></div>
                         </div>
                         <div class="form-group row">
-                            <div class="col-xs-4 col-sm-4">
+                            <div class="col-xs-3 col-sm-2">
                                 <label for="brand" class="control-label">税率选项</label>
                                 <div class="input-group">
                                     <span class="input-group-addon">销项税率*</span>
@@ -144,7 +146,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-xs-4 col-sm-4">
+                            <div class="col-xs-3 col-sm-2">
                                 <label for="brand" class="control-label">&nbsp;</label>
                                 <div class="input-group">
                                     <span class="input-group-addon">进项税率*</span>
@@ -156,14 +158,13 @@
                                     </select>
                                 </div>
                             </div>
-                        </div>                       
+                        </div>
                         <div class="row">
                             <div class="form-group col-sm-2 col-xs-3">
                                 <label class="control-label"><input type="checkbox" v-model="model.isGift" />是赠品：</label>
                             </div>
                             <div class="form-group col-sm-2 col-xs-3">
                                 <label class="control-label"><input type="checkbox" v-model="model.isPublish" />是上架：</label>
-
                             </div>
                         </div>
                     </div>
@@ -190,12 +191,11 @@
                         </div>
                         <div class="row">
                             <div class="col-xs-4 col-sm-4">
-                                <v-input type="textarea" label="商品描述：" v-bind:value.sync="model.description" placeholder="商品详细描述"  icon></v-input>
+                                <v-input type="textarea" label="商品描述：" v-bind:value.sync="model.description" placeholder="商品详细描述" icon></v-input>
                             </div>
                         </div>
                     </div>
                 </div>
-
             </v-form>
         </div>
         <!-- /.box-body -->
@@ -220,134 +220,91 @@
 @section scripts{
     <script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
     <script>
-    $("doucument").ready(function () {
+        $("doucument").ready(function () {
 
-        var demo = new Vue({
-            components: {
-                'v-modal': VueStrap.modal,
-                'v-input': VueStrap.input,
-                'v-form': VueStrap.formGroup
-            },
-            el: '#app',
-            data: {
-                modal:false,
-                valid: false,
-                model: {
-                    id:0,
-                    code:'',
-                    name: '',
-                    showName:'',
-                    sellingPoint:'',
-                    inputRate:17,
-                    outRate:17,
-                    keywords:'',
-                    isGift:false,
-                    isPublish:true,
-                    description:'',
-                    categoryId:'0',
-                    categoryName:'',
-                    brandId:'0',
-                    length:'',
-                    width:'',
-                    height:'',
-                    weight:'',
-                    specification:'',braCode:'',marketPrice:'',salePrice:'',wholeSalePrice:'',subSkuCode:'',subSkuQuantity:'',
-                    unit:'',Description:''
-                }               
-            },
-            methods: {
-                onSubmit: function () {                   
-                    var _self = this;
-                    var v_data = _self.model;
-                    $.post("/Product/Create", v_data, function (result) {
-                        if (result.success) {
-                            bootbox.alert("保存成功！", function () {
-                                 window.location.href = "/Product/Create";
-                              //  _self.clear();
-                            });
-                        }
-                        else {
-                            bootbox.alert(result.error);
-                        }
-                    }, "json");
+            var demo = new Vue({
+                components: {
+                    'v-modal': VueStrap.modal,
+                    'v-input': VueStrap.input,
+                    'v-form': VueStrap.formGroup
                 },
-                showCategory:function(){ this.modal = true;}  ,
-                selectCategory:function(){
-                    var treeObj = $.fn.zTree.getZTreeObj("ztree");
-                    var nodes = treeObj.getSelectedNodes();
-                    if(nodes.length==0){
-                        bootbox.alert("请选择品类");
-                        return;
+                el: '#app',
+                data: {
+                    modal:false,
+                    valid: false,
+                    model: {
+                        id:0, code:'',  name: '', showName:'', sellingPoint:'',
+                        inputRate:17, outRate:17,keywords:'', isGift:false, isPublish:true,
+                        description:'', categoryId:'0', categoryName:'', brandId:0, length:'',
+                        width:'', height:'', weight:'', specificationQuantity:'1', unit:'',Description:'',
+                        specification:'',braCode:'',marketPrice:'',salePrice:'',wholeSalePrice:'',subSkuCode:'',subSkuQuantity:''
                     }
-                    if(nodes[0].id.length/2<3) //选中三级叶子节点
+                },
+                methods: {
+                    onSubmit: function () {
+                        var _self = this;
+                        var v_data = _self.model;
+                        if(_self.model.categoryId=='0'){bootbox.alert("请选择品类");return;}
+                        if(_self.model.brandId==0){bootbox.alert("请选择品牌");return;}
+                        $.post("/Product/Create", v_data, function (result) {
+                            if (result.success) {
+                                bootbox.alert("保存成功！", function () {
+                                    window.location.href = "/Product/Create";
+                                });
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
+                    },
+                    showCategory:function(){ this.modal = true;}  ,
+                    selectCategory:function(){
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                        var nodes = treeObj.getSelectedNodes();
+                        if(nodes.length==0){
+                            bootbox.alert("请选择品类");
+                            return;
+                        }
+                        if(nodes[0].id.length/2<3) //选中三级叶子节点
+                        {
+                            bootbox.alert("分类必须选到3级节点");
+                            return;
+                        }
+                        // 设置 选中的分类
+                        this.model.categoryId = nodes[0].id;
+                        this.model.categoryName = nodes[0].name;
+                        this.modal = false;
+                    },
+                    selectedUnit:function(unit)
                     {
-                        bootbox.alert("分类必须选到3级节点");
-                        return;
+                        this.model.unit = unit;
                     }
-                    // 设置 选中的分类
-                    this.model.categoryId = nodes[0].id;
-                    this.model.categoryName = nodes[0].name;
-                    this.modal = false;
+                }
+            });
+            var zTreeObj;
+            // zTree 的参数配置，深入使用请参考 API 文档（setting 配置详解）
+            var setting = {
+                data: {
+                    simpleData: {
+                        enable: true,
+                        rootPId: 0
+                    }
                 },
-                selectedUnit:function(unit)
-                {
-                    this.model.unit = unit;
-                },
-                clear:function(){
-                    this.model = {
-                        id:0,
-                        code:'',
-                        name: '',
-                        showName:'',
-                        sellingPoint:'',
-                        inputRate:17,
-                        outRate:17,
-                        keywords:'',
-                        isGift:false,
-                        isPublish:true,
-                        description:'',
-                        categoryId:'0',
-                        categoryName:'',
-                        brandId:'0',
-                        length:'',
-                        width:'',
-                        height:'',
-                        weight:'',
-                        specification:'',barCode:'',marketPrice:'',salePrice:'',wholeSalePrice:'',subSkuCode:'',subSkuQuantity:'',
-                        unit:'',Description:''
-                    } ; 
-                    this.valid = false;
+                callback:{
+                    onClick:function(event, treeId, treeNode){
+                        //点击展开/折叠节点
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                        var open = !treeNode.open;
+                        treeObj.expandNode(treeNode, open, false, false);
+                    }
                 }
-                
-            },
-            watch:{               
-            }
-        });
-        var zTreeObj;
-        // zTree 的参数配置，深入使用请参考 API 文档（setting 配置详解）
-        var setting = {
-            data: {
-                simpleData: {
-                    enable: true,
-                    rootPId: 0
-                }
-            },
-            callback:{
-                onClick:function(event, treeId, treeNode){
-                    //点击展开/折叠节点
-                    var treeObj = $.fn.zTree.getZTreeObj("ztree");
-                    var open = !treeNode.open;
-                    treeObj.expandNode(treeNode, open, false, false);
-                }
-            }
-        };
-        // zTree 的数据属性，深入使用请参考 API 文档（zTreeNode 节点数据详解）
-        var zNodes =@Html.Raw(ViewBag.Tree) ;
-        // tree
-        zTreeObj = $.fn.zTree.init($("#ztree"), setting, zNodes);
+            };
+            // zTree 的数据属性，深入使用请参考 API 文档（zTreeNode 节点数据详解）
+            var zNodes =@Html.Raw(ViewBag.Tree) ;
+            // tree
+            zTreeObj = $.fn.zTree.init($("#ztree"), setting, zNodes);
 
-    });
+        });
     </script>
 }
-
 

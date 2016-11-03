@@ -76,12 +76,6 @@ namespace EBS.Admin.Controllers
         [HttpPost]
         public JsonResult Create(CreatePurchaseContract model)
         {
-
-            //if (string.IsNullOrEmpty(model.Items)) throw new Exception("商品明细为空");
-            //var productPriceList = JsonConvert.DeserializeObject<List<ProductPriceModel>>(model.Items);
-            //Dictionary<int, decimal> productPriceDic = new Dictionary<int, decimal>();
-            //productPriceList.ForEach(n => productPriceDic.Add(n.Id, n.Price));
-            //model.ProductPriceDic = productPriceDic;
             model.CreatedBy = _context.CurrentAccount.AccountId;
             model.CreatedByName = _context.CurrentAccount.NickName;
             _purchaseContractFacade.Create(model);
@@ -108,11 +102,6 @@ namespace EBS.Admin.Controllers
         [HttpPost]
         public JsonResult Edit(EditPurchaseContract model)
         {
-            if (string.IsNullOrEmpty(model.Items)) throw new Exception("商品明细为空");
-            var productPriceList = JsonConvert.DeserializeObject<List<ProductPriceModel>>(model.Items);
-            Dictionary<int, decimal> productPriceDic = new Dictionary<int, decimal>();
-            productPriceList.ForEach(n => productPriceDic.Add(n.Id, n.Price));
-            model.ProductPriceDic = productPriceDic;
             model.UpdatedBy = _context.CurrentAccount.AccountId;
             model.UpdatedByName = _context.CurrentAccount.NickName;
             _purchaseContractFacade.Edit(model);
