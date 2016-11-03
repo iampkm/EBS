@@ -35,24 +35,24 @@
                     </div>
                     <div class="form-group col-sm-2 col-xs-3">
                         <label for="inputPassword3" class="control-label">合同日期：</label>
-                        <div class="input-group date" @*data-provide="datepicker"*@>
+                        <div class="input-group date" data-provide="datepicker" data-date-format="yyyy-mm-dd" 
+                             data-date-language="zh-CN" data-date-clear-Btn="true" data-date-autoclose="true" >
                             <div class="input-group-addon">
                                 <i class="fa fa-calendar"></i>
                                 <span>从</span>
                             </div>
-                            <input type="text" class="form-control datepicker" v-model="model.startDate" readonly>
-                        </div>
-
+                            <input type="text" class="form-control" v-model="model.startDate" readonly>
+                        </div>                      
                     </div>
                     <div class="form-group col-sm-2 col-xs-3">
                         <label for="inputPassword3" class="control-label">&nbsp;</label>
-                        <div class="input-group date ">
-                            <!---validate has-feedback has-error-->
+                        <div class="input-group date " data-provide="datepicker" data-date-format="yyyy-mm-dd" 
+                             data-date-language="zh-CN" data-date-clear-Btn="true" data-date-autoclose="true" >
                             <div class="input-group-addon">
                                 <i class="fa fa-calendar"></i>
                                 <span>到</span>
                             </div>
-                            <input type="text" class="form-control datepicker" v-model="model.endDate" readonly>                           
+                            <input type="text" class="form-control" v-model="model.endDate" readonly>                           
                         </div>
                     </div>
                 </div>
@@ -70,6 +70,20 @@
                             </select>
                         </div>
                        
+                    </div> 
+                    <div class="form-group col-sm-2 col-xs-3">
+                        <label for="inputPassword3" class="control-label">&nbsp;</label>
+                        <div class="input-group ">
+                            @*<div class="input-group-addon">
+                                <i class="fa fa-calendar"></i>
+                                <span>选择供应商</span>
+                            </div>*@
+                            <input type="hidden" class="form-control" v-model="select.id" >
+                            <input type="text" class="form-control" v-model="select.name" readonly>
+                            <span class="input-group-btn">
+                                <button class="btn btn-flat btn-default" type="button" v-on:click="showSupplier"><i class="fa fa-calendar"></i></button>
+                            </span>                            
+                        </div>
                     </div>                   
                     <div class="form-group col-sm-2 col-xs-3">
                         <label for="inputPassword3" class="control-label">门店：</label>
@@ -146,16 +160,34 @@
             <v-input type="textarea" help="请将excel中商品编号和价格两列粘贴到文本框中" v-bind:value.sync="inputProducts" placeholder="输入商品" required icon></v-input>
         </div>
     </v-modal>
+    <v-modal title="选择供应商" ok-text="确 定" cancel-text="取 消" v-bind:callback="selectItem" v-bind:show.sync="select.modal" v-bind:effect="fade" width="60%">
+        <div slot="modal-body" class="modal-body">
+            <vue-table v-ref:vtable v-bind:columns="select.gridColumns"
+                       v-bind:url="select.url" v-bind:show-toolbar = "false"
+                       v-bind:args="select.searchArgs" v-bind:data.sync="select.rows">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                    <div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="select.searchArgs.code" placeholder="输入供应编码" debounce="300" />
+                    </div>
+                    <div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="select.searchArgs.name" placeholder="输入供应商名" debounce="300" />
+                    </div>
+                </div>
+            </vue-table>
+        </div>
+    </v-modal>
 </div>
+@{Html.RenderPartial("VueTableTemplate");}
 @section scripts{
+<script src="~/Content/Vue/vuetable/vuetable.js"></script>
     <script>
-        $("doucument").ready(function () {
+        $("doucument").ready(function () {           
+
             var demo = new Vue({
                 components: {
                     'v-modal': VueStrap.modal,
                     'v-input': VueStrap.input,
-                    'v-form': VueStrap.formGroup,
-                    'v-datepicker': VueStrap.datepicker,
+                    'v-form': VueStrap.formGroup
                 },
                 el: '#app',
                 data: {
@@ -173,7 +205,21 @@
                         items:''
                     },                   
                     products:[],
-                    inputProducts:''
+                    inputProducts:'',
+                    select: {
+                        modal: false,
+                        id: '',
+                        name:'',
+                        gridColumns: [
+                            { name: 'Code', localName: '编码',  width: '100' },
+                            { name: 'Name', localName: '供应商名', width: '300' },
+                            { name: 'AreaName', localName: '供货区域', width: '200' },
+                            { name: 'SupplierType', localName: '类型', width: '100' },
+                        ],
+                        url: "/Supplier/LoadData",
+                        searchArgs: { name: '', code: '' },
+                        rows: []
+                    }
                 },
                 methods: {
                     onSubmit: function () {
@@ -248,19 +294,23 @@
                         else {
                             this.onSubmit();
                         }
+                    },
+                    showSupplier: function () {
+                        this.select.modal = true;
+                    },
+                    selectItem:function(){
+                       var selecteds= this.select.rows.filter(function (item) {
+                           return item.checked;
+                       });
+                       if (selecteds)
+                       {
+                           this.select.id = selecteds[0].Id;
+                           this.select.name = selecteds[0].Name;
+                           this.select.modal = false;
+                       }
                     }
                 }
-            });           
-
-            // 日期选择器初始化
-            $("input.datepicker").datepicker({
-                format: "yyyy-mm-dd",
-                //endDate: new Date(),
-                maxViewMode: 2,
-                clearBtn: true,
-                language: "zh-CN",
-                autoclose: true              
-            });
+            }); 
         });
        
 

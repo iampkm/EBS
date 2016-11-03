@@ -8,6 +8,7 @@
         showSearch: { type: Boolean, default: true },
         showCheckbox: { type: Boolean, default: true },
         showPagination: { type: Boolean, default: true },
+        showToolbar: { type: Boolean, default: true },
         pageSizes: { type: Array, default: [20, 50, 100, 200, 500] },
         id: { type: String, default: "Id" },
         height: '500px'       

@@ -50,7 +50,7 @@
     </style>
     <div class="table-container">
         <slot name="customSearch"></slot>
-        <div class="table-toolBar row" style="margin-bottom:10px;">
+        <div class="table-toolBar row" v-show="showToolbar" style="margin-bottom:10px;">
             <div class="col-xs-4 col-md-4">
                 <div class="input-group">
                     <span class="input-group-addon" v-if="showSearch"><i class="fa fa-search"></i></span>
