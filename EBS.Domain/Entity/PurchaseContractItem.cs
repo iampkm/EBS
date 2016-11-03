@@ -9,7 +9,7 @@ namespace EBS.Domain.Entity
    public class PurchaseContractItem:BaseEntity
     {
        public int PurchaseContractId {get;set;}
-       public int ProductSkuId { get; set; }
+       public int ProductId { get; set; }
        /// <summary>
        /// 合同价
        /// </summary>

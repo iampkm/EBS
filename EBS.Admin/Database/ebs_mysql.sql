@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2016-11-02 15:13:25                          */
+/* Created on:     2016-11-03 09:34:29                          */
 /*==============================================================*/
 
 
@@ -30,13 +30,13 @@ drop index idx_ProcessHistory_fromId on ProcessHistory;
 
 drop table if exists ProcessHistory;
 
+drop index idx_productSKU_code on Product;
+
+drop table if exists Product;
+
 drop index idx_pcodeseq_guidcode on ProductCodeSequence;
 
 drop table if exists ProductCodeSequence;
-
-drop index idx_productSKU_code on ProductSKU;
-
-drop table if exists ProductSKU;
 
 drop index idx_purcontract_code on PurchaseContract;
 
@@ -185,7 +185,7 @@ alter table Category comment '商品分类';
 create table Inventory
 (
    Id                   int not null auto_increment comment '编号',
-   ProductSKUId         int comment 'SKU编码',
+   ProductId            int comment '编码',
    WarehouseId          int comment '仓库编码',
    Quantity             int comment '实际库存数',
    WarnQuantity         int comment '警告库存',
@@ -199,7 +199,7 @@ create table Inventory
 create table InventoryHistory
 (
    Id                   int not null auto_increment comment '编号',
-   ProductSKUId         int comment 'SKU编码',
+   ProductId            int comment '商品Id',
    WarehouseId          int comment '仓库编码',
    Quantity             int comment '实际库存数',
    ChangeQuantity       int comment '变动数',
@@ -256,29 +256,9 @@ create index idx_ProcessHistory_fromId on ProcessHistory
 );
 
 /*==============================================================*/
-/* Table: ProductCodeSequence                                   */
+/* Table: Product                                               */
 /*==============================================================*/
-create table ProductCodeSequence
-(
-   Id                   int not null auto_increment,
-   GuidCode             nvarchar(32) comment 'guid代码',
-   primary key (Id)
-);
-
-alter table ProductCodeSequence comment '产品编码序列号，此表用来生成商品SKU 表中的 Code 字段';
-
-/*==============================================================*/
-/* Index: idx_pcodeseq_guidcode                                 */
-/*==============================================================*/
-create unique index idx_pcodeseq_guidcode on ProductCodeSequence
-(
-   GuidCode
-);
-
-/*==============================================================*/
-/* Table: ProductSKU                                            */
-/*==============================================================*/
-create table ProductSKU
+create table Product
 (
    Id                   int not null auto_increment comment '编号',
    Code                 nvarchar(20) comment '编码',
@@ -306,18 +286,39 @@ create table ProductSKU
    CostPrice            decimal(8,2) comment '平均成本价',
    SubSkuCode           varchar(20) comment '子SKU代码',
    SubSkuQuantity       int comment '子SKU数量',
+   SinglePackageQuantity nvarchar(100) comment '件规, 多个逗号分隔',
    CreatedOn            datetime comment '创建时间',
    primary key (Id)
 );
 
-alter table ProductSKU comment '商品SKU';
+alter table Product comment '商品';
 
 /*==============================================================*/
 /* Index: idx_productSKU_code                                   */
 /*==============================================================*/
-create unique index idx_productSKU_code on ProductSKU
+create unique index idx_productSKU_code on Product
 (
    Code
+);
+
+/*==============================================================*/
+/* Table: ProductCodeSequence                                   */
+/*==============================================================*/
+create table ProductCodeSequence
+(
+   Id                   int not null auto_increment,
+   GuidCode             nvarchar(32) comment 'guid代码',
+   primary key (Id)
+);
+
+alter table ProductCodeSequence comment '产品编码序列号，此表用来生成商品SKU 表中的 Code 字段';
+
+/*==============================================================*/
+/* Index: idx_pcodeseq_guidcode                                 */
+/*==============================================================*/
+create unique index idx_pcodeseq_guidcode on ProductCodeSequence
+(
+   GuidCode
 );
 
 /*==============================================================*/
@@ -358,7 +359,7 @@ create table PurchaseContractItem
 (
    Id                   int not null auto_increment comment '编号',
    PurchaseContractId   int comment '采购合同编号',
-   ProductSKUId         int comment '商品skuid',
+   ProductId            int comment '商品skuid',
    ContractPrice        decimal(8,2) comment '合同价',
    primary key (Id)
 );
@@ -402,7 +403,7 @@ create table PurchaseOrderItem
 (
    Id                   int not null auto_increment comment '编号',
    PurchaseOrderId      int comment '采购订单编号',
-   ProductSKUId         int comment '商品skuid',
+   ProductId            int comment '商品skuid',
    ContractPrice        decimal(8,2) comment '合同价',
    Price                decimal(8,2) comment '进价',
    Quantity             int comment '数量',
@@ -464,8 +465,8 @@ alter table Store comment '门店';
 create table StoreInventory
 (
    Id                   int not null auto_increment comment '编号',
-   ProductSKUId         int comment 'SKU编码',
    StoreId              int comment '门店编码',
+   ProductId            int comment '商品Id',
    SaleQuantity         int comment '销售库存',
    OrderQuantity        int comment '订购库存',
    Quantity             int comment '实际库存数',
@@ -482,7 +483,7 @@ alter table StoreInventory comment '门店库存';
 create table StoreInventoryBatch
 (
    Id                   int not null auto_increment comment '编号',
-   ProductSKUId         int comment 'SKU编码',
+   ProductId            int comment 'SKU编码',
    StoreId              int comment '仓库编码',
    SupplierId           int comment '供应商Id',
    Quantity             int comment '实际库存数',
@@ -503,7 +504,7 @@ alter table StoreInventoryBatch comment '门店商品批次';
 create table StoreInventoryHistory
 (
    Id                   int not null auto_increment comment '编号',
-   ProductSKUId         int comment 'SKU编码',
+   ProductId            int comment 'SKU编码',
    StoreId              int comment '仓库编码',
    Quantity             int comment '实际库存数',
    ChangeQuantity       int comment '变动数',
@@ -561,7 +562,7 @@ create table StorePurchaseOrderItem
 (
    Id                   int not null auto_increment comment '编号',
    StorePurchaseOrderId int comment '门店采购订单编号',
-   ProductSKUId         int comment '商品skuid',
+   ProductId            int comment '商品skuid',
    ContractPrice        decimal(8,2) comment '合同价',
    Price                decimal(8,2) comment '进价',
    Quantity             int comment '数量',
@@ -617,7 +618,7 @@ create table Warehouse
    Id                   int not null auto_increment,
    Code                 nvarchar(20) comment '代码',
    Name                 nvarchar(50) comment '仓库名',
-   AreaId               nvarchar(50) comment '区域',
+   AreaId               char(6) comment '区域',
    Address              nvarchar(100) comment '地址',
    primary key (Id)
 );

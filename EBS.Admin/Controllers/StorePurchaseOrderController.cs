@@ -14,6 +14,7 @@ using EBS.Infrastructure.Extension;
 using EBS.Domain.Entity;
 namespace EBS.Admin.Controllers
 {
+    [Permission]
     public class StorePurchaseOrderController : Controller
     {        
         IQuery _query;

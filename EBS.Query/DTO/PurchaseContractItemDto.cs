@@ -8,7 +8,7 @@ namespace EBS.Query.DTO
 {
    public class PurchaseContractItemDto
     {
-         public int ProductSkuId { get; set; }
+         public int ProductId { get; set; }
          /// <summary>
          /// 商品名
          /// </summary>

@@ -14,15 +14,15 @@ namespace EBS.Application.Facade
     public class ProductFacade : IProductFacade
     {
         IDBContext _db;
-        ProductSkuService _productSkuService;
+        ProductService _productSkuService;
         public ProductFacade(IDBContext dbContext)
         {
             _db = dbContext;
-            _productSkuService = new ProductSkuService(this._db);
+            _productSkuService = new ProductService(this._db);
         }
         public void Create(ProductModel model)
         {
-            ProductSku entity = new ProductSku()
+            Product entity = new Product()
             {
                 Name = model.Name,
                 ShowName = model.ShowName,
@@ -40,7 +40,7 @@ namespace EBS.Application.Facade
                 IsGift = model.IsGift,
                 IsPublish = model.IsPublish,
                 Keywords = model.Keywords,
-                MarketPrice = model.MarketPrice,
+                OldPrice = model.OldtPrice,
                 SalePrice = model.SalePrice,
                 WholeSalePrice = model.WholeSalePrice,
                 Specification = model.Specification,
@@ -53,7 +53,7 @@ namespace EBS.Application.Facade
 
         public void Edit(ProductModel model)
         {
-            var entity = _db.Table.Find<ProductSku>(model.Id);
+            var entity = _db.Table.Find<Product>(model.Id);
             entity.Name = model.Name;
             entity.ShowName = model.ShowName;
             entity.SellingPoint = model.SellingPoint;
@@ -70,7 +70,7 @@ namespace EBS.Application.Facade
             entity.IsGift = model.IsGift;
             entity.IsPublish = model.IsPublish;
             entity.Keywords = model.Keywords;
-            entity.MarketPrice = model.MarketPrice;
+            entity.OldPrice = model.OldtPrice;
             entity.SalePrice = model.SalePrice;
             entity.WholeSalePrice = model.WholeSalePrice;
             entity.Specification = model.Specification;

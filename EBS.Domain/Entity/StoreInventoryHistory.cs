@@ -11,7 +11,7 @@ namespace EBS.Domain.Entity
         /// <summary>
         /// 商品SKUID
         /// </summary>
-        public int ProductSkuId { get; set; }
+        public int ProductId { get; set; }
         /// <summary>
         /// 门店
         /// </summary>

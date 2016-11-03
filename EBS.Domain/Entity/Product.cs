@@ -6,14 +6,12 @@ using System.Threading.Tasks;
 
 namespace EBS.Domain.Entity
 {
-    public class Product : BaseEntity
+   public class Product:BaseEntity
     {
         public Product()
         {
-            this.SkuItems = new List<ProductSku>();
             this.CreatedOn = DateTime.Now;
         }
-
         /// <summary>
         /// 商品名称，长度限制20个字符内
         /// </summary>
@@ -22,10 +20,20 @@ namespace EBS.Domain.Entity
         /// 显示名称
         /// </summary>
         public string ShowName { get; set; }
+        public string CategoryId { get; set; }
+        public int BrandId { get; set; }
         /// <summary>
         /// 卖点描述
         /// </summary>
         public string SellingPoint { get; set; }
+        /// <summary>
+        /// SKU编码
+        /// </summary>
+        public string Code { get; set; }
+        /// <summary>
+        /// 条码
+        /// </summary>
+        public string BarCode { get; set; }
         /// <summary>
         /// 进项税率
         /// </summary>
@@ -62,16 +70,52 @@ namespace EBS.Domain.Entity
         /// <summary>
         /// 商品详情描述
         /// </summary>
-        public string Description { get; set; }
-        /// <summary>
-        /// 创建时间
-        /// </summary>
-        public DateTime CreatedOn { get; set; }
+        public string Description { get; set; }       
         /// <summary>
         /// 是否发布上架
         /// </summary>
-        public bool IsPublish { get; set; }
+        public bool IsPublish { get; set; }       
+      
+        /// <summary>
+       /// 规格
+        /// </summary>
+       public string Specification { get; set; }
+       /// <summary>
+       /// 件规： 默认1. 进货时整件规格数量 1*12，1*24 等 多个逗号分隔  例如 1，12，24，19
+       /// </summary>
+       public string SpecificationQuantity { get; set; }
+        /// <summary>
+        /// 原价
+        /// </summary>
+       public decimal OldPrice { get; set; }
+       /// <summary>
+       /// 销售价
+       /// </summary>
+       public decimal SalePrice { get; set; }
+        /// <summary>
+        /// 批发价
+        /// </summary>
+       public decimal WholeSalePrice { get; set; }
+        /// <summary>
+        /// 移动平均成本价
+        /// </summary>
+       public decimal CostPrice { get; set; }       
+       /// <summary>
+       /// 子SKU编码 ：  最小进货单位 拆零使用
+       /// </summary>
+       public string SubSkuCode { get; set; }
+       /// <summary>
+       /// 子SKU 可拆数量  ： 用于整件拆零，
+       /// </summary>
+       public int SubSkuQuantity { get; set; }
+       /// <summary>
+       /// 创建时间
+       /// </summary>
+       public DateTime CreatedOn { get; set; }
+       /// <summary>
+       /// 单位
+       /// </summary>
+       public string Unit { get; set; }
 
-        public virtual List<ProductSku> SkuItems { get; set; }
     }
 }

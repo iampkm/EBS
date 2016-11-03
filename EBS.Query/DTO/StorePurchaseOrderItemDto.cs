@@ -8,7 +8,7 @@ namespace EBS.Query.DTO
 {
    public class StorePurchaseOrderItemDto
     {
-       public int productSkuId { get; set; }
+       public int productId { get; set; }
 
        public string BarCode { get; set; }
 

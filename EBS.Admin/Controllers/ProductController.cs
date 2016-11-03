@@ -73,7 +73,7 @@ namespace EBS.Admin.Controllers
             LoadCategory();
             LoadBrand();
             //显示当前品类 规格名
-            var model = _query.Find<ProductSku>(id);
+            var model = _query.Find<Product>(id);
             ViewBag.categoryName = _query.Find<Category>(model.CategoryId).Name;         
             return View(model);
         }

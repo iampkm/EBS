@@ -46,7 +46,7 @@ namespace EBS.Domain.Entity
 
         public virtual List<PurchaseContractItem> Items { get; private set; }
 
-        public void AddPurchaseContractItem(List<ProductSku> products, Dictionary<int, decimal> productPriceDic)
+        public void AddPurchaseContractItem(List<Product> products, Dictionary<int, decimal> productPriceDic)
         {
             foreach (var product in products)
             {
@@ -54,7 +54,7 @@ namespace EBS.Domain.Entity
                 {
                     PurchaseContractId = this.Id,
                     ContractPrice = productPriceDic[product.Id],
-                    ProductSkuId = product.Id
+                    ProductId = product.Id
                 };
                 this.Items.Add(item);
             }

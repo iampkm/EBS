@@ -51,7 +51,7 @@ namespace EBS.Query.Service
             string sql = @"select t0.Id,t0.Name,t0.Code,t0.SupplierId,t0.Contact,t0.StartDate,t0.EndDate,t0.Status,t1.Code as SupplierCode,t1.Name as SupplierName,t2.Name as StoreName  
 from PurchaseContract t0 inner join supplier t1 on t0.SupplierId = t1.Id inner join store t2 on t0.StoreId = t2.Id
 where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
-            //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<ProductSku>(where, param);
+            //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<Product>(where, param);
             sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
             var rows = this._query.FindAll<PurchaseContractDto>(sql, param);
             page.Total = this._query.Count<PurchaseContract>(where, param);
@@ -64,7 +64,7 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
         {
             if (string.IsNullOrEmpty(productCodePriceInput)) throw new Exception("商品明细为空");     
             var dic = GetProductDic(productCodePriceInput);
-            string sql = "select p.Id as ProductSkuId,p.Code,p.`Name`,p.Specification,c.FullName as CategoryName from productsku p inner join category c on p.categoryId = c.Id where p.code in @Codes";
+            string sql = "select p.Id as ProductId,p.Code,p.`Name`,p.Specification,c.FullName as CategoryName from Product p inner join category c on p.categoryId = c.Id where p.code in @Codes";
             var productItems= _query.FindAll<PurchaseContractItemDto>(sql, new { Codes = dic.Keys.ToArray() });
             foreach (var product in productItems)
             {
@@ -75,7 +75,7 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
 
         public IEnumerable<PurchaseContractItemDto> GetPurchaseContractItems(int purchaseContractId)
         {
-            string sql = "select pc.ProductSkuId,p.Code,p.`Name`,p.Specification,c.FullName as CategoryName,pc.ContractPrice from PurchaseContractItem pc inner join  productsku p on pc.productSkuId=p.Id inner join category c on p.categoryId = c.Id where pc.purchaseContractId = @PurchaseContractId";
+            string sql = "select pc.ProductId,p.Code,p.`Name`,p.Specification,c.FullName as CategoryName,pc.ContractPrice from PurchaseContractItem pc inner join  Product p on pc.ProductId=p.Id inner join category c on p.categoryId = c.Id where pc.purchaseContractId = @PurchaseContractId";
             var productItems = _query.FindAll<PurchaseContractItemDto>(sql, new { PurchaseContractId = purchaseContractId });
             return productItems;
         }
@@ -89,33 +89,27 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
 
         private Dictionary<string, decimal> GetProductDic(string productIds)
         {
-            Dictionary<string, decimal> dicProductPrice = new Dictionary<string, decimal>(1000);
-            try
+            Dictionary<string, decimal> dicProductPrice = new Dictionary<string, decimal>(1000);           
+            string[] productIdArray = productIds.Split('\n');
+            foreach (var item in productIdArray)
             {
-                string[] productIdArray = productIds.Split('\n');
-                foreach (var item in productIdArray)
+                if (item.Contains("\t"))
                 {
-                    if (item.Contains("\t"))
+                    string[] parentIDAndQuantity = item.Split('\t');
+                    if (!dicProductPrice.ContainsKey(parentIDAndQuantity[0].Trim()))
+                    {                           
+                        dicProductPrice.Add(parentIDAndQuantity[0].Trim(), decimal.Parse(parentIDAndQuantity[1]));
+                    }                       
+                }
+                else
+                {
+                    if (!dicProductPrice.ContainsKey(item.Trim()))
                     {
-                        string[] parentIDAndQuantity = item.Split('\t');
-                        if (!dicProductPrice.ContainsKey(parentIDAndQuantity[0].Trim()))
-                        {                           
-                            dicProductPrice.Add(parentIDAndQuantity[0].Trim(), decimal.Parse(parentIDAndQuantity[1]));
-                        }                       
-                    }
-                    else
-                    {
-                        if (!dicProductPrice.ContainsKey(item.Trim()))
-                        {
-                            dicProductPrice.Add(item.Trim(), 0);
-                        }
+                        dicProductPrice.Add(item.Trim(), 0);
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                throw new Exception("粘贴的格式不正确");
-            }
+           
             return dicProductPrice;
         }
 

@@ -10,7 +10,7 @@ namespace EBS.Domain.Entity
     {
         public StorePurchaseOrderItem(int productSkuId,decimal contractPrice,int storePurchaseOrderId,int quantity) {
             this.StorePurchaseOrderId = StorePurchaseOrderId;
-            this.ProductSkuId = productSkuId;
+            this.ProductId = productSkuId;
             this.ContractPrice = contractPrice;
             this.Quantity = quantity; 
         }
@@ -18,7 +18,7 @@ namespace EBS.Domain.Entity
        /// <summary>
        /// 商品SKUID
        /// </summary>
-        public int ProductSkuId {get;set;}
+        public int ProductId {get;set;}
        /// <summary>
        /// 合同价
        /// </summary>

@@ -79,19 +79,18 @@ namespace EBS.Application.DTO
         /// 是否发布上架
         /// </summary>
         public bool IsPublish { get; set; }
-
-        /// <summary>
-        /// 规格列表，格式：规格ID：规格选项值；规格ID：规格选项值；
-        /// </summary>
-        public string SpecificationList { get; set; }
         /// <summary>
         /// 规格
         /// </summary>
         public string Specification { get; set; }
         /// <summary>
-        /// 市场价
+        /// 件规： 默认1. 进货时整件规格数量 1*12，1*24 等 多个逗号分隔  例如 1，12，24，19
         /// </summary>
-        public decimal MarketPrice { get; set; }
+        public string SpecificationQuantity { get; set; }
+        /// <summary>
+        /// 原价
+        /// </summary>
+        public decimal OldtPrice { get; set; }
         /// <summary>
         /// 销售价
         /// </summary>
@@ -105,11 +104,11 @@ namespace EBS.Application.DTO
         /// </summary>
         public decimal CostPrice { get; set; }
         /// <summary>
-        /// 子SKU编码 ：  用于整件拆零，例如一条烟 20包 ，这里配置一包烟的 SKU 编码
+        /// 子SKU编码 ：  最小进货单位 拆零使用
         /// </summary>
         public string SubSkuCode { get; set; }
         /// <summary>
-        /// 子SKU 可拆数量  ： 用于整件拆零，例如一条烟 20包 ，这里配置 20 包
+        /// 子SKU 可拆数量  ： 用于整件拆零，
         /// </summary>
         public int SubSkuQuantity { get; set; }
         /// <summary>

@@ -34,7 +34,7 @@ namespace EBS.Domain.Service
             //    }
             //}
             //add items
-            var products = _db.Table.Find<ProductSku>(productPriceDic.Keys.ToArray()).ToList();
+            var products = _db.Table.Find<Product>(productPriceDic.Keys.ToArray()).ToList();
             model.AddPurchaseContractItem(products, productPriceDic);
             
             _db.Insert(model);           
@@ -47,7 +47,7 @@ namespace EBS.Domain.Service
                 throw new Exception("合同编码不能重复!");
             }
             _db.Delete<PurchaseContractItem>(n => n.PurchaseContractId == model.Id);
-            var products = _db.Table.Find<ProductSku>(productPriceDic.Keys.ToArray()).ToList();
+            var products = _db.Table.Find<Product>(productPriceDic.Keys.ToArray()).ToList();
             model.AddPurchaseContractItem(products, productPriceDic);
             _db.Insert<PurchaseContractItem>(model.Items.ToArray());
             _db.Update(model);

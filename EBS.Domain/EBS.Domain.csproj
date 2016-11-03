@@ -59,7 +59,6 @@
     <Compile Include="Entity\PurchaseContractItem.cs" />
     <Compile Include="Entity\RoleMenu.cs" />
     <Compile Include="Entity\Store.cs" />
-    <Compile Include="Entity\StoreAccount.cs" />
     <Compile Include="Entity\StoreInventory.cs" />
     <Compile Include="Entity\StoreInventoryHistory.cs" />
     <Compile Include="Entity\StorePurchaseOrder.cs" />
@@ -71,7 +70,6 @@
     <Compile Include="Service\CategoryService.cs" />
     <Compile Include="Service\ProcessHistoryService.cs" />
     <Compile Include="Service\ProductService.cs" />
-    <Compile Include="Service\ProductSkuService.cs" />
     <Compile Include="Service\PurchaseContractService.cs" />
     <Compile Include="Service\RoleService.cs" />
     <Compile Include="Service\StorePurchaseOrderService.cs" />
@@ -95,7 +93,6 @@
     <Compile Include="Entity\SalesOrderItem.cs" />
     <Compile Include="Entity\Category.cs" />
     <Compile Include="Entity\Product.cs" />
-    <Compile Include="Entity\ProductSku.cs" />
     <Compile Include="Entity\ProductSpecification.cs" />
     <Compile Include="Entity\ProductSpecificationOption.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
