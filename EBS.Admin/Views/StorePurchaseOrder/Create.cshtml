@@ -16,198 +16,169 @@
     </div>
     <!-- /.box-header -->
     <!-- form start -->
-    <form v-on:submit.prevent="onSubmit">
+    <form>
         <div class="box-body">
-            <v-form v-bind:valid.sync="valid">
-                <div class="row">
-                    <div class="form-group col-sm-4 col-xs-6">
-                        <button type="submit" class="btn btn-warning btn-flat" v-bind:disabled="!valid">保 存</button>
-                        <button type="button" class="btn btn-success btn-flat" v-on:click="showModal()">导入商品明细</button>
-                        <a class="btn btn-default btn-flat" href="/StorePurchaseOrder/Index">取 消</a>
-                        <input type="hidden" v-model="model.id" />
+            <div class="row">
+                <div class="form-group col-sm-4 col-xs-6">
+                    <button type="button" class="btn btn-warning btn-flat" v-on:click="onSubmit">保 存</button>
+                    <button type="button" class="btn btn-success btn-flat" v-on:click="showModal()">导入商品明细</button>
+                    <a class="btn btn-default btn-flat" href="/StorePurchaseOrder/Index">取 消</a>
+                    <input type="hidden" v-model="model.id" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-sm-2 col-xs-3">
+                    <div class="input-group ">
+                        <input type="hidden" class="form-control" v-model="model.supplierId">
+                        <input type="text" class="form-control" v-model="selectSupplier.name" placeholder="选择供应商" readonly>
+                        <span class="input-group-btn">
+                            <button class="btn btn-flat btn-default" type="button" v-on:click="showSupplier"><i class="fa fa-search"></i></button>
+                        </span>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="form-group col-sm-2 col-xs-3">
-                        <div class="input-group">
-                            <span class="input-group-addon">供应商*</span>
-                            <select name="brand" class="form-control" v-model="model.supplierId">
-                                <option value="0">-请选择-</option>
-                                @foreach (var item in ViewBag.Suppliers)
-                                {
-                                    <option value="@item.Id">[@item.Code]@item.Name</option>
-                                }
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group col-sm-2 col-xs-3">
-                        <div class="input-group">
-                            <span class="input-group-addon">门店*</span>
-                            <select name="brand" class="form-control" v-model="model.storeId">
-                                <option value="0">-请选择-</option>
-                                @foreach (var item in ViewBag.Stores)
-                                {
-                                    <option value="@item.Id">@item.Name</option>
-                                }
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-sm-2 col-xs-3 pull-left">
-                        <v-checkbox v-bind:checked.sync="checkboxValue.one" value="one" type="success">是否赠品单</v-checkbox>
+                <div class="form-group col-sm-2 col-xs-3">
+                    <div class="input-group ">
+                        <input type="hidden" class="form-control" v-model="model.storeId">
+                        <input type="text" class="form-control" v-model="selectStore.name" placeholder="选择门店" readonly>
+                        <span class="input-group-btn">
+                            <button class="btn btn-flat btn-default" type="button" v-on:click="showStore"><i class="fa fa-search"></i></button>
+                        </span>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-xs-4 col-sm-4"></div>
-                    <div class="col-xs-4 col-sm-4"><h3 class="text-center text-success" style="border-bottom:2px solid;padding-bottom:1px;"><b>采购订单</b></h3></div>
-                    <div class="col-xs-4 col-sm-4"></div>
+                <div class="col-sm-2 col-xs-3 pull-left">
+                    <v-checkbox v-bind:checked.sync="checkboxValue.one" value="one" type="success">是否赠品单</v-checkbox>
                 </div>
-                <div class="row">
-                    <div class="col-xs-4 col-sm-4">
-                        <span>单据号：</span><span id="spFrom">001店</span>
-                    </div>
-                    <div class="col-xs-4 col-sm-4 text-center">
-                    </div>
-                    <div class="col-xs-4 col-sm-4">
-                        <span class="text-danger">单据状态：</span><span id="spTo" class="text-danger">@ViewBag.Status</span>
-                    </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-4 col-sm-4"></div>
+                <div class="col-xs-4 col-sm-4"><h3 class="text-center text-success" style="border-bottom:2px solid;padding-bottom:1px;"><b>采购订单</b></h3></div>
+                <div class="col-xs-4 col-sm-4"></div>
+            </div>
+            <div class="row">
+                <div class="col-xs-4 col-sm-4">
+                    <span>单据号：</span>
                 </div>
-                <div class="row">
-                    <div class="col-xs-4 col-sm-4">
-                        <span>供应商：</span><span id="spFrom">[120FXKJ]重庆斐讯科技有限公司</span>
-                    </div>
-                    <div class="col-xs-4 col-sm-4 text-center">
+                <div class="col-xs-4 col-sm-4 text-center">
+                </div>
+                <div class="col-xs-4 col-sm-4">
+                    <span class="text-danger">单据状态：@ViewBag.Status</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-4 col-sm-4">
+                    <span>供应商：{{selectSupplier.name}}</span>
+                </div>
+                <div class="col-xs-4 col-sm-4 text-center">
+                </div>
+                <div class="col-xs-4 col-sm-4 ">
+                    <span>供应商单号：</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-4 col-sm-4">
+                    <span>收货部门：{{selectStore.name}}</span>
+                </div>
+                <div class="col-xs-4 col-sm-4 text-center">
+                </div>
+                <div class="col-xs-4 col-sm-4">
+                    <span>制单日期：@DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")</span>
+                </div>
+            </div>
 
-                    </div>
-                    <div class="col-xs-4 col-sm-4 ">
-                        <span>供应商单号：</span><span>XXXXXXX</span>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-4 col-sm-4">
-                        <span>收货部门：</span><span id="spFrom">[001]XXXX店</span>
-                    </div>
-                    <div class="col-xs-4 col-sm-4 text-center">
-                    </div>
-                    <div class="col-xs-4 col-sm-4">
-                        <span>制单日期：</span><span id="spFrom">@DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")</span>
-                    </div>
-                </div>
-
-
-                <div class="row">
-                    <div class="col-xs-12 col-sm-12">
-                        <div class="table-responsive">
-                            <table class="table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th style="width:50px;"></th>
-                                        <th style="width:50px;">序号</th>
-                                        <th style="width:150px;">商品编码</th>
-                                        <th>条码</th>
-                                        <th style="width:150px;">品名</th>
-                                        <th>规格</th>
-                                        <th>单位</th>
-                                        <th>合同进价</th>
-                                        <th style="width:80px;">进价</th>
-                                        <th>订货件数</th>
-                                        <th style="width:80px;">订货数量</th>
-                                        <th>实收件数</th>
-                                        <th style="width:80px;">实收数量</th>
-                                        <th>金额</th>
-                                        <th>生产日期</th>
-                                        <th style="width:100px;">保质期</th>
-
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="(index,item) in products">
-                                        <td style="width:50px;">
-                                            <button type="button" class="btn btn-flat btn-success btn-sm" v-show="index>0" title="删除行" v-on:click="removeRow(index)"><span class="fa fa-trash"></span></button>
-                                        </td>
-                                        <td>{{index+1}}</td>
-                                        <td><input type="text" name="productCode" class="form-control" v-model="item.ProductCode" v-on:keyup.enter.stop="inputProduct(item.ProductCode,index)" placeholder="录入编码或扫码" /></td>
-                                        <td>{{item.BarCode}}</td>
-                                        <td>{{item.ProductName}}</td>
-                                        <td>{{item.Specification}}</td>
-                                        <td>{{item.Unit}}</td>
-                                        <td>{{item.ContractPrice}}</td>
-                                        <td class="dataRow">
-                                            <v-input type="text" v-bind:value.sync="item.Price" pattern="^(([1-9]\d{0,9})|0)(\.\d{1,2})?$" placeholder="进价" disabled required></v-input>
-                                        </td>
-                                        <td>{{item.PackageQuantity}}</td>
-                                        <td class="dataRow">
-                                            <v-input type="number" v-bind:value.sync="item.Quantity" placeholder="预定数量" required></v-input>
-                                        </td>
-                                        <td>{{item.ActualPackageQuantity}}</td>
-                                        <td class="dataRow">
-                                            <v-input type="number" v-bind:value.sync="item.ActualQuantity" placeholder="实收数量" disabled required></v-input>                                          
-                                        </td>
-                                        <td>{{item.Amount}}</td>
-                                        <td><input type="text" class="form-control datepicker" v-model="item.ProductionDate" placeholder="生产日期" disabled /></td>
-                                        <td class="dataRow">
-                                            <v-input type="text" v-bind:value.sync="item.ShelfLife" pattern="^(([1-9]\d{0,9})|0)(\.\d{1,2})?$" placeholder="保质期/天" disabled required></v-input>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="width:50px;">
-                                            <button type="button" class="btn btn-flat btn-success btn-sm" title="删除行" v-on:click="removeRow(index)"><span class="fa fa-trash"></span></button>
-                                        </td>
-                                        <td>1</td>
-                                        <td>100001</td>
-                                        <td>B1222222</td>
-                                        <td>牛奶</td>
-                                        <td>10ml</td>
-                                        <td>件</td>
-                                        <td>12.3</td>
-                                        <td>12.3</td>
-                                        <td>1</td>
-                                        <td>10</td>
-                                        <td>1</td>
-                                        <td>10</td>
-                                        <td>123</td>
-                                        <td>2016-10-11</td>
-                                        <td>180</td>
-                                    </tr>
-                                </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <td></td>
-                                        <td style="width:50px;"></td>
-                                        <td>合计：</td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td>{{totalQuantity}}</td>
-                                        <td></td>
-                                        <td></td>
-                                        <td>{{countTotal}}</td>
-                                        <td></td>
-                                        <td class="dataRow"></td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="width:90px;"></th>
+                                    <th style="width:50px;">序号</th>
+                                    <th style="width:150px;">商品编码</th>
+                                    <th>条码</th>
+                                    <th style="width:200px;">品名</th>
+                                    <th>规格</th>
+                                    <th>单位</th>
+                                    <th>合同进价</th>
+                                    <th>进价</th>
+                                    <th>订货件数</th>
+                                    <th>订货数量</th>
+                                    <th>实收件数</th>
+                                    <th>实收数量</th>
+                                    <th>金额</th>
+                                    <th>生产日期</th>
+                                    <th>保质期</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(index,item) in products">
+                                    <td>
+                                        <button type="button" class="btn btn-flat  btn-sm" title="添加行" v-on:click="addRow($event)"><span class="fa fa-plus"></span></button>
+                                        <button type="button" class="btn btn-flat  btn-sm" v-show="index>0" title="删除行" v-on:click="removeRow(index)"><span class="fa fa-trash"></span></button>
+                                    </td>
+                                    <td class="text-center">{{index+1}}</td>
+                                    <td><input type="text" class="form-control productCode" v-model="item.ProductCode" v-on:keyup.enter="inputProduct(item.ProductCode,index,$event)" placeholder="录入编码或扫码" /></td>
+                                    <td>{{item.BarCode}}</td>
+                                    <td>{{item.ProductName}}</td>
+                                    <td>{{item.Specification}}</td>
+                                    <td>{{item.Unit}}</td>
+                                    <td>{{item.ContractPrice}}</td>
+                                    <td class="dataRow">
+                                        <v-input type="text" v-bind:value.sync="item.Price" pattern="^(([1-9]\d{0,9})|0)(\.\d{1,2})?$" placeholder="进价" disabled required></v-input>
+                                    </td>
+                                    <td>{{item.PackageQuantity}}</td>
+                                    <td class="dataRow">
+                                        <input type="number" class="form-control quantity" v-model="item.Quantity" v-on:keyup.enter="inputNext($event)" />
+                                        @*<v-input type="number" v-bind:value.sync="item.Quantity" placeholder="预定数量" required></v-input>*@
+                                    </td>
+                                    <td>{{item.ActualPackageQuantity}}</td>
+                                    <td class="dataRow">
+                                        <v-input type="number" v-bind:value.sync="item.ActualQuantity" placeholder="实收数量" disabled required></v-input>
+                                    </td>
+                                    <td>{{item.Amount}}</td>
+                                    <td><input type="text" class="form-control datepicker" v-model="item.ProductionDate" placeholder="生产日期" disabled /></td>
+                                    <td class="dataRow">
+                                        <v-input type="text" v-bind:value.sync="item.ShelfLife" pattern="^(([1-9]\d{0,9})|0)(\.\d{1,2})?$" placeholder="保质期/天" disabled required></v-input>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td></td>
+                                    <td style="width:50px;"></td>
+                                    <td>合计：</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>{{totalQuantity}}</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>{{countTotal}}</td>
+                                    <td></td>
+                                    <td class="dataRow"></td>
+                                </tr>
+                            </tfoot>
+                        </table>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-xs-3 col-sm-3">
-                        <span>制单人： @ViewBag.CreatedByName</span>
-                    </div>
-                    <div class="col-xs-3 col-sm-3">
-                        <span>供应商：</span>
-                    </div>
-                    <div class="col-xs-3 col-sm-3">
-                        <span>收货人：</span>
-                    </div>
-                    <div class="col-xs-3 col-sm-3">
-                        <span>入库人：</span>
-                    </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-3 col-sm-3">
+                    <span>制单人： @ViewBag.CreatedByName</span>
                 </div>
-            </v-form>
+                <div class="col-xs-3 col-sm-3">
+                    <span>供应商：</span>
+                </div>
+                <div class="col-xs-3 col-sm-3">
+                    <span>收货人：</span>
+                </div>
+                <div class="col-xs-3 col-sm-3">
+                    <span>入库人：</span>
+                </div>
+            </div>
         </div>
     </form>
     <!-- modal -->
@@ -216,8 +187,39 @@
             <v-input type="textarea" help="请将excel中商品编号和价格两列粘贴到文本框中" v-bind:value.sync="inputProducts" placeholder="输入商品" required icon></v-input>
         </div>
     </v-modal>
+    <v-modal title="选择供应商" ok-text="确 定" cancel-text="取 消" v-bind:callback="getSupplier" v-bind:show.sync="selectSupplier.modal" v-bind:effect="fade" width="60%">
+        <div slot="modal-body" class="modal-body">
+            <vue-table v-bind:columns="selectSupplier.gridColumns"
+                       v-bind:url="selectSupplier.url" v-bind:show-toolbar="false"
+                       v-bind:args="selectSupplier.searchArgs" v-bind:data.sync="selectSupplier.rows">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                    <div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="selectSupplier.searchArgs.code" placeholder="输入供应编码" debounce="300" />
+                    </div>
+                    <div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="selectSupplier.searchArgs.name" placeholder="输入供应商名" debounce="300" />
+                    </div>
+                </div>
+            </vue-table>
+        </div>
+    </v-modal>
+    <v-modal title="选择门店" ok-text="确 定" cancel-text="取 消" v-bind:callback="getStore" v-bind:show.sync="selectStore.modal" v-bind:effect="fade" width="60%">
+        <div slot="modal-body" class="modal-body">
+            <vue-table v-bind:columns="selectStore.gridColumns"
+                       v-bind:url="selectStore.url" v-bind:show-toolbar="false"
+                       v-bind:args="selectStore.searchArgs" v-bind:data.sync="selectStore.rows">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                    <div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="selectStore.searchArgs.name" placeholder="输入门店名" debounce="300" />
+                    </div>
+                </div>
+            </vue-table>
+        </div>
+    </v-modal>
 </div>
+@{Html.RenderPartial("VueTableTemplate");}
 @section scripts{
+    <script src="~/Content/Vue/vuetable/vuetable.js"></script>
     <script>
         $("doucument").ready(function () {
             var demo = new Vue({
@@ -239,23 +241,48 @@
                         items: ''
                     },
                     products: [{
-                        ProductSkuId: '', ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', ContractPrice: 11, Price: 0,
-                        PackageQuantity: 0, SinglePackageQuantity: 12, Quantity: 0, ActualPackageQuantity: 0, ActualQuantity: 0, Amount: 0,
+                        ProductId: '', ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', ContractPrice: 0, Price: 0,
+                        PackageQuantity: 0, SpecificationQuantitys: [1], Quantity: 1, ActualPackageQuantity: 0, ActualQuantity: 0, Amount: 0,
                         ProductionDate: '', ShelfLife: 0
                     }],
                     totalQuantity: 0,
-                    inputProducts: ''
+                    inputProducts: '',
+                    selectSupplier: {
+                        modal: false,
+                        name: '',
+                        gridColumns: [
+                            { name: 'Code', localName: '编码', width: '100' },
+                            { name: 'Name', localName: '供应商名', width: '300' },
+                            { name: 'AreaName', localName: '供货区域', width: '200' },
+                            { name: 'SupplierType', localName: '类型', width: '100' },
+                        ],
+                        url: "/Supplier/LoadData",
+                        searchArgs: { name: '', code: '' },
+                        rows: []
+                    },
+                    selectStore: {
+                        modal: false,
+                        name: '',
+                        gridColumns: [
+                           { name: 'Name', localName: '门店名' },
+                            { name: 'Contact', localName: '联系人' },
+                            { name: 'Address', localName: '地址' }
+                        ],
+                        url: "/Store/LoadData",
+                        searchArgs: { name: '' },
+                        rows: []
+                    }
                 },
                 methods: {
                     onSubmit: function () {
                         //获取选择节点
                         var _self = this;
-                        var v_data = _self.model;
                         var data = "";
                         for (var i = 0; i < _self.products.length; i++) {
                             var item = _self.products[i];
-                            data += "{\"ProductSkuId\":" + item.ProductSkuId + ",\"ContractPrice\":" + item.ContractPrice +
-                                 ",\"Quantity\":" + item.Price + "},";
+                            if (item.ProductId > 0 && item.Quantity > 0) {
+                                data += "{\"ProductId\":" + item.ProductId + ",\"ContractPrice\":" + item.ContractPrice + ",\"Price\":" + item.Price + ",\"Quantity\":" + item.Quantity + "},";
+                            }
                         }
                         if (data == "") {
                             bootbox.alert("请导入商品");
@@ -264,7 +291,7 @@
                         data = data.substring(0, data.length - 1);
                         data = "[" + data + "]";
                         _self.model.items = data;
-                        
+                        var v_data = _self.model;
                         $.post("/StorePurchaseOrder/Create", v_data, function (result) {
                             if (result.success) {
                                 bootbox.alert("保存成功！", function () {
@@ -295,10 +322,21 @@
                     showModal: function () {
                         this.modal = true;
                     },
+                    addRow: function (event) {
+                        this.products.push({
+                            ProductSkuId: '', ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', ContractPrice: 11, Price: 0,
+                            PackageQuantity: 0, SpecificationQuantitys: [1], Quantity: 1, ActualPackageQuantity: 0, ActualQuantity: 0, Amount: 0,
+                            ProductionDate: '', ShelfLife: 0
+                        });
+                        //设置焦点
+                        //var target = event.target;
+                        //var row = $(target).parent().parent();
+                        //row.next().find("input.productCode").focus().select();
+                    },
                     removeRow: function (index) {
                         this.products.splice(index, 1);
                     },
-                    inputProduct: function (codeOrBarCode, index) {
+                    inputProduct: function (codeOrBarCode, index, event) {
                         var _self = this;
                         if (codeOrBarCode == "") { return; }
                         if (_self.model.supplierId == 0) { bootbox.alert("请选择供应商"); return; }
@@ -308,22 +346,56 @@
                             supplierId: _self.model.supplierId,
                             storeId: _self.model.storeId
                         }
-                        //$.get("/StorePurchaseOrder/GetPurchaseOrderItem", data, function (result) {
-                        //    if (result.success) {
-                        //        result.data.forEach(function (item) {
-                        //            _self.products.$set(index, item);
-                        //        });
-                        //    }
-                        //    else {
-                        //        bootbox.alert(result.error);
-                        //    }
-                        //}, "json");
-                        _self.products.push({
-                            ProductSkuId: '', ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', ContractPrice: 11, Price: 0,
-                            PackageQuantity: 0, SinglePackageQuantity: 12, Quantity: 0, ActualPackageQuantity: 0, ActualQuantity: 0, Amount: 0,
-                            ProductionDate: '', ShelfLife: 0
-                        });
+                        //设置焦点
+                        $.get("/StorePurchaseOrder/GetPurchaseOrderItem", data, function (result) {
+                            if (result.success) {
+                                _self.products.$set(index, result.data);
+                                //设置焦点
+                                var target = event.target;
+                                var row = $(target).parent().parent();
+                                row.find("input.quantity").focus().select();
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
 
+                    },
+                    inputNext: function (event) {
+                        var target = event.target;
+                        var row = $(target).parent().parent();
+                        if (row.next().length > 0) {
+                            row.next().find("input[name='productCode']").focus().select();
+                        }
+                        else {
+                            this.addRow();
+                        }
+                    },
+                    showSupplier: function () {
+                        this.selectSupplier.modal = true;
+                    },
+                    getSupplier: function () {
+                        var selecteds = this.selectSupplier.rows.filter(function (item) {
+                            return item.checked;
+                        });
+                        if (selecteds) {
+                            this.model.supplierId = selecteds[0].Id;
+                            this.selectSupplier.name = selecteds[0].Name;
+                            this.selectSupplier.modal = false;
+                        }
+                    },
+                    showStore: function () {
+                        this.selectStore.modal = true;
+                    },
+                    getStore: function () {
+                        var selecteds = this.selectStore.rows.filter(function (item) {
+                            return item.checked;
+                        });
+                        if (selecteds) {
+                            this.model.storeId = selecteds[0].Id;
+                            this.selectStore.name = selecteds[0].Name;
+                            this.selectStore.modal = false;
+                        }
                     }
                 },
                 computed: {
@@ -342,25 +414,9 @@
                 }
             });
 
-
-            // 日期选择器初始化
-            $("input.datepicker").datepicker({
-                format: "yyyy-mm-dd",
-                //endDate: new Date(),
-                maxViewMode: 2,
-                clearBtn: true,
-                language: "zh-CN",
-                autoclose: true
-            });
         });
-
-
-
     </script>
 }
-
-
-
 
 
 

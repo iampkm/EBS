@@ -15,8 +15,6 @@ namespace EBS.Application.Facade
 {
     public class PurchaseContractFacade : IPurchaseContractFacade
     {
-
-
         IDBContext _db;
         PurchaseContractService _service;
         ProcessHistoryService _processHistoryService;
@@ -33,7 +31,9 @@ namespace EBS.Application.Facade
             entity.AddPurchaseContractItem(model.ConvertJsonToPurchaseContractItem());
             entity.UpdatedBy = entity.CreatedBy;
             _service.Create(entity);
+            _db.SaveChange();
             var reason = "创建合同";
+            entity = _db.Table.Find<PurchaseContract>(n => n.Code == entity.Code);
             _processHistoryService.Track(model.CreatedBy, model.CreatedByName, (int)entity.Status, entity.Id, FormType.PurchaseContract, reason);
             _db.SaveChange();
         }

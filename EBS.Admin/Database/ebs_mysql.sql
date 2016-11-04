@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2016-11-03 09:34:29                          */
+/* Created on:     2016-11-04 17:34:49                          */
 /*==============================================================*/
 
 
@@ -30,7 +30,7 @@ drop index idx_ProcessHistory_fromId on ProcessHistory;
 
 drop table if exists ProcessHistory;
 
-drop index idx_productSKU_code on Product;
+drop index idx_product_code on Product;
 
 drop table if exists Product;
 
@@ -280,13 +280,13 @@ create table Product
    IsPublish            bool comment '是否上架',
    BarCode              nvarchar(50) comment '条码',
    Specification        nvarchar(200) comment '规格名',
-   MarketPrice          decimal(8,2) comment '市场价',
+   OldPrice             decimal(8,2) comment '原价',
    SalePrice            decimal(8,2) comment '销售价',
    WholeSalePrice       decimal(8,2) comment '批发价',
    CostPrice            decimal(8,2) comment '平均成本价',
    SubSkuCode           varchar(20) comment '子SKU代码',
    SubSkuQuantity       int comment '子SKU数量',
-   SinglePackageQuantity nvarchar(100) comment '件规, 多个逗号分隔',
+   SpecificationQuantity nvarchar(100) comment '件规, 多个逗号分隔',
    CreatedOn            datetime comment '创建时间',
    primary key (Id)
 );
@@ -294,9 +294,9 @@ create table Product
 alter table Product comment '商品';
 
 /*==============================================================*/
-/* Index: idx_productSKU_code                                   */
+/* Index: idx_product_code                                      */
 /*==============================================================*/
-create unique index idx_productSKU_code on Product
+create unique index idx_product_code on Product
 (
    Code
 );
@@ -528,7 +528,7 @@ create table StorePurchaseOrder
    Id                   int not null auto_increment comment '编号',
    Code                 nvarchar(20) comment '订单号',
    StoreId              int comment '门店Id',
-   SupplierCode         nvarchar(20) comment '供应商单号',
+   SupplierBill         nvarchar(20) comment '供应商单据号',
    SupplierId           int comment '供应商Id',
    CreatedOn            datetime comment '创建时间',
    CreatedBy            int comment '创建人',

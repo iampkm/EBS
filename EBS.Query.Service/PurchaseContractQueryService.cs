@@ -49,7 +49,7 @@ namespace EBS.Query.Service
                 param.Status = condition.Status;
             }
             string sql = @"select t0.Id,t0.Name,t0.Code,t0.SupplierId,t0.Contact,t0.StartDate,t0.EndDate,t0.Status,t1.Code as SupplierCode,t1.Name as SupplierName,t2.Name as StoreName  
-from PurchaseContract t0 inner join supplier t1 on t0.SupplierId = t1.Id inner join store t2 on t0.StoreId = t2.Id
+from PurchaseContract t0 left join supplier t1 on t0.SupplierId = t1.Id left join store t2 on t0.StoreId = t2.Id
 where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<Product>(where, param);
             sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);

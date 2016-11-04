@@ -38,53 +38,46 @@
                     </div>
                     <div class="form-group col-sm-2 col-xs-3">
                         <label for="inputPassword3" class="control-label">合同日期：</label>
-                        <div class="input-group date" @*data-provide="datepicker"*@>
+                        <div class="input-group date" data-provide="datepicker" data-date-format="yyyy-mm-dd"
+                             data-date-language="zh-CN" data-date-clear-btn="true" data-date-autoclose="true">
                             <div class="input-group-addon">
                                 <i class="fa fa-calendar"></i>
                                 <span>从</span>
                             </div>
-                            <input type="text" class="form-control datepicker" v-model="model.startDate" readonly>
+                            <input type="text" class="form-control" v-model="model.startDate" readonly>
                         </div>
                     </div>
                     <div class="form-group col-sm-2 col-xs-3">
                         <label for="inputPassword3" class="control-label">&nbsp;</label>
-                        <div class="input-group date ">
-                            <!---validate has-feedback has-error-->
+                        <div class="input-group date " data-provide="datepicker" data-date-format="yyyy-mm-dd"
+                             data-date-language="zh-CN" data-date-clear-btn="true" data-date-autoclose="true">
                             <div class="input-group-addon">
                                 <i class="fa fa-calendar"></i>
                                 <span>到</span>
                             </div>
-                            <input type="text" class="form-control datepicker" v-model="model.endDate" readonly>
-                            @*<span aria-hidden="true" class="glyphicon glyphicon-remove form-control-feedback"></span>*@
+                            <input type="text" class="form-control" v-model="model.endDate" readonly>
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="form-group col-sm-2 col-xs-3">
-                        <label for="inputPassword3" class="control-label">供应商：</label>
-                        <div class="input-group">
-                            @*<span class="input-group-addon">供应商*</span>*@
-                            <select name="brand" class="form-control" v-model="model.supplierId">
-                                <option value="0">-请选择-</option>
-                                @foreach (var item in ViewBag.Suppliers)
-                                {
-                                    <option value="@item.Id">[@item.Code]@item.Name</option>
-                                }
-                            </select>
+                        <label for="inputPassword3" class="control-label">供应商:</label>
+                        <div class="input-group ">
+                            <input type="hidden" class="form-control" v-model="model.supplierId">
+                            <input type="text" class="form-control" v-model="selectSupplier.name" readonly>
+                            <span class="input-group-btn">
+                                <button class="btn btn-flat btn-default" type="button" v-on:click="showSupplier"><i class="fa fa-search"></i></button>
+                            </span>
                         </div>
-
                     </div>
                     <div class="form-group col-sm-2 col-xs-3">
-                        <label for="inputPassword3" class="control-label">门店：</label>
-                        <div class="input-group">
-                            @*<span class="input-group-addon">门店*</span>*@
-                            <select name="brand" class="form-control" v-model="model.storeId">
-                                <option value="0">-请选择-</option>
-                                @foreach (var item in ViewBag.Stores)
-                                {
-                                    <option value="@item.Id">@item.Name</option>
-                                }
-                            </select>
+                        <label for="inputPassword3" class="control-label">门店:</label>
+                        <div class="input-group ">
+                            <input type="hidden" class="form-control" v-model="model.storeId">
+                            <input type="text" class="form-control" v-model="selectStore.name" readonly>
+                            <span class="input-group-btn">
+                                <button class="btn btn-flat btn-default" type="button" v-on:click="showStore"><i class="fa fa-search"></i></button>
+                            </span>
                         </div>
                     </div>
                     <div class="form-group col-sm-2 col-xs-3">
@@ -181,16 +174,46 @@
             </div>
         </div>
     </v-modal>
+    <v-modal title="选择供应商" ok-text="确 定" cancel-text="取 消" v-bind:callback="getSupplier" v-bind:show.sync="selectSupplier.modal" v-bind:effect="fade" width="60%">
+        <div slot="modal-body" class="modal-body">
+            <vue-table v-ref:vtable v-bind:columns="selectSupplier.gridColumns"
+                       v-bind:url="selectSupplier.url" v-bind:show-toolbar="false"
+                       v-bind:args="selectSupplier.searchArgs" v-bind:data.sync="selectSupplier.rows">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                    <div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="selectSupplier.searchArgs.code" placeholder="输入供应编码" debounce="300" />
+                    </div>
+                    <div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="selectSupplier.searchArgs.name" placeholder="输入供应商名" debounce="300" />
+                    </div>
+                </div>
+            </vue-table>
+        </div>
+    </v-modal>
+    <v-modal title="选择门店" ok-text="确 定" cancel-text="取 消" v-bind:callback="getStore" v-bind:show.sync="selectStore.modal" v-bind:effect="fade" width="60%">
+        <div slot="modal-body" class="modal-body">
+            <vue-table v-ref:vtable v-bind:columns="selectStore.gridColumns"
+                       v-bind:url="selectStore.url" v-bind:show-toolbar="false"
+                       v-bind:args="selectStore.searchArgs" v-bind:data.sync="selectStore.rows">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                    <div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="selectStore.searchArgs.name" placeholder="输入门店名" debounce="300" />
+                    </div>
+                </div>
+            </vue-table>
+        </div>
+    </v-modal>
 </div>
+@{Html.RenderPartial("VueTableTemplate");}
 @section scripts{
+    <script src="~/Content/Vue/vuetable/vuetable.js"></script>
     <script>
         $("doucument").ready(function () {
             var demo = new Vue({
                 components: {
                     'v-modal': VueStrap.modal,
                     'v-input': VueStrap.input,
-                    'v-form': VueStrap.formGroup,
-                    'v-datepicker': VueStrap.datepicker,
+                    'v-form': VueStrap.formGroup
                 },
                 el: '#app',
                 data: {
@@ -209,7 +232,32 @@
                         items: ''
                     },
                     products: @Html.Raw(ViewBag.PurchaseContractItems),
-                    inputProducts: ''
+                    inputProducts: '',
+                    selectSupplier: {
+                        modal: false,
+                        name:'@ViewBag.SupplierName',
+                        gridColumns: [
+                            { name: 'Code', localName: '编码',  width: '100' },
+                            { name: 'Name', localName: '供应商名', width: '300' },
+                            { name: 'AreaName', localName: '供货区域', width: '200' },
+                            { name: 'SupplierType', localName: '类型', width: '100' },
+                        ],
+                        url: "/Supplier/LoadData",
+                        searchArgs: { name: '', code: '' },
+                        rows: []
+                    },
+                    selectStore: {
+                        modal: false,
+                        name: '@ViewBag.StoreName',
+                        gridColumns: [
+                           { name: 'Name', localName: '门店名'},
+                            { name: 'Contact', localName: '联系人' },
+                            { name: 'Address', localName: '地址' }
+                        ],
+                        url: "/Store/LoadData",
+                        searchArgs: { name: '' },
+                        rows: []
+                    }
                 },
                 methods: {
                     onSubmit: function () {
@@ -287,20 +335,36 @@
                         else{
                             this.onSubmit();
                         }
+                    },
+                    showSupplier: function () {
+                        this.selectSupplier.modal = true;
+                    },
+                    getSupplier: function () {
+                        var selecteds = this.selectSupplier.rows.filter(function (item) {
+                            return item.checked;
+                        });
+                        if (selecteds)
+                        {
+                            this.model.supplierId = selecteds[0].Id;
+                            this.selectSupplier.name =selecteds[0].Name;
+                            this.selectSupplier.modal = false;
+                        }
+                    },
+                    showStore: function () {
+                        this.selectStore.modal = true;
+                    },
+                    getStore: function () {
+                        var selecteds = this.selectStore.rows.filter(function (item) {
+                            return item.checked;
+                        });
+                        if (selecteds) {
+                            this.model.storeId = selecteds[0].Id;
+                            this.selectStore.name = selecteds[0].Name;
+                            this.selectStore.modal = false;
+                        }
                     }
                 }
             });
-
-            // 日期选择器初始化
-            $("input.datepicker").datepicker({
-                format: "yyyy-mm-dd",
-                //endDate: new Date(),
-                maxViewMode: 2,
-                clearBtn: true,
-                language: "zh-CN",
-                autoclose: true
-            });
-           
         });
 
        

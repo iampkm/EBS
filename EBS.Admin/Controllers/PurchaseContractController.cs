@@ -33,18 +33,12 @@ namespace EBS.Admin.Controllers
         }
         public ActionResult Index()
         {
-            var suppliers = _query.FindAll<Supplier>();
-            ViewBag.Suppliers = suppliers;
-            ViewBag.Stores = _query.FindAll<Store>();
             ViewBag.Status = _purchaseContractQuery.GetPurchaseContractStatus();
             return View();
         }
 
         public ActionResult AuditIndex()
         {
-            var suppliers = _query.FindAll<Supplier>();
-            ViewBag.Suppliers = suppliers;
-            ViewBag.Stores = _query.FindAll<Store>();
             ViewBag.Status = _purchaseContractQuery.GetPurchaseContractStatus();
             ViewBag.waitingAudit = (int)PurchaseContractStatus.WaitingAudit;
             return View();
@@ -58,11 +52,7 @@ namespace EBS.Admin.Controllers
         }
 
         public ActionResult Create()
-        {
-            var suppliers = _query.FindAll<Supplier>();
-            ViewBag.Suppliers = suppliers;
-
-            ViewBag.Stores = _query.FindAll<Store>();
+        {           
             return View();
         }
 
@@ -86,9 +76,10 @@ namespace EBS.Admin.Controllers
             var model = _query.Find<PurchaseContract>(id);
             var items = _purchaseContractQuery.GetPurchaseContractItems(id);
             ViewBag.PurchaseContractItems = JsonConvert.SerializeObject(items.ToArray());
-            var suppliers = _query.FindAll<Supplier>();
-            ViewBag.Suppliers = suppliers;
-            ViewBag.Stores = _query.FindAll<Store>();
+            var supplier = _query.Find<Supplier>(model.SupplierId);
+            ViewBag.SupplierName = supplier.Name;
+            var store = _query.Find<Store>(model.StoreId);
+            ViewBag.StoreName =store.Name ;
             //创建和待审可编辑
             var editable = model.Status == PurchaseContractStatus.Create || model.Status == PurchaseContractStatus.WaitingAudit;
             ViewBag.Editable = editable ? "true" : "false";

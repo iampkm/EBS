@@ -58,6 +58,10 @@ namespace EBS.Domain.Entity
             StorePurchaseOrderItem item = new StorePurchaseOrderItem(productSkuId, contractPrice, this.Id, quantity);
             this._items.Add(item);
         }
+        public void AddItems(List<StorePurchaseOrderItem> items)
+        {
+            this._items = items;
+        }
 
 
 

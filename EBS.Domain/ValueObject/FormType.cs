@@ -14,5 +14,13 @@ namespace EBS.Domain.ValueObject
        public static string PurchaseContract { get {
            return "PurchaseContract";
        } }
+
+       public static string StorePurchaseOrder
+       {
+           get
+           {
+               return "StorePurchaseOrder";
+           }
+       }
     }
 }

@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 using EBS.Admin.Services;
 using EBS.Infrastructure.Extension;
 using EBS.Domain.Entity;
+using EBS.Domain.ValueObject;
 namespace EBS.Admin.Controllers
 {
     [Permission]
@@ -33,9 +34,6 @@ namespace EBS.Admin.Controllers
 
         public ActionResult Index()
         {
-            var suppliers = _query.FindAll<Supplier>();
-            ViewBag.Suppliers = suppliers;
-            ViewBag.Stores = _query.FindAll<Store>();
             ViewBag.Status = _storePurchaseOrderQuery.GetStorePurchaseOrderStatus();
             return View();
         }
@@ -48,10 +46,7 @@ namespace EBS.Admin.Controllers
         }
 
         public ActionResult Create()
-        {
-            var suppliers = _query.FindAll<Supplier>();
-            ViewBag.Suppliers = suppliers;
-            ViewBag.Stores = _query.FindAll<Store>();
+        {           
             ViewBag.Status = "创建";
             ViewBag.CreatedByName = _context.CurrentAccount.NickName;
             return View();
@@ -62,6 +57,27 @@ namespace EBS.Admin.Controllers
             model.CreatedBy = _context.CurrentAccount.AccountId;
             model.CreatedByName = _context.CurrentAccount.NickName;
             _storePurchaseOrderFacade.Create(model);
+            return Json(new { success = true });
+        }
+
+        public ActionResult Edit(int id)
+        {
+            var model = _storePurchaseOrderQuery.GetById(id);
+            ViewBag.StorePurchaseOrderItems = JsonConvert.SerializeObject(model.Items.ToArray());
+            //创建和待审可编辑
+            var editable = model.Status == PurchaseOrderStatus.Create || model.Status == PurchaseOrderStatus.WaitingStockIn;
+            ViewBag.Editable = editable ? "true" : "false";
+            //查询处理流程：
+            var logs = _query.FindAll<ProcessHistory>(n => n.FormId == id && n.FormType == FormType.StorePurchaseOrder);
+            ViewBag.Logs = logs;
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public JsonResult Edit(EditStorePurchaseOrder model)
+        {
+            _storePurchaseOrderFacade.Edit(model);
             return Json(new { success = true });
         }
 

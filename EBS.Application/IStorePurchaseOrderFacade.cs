@@ -9,5 +9,6 @@ namespace EBS.Application
    public interface IStorePurchaseOrderFacade
     {
        void Create(CreateStorePurchaseOrder model);
+       void Edit(EditStorePurchaseOrder model);
     }
 }

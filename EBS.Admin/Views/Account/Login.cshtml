@@ -6,7 +6,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>AdminLTE 2 | Log in</title>
+    <title>门店管理系统</title>
     <!-- Tell the browser to be responsive to screen width -->
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <!-- Bootstrap 3.3.6 -->
@@ -54,7 +54,7 @@
                     </div>
                     <!-- /.col -->
                     <div class="col-xs-4">
-                        <input type="hidden" v-model="reurnUrl" />
+                        <input type="hidden" v-model="returnUrl" />
                         <button type="submit" class="btn btn-primary btn-block btn-flat" v-on:click.prevent="Login">Sign In</button>
                     </div>
                     <!-- /.col -->
@@ -100,7 +100,7 @@
                 methods: {
                     Login: function () {
                         var self = this;                     
-                        $.post("/Account/Login", { UserName: this.userName, Password: this.password, RemmberMe: this.remmberMe }, function (result) {
+                        $.post("/Account/Login", { UserName: self.userName, Password: self.password, RemmberMe: self.remmberMe }, function (result) {
                             if (result.success) {
                                // window.location.href = result.returnUrl;
                                 top.location.href = result.returnUrl;

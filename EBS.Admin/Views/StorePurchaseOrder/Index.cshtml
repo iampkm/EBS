@@ -21,30 +21,26 @@
                     <div class="col-xs-3 col-sm-2">
                         <input class="form-control" v-model="searchArgs.productCodeOrBarCode" placeholder="商品编码/条码" debounce="500" />
                     </div>                   
-                    <div class="col-xs-3  col-sm-2">
-                        <div class="input-group">
-                            <span class="input-group-addon">供应商</span>
-                            <select name="brand" class="form-control" v-model="searchArgs.supplierId">
-                                <option value="0">-请选择-</option>
-                                @foreach (var item in ViewBag.Suppliers)
-                                {
-                                    <option value="@item.Id">@item.Name</option>
-                                }
-                            </select>
+                    <div class="col-sm-2 col-xs-3">
+                        <div class="input-group ">
+                            <input type="hidden" class="form-control" v-model="searchArgs.supplierId">
+                            <input type="text" class="form-control" v-model="selectSupplier.name" placeholder="选择供应商" readonly>
+                            <span class="input-group-btn">
+                                <button class="btn btn-flat btn-default" type="button" v-on:click="showSupplier"><i class="fa fa-search"></i></button>
+                                <button class="btn btn-flat btn-default" type="button" v-on:click="clearSupplier"><i class="fa fa-eraser"></i></button>
+                            </span>
                         </div>
                     </div>
-                    <div class="form-group col-sm-2 col-xs-3">
-                        <div class="input-group">
-                            <span class="input-group-addon">门店</span>
-                            <select name="brand" class="form-control" v-model="searchArgs.storeId">
-                                <option value="0">-请选择-</option>
-                                @foreach (var item in ViewBag.Stores)
-                                {
-                                    <option value="@item.Id">@item.Name</option>
-                                }
-                            </select>
+                    <div class="col-sm-2 col-xs-3">
+                        <div class="input-group ">
+                            <input type="hidden" class="form-control" v-model="searchArgs.storeId">
+                            <input type="text" class="form-control" v-model="selectStore.name" placeholder="选择门店" readonly>
+                            <span class="input-group-btn">
+                                <button class="btn btn-flat btn-default" type="button" v-on:click="showStore"><i class="fa fa-search"></i></button>
+                                <button class="btn btn-flat btn-default" type="button" v-on:click="clearStore"><i class="fa fa-eraser"></i></button>
+                            </span>
                         </div>
-                    </div>
+                    </div>  
                     <div class="form-group col-sm-2 col-xs-3">
                         <div class="input-group">
                             <span class="input-group-addon">状态</span>
@@ -75,6 +71,35 @@
             <v-input type="textarea" v-bind:value.sync="removeReason" placeholder="请录入作废理由" required icon></v-input>
         </div>
     </v-modal>
+    <v-modal title="选择供应商" ok-text="确 定" cancel-text="取 消" v-bind:callback="getSupplier" v-bind:show.sync="selectSupplier.modal" v-bind:effect="fade" width="60%">
+        <div slot="modal-body" class="modal-body">
+            <vue-table v-bind:columns="selectSupplier.gridColumns"
+                       v-bind:url="selectSupplier.url" v-bind:show-toolbar="false"
+                       v-bind:args="selectSupplier.searchArgs" v-bind:data.sync="selectSupplier.rows">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                    <div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="selectSupplier.searchArgs.code" placeholder="输入供应编码" debounce="300" />
+                    </div>
+                    <div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="selectSupplier.searchArgs.name" placeholder="输入供应商名" debounce="300" />
+                    </div>
+                </div>
+            </vue-table>
+        </div>
+    </v-modal>
+    <v-modal title="选择门店" ok-text="确 定" cancel-text="取 消" v-bind:callback="getStore" v-bind:show.sync="selectStore.modal" v-bind:effect="fade" width="60%">
+        <div slot="modal-body" class="modal-body">
+            <vue-table v-bind:columns="selectStore.gridColumns"
+                       v-bind:url="selectStore.url" v-bind:show-toolbar="false"
+                       v-bind:args="selectStore.searchArgs" v-bind:data.sync="selectStore.rows">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                    <div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="selectStore.searchArgs.name" placeholder="输入门店名" debounce="300" />
+                    </div>
+                </div>
+            </vue-table>
+        </div>
+    </v-modal>
 </div>
 @{Html.RenderPartial("VueTableTemplate");}
 @section scripts{
@@ -97,13 +122,37 @@
                 { name: 'StoreName', localName: '门店' },
                 { name: 'Supplier', localName: '供应商', width: '250' },
                 { name: 'PurchaseOrderStatus', localName: '状态', width: '80' },
-                { name: 'UpdateTime', localName: '经手人' },
-                { name: 'UpdateByName', localName: '处理时间' },
-
+                { name: 'CreatedByName', localName: '创建人' },
+                { name: 'CreatedTime', localName: '创建时间' }
                 ],
                 url: "/StorePurchaseOrder/LoadData",
                 searchArgs: { code: '', supplierId: 0, storeId: 0, status: 0 ,productCodeOrBarCode:''},
-                rows: []
+                rows: [],
+                selectSupplier: {
+                    modal: false,
+                    name: '',
+                    gridColumns: [
+                        { name: 'Code', localName: '编码', width: '100' },
+                        { name: 'Name', localName: '供应商名', width: '300' },
+                        { name: 'AreaName', localName: '供货区域', width: '200' },
+                        { name: 'SupplierType', localName: '类型', width: '100' },
+                    ],
+                    url: "/Supplier/LoadData",
+                    searchArgs: { name: '', code: '' },
+                    rows: []
+                },
+                selectStore: {
+                    modal: false,
+                    name: '',
+                    gridColumns: [
+                       { name: 'Name', localName: '门店名' },
+                        { name: 'Contact', localName: '联系人' },
+                        { name: 'Address', localName: '地址' }
+                    ],
+                    url: "/Store/LoadData",
+                    searchArgs: { name: '' },
+                    rows: []
+                }
             },
             methods: {
                 remove: function () {
@@ -157,6 +206,40 @@
                             }, "json");
                         }
                     });
+                },
+                showSupplier: function () {
+                    this.selectSupplier.modal = true;
+                },
+                clearSupplier: function () {
+                    this.searchArgs.supplierId = 0;
+                    this.selectSupplier.name = "";
+                },
+                getSupplier: function () {
+                    var selecteds = this.selectSupplier.rows.filter(function (item) {
+                        return item.checked;
+                    });
+                    if (selecteds) {
+                        this.searchArgs.supplierId = selecteds[0].Id;
+                        this.selectSupplier.name = selecteds[0].Name;
+                        this.selectSupplier.modal = false;
+                    }
+                },
+                showStore: function () {
+                    this.selectStore.modal = true;
+                },
+                clearStore: function () {
+                    this.searchArgs.storeId = 0;
+                    this.selectStore.name = "";
+                },
+                getStore: function () {
+                    var selecteds = this.selectStore.rows.filter(function (item) {
+                        return item.checked;
+                    });
+                    if (selecteds) {
+                        this.searchArgs.storeId = selecteds[0].Id;
+                        this.selectStore.name = selecteds[0].Name;
+                        this.selectStore.modal = false;
+                    }
                 }
             }
         })

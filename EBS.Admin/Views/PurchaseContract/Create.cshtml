@@ -21,7 +21,7 @@
             @*<v-form v-bind:valid.sync="valid">*@
                 <div class="row">
                     <div class="form-group col-sm-4 col-xs-4">
-                        <button type="submit" class="btn btn-warning btn-flat" v-on:click="onSubmit" @*v-bind:disabled="!valid"*@>保 存</button>
+                        <button type="button" class="btn btn-warning btn-flat" v-on:click="onSubmit" @*v-bind:disabled="!valid"*@>保 存</button>
                         <a class="btn btn-default btn-flat" href="/PurchaseContract/Index">取 消</a>
                     </div>
                 </div>
@@ -56,50 +56,29 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row">                    
                     <div class="form-group col-sm-2 col-xs-3">
-                        <label for="inputPassword3" class="control-label">供应商：</label>
-                        <div class="input-group">
-                            @*<span class="input-group-addon">供应商*</span>*@
-                            <select name="brand" class="form-control" v-model="model.supplierId">
-                                <option value="0">-请选择-</option>
-                                @foreach (var item in ViewBag.Suppliers)
-                                {
-                                    <option value="@item.Id">[@item.Code]@item.Name</option>
-                                }
-                            </select>
-                        </div>
-                       
-                    </div> 
-                    <div class="form-group col-sm-2 col-xs-3">
-                        <label for="inputPassword3" class="control-label">&nbsp;</label>
-                        <div class="input-group ">
-                            @*<div class="input-group-addon">
-                                <i class="fa fa-calendar"></i>
-                                <span>选择供应商</span>
-                            </div>*@
-                            <input type="hidden" class="form-control" v-model="select.id" >
-                            <input type="text" class="form-control" v-model="select.name" readonly>
+                        <label for="inputPassword3" class="control-label">供应商:</label>
+                        <div class="input-group ">                           
+                            <input type="hidden" class="form-control" v-model="model.supplierId">
+                            <input type="text" class="form-control" v-model="selectSupplier.name" readonly>
                             <span class="input-group-btn">
-                                <button class="btn btn-flat btn-default" type="button" v-on:click="showSupplier"><i class="fa fa-calendar"></i></button>
+                                <button class="btn btn-flat btn-default" type="button" v-on:click="showSupplier"><i class="fa fa-search"></i></button>
                             </span>                            
                         </div>
                     </div>                   
                     <div class="form-group col-sm-2 col-xs-3">
-                        <label for="inputPassword3" class="control-label">门店：</label>
-                        <div class="input-group">
-                            @*<span class="input-group-addon">门店*</span>*@
-                            <select name="brand" class="form-control" v-model="model.storeId">
-                                <option value="0">-请选择-</option>
-                                @foreach (var item in ViewBag.Stores)
-                                {
-                                    <option value="@item.Id">@item.Name</option>
-                                }
-                            </select>
+                        <label for="inputPassword3" class="control-label">门店:</label>
+                        <div class="input-group ">
+                            <input type="hidden" class="form-control" v-model="model.storeId">
+                            <input type="text" class="form-control" v-model="selectStore.name" readonly>
+                            <span class="input-group-btn">
+                                <button class="btn btn-flat btn-default" type="button" v-on:click="showStore"><i class="fa fa-search"></i></button>
+                            </span>
                         </div>
                     </div>
                     <div class="form-group col-sm-2 col-xs-3">
-                        <v-input type="text" label="联系人：" v-bind:value.sync="model.contact" placeholder="联系人" required icon></v-input>
+                        <v-input type="text" label="联系人：" v-bind:value.sync="model.contact" placeholder="联系人" icon></v-input>
                     </div>
                 </div>
 
@@ -134,8 +113,7 @@
                                         <td>{{item.CategoryName}}</td>
                                         <td>{{item.Specification}}</td>
                                         <td class="dataRow">
-                                            <input type="text" class="form-control" name="ContractPrice" v-model="item.ContractPrice" v-on:keyup.enter="inputNext($event)" />
-                                            @*<v-input type="text" v-bind:value.sync="item.ContractPrice" pattern="^(([1-9]\d{0,9})|0)(\.\d{1,2})?$" placeholder="价格" required icon></v-input>*@
+                                            <input type="text" class="form-control" name="ContractPrice" v-model="item.ContractPrice" v-on:keyup.enter="inputNext($event)" />                                          
                                         </td>
                                     </tr>
                                 </tbody>
@@ -160,17 +138,30 @@
             <v-input type="textarea" help="请将excel中商品编号和价格两列粘贴到文本框中" v-bind:value.sync="inputProducts" placeholder="输入商品" required icon></v-input>
         </div>
     </v-modal>
-    <v-modal title="选择供应商" ok-text="确 定" cancel-text="取 消" v-bind:callback="selectItem" v-bind:show.sync="select.modal" v-bind:effect="fade" width="60%">
+    <v-modal title="选择供应商" ok-text="确 定" cancel-text="取 消" v-bind:callback="getSupplier" v-bind:show.sync="selectSupplier.modal" v-bind:effect="fade" width="60%">
         <div slot="modal-body" class="modal-body">
-            <vue-table v-ref:vtable v-bind:columns="select.gridColumns"
-                       v-bind:url="select.url" v-bind:show-toolbar = "false"
-                       v-bind:args="select.searchArgs" v-bind:data.sync="select.rows">
+            <vue-table v-bind:columns="selectSupplier.gridColumns"
+                       v-bind:url="selectSupplier.url" v-bind:show-toolbar="false"
+                       v-bind:args="selectSupplier.searchArgs" v-bind:data.sync="selectSupplier.rows">
                 <div class="row" style="margin-bottom:10px;" slot="customSearch">
                     <div class="col-xs-4 col-sm-3">
-                        <input class="form-control" v-model="select.searchArgs.code" placeholder="输入供应编码" debounce="300" />
+                        <input class="form-control" v-model="selectSupplier.searchArgs.code" placeholder="输入供应编码" debounce="300" />
                     </div>
                     <div class="col-xs-4 col-sm-3">
-                        <input class="form-control" v-model="select.searchArgs.name" placeholder="输入供应商名" debounce="300" />
+                        <input class="form-control" v-model="selectSupplier.searchArgs.name" placeholder="输入供应商名" debounce="300" />
+                    </div>
+                </div>
+            </vue-table>
+        </div>
+    </v-modal>
+    <v-modal title="选择门店" ok-text="确 定" cancel-text="取 消" v-bind:callback="getStore" v-bind:show.sync="selectStore.modal" v-bind:effect="fade" width="60%">
+        <div slot="modal-body" class="modal-body">
+            <vue-table v-bind:columns="selectStore.gridColumns"
+                       v-bind:url="selectStore.url" v-bind:show-toolbar="false"
+                       v-bind:args="selectStore.searchArgs" v-bind:data.sync="selectStore.rows">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                    <div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="selectStore.searchArgs.name" placeholder="输入门店名" debounce="300" />
                     </div>
                 </div>
             </vue-table>
@@ -206,9 +197,8 @@
                     },                   
                     products:[],
                     inputProducts:'',
-                    select: {
+                    selectSupplier: {
                         modal: false,
-                        id: '',
                         name:'',
                         gridColumns: [
                             { name: 'Code', localName: '编码',  width: '100' },
@@ -218,6 +208,18 @@
                         ],
                         url: "/Supplier/LoadData",
                         searchArgs: { name: '', code: '' },
+                        rows: []
+                    },
+                    selectStore: {
+                        modal: false,
+                        name: '',
+                        gridColumns: [
+                           { name: 'Name', localName: '门店名'},
+                            { name: 'Contact', localName: '联系人' },
+                            { name: 'Address', localName: '地址' }
+                        ],
+                        url: "/Store/LoadData",
+                        searchArgs: { name: '' },
                         rows: []
                     }
                 },
@@ -296,18 +298,31 @@
                         }
                     },
                     showSupplier: function () {
-                        this.select.modal = true;
+                        this.selectSupplier.modal = true;
                     },
-                    selectItem:function(){
-                       var selecteds= this.select.rows.filter(function (item) {
+                    getSupplier: function () {
+                        var selecteds = this.selectSupplier.rows.filter(function (item) {
                            return item.checked;
                        });
                        if (selecteds)
                        {
-                           this.select.id = selecteds[0].Id;
-                           this.select.name = selecteds[0].Name;
-                           this.select.modal = false;
+                           this.model.supplierId = selecteds[0].Id;
+                           this.selectSupplier.name =selecteds[0].Name;
+                           this.selectSupplier.modal = false;
                        }
+                    },
+                    showStore: function () {
+                        this.selectStore.modal = true;
+                    },
+                    getStore: function () {
+                        var selecteds = this.selectStore.rows.filter(function (item) {
+                            return item.checked;
+                        });
+                        if (selecteds) {
+                            this.model.storeId = selecteds[0].Id;
+                            this.selectStore.name = selecteds[0].Name;
+                            this.selectStore.modal = false;
+                        }
                     }
                 }
             }); 

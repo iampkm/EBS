@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using EBS.Infrastructure.Extension;
 namespace EBS.Query.DTO
 {
    public class StorePurchaseOrderItemDto
     {
-       public int productId { get; set; }
+       public int ProductId { get; set; }
 
        public string BarCode { get; set; }
 
@@ -35,7 +35,22 @@ namespace EBS.Query.DTO
         /// <summary>
         /// 单件数量 1*12 1*24
         /// </summary>
-        public int SinglePackageQuantity { get; set; }
+       public string SpecificationQuantity { get; set; }
+
+       public int[] SpecificationQuantitys
+       {
+           get
+           {
+               int[] array = new int[] { 1 };
+               if (string.IsNullOrEmpty(SpecificationQuantity))
+               {
+                   return array;
+               }
+               array = SpecificationQuantity.Trim().Split(',').ToIntArray();
+               return array;
+           }
+       }
+
         /// <summary>
         /// 预订数量
         /// </summary>
@@ -52,7 +67,7 @@ namespace EBS.Query.DTO
        /// <summary>
        /// 生产日期
        /// </summary>
-       public DateTime ProductionDate { get; set; }
+       public string ProductionDate { get; set; }
 
        /// <summary>
        /// 保质期：单位天

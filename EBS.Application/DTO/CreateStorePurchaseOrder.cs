@@ -8,13 +8,11 @@ namespace EBS.Application.DTO
 {
    public class CreateStorePurchaseOrder
     {
-        /// <summary>
-        /// 合同单号
-        /// </summary>
-        public int PurchaseContractId { get; set; }
         public string Code { get; set; }
         public int SupplierId { get; set; }
         public int StoreId { get; set; }
+
+        public bool IsGift { get; set; }
         public int CreatedBy { get; set; }
         public string CreatedByName { get; set; }
        /// <summary>

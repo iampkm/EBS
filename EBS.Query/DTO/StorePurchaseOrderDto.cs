@@ -33,16 +33,16 @@ namespace EBS.Query.DTO
                 return Status.Description();
             }
         }
-        public DateTime UpdateOn { get; set; }
+        public DateTime CreatedOn { get; set; }
 
-        public string UpdateTime
+        public string CreatedTime
         {
             get
             {
-                return UpdateOn.ToString("yyyy-MM-dd");
+                return CreatedOn.ToString("yyyy-MM-dd");
             }
         }
 
-        public string UpdatedByName { get; set; }
+        public string CreatedByName { get; set; }
     }
 }

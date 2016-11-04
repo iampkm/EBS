@@ -66,6 +66,7 @@
     <Compile Include="Entity\Supplier.cs" />
     <Compile Include="Service\AccountService.cs" />
     <Compile Include="Entity\AccountLoginHistory.cs" />
+    <Compile Include="Service\BillSequenceService.cs" />
     <Compile Include="Service\BrandService.cs" />
     <Compile Include="Service\CategoryService.cs" />
     <Compile Include="Service\ProcessHistoryService.cs" />

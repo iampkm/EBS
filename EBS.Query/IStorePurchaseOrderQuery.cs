@@ -12,5 +12,7 @@ namespace EBS.Query
        IEnumerable<StorePurchaseOrderDto> GetPageList(Pager page, SearchStorePurchaseOrder condition);
        Dictionary<int, string> GetStorePurchaseOrderStatus();
        StorePurchaseOrderItemDto GetPurchaseOrderItem(string productCodeOrBarCode, int supplierId, int storeId);
+
+       StorePurchaseOrder GetById(int id);
     }
 }
