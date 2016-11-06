@@ -8,12 +8,12 @@ namespace EBS.Domain.Entity
 {
     public class StorePurchaseOrderItem : BaseEntity
     {
-        public StorePurchaseOrderItem(int productSkuId,decimal contractPrice,int storePurchaseOrderId,int quantity) {
-            this.StorePurchaseOrderId = StorePurchaseOrderId;
-            this.ProductId = productSkuId;
-            this.ContractPrice = contractPrice;
-            this.Quantity = quantity; 
-        }
+        //public StorePurchaseOrderItem(int productSkuId,decimal contractPrice,int storePurchaseOrderId,int quantity) {
+        //    this.StorePurchaseOrderId = StorePurchaseOrderId;
+        //    this.ProductId = productSkuId;
+        //    this.ContractPrice = contractPrice;
+        //    this.Quantity = quantity; 
+        //}
        public int StorePurchaseOrderId {get;set;}
        /// <summary>
        /// 商品SKUID
@@ -39,11 +39,13 @@ namespace EBS.Domain.Entity
        /// <summary>
        /// 生产日期
        /// </summary>
-        public DateTime ProductionDate {get;set;}
+        public DateTime? ProductionDate {get;set;}
 
         /// <summary>
         /// 保质期：单位天
         /// </summary>
         public int ShelfLife {get;set;}       
+
+        // 增加一个件规字段
     }
 }

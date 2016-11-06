@@ -12,7 +12,7 @@
     <div class="box-header with-border">
         <ol class="breadcrumb" style="padding:0px;margin:1px;">
             <li><a href="/StorePurchaseOrder/Index"><i class="fa fa-dashboard"></i>采购单管理</a></li>
-            <li class="active"><a href="/StorePurchaseOrder/Edit/{{model.id}}">修改采购单</a></li>
+            <li class="active"><a href="/StorePurchaseOrder/Edit/{{model.id}}">收货入库</a></li>
         </ol>
     </div>
     <!-- /.box-header -->
@@ -21,31 +21,21 @@
         <div class="box-body">
             <div class="row">
                 <div class="form-group col-sm-4 col-xs-6">
-                    <button type="button" class="btn btn-warning btn-flat" v-on:click="onSubmit">保 存</button>
-                    <button type="button" class="btn btn-success btn-flat" v-on:click="showModal()">导入商品明细</button>
-                    <button type="button" class="btn btn-default btn-flat" v-on:click="print">打印</button>
+                    <button type="button" class="btn btn-warning btn-flat" v-on:click="onSubmit">收 货</button>
+                    @*<button type="button" class="btn btn-success btn-flat" v-on:click="showModal()">导入商品明细</button>*@
+                    @*<button type="button" class="btn btn-default btn-flat" v-on:click="print">打印</button>*@
                     <a class="btn btn-default btn-flat" href="/StorePurchaseOrder/Index">取 消</a>
                     <input type="hidden" v-model="model.id" />
+                    <input type="hidden" class="form-control" v-model="model.supplierId">
+                    <input type="hidden" class="form-control" v-model="model.storeId">
                 </div>
             </div>
             <div class="row">
-                <div class="form-group col-sm-2 col-xs-3">
-                    <div class="input-group ">
-                        <input type="hidden" class="form-control" v-model="model.supplierId">
-                        <input type="text" class="form-control" v-model="selectSupplier.name" placeholder="选择供应商" readonly>
-                        <span class="input-group-btn">
-                            <button class="btn btn-flat btn-default" type="button" v-on:click="showSupplier"><i class="fa fa-search"></i></button>
-                        </span>
-                    </div>
+                <div class="col-sm-2 col-xs-3">                   
+                    <input type="text" class="form-control productCode" v-model="inputProductCodeOrBarCode" v-on:keyup.enter="inputProduct(item.ProductCode,index)" placeholder="输入商品编码或扫条码" />
                 </div>
-                <div class="form-group col-sm-2 col-xs-3">
-                    <div class="input-group ">
-                        <input type="hidden" class="form-control" v-model="model.storeId">
-                        <input type="text" class="form-control" v-model="selectStore.name" placeholder="选择门店" readonly>
-                        <span class="input-group-btn">
-                            <button class="btn btn-flat btn-default" type="button" v-on:click="showStore"><i class="fa fa-search"></i></button>
-                        </span>
-                    </div>
+                <div class="col-sm-2 col-xs-3">
+                    <v-input type="text" v-bind:value.sync="model.supplierBill" placeholder="录入供应商单号" maxlength="20" required icon></v-input>
                 </div>
             </div>
             <div class="row">
@@ -89,16 +79,16 @@
                     <div class="table-responsive">
                         <table class="table table-bordered">
                             <thead>
-                                <tr>
-                                    <th style="width:90px;"></th>
+                                <tr>                                   
                                     <th style="width:50px;">序号</th>
                                     <th style="width:150px;">商品编码</th>
                                     <th>条码</th>
-                                    <th style="width:200px;">品名</th>
+                                    <th style="width:150px;">品名</th>
                                     <th>规格</th>
                                     <th>单位</th>
                                     <th>合同进价</th>
                                     <th>进价</th>
+                                    <th>件规</th>
                                     <th>订货件数</th>
                                     <th>订货数量</th>
                                     <th>实收件数</th>
@@ -109,11 +99,7 @@
                                 </tr>
                             </thead>
                             <tbody id="tbody">
-                                <tr v-for="(index,item) in products">
-                                    <td>
-                                        <button type="button" class="btn btn-flat  btn-sm" title="添加行" v-on:click="addRow($event)"><span class="fa fa-plus"></span></button>
-                                        <button type="button" class="btn btn-flat  btn-sm" v-show="index>0" title="删除行" v-on:click="removeRow(index)"><span class="fa fa-trash"></span></button>
-                                    </td>
+                                <tr v-for="(index,item) in products">                                    
                                     <td class="text-center">{{index+1}}</td>
                                     <td>
                                         <input type="text" class="form-control productCode" v-model="item.ProductCode" v-on:keyup.enter="inputProduct(item.ProductCode,index)" placeholder="录入编码或扫码" />
@@ -134,28 +120,46 @@
                                     <td>{{item.ProductName}}</td>
                                     <td>{{item.Specification}}</td>
                                     <td>{{item.Unit}}</td>
-                                    <td>{{item.ContractPrice}}</td>
-                                    <td> {{model.isGift?0:item.Price}}</td>
+                                    <td>￥{{item.ContractPrice}}</td>
+                                    <td>￥{{model.isGift?0:item.Price}}</td>
+                                    <td>
+                                        <select @*class="form-control"*@ v-model="item.SpecificationQuantity">
+                                            <option v-for="option in item.SpecificationQuantitys" v-bind:value="option">
+                                               1 * {{ option }}
+                                            </option>
+                                        </select>
+                                    </td>
                                     <td>{{item.PackageQuantity}}</td>
                                     <td>
-                                        <input type="number" class="form-control quantity" v-model="item.Quantity" v-on:keyup.enter="inputNext($event)" />
+                                        {{item.Quantity}}
+                                        
                                     </td>
                                     <td>{{item.ActualPackageQuantity}}</td>
                                     <td>
-                                        {{item.ActualQuantity}}
+                                        <input type="number" class="form-control quantity" v-model="item.ActualQuantity" v-on:keyup.enter="inputNext($event)" />                                   
                                     </td>
-                                    <td>{{item.Amount}}</td>
-                                    <td>{{item.ProductionDate}}</td>
+                                    <td>￥{{item.Amount}}</td>
                                     <td>
-                                        {{item.ShelfLife}}
+                                        @*<div class="input-group date" data-provide="datepicker" data-date-format="yyyy-mm-dd"
+                                             data-date-language="zh-CN" data-date-clear-Btn="true" data-date-autoclose="true">
+                                            <div class="input-group-addon">
+                                                <i class="fa fa-calendar"></i>
+                                                <span>从</span>
+                                            </div>
+                                            <input type="text" class="form-control" v-model="item.ProductionDate" readonly>
+                                        </div>*@ 
+                                        <input type="text" class="form-control datepicker" v-model="item.ProductionDate" readonly>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control shelfLife" title="保质期，单位：天" v-model="item.ShelfLife" @*v-on:keyup.enter="inputNext($event)"*@ />                                      
                                     </td>
                                 </tr>
                             </tbody>
                             <tfoot>
-                                <tr>
-                                    <td></td>
+                                <tr>                                  
                                     <td style="width:50px;"></td>
                                     <td>合计：</td>
+                                    <td></td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
@@ -166,7 +170,7 @@
                                     <td>{{totalQuantity}}</td>
                                     <td></td>
                                     <td></td>
-                                    <td>{{countTotal}}</td>
+                                    <td>￥{{countTotal}}</td>
                                     <td></td>
                                     <td class="dataRow"></td>
                                 </tr>
@@ -243,6 +247,7 @@
                 data: {
                     valid: false,
                     modal: false,
+                    inputProductCodeOrBarCode:'',
                     model: {
                         id: @Model.Id,
                         code: '@Model.Code',
@@ -297,7 +302,7 @@
                             var item = _self.products[i];
                             if (item.ProductId > 0 && item.Quantity > 0) {
                                 var price = _self.model.isGift?0:item.Price;
-                                data += "{\"ProductId\":" + item.ProductId + ",\"ContractPrice\":" + item.ContractPrice + ",\"Price\":" + price + ",\"Quantity\":" + item.Quantity + "},";
+                                data += "{\"Id\":" + item.Id + ",\"ActualQuantity\":" + item.ActualQuantity + ",\"ProductionDate\":\"" + item.ProductionDate + "\",\"ShelfLife\":" + item.ShelfLife + "},";
                             }
                         }
                         if (data == "") {
@@ -354,7 +359,7 @@
                     },
                     addRow: function (event) {
                         this.products.push({
-                            ProductSkuId: '', ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', ContractPrice: 11, Price: 0,
+                            ProductId: '', ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', ContractPrice: 11, Price: 0,
                             PackageQuantity: 0, SpecificationQuantitys: [1], Quantity: 1, ActualPackageQuantity: 0, ActualQuantity: 0, Amount: 0,
                             ProductionDate: '', ShelfLife: 0
                         });
@@ -436,7 +441,7 @@
                         this.clearItems();
                         var selecteds = this.selectStore.rows.filter(function (item) {
                             return item.checked;
-                        });                       
+                        });
                         if (selecteds) {
                             this.model.storeId = selecteds[0].Id;
                             this.selectStore.name = selecteds[0].Name;
@@ -463,12 +468,13 @@
                         var bookQty = 0;
                         var _self = this;
                         this.products.forEach(function (item) {
-                            var qty = parseInt(item.Quantity);
+                            var qty = parseInt(item.ActualQuantity);
                             var price = _self.model.isGift?0:item.Price;
                             item.Amount = price * qty;
                             bookQty += qty;
                             total += item.Amount;
-                            item.PackageQuantity =item.SpecificationQuantitys[0]==1?0: parseInt(qty / item.SpecificationQuantitys[0]);
+                            //item.PackageQuantity =item.SpecificationQuantitys[0]==1?0: parseInt(qty / item.SpecificationQuantitys[0]);
+                           item.ActualPackageQuantity =item.SpecificationQuantitys[0]==1?0: parseInt(qty / item.SpecificationQuantitys[0]);
                         })
                         _self.totalQuantity = bookQty;
                         return total;
@@ -476,6 +482,13 @@
                 }
             });
 
+            $(".datepicker").datepicker({
+                language: "zh-CN",
+                autoclose: true,//选中之后自动隐藏日期选择框
+                clearBtn: true,//清除按钮
+                //todayBtn: true,//今日按钮
+                format: "yyyy-mm-dd"//日期格式
+            });
         });
     </script>
 }

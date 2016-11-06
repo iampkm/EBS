@@ -17,7 +17,7 @@ namespace EBS.Admin.Controllers
 {
     [Permission]
     public class StorePurchaseOrderController : Controller
-    {        
+    {
         IQuery _query;
         IStorePurchaseOrderQuery _storePurchaseOrderQuery;
         IStorePurchaseOrderFacade _storePurchaseOrderFacade;
@@ -46,14 +46,24 @@ namespace EBS.Admin.Controllers
         }
 
         public ActionResult Create()
-        {           
-            ViewBag.Status = "创建";
+        {
+            ViewBag.IsGift = "false";
+            ViewBag.Status = "初始";
             ViewBag.CreatedByName = _context.CurrentAccount.NickName;
             return View();
         }
+
+        public ActionResult CreateGift()
+        {
+            ViewBag.IsGift = "true";
+            ViewBag.Status = "初始";
+            ViewBag.CreatedByName = _context.CurrentAccount.NickName;
+            return View("Create");
+        }
+
         [HttpPost]
         public JsonResult Create(CreateStorePurchaseOrder model)
-        {               
+        {
             model.CreatedBy = _context.CurrentAccount.AccountId;
             model.CreatedByName = _context.CurrentAccount.NickName;
             _storePurchaseOrderFacade.Create(model);
@@ -63,30 +73,102 @@ namespace EBS.Admin.Controllers
         public ActionResult Edit(int id)
         {
             var model = _storePurchaseOrderQuery.GetById(id);
+
+
+
+            var page = "Edit";
+            switch (model.Status)
+            {
+                case PurchaseOrderStatus.WaitingStockIn:
+                    page = "WaitStockIn";
+                    break;
+                case PurchaseOrderStatus.HadStockIn:
+                case PurchaseOrderStatus.Cancel:
+                    page = "HadStockedIn";
+                    break;
+                default:
+                    page = "Edit";
+                    break;
+            }
+            //设置默认实收 = 应收
+            model.Items.ForEach((item) =>
+            {
+                if (model.Status == PurchaseOrderStatus.WaitingStockIn)
+                {
+                    item.ActualQuantity = item.ActualQuantity == 0 ? item.Quantity : item.ActualQuantity;
+                }
+                if (item.SpecificationQuantitys[0] > 1)
+                {
+                    item.PackageQuantity = item.Quantity / item.SpecificationQuantitys[0];
+                    item.ActualPackageQuantity = item.ActualQuantity / item.SpecificationQuantitys[0];
+                }
+               
+            });
             ViewBag.StorePurchaseOrderItems = JsonConvert.SerializeObject(model.Items.ToArray());
-            //创建和待审可编辑
-            var editable = model.Status == PurchaseOrderStatus.Create || model.Status == PurchaseOrderStatus.WaitingStockIn;
-            ViewBag.Editable = editable ? "true" : "false";
             //查询处理流程：
             var logs = _query.FindAll<ProcessHistory>(n => n.FormId == id && n.FormType == FormType.StorePurchaseOrder);
             ViewBag.Logs = logs;
-
-            return View(model);
+            return View(page, model);
         }
+        /// <summary>
+        /// 待入库
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult WaitStockIn()
+        {
+            return View();
+        }
+        /// <summary>
+        /// 收货
+        /// </summary>
+        /// <returns></returns>
+        public JsonResult ReceiveGoods(ReceivedGoodsStorePurchaseOrder model)
+        {
+            _storePurchaseOrderFacade.ReceivedGoods(model);
+            model.ReceivedBy = _context.CurrentAccount.AccountId;
+            model.ReceivedByName = _context.CurrentAccount.NickName;
+            model.ReceivedOn = DateTime.Now;
+            return Json(new { success = true });
+        }
+
+        public ActionResult HadStockedIn()
+        {
+            return View();
+        }
+
+
 
         [HttpPost]
         public JsonResult Edit(EditStorePurchaseOrder model)
         {
             _storePurchaseOrderFacade.Edit(model);
+            model.CreatedBy = _context.CurrentAccount.AccountId;
+            model.CreatedByName = _context.CurrentAccount.NickName;
             return Json(new { success = true });
         }
 
         public JsonResult GetPurchaseOrderItem(string productCodeOrBarCode, int supplierId, int storeId)
         {
-            var item = _storePurchaseOrderQuery.GetPurchaseOrderItem(productCodeOrBarCode, supplierId, storeId);
-            return Json(new { success = true,data = item });
+            var result = _storePurchaseOrderQuery.GetPurchaseOrderItem(productCodeOrBarCode, supplierId, storeId);
+            return Json(new { success = true, data = result });
         }
 
+        public JsonResult ImportProduct(string inputProducts, int supplierId, int storeId)
+        {
+            var result = _storePurchaseOrderQuery.GetPurchaseOrderItemList(inputProducts, supplierId, storeId);
+            return Json(new { success = true, data = result });
+        }
+        public JsonResult Delete(int id, string reason)
+        {
+            _storePurchaseOrderFacade.Delete(id, _context.CurrentAccount.AccountId, _context.CurrentAccount.NickName, reason);
+            return Json(new { success = true });
+        }
 
-	}
+        public JsonResult Submit(int id)
+        {
+            _storePurchaseOrderFacade.Submit(id, _context.CurrentAccount.AccountId, _context.CurrentAccount.NickName);
+            return Json(new { success = true });
+        }
+
+    }
 }

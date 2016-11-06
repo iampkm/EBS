@@ -9,7 +9,7 @@ namespace EBS.Domain.ValueObject
 {
     public enum PurchaseContractStatus
     {
-        [Description("创建")]
+        [Description("初始")]
         Create = 1,
         [Description("待审")]
         WaitingAudit = 2,

@@ -94,7 +94,7 @@
                 </tbody>
             </table>
             <v-input type="textarea" help="请将excel中商品按照如上格式粘贴到此" v-bind:value.sync="productsInput" placeholder="粘贴excel中商品信息" required icon></v-input>
-            <p style="overflow-y:auto;height:200px;">{{{importInfo}}}</p>
+            <p style="overflow-y:auto">{{{importInfo}}}</p>
         </div>
     </v-modal>
 </div>
@@ -127,7 +127,8 @@
                     searchArgs: { name: '',codeOrBarCode:'',categoryId:'',brandId:0, },
                     rows: [],
                     productsInput:'',
-                    importInfo:''
+                    importInfo:'',
+                    importing:false
                 },
                 methods: {
                     remove: function () {
@@ -193,9 +194,11 @@
                     importProduct:function()
                     {
                         var data = this.productsInput;
-                        if(data==""){return;}
+                        if(data==""){return;}                        
                         var _self = this;
+                        if(_self.importing){return;}
                         _self.importInfo ="导入中...";
+                        _self.importing = true;
                         $.post("/Product/Import", { productsInput: data }, function (result) {
                             if (result.success) {
                                 _self.importInfo =result.data;
@@ -206,6 +209,7 @@
                                 _self.importInfo ="";
                                 bootbox.alert(result.error);
                             }
+                            _self.importing = false;
                         }, "json");
                     },
                 }

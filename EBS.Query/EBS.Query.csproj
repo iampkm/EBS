@@ -56,6 +56,7 @@
     <Compile Include="DTO\StoreDto.cs" />
     <Compile Include="DTO\StorePurchaseOrderDto.cs" />
     <Compile Include="DTO\StorePurchaseOrderItemDto.cs" />
+    <Compile Include="DTO\StorePurchaseOrderQueryDto.cs" />
     <Compile Include="DTO\SupplierDto.cs" />
     <Compile Include="IAccountQuery.cs" />
     <Compile Include="IAreaQuery.cs">

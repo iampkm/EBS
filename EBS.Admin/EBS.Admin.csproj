@@ -1206,6 +1206,7 @@
     <Content Include="Views\StorePurchaseOrder\Index.cshtml" />
     <Content Include="Views\StorePurchaseOrder\Create.cshtml" />
     <Content Include="Views\StorePurchaseOrder\Edit.cshtml" />
+    <Content Include="Views\StorePurchaseOrder\WaitStockIn.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">

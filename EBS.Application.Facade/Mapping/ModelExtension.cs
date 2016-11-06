@@ -35,7 +35,12 @@ namespace EBS.Application.Facade.Mapping
            return productPriceList;
        }
 
-       
-       
+        public static List<StorePurchaseOrderItem> ConvertJsonToItem(this ReceivedGoodsStorePurchaseOrder source)
+        {
+            if (string.IsNullOrEmpty(source.Items)) throw new Exception("商品明细为空");
+            var productPriceList = JsonConvert.DeserializeObject<List<StorePurchaseOrderItem>>(source.Items);
+            return productPriceList;
+        }
+
     }
 }

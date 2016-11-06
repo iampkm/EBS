@@ -10,5 +10,8 @@ namespace EBS.Application
     {
        void Create(CreateStorePurchaseOrder model);
        void Edit(EditStorePurchaseOrder model);
+        void Delete(int id, int editBy, string editor, string reason);
+        void Submit(int id, int editBy, string editor);
+        void ReceivedGoods(ReceivedGoodsStorePurchaseOrder model);
     }
 }

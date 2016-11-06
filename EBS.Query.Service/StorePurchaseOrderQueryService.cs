@@ -19,7 +19,7 @@ namespace EBS.Query.Service
         {
             this._query = query;
         }
-        public IEnumerable<DTO.StorePurchaseOrderDto> GetPageList(DTO.Pager page, DTO.SearchStorePurchaseOrder condition)
+        public IEnumerable<DTO.StorePurchaseOrderQueryDto> GetPageList(DTO.Pager page, DTO.SearchStorePurchaseOrder condition)
         {
             dynamic param = new ExpandoObject();
             string where = "";
@@ -53,7 +53,7 @@ from storepurchaseorder t0 inner join supplier t1 on t0.SupplierId = t1.Id inner
 where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<Product>(where, param);
             sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
-            var rows = this._query.FindAll<StorePurchaseOrderDto>(sql, param);
+            var rows = this._query.FindAll<StorePurchaseOrderQueryDto>(sql, param);
             page.Total = this._query.Count<StorePurchaseOrder>(where, param);
 
             return rows;
@@ -80,12 +80,64 @@ where (p.BarCode=@ProductCodeOrBarCode or p.`Code`=@ProductCodeOrBarCode ) and c
             return item;
 
         }
-        public StorePurchaseOrder GetById(int id)
+        public IEnumerable<StorePurchaseOrderItemDto> GetPurchaseOrderItemList(string inputProducts, int supplierId, int storeId)
         {
-            var model = _query.Find<StorePurchaseOrder>(id);
-            var items= _query.FindAll<StorePurchaseOrderItem>(n => n.StorePurchaseOrderId == id).ToList();
-            model.AddItems(items);
+            if (string.IsNullOrEmpty(inputProducts)) throw new Exception("商品明细为空");
+            var dic = GetProductDic(inputProducts);
+            string sql = @"select p.id as ProductId,p.`Name` as ProductName,p.Specification,p.`Code` as ProductCode,p.BarCode,p.Unit,p.SpecificationQuantity,i.ContractPrice,i.ContractPrice as Price,p.Unit 
+from purchasecontract c inner join purchasecontractitem i on c.Id = i.PurchaseContractId
+left join Product p on p.Id = i.ProductId
+where  p.`Code` in @ProductCode  and c.SupplierId = @SupplierId and c.storeId = @StoreId and c.StartDate <= @Today and c.EndDate >= @Today and c.`Status`= 3 order by c.Id DESC";
+            var productItems = _query.FindAll<StorePurchaseOrderItemDto>(sql, new { ProductCode = dic.Keys.ToArray(), SupplierId = supplierId, StoreId = storeId, Today = DateTime.Now });
+            foreach (var product in productItems)
+            {
+                product.Quantity = dic[product.ProductCode];
+            }
+            return productItems;
+        }
+        private Dictionary<string, int> GetProductDic(string productIds)
+        {
+            Dictionary<string, int> dicProductPrice = new Dictionary<string, int>(1000);
+            string[] productIdArray = productIds.Split('\n');
+            foreach (var item in productIdArray)
+            {
+                if (item.Contains("\t"))
+                {
+                    string[] parentIDAndQuantity = item.Split('\t');
+                    if (!dicProductPrice.ContainsKey(parentIDAndQuantity[0].Trim()))
+                    {
+                        dicProductPrice.Add(parentIDAndQuantity[0].Trim(), int.Parse(parentIDAndQuantity[1]));
+                    }
+                }
+                else
+                {
+                    if (!dicProductPrice.ContainsKey(item.Trim()))
+                    {
+                        dicProductPrice.Add(item.Trim(), 0);
+                    }
+                }
+            }
+
+            return dicProductPrice;
+        }
+        public StorePurchaseOrderDto GetById(int id)
+        {
+           string sql = @"select t0.Id,t0.Code,t0.SupplierId,t0.StoreId,t0.CreatedOn,t0.CreatedByName,t0.ReceivedOn,t0.ReceivedByName,t0.StoragedOn,t0.StoragedByName,
+t0.IsGift,t0.Status,t1.Code as SupplierCode,t1.Name as SupplierName,t2.Name as StoreName,t0.SupplierBill
+from storepurchaseorder t0 inner
+join supplier t1 on t0.SupplierId = t1.Id inner
+join store t2 on t0.StoreId = t2.Id
+where t0.Id= @Id  LIMIT 1";
+            var model = _query.Find<StorePurchaseOrderDto>(sql, new { Id = id});
+            string sqlitem = @"select i.*,p.Name as ProductName,p.`Code` as ProductCode,p.BarCode,p.Specification,p.Unit,p.SpecificationQuantity
+ from storepurchaseorderitem i left join product p on i.productId = p.Id
+where i.storepurchaseorderid= @Id";
+            var productItems = _query.FindAll<StorePurchaseOrderItemDto>(sqlitem, new { Id = id }).ToList();
+
+            model.Items = productItems;
             return model;
         }
+
+       
     }
 }

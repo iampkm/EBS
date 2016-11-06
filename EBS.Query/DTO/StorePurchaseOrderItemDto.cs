@@ -8,7 +8,8 @@ namespace EBS.Query.DTO
 {
    public class StorePurchaseOrderItemDto
     {
-       public int ProductId { get; set; }
+       public int Id { get; set; }
+        public int ProductId { get; set; }
 
        public string BarCode { get; set; }
 
@@ -55,11 +56,13 @@ namespace EBS.Query.DTO
         /// 预订数量
         /// </summary>
         public int Quantity { get; set; }
-      
+
+        public decimal Amount { get; set; }
+
        /// <summary>
        /// 实收件数
        /// </summary>
-       public int ActualPackageQuantity { get; set; }
+        public int ActualPackageQuantity { get; set; }
        /// <summary>
        /// 实收数量
        /// </summary>

@@ -51,5 +51,41 @@ namespace EBS.Application.Facade
             _processHistoryService.Track(model.CreatedBy, model.CreatedByName, (int)entity.Status, entity.Id, FormType.StorePurchaseOrder, reason);
             _db.SaveChange();
         }
+
+        public void Delete(int id, int editBy, string editor, string reason)
+        {
+            var entity = _db.Table.Find<StorePurchaseOrder>(id);
+            entity.Cancel();
+            _db.Update(entity);
+            _processHistoryService.Track(editBy, editor, (int)entity.Status, entity.Id, FormType.StorePurchaseOrder, reason);
+            _db.SaveChange();
+        }
+
+
+        public void Submit(int id, int editBy, string editor)
+        {
+            var entity = _db.Table.Find<StorePurchaseOrder>(id);
+            entity.Submit();
+            _db.Update(entity);
+            var reason = "等待收货";
+            _processHistoryService.Track(editBy, editor, (int)entity.Status, entity.Id, FormType.StorePurchaseOrder, reason);
+            _db.SaveChange();
+
+        }
+
+        public void ReceivedGoods(ReceivedGoodsStorePurchaseOrder model)
+        {
+            //修改明细数据和生产日期/保质期
+            var entity = _db.Table.Find<StorePurchaseOrder>(model.Id);
+            entity.ReceivedGoods();
+            entity = model.MapTo<StorePurchaseOrder>();
+            var entityItems = _db.Table.FindAll<StorePurchaseOrderItem>(n => n.StorePurchaseOrderId == model.Id).ToList();
+            entity.AddItems(entityItems);
+            entity.UpdateReceivedGoodsItems(model.ConvertJsonToItem());
+            _service.UpdateModelAndItems(entity);
+            var reason = "采购单收货";
+            _processHistoryService.Track(model.ReceivedBy, model.ReceivedByName, (int)entity.Status, entity.Id, FormType.StorePurchaseOrder, reason);
+            _db.SaveChange();
+        }
     }
 }

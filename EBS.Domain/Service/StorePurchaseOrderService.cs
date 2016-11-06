@@ -38,5 +38,16 @@ namespace EBS.Domain.Service
             _db.Insert<StorePurchaseOrderItem>(model.Items.ToArray());
             _db.Update(model);
         }
+
+        public void UpdateModelAndItems(StorePurchaseOrder model)
+        {
+            if (_db.Table.Exists<StorePurchaseOrder>(n => n.Code == model.Code && n.Id != model.Id))
+            {
+                throw new Exception("采购单号不能重复!");
+            }
+          
+            _db.Update(model);
+            _db.Update(model.Items.ToArray());
+        }
     }
 }

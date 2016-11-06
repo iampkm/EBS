@@ -41,10 +41,10 @@ namespace EBS.Domain.Service
 
         public void Update(Product model)
         {
-            if (_db.Table.Exists<Product>(n => n.Name == model.Name && n.Id != model.Id))
-            {
-                throw new Exception("名称重复!");
-            }
+            //if (_db.Table.Exists<Product>(n => n.Name == model.Name && n.Id != model.Id))
+            //{
+            //    throw new Exception("名称重复!");
+            //}
             _db.Update(model);
         }
 
