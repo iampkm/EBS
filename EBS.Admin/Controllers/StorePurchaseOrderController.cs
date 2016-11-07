@@ -81,6 +81,7 @@ namespace EBS.Admin.Controllers
             {
                 case PurchaseOrderStatus.WaitingStockIn:
                     page = "WaitStockIn";
+                    model.ReceivedByName = _context.CurrentAccount.NickName;
                     break;
                 case PurchaseOrderStatus.HadStockIn:
                 case PurchaseOrderStatus.Cancel:
@@ -95,7 +96,7 @@ namespace EBS.Admin.Controllers
             {
                 if (model.Status == PurchaseOrderStatus.WaitingStockIn)
                 {
-                    item.ActualQuantity = item.ActualQuantity == 0 ? item.Quantity : item.ActualQuantity;
+                    item.ActualQuantity = item.ActualQuantity == 0 ? item.Quantity : item.ActualQuantity;                   
                 }
                 if (item.SpecificationQuantitys[0] > 1)
                 {
@@ -123,11 +124,11 @@ namespace EBS.Admin.Controllers
         /// </summary>
         /// <returns></returns>
         public JsonResult ReceiveGoods(ReceivedGoodsStorePurchaseOrder model)
-        {
-            _storePurchaseOrderFacade.ReceivedGoods(model);
+        {           
             model.ReceivedBy = _context.CurrentAccount.AccountId;
             model.ReceivedByName = _context.CurrentAccount.NickName;
             model.ReceivedOn = DateTime.Now;
+            _storePurchaseOrderFacade.ReceivedGoods(model);
             return Json(new { success = true });
         }
 
@@ -135,15 +136,24 @@ namespace EBS.Admin.Controllers
         {
             return View();
         }
+        /// <summary>
+        /// 入库
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public JsonResult SaveInventory(int id)
+        {
+            return Json(new { success = true });
+        }
 
 
 
         [HttpPost]
         public JsonResult Edit(EditStorePurchaseOrder model)
         {
-            _storePurchaseOrderFacade.Edit(model);
             model.CreatedBy = _context.CurrentAccount.AccountId;
             model.CreatedByName = _context.CurrentAccount.NickName;
+            _storePurchaseOrderFacade.Edit(model);           
             return Json(new { success = true });
         }
 

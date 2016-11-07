@@ -7,13 +7,7 @@ using System.Threading.Tasks;
 namespace EBS.Domain.Entity
 {
     public class StorePurchaseOrderItem : BaseEntity
-    {
-        //public StorePurchaseOrderItem(int productSkuId,decimal contractPrice,int storePurchaseOrderId,int quantity) {
-        //    this.StorePurchaseOrderId = StorePurchaseOrderId;
-        //    this.ProductId = productSkuId;
-        //    this.ContractPrice = contractPrice;
-        //    this.Quantity = quantity; 
-        //}
+    {       
        public int StorePurchaseOrderId {get;set;}
        /// <summary>
        /// 商品SKUID
@@ -27,6 +21,10 @@ namespace EBS.Domain.Entity
        /// 实际价格
        /// </summary>
         public decimal Price { get; set; }
+        /// <summary>
+        /// 件规字段 默认值 1
+        /// </summary>
+        public int SpecificationQuantity { get; set; }
        /// <summary>
        /// 预订数量
        /// </summary>
@@ -46,6 +44,7 @@ namespace EBS.Domain.Entity
         /// </summary>
         public int ShelfLife {get;set;}       
 
-        // 增加一个件规字段
+       
+         
     }
 }

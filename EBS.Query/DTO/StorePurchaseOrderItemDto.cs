@@ -8,6 +8,10 @@ namespace EBS.Query.DTO
 {
    public class StorePurchaseOrderItemDto
     {
+
+       public StorePurchaseOrderItemDto() {         
+       }
+
        public int Id { get; set; }
         public int ProductId { get; set; }
 
@@ -33,21 +37,30 @@ namespace EBS.Query.DTO
         /// 件数： 1件，2件
         /// </summary>
        public  int PackageQuantity { get; set;}
+       /// <summary>
+       /// 当前商品使用件规
+       /// </summary>
+       public int SpecificationQuantity
+       {
+           get;
+           set;
+       }
+
         /// <summary>
-        /// 单件数量 1*12 1*24
+        /// 商品件规 单件数量 1*12 1*24
         /// </summary>
-       public string SpecificationQuantity { get; set; }
+       public string ProductSpecificationQuantity { get; set; }
 
        public int[] SpecificationQuantitys
        {
            get
            {
                int[] array = new int[] { 1 };
-               if (string.IsNullOrEmpty(SpecificationQuantity))
+               if (string.IsNullOrEmpty(ProductSpecificationQuantity))
                {
                    return array;
                }
-               array = SpecificationQuantity.Trim().Split(',').ToIntArray();
+               array = ProductSpecificationQuantity.Trim().Split(',').ToIntArray();
                return array;
            }
        }
@@ -75,8 +88,15 @@ namespace EBS.Query.DTO
        /// <summary>
        /// 保质期：单位天
        /// </summary>
-       public int ShelfLife { get; set; }    
+       public int ShelfLife { get; set; }
+             
+       public void SetSpecificationQuantity() {
+          this.SpecificationQuantity= this.SpecificationQuantitys[0];
+       }
 
-
+       public string BgColor { get {
+           return Quantity == ActualQuantity ? "bg-success" : "bg-danger";
+          
+       } }
     }
 }

@@ -71,12 +71,14 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
         {
             if (supplierId == 0) { throw new Exception("请选择供应商"); }
             if (string.IsNullOrEmpty(productCodeOrBarCode)) { throw new Exception("请输入商品编码或条码"); }
-            string sql = @"select p.id as ProductId,p.`Name` as ProductName,p.Specification,p.`Code` as ProductCode,p.BarCode,p.Unit,p.SpecificationQuantity,i.ContractPrice,i.ContractPrice as Price,p.Unit 
+            string sql = @"select p.id as ProductId,p.`Name` as ProductName,p.Specification,p.`Code` as ProductCode,p.BarCode,p.Unit,p.SpecificationQuantity as ProductSpecificationQuantity,i.ContractPrice,i.ContractPrice as Price,p.Unit 
 from purchasecontract c inner join purchasecontractitem i on c.Id = i.PurchaseContractId 
 left join Product p on p.Id = i.ProductId 
 where (p.BarCode=@ProductCodeOrBarCode or p.`Code`=@ProductCodeOrBarCode ) and c.SupplierId =@SupplierId and c.storeId=@StoreId and c.StartDate <= @Today and c.EndDate>=@Today and c.`Status`=3 order by c.Id DESC LIMIT 1";            
             var item = _query.Find<StorePurchaseOrderItemDto>(sql, new { ProductCodeOrBarCode = productCodeOrBarCode, SupplierId = supplierId, StoreId = storeId, Today = DateTime.Now });
+            //设置当前件规            
             if (item == null) { throw new Exception("查无商品，请检查供应商合同"); }
+            item.SetSpecificationQuantity();
             return item;
 
         }
@@ -84,7 +86,7 @@ where (p.BarCode=@ProductCodeOrBarCode or p.`Code`=@ProductCodeOrBarCode ) and c
         {
             if (string.IsNullOrEmpty(inputProducts)) throw new Exception("商品明细为空");
             var dic = GetProductDic(inputProducts);
-            string sql = @"select p.id as ProductId,p.`Name` as ProductName,p.Specification,p.`Code` as ProductCode,p.BarCode,p.Unit,p.SpecificationQuantity,i.ContractPrice,i.ContractPrice as Price,p.Unit 
+            string sql = @"select p.id as ProductId,p.`Name` as ProductName,p.Specification,p.`Code` as ProductCode,p.BarCode,p.Unit,p.SpecificationQuantity as ProductSpecificationQuantity,i.ContractPrice,i.ContractPrice as Price,p.Unit 
 from purchasecontract c inner join purchasecontractitem i on c.Id = i.PurchaseContractId
 left join Product p on p.Id = i.ProductId
 where  p.`Code` in @ProductCode  and c.SupplierId = @SupplierId and c.storeId = @StoreId and c.StartDate <= @Today and c.EndDate >= @Today and c.`Status`= 3 order by c.Id DESC";
@@ -92,6 +94,7 @@ where  p.`Code` in @ProductCode  and c.SupplierId = @SupplierId and c.storeId = 
             foreach (var product in productItems)
             {
                 product.Quantity = dic[product.ProductCode];
+                product.SetSpecificationQuantity();
             }
             return productItems;
         }
@@ -129,7 +132,7 @@ join supplier t1 on t0.SupplierId = t1.Id inner
 join store t2 on t0.StoreId = t2.Id
 where t0.Id= @Id  LIMIT 1";
             var model = _query.Find<StorePurchaseOrderDto>(sql, new { Id = id});
-            string sqlitem = @"select i.*,p.Name as ProductName,p.`Code` as ProductCode,p.BarCode,p.Specification,p.Unit,p.SpecificationQuantity
+            string sqlitem = @"select i.*,p.Name as ProductName,p.`Code` as ProductCode,p.BarCode,p.Specification,p.Unit,p.SpecificationQuantity as ProductSpecificationQuantity 
  from storepurchaseorderitem i left join product p on i.productId = p.Id
 where i.storepurchaseorderid= @Id";
             var productItems = _query.FindAll<StorePurchaseOrderItemDto>(sqlitem, new { Id = id }).ToList();

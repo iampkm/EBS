@@ -22,6 +22,7 @@
             <div class="row">
                 <div class="form-group col-sm-4 col-xs-6">
                     <button type="button" class="btn btn-warning btn-flat" v-on:click="onSubmit">收 货</button>
+                    <button type="button" class="btn btn-success btn-flat" v-on:click="saveInventory">入 库</button>
                     @*<button type="button" class="btn btn-success btn-flat" v-on:click="showModal()">导入商品明细</button>*@
                     @*<button type="button" class="btn btn-default btn-flat" v-on:click="print">打印</button>*@
                     <a class="btn btn-default btn-flat" href="/StorePurchaseOrder/Index">取 消</a>
@@ -31,8 +32,14 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-sm-2 col-xs-3">                   
-                    <input type="text" class="form-control productCode" v-model="inputProductCodeOrBarCode" v-on:keyup.enter="inputProduct(item.ProductCode,index)" placeholder="输入商品编码或扫条码" />
+                <div class="col-sm-2 col-xs-3"> 
+                              
+                    <div class="input-group"> 
+                        <input type="text" class="form-control productCode" v-model="inputProductCodeOrBarCode" v-on:keyup.enter="inputProduct()" placeholder="输入商品编码或扫条码" />       
+                        <span class="input-group-btn">
+                            <button type="button" class="btn btn-warning btn-flat" v-on:click="toggleScan">扫码({{toggleScanText}})</button>
+                        </span> 
+                    </div>
                 </div>
                 <div class="col-sm-2 col-xs-3">
                     <v-input type="text" v-bind:value.sync="model.supplierBill" placeholder="录入供应商单号" maxlength="20" required icon></v-input>
@@ -55,7 +62,7 @@
             </div>
             <div class="row">
                 <div class="col-xs-4 col-sm-4">
-                    <span>供应商：{{selectSupplier.name}}</span>
+                    <span>供应商：{{model.supplierName}}</span>
                 </div>
                 <div class="col-xs-4 col-sm-4 text-center">
                 </div>
@@ -65,7 +72,7 @@
             </div>
             <div class="row">
                 <div class="col-xs-4 col-sm-4">
-                    <span>收货部门：{{selectStore.name}}</span>
+                    <span>收货部门：{{model.storeName}}</span>
                 </div>
                 <div class="col-xs-4 col-sm-4 text-center">
                 </div>
@@ -99,22 +106,11 @@
                                 </tr>
                             </thead>
                             <tbody id="tbody">
-                                <tr v-for="(index,item) in products">                                    
+                                <tr v-for="(index,item) in products" class="{{item.BgColor}}" >
                                     <td class="text-center">{{index+1}}</td>
                                     <td>
-                                        <input type="text" class="form-control productCode" v-model="item.ProductCode" v-on:keyup.enter="inputProduct(item.ProductCode,index)" placeholder="录入编码或扫码" />
-                                        @*<div class="fade-transition popover bottom">
-                                                <!--style="top: 79px; left: 375px;"-->
-                                                <div class="arrow"></div>
-                                                <!--v-if-->
-                                                <div class="popover-content">
-                                                    多规格选择
-                                                    <template v-for="spec in item.SpecificationQuantitys">
-                                                        <input type="radio" name="{{spec}}" value="{{spec}}" v-model="item.PackageQuantity" />
-                                                        <label for="{{spec}}">1*{{spec}}</label>
-                                                    </template>
-                                                </div>
-                                            </div>*@
+                                        {{item.ProductCode}}
+                                        @*<input type="text" class="form-control productCode" v-model="item.ProductCode" v-on:keyup.enter="inputProduct(item.ProductCode,index)" placeholder="录入编码或扫码" />*@
                                     </td>
                                     <td>{{item.BarCode}}</td>
                                     <td>{{item.ProductName}}</td>
@@ -123,35 +119,23 @@
                                     <td>￥{{item.ContractPrice}}</td>
                                     <td>￥{{model.isGift?0:item.Price}}</td>
                                     <td>
-                                        <select @*class="form-control"*@ v-model="item.SpecificationQuantity">
-                                            <option v-for="option in item.SpecificationQuantitys" v-bind:value="option">
-                                               1 * {{ option }}
-                                            </option>
-                                        </select>
+                                        1 * {{item.SpecificationQuantity}}
                                     </td>
                                     <td>{{item.PackageQuantity}}</td>
                                     <td>
                                         {{item.Quantity}}
-                                        
+
                                     </td>
                                     <td>{{item.ActualPackageQuantity}}</td>
                                     <td>
-                                        <input type="number" class="form-control quantity" v-model="item.ActualQuantity" v-on:keyup.enter="inputNext($event)" />                                   
+                                        <input type="number"  class="form-control quantity" v-model="item.ActualQuantity" v-on:keyup.enter="inputNext($event)" />
                                     </td>
                                     <td>￥{{item.Amount}}</td>
                                     <td>
-                                        @*<div class="input-group date" data-provide="datepicker" data-date-format="yyyy-mm-dd"
-                                             data-date-language="zh-CN" data-date-clear-Btn="true" data-date-autoclose="true">
-                                            <div class="input-group-addon">
-                                                <i class="fa fa-calendar"></i>
-                                                <span>从</span>
-                                            </div>
-                                            <input type="text" class="form-control" v-model="item.ProductionDate" readonly>
-                                        </div>*@ 
                                         <input type="text" class="form-control datepicker" v-model="item.ProductionDate" readonly>
                                     </td>
                                     <td>
-                                        <input type="number" class="form-control shelfLife" title="保质期，单位：天" v-model="item.ShelfLife" @*v-on:keyup.enter="inputNext($event)"*@ />                                      
+                                        <input type="number" class="form-control shelfLife" title="保质期，单位：天" v-model="item.ShelfLife" v-on:keyup.enter="inputShelfLife($event)" />
                                     </td>
                                 </tr>
                             </tbody>
@@ -169,7 +153,7 @@
                                     <td></td>
                                     <td>{{totalQuantity}}</td>
                                     <td></td>
-                                    <td></td>
+                                    <td>{{totalActualQuantity}}</td>
                                     <td>￥{{countTotal}}</td>
                                     <td></td>
                                     <td class="dataRow"></td>
@@ -194,42 +178,7 @@
                 </div>
             </div>
         </div>
-    </form>
-    <!-- modal -->
-    <v-modal title="导入商品" ok-text="确 定" cancel-text="取 消" v-bind:callback="importProduct" v-bind:show.sync="modal" v-bind:effect="fade" width="300">
-        <div slot="modal-body" class="modal-body">
-            <v-input type="textarea" help="请将excel中商品编号和数量两列粘贴到文本框中" v-bind:value.sync="inputProducts" placeholder="输入商品" required icon></v-input>
-        </div>
-    </v-modal>
-    <v-modal title="选择供应商" ok-text="确 定" cancel-text="取 消" v-bind:callback="getSupplier" v-bind:show.sync="selectSupplier.modal" v-bind:effect="fade" width="50%">
-        <div slot="modal-body" class="modal-body">
-            <vue-table v-bind:columns="selectSupplier.gridColumns"
-                       v-bind:url="selectSupplier.url" v-bind:show-toolbar="false"
-                       v-bind:args="selectSupplier.searchArgs" v-bind:data.sync="selectSupplier.rows">
-                <div class="row" style="margin-bottom:10px;" slot="customSearch">
-                    <div class="col-xs-4 col-sm-3">
-                        <input class="form-control" v-model="selectSupplier.searchArgs.code" placeholder="输入供应编码" debounce="300" />
-                    </div>
-                    <div class="col-xs-4 col-sm-3">
-                        <input class="form-control" v-model="selectSupplier.searchArgs.name" placeholder="输入供应商名" debounce="300" />
-                    </div>
-                </div>
-            </vue-table>
-        </div>
-    </v-modal>
-    <v-modal title="选择门店" ok-text="确 定" cancel-text="取 消" v-bind:callback="getStore" v-bind:show.sync="selectStore.modal" v-bind:effect="fade" width="50%">
-        <div slot="modal-body" class="modal-body">
-            <vue-table v-bind:columns="selectStore.gridColumns"
-                       v-bind:url="selectStore.url" v-bind:show-toolbar="false"
-                       v-bind:args="selectStore.searchArgs" v-bind:data.sync="selectStore.rows">
-                <div class="row" style="margin-bottom:10px;" slot="customSearch">
-                    <div class="col-xs-4 col-sm-3">
-                        <input class="form-control" v-model="selectStore.searchArgs.name" placeholder="输入门店名" debounce="300" />
-                    </div>
-                </div>
-            </vue-table>
-        </div>
-    </v-modal>
+    </form>       
 </div>
 @{Html.RenderPartial("VueTableTemplate");}
 @section scripts{
@@ -238,15 +187,10 @@
         $("doucument").ready(function () {
             var demo = new Vue({
                 components: {
-                    'v-modal': VueStrap.modal,
-                    'v-input': VueStrap.input,
-                    'v-form': VueStrap.formGroup,
-                    'v-checkbox': VueStrap.checkbox
+                    'v-input': VueStrap.input  
                 },
                 el: '#app',
                 data: {
-                    valid: false,
-                    modal: false,
                     inputProductCodeOrBarCode:'',
                     model: {
                         id: @Model.Id,
@@ -266,32 +210,8 @@
                     },
                     products: @Html.Raw(ViewBag.StorePurchaseOrderItems),
                     totalQuantity: 0,
-                    inputProducts: '',
-                    selectSupplier: {
-                        modal: false,
-                        name: '@Model.SupplierName',
-                        gridColumns: [
-                            { name: 'Code', localName: '编码', width: '100' },
-                            { name: 'Name', localName: '供应商名', width: '300' },
-                            { name: 'AreaName', localName: '供货区域', width: '200' },
-                            { name: 'SupplierType', localName: '类型', width: '100' },
-                        ],
-                        url: "/Supplier/LoadData",
-                        searchArgs: { name: '', code: '' },
-                        rows: []
-                    },
-                    selectStore: {
-                        modal: false,
-                        name: '@Model.StoreName',
-                        gridColumns: [
-                           { name: 'Name', localName: '门店名' },
-                            { name: 'Contact', localName: '联系人' },
-                            { name: 'Address', localName: '地址' }
-                        ],
-                        url: "/Store/LoadData",
-                        searchArgs: { name: '' },
-                        rows: []
-                    }
+                    totalActualQuantity:0,
+                    toggleScanText:'关'
                 },
                 methods: {
                     onSubmit: function () {
@@ -311,9 +231,26 @@
                         }
                         data = data.substring(0, data.length - 1);
                         data = "[" + data + "]";
+                        if( _self.model.supplierBill==""){
+                            bootbox.alert("请录入供应商单据号");
+                            return;
+                        }
                         _self.model.items = data;
                         var v_data = _self.model;
-                        $.post("/StorePurchaseOrder/Edit", v_data, function (result) {
+                        $.post("/StorePurchaseOrder/ReceiveGoods", v_data, function (result) {
+                            if (result.success) {
+                                bootbox.alert("保存成功！", function () {
+                                    window.location.href = "/StorePurchaseOrder/Index";
+                                });
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
+                    }, 
+                    saveInventory:function(){
+                        var _self = this;                       
+                        $.post("/StorePurchaseOrder/SaveInventory", {id:_self.model.id}, function (result) {
                             if (result.success) {
                                 bootbox.alert("保存成功！", function () {
                                     window.location.href = "/StorePurchaseOrder/Index";
@@ -324,159 +261,63 @@
                             }
                         }, "json");
                     },
-                    importProduct: function () {
-                        var inputItems = this.inputProducts;
-                        var _self = this;
-                        if (inputItems == "") { return; }
-                        if (_self.model.supplierId == 0) { bootbox.alert("请选择供应商"); return; }
-                        if (_self.model.storeId == 0) { bootbox.alert("请选择门店"); return; }
-                        var data = {
-                            inputProducts: inputItems,
-                            supplierId: _self.model.supplierId,
-                            storeId: _self.model.storeId
-                        }
-                        $.post("/StorePurchaseOrder/ImportProduct", data, function (result) {
-                            if (result.success) {
-                                _self.products = [];
-                                result.data.forEach(function (item) {
-                                    _self.products.push(item);
-                                });
-                                _self.modal = false;
-                                //设置焦点,延迟500，等待vue.js 渲染完毕
-                                setTimeout(function () {
-                                    var selector = "tr:eq(0)";
-                                    var row = $("#tbody").find(selector);
-                                    row.find("input.quantity").focus().select();
-                                }, 300);
-                            }
-                            else {
-                                bootbox.alert(result.error);
-                            }
-                        }, "json");
-                    },
-                    showModal: function () {
-                        this.modal = true;
-                    },
-                    addRow: function (event) {
-                        this.products.push({
-                            ProductId: '', ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', ContractPrice: 11, Price: 0,
-                            PackageQuantity: 0, SpecificationQuantitys: [1], Quantity: 1, ActualPackageQuantity: 0, ActualQuantity: 0, Amount: 0,
-                            ProductionDate: '', ShelfLife: 0
-                        });
-                        //设置焦点
-                        var target = event.srcElement || event.target;
-                        var row = target.localName == "span" ? $(target).parent().parent().parent() : $(target).parent().parent();
-                        setfocus();
-                        function setfocus()
-                        {
-                            setTimeout(function () {
-                                var nextRow = row.next();
-                                if (nextRow) { // 等待 vue.js 渲染完成后，才设置
-                                    nextRow.find("input.productCode").focus().select();
-                                }
-                                else {
-                                    setfocus();
-                                }
-                            }, 200);
-                        }
-                    },
-                    removeRow: function (index) {
-                        this.products.splice(index, 1);
-                    },
-                    inputProduct: function (codeOrBarCode, index) {
-                        var _self = this;
-                        if (codeOrBarCode == "") { return; }
-                        if (_self.model.supplierId == 0) { bootbox.alert("请选择供应商"); return; }
-                        if (_self.model.storeId == 0) { bootbox.alert("请选择门店"); return; }
-                        var data = {
-                            productCodeOrBarCode: codeOrBarCode,
-                            supplierId: _self.model.supplierId,
-                            storeId: _self.model.storeId
-                        }
-                        //设置焦点
-                        $.get("/StorePurchaseOrder/GetPurchaseOrderItem", data, function (result) {
-                            if (result.success) {
-                                _self.products.$set(index, result.data);
-                                //设置焦点,延迟500，等待vue.js 渲染完毕
-                                setTimeout(function () {
-                                    var selector = "tr:eq(" + index + ")";
-                                    var row= $("#tbody").find(selector);
-                                    row.find("input.quantity").focus().select();
-                                }, 300);
-                            }
-                            else {
-                                bootbox.alert(result.error);
-                            }
-                        }, "json");
-
-                    },
                     inputNext: function (event) {
                         var target = event.target;
                         var row = $(target).parent().parent();
                         if (row.next().length > 0) {
                             row.next().find("input.quantity").focus().select();
-                        }
-                        else {
-                            this.addRow(event);
-                        }
+                        }                       
                     },
-                    showSupplier: function () {
-                        this.selectSupplier.modal = true;
+                    inputShelfLife:function(){
+                        var target = event.target;
+                        var row = $(target).parent().parent();
+                        if (row.next().length > 0) {
+                            row.next().find("input.shelfLife").focus().select();
+                        }                        
+                    } ,
+                    // 扫码
+                    inputProduct:function(){
+                        var _self = this;
+                        this.products.forEach(function (item) {
+                            if(item.ProductCode==_self.inputProductCodeOrBarCode)
+                            {
+                                item.ActualQuantity= item.ActualQuantity<item.Quantity ? item.ActualQuantity + 1 :item.Quantity ;
+                                _self.inputProductCodeOrBarCode = "";
+                               // item.BgColor = item.ActualQuantity==item.Quantity ?"bg-success":"bg-danger";                            
+                                return;
+                            }
+                        })
                     },
-                    getSupplier: function () {
-                        this.clearItems();
-                        var selecteds = this.selectSupplier.rows.filter(function (item) {
-                            return item.checked;
-                        });
-                        if (selecteds) {
-                            this.model.supplierId = selecteds[0].Id;
-                            this.selectSupplier.name = selecteds[0].Name;
-                            this.selectSupplier.modal = false;
-                        }
-                    },
-                    showStore: function () {
-                        this.selectStore.modal = true;
-                    },
-                    getStore: function () {
-                        this.clearItems();
-                        var selecteds = this.selectStore.rows.filter(function (item) {
-                            return item.checked;
-                        });
-                        if (selecteds) {
-                            this.model.storeId = selecteds[0].Id;
-                            this.selectStore.name = selecteds[0].Name;
-                            this.selectStore.modal = false;
-                        }
-                    },
-                    print: function () {
-
-                    },
-                    clearItems:function(){
-                        if(this.products.length>0)
-                        {
-                            this.products = [{
-                                ProductId: '', ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', ContractPrice: 0, Price: 0,
-                                PackageQuantity: 0, SpecificationQuantitys: [1], Quantity: 1, ActualPackageQuantity: 0, ActualQuantity: 0, Amount: 0,
-                                ProductionDate: '', ShelfLife: 0
-                            }];
-                        }
+                    toggleScan:function(){
+                        var _self = this;
+                        _self.toggleScanText = _self.toggleScanText=="关"?"开":"关" ;
+                        _self.products.forEach(function (item) {                         
+                            item.ActualQuantity = _self.toggleScanText=="关"? item.Quantity : 0 ;
+                           // item.BgColor = item.ActualQuantity==item.Quantity ?"bg-success":"bg-danger";     
+                        })
                     }
                 },
                 computed: {
                     countTotal: function () {
                         var total = 0;
                         var bookQty = 0;
+                        var totalActualQty = 0;
                         var _self = this;
                         this.products.forEach(function (item) {
-                            var qty = parseInt(item.ActualQuantity);
+                            var qty = parseInt(item.Quantity);
+                            var actualQty = parseInt(item.ActualQuantity);
                             var price = _self.model.isGift?0:item.Price;
                             item.Amount = price * qty;
                             bookQty += qty;
                             total += item.Amount;
+                            totalActualQty+= actualQty;
                             //item.PackageQuantity =item.SpecificationQuantitys[0]==1?0: parseInt(qty / item.SpecificationQuantitys[0]);
-                           item.ActualPackageQuantity =item.SpecificationQuantitys[0]==1?0: parseInt(qty / item.SpecificationQuantitys[0]);
+                            item.ActualPackageQuantity =item.SpecificationQuantity==1?0: parseInt(qty / item.SpecificationQuantity);
+                            //设置颜色
+                            item.BgColor = item.ActualQuantity==item.Quantity ?"bg-success":"bg-danger";
                         })
                         _self.totalQuantity = bookQty;
+                        _self.totalActualQuantity = totalActualQty;
                         return total;
                     }
                 }
@@ -489,6 +330,8 @@
                 //todayBtn: true,//今日按钮
                 format: "yyyy-mm-dd"//日期格式
             });
+
+            $(".productCode").focus();
         });
     </script>
 }

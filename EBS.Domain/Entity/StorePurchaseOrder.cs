@@ -60,22 +60,46 @@ namespace EBS.Domain.Entity
         //}
         public void AddItems(List<StorePurchaseOrderItem> items)
         {
+            foreach (var item in items)
+            {
+                item.StorePurchaseOrderId = this.Id;
+                if (this._items.Exists(n => n.ProductId == item.ProductId))
+                {
+                    var productLine = this._items.Where(n => n.ProductId == item.ProductId).FirstOrDefault();
+                    productLine.Quantity += item.Quantity;
+                }
+                else {
+                    this._items.Add(item); 
+                }
+            }            
+        }
+
+        public void SetItems(List<StorePurchaseOrderItem> items)
+        {
             this._items = items;
         }
+
         /// <summary>
         /// 更新收货明细中的 ，数量，生成日期，保质期
         /// </summary>
         /// <param name="items"></param>
-        public void UpdateReceivedGoodsItems(List<StorePurchaseOrderItem> items)
+        public string UpdateReceivedGoodsItems(List<StorePurchaseOrderItem> items)
         {
             Dictionary<int, StorePurchaseOrderItem> dic = new Dictionary<int, StorePurchaseOrderItem>();
             items.ForEach(n => dic.Add(n.Id, n));
-            foreach (var item in this.Items)
+            string result = "";
+            foreach (var item in this._items)
             {
+                var diff = dic[item.Id].ActualQuantity - item.ActualQuantity;
                 item.ActualQuantity = dic[item.Id].ActualQuantity;
                 item.ProductionDate = dic[item.Id].ProductionDate;
                 item.ShelfLife = dic[item.Id].ShelfLife;
+                if(diff>0)
+                {
+                     result+=string.Format("收入{0},{1};",item.ProductId, diff); 
+                }              
             }
+            return result;
         }
 
         public void Submit()

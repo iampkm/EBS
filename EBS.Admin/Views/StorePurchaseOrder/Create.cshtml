@@ -98,8 +98,9 @@
                                     <th>单位</th>
                                     <th>合同进价</th>
                                     <th>进价</th>
+                                    <th>件规</th>
                                     <th>订货件数</th>
-                                    <th>订货数量</th>
+                                    <th style="width:100px;">订货数量</th>
                                     <th>实收件数</th>
                                     <th>实收数量</th>
                                     <th>金额</th>
@@ -115,26 +116,21 @@
                                     </td>
                                     <td class="text-center">{{index+1}}</td>
                                     <td>                                       
-                                        <input type="text" class="form-control productCode" v-model="item.ProductCode" v-on:keyup.enter="inputProduct(item.ProductCode,index)" placeholder="录入编码或扫码" />
-                                        @*<div class="fade-transition popover bottom">
-                                            <!--style="top: 79px; left: 375px;"-->
-                                            <div class="arrow"></div>
-                                            <!--v-if-->
-                                            <div class="popover-content">
-                                                多规格选择
-                                                <template v-for="spec in item.SpecificationQuantitys">
-                                                    <input type="radio" name="{{spec}}" value="{{spec}}" v-model="item.PackageQuantity" />
-                                                    <label for="{{spec}}">1*{{spec}}</label>
-                                                </template>
-                                            </div>
-                                        </div>*@
+                                        <input type="text" class="form-control productCode" v-model="item.ProductCode" v-on:keyup.enter="inputProduct(item.ProductCode,index)" placeholder="录入编码或扫码" />                                        
                                     </td>
                                     <td>{{item.BarCode}}</td>
                                     <td>{{item.ProductName}}</td>
                                     <td>{{item.Specification}}</td>
                                     <td>{{item.Unit}}</td>
-                                    <td>{{item.ContractPrice}}</td>
-                                    <td> {{model.isGift?0:item.Price}}</td>
+                                    <td>￥{{item.ContractPrice}}</td>
+                                    <td>￥{{model.isGift?0:item.Price}}</td>
+                                    <td>
+                                        <select v-model="item.SpecificationQuantity">
+                                            <option v-for="option in item.SpecificationQuantitys" v-bind:value="option">
+                                                1 * {{ option }}
+                                            </option>
+                                        </select>
+                                    </td>
                                     <td>{{item.PackageQuantity}}</td>
                                     <td>
                                         <input type="number" class="form-control quantity" v-model="item.Quantity" v-on:keyup.enter="inputNext($event)" />                                      
@@ -143,7 +139,7 @@
                                     <td>
                                         {{item.ActualQuantity}}
                                     </td>
-                                    <td>{{item.Amount}}</td>
+                                    <td>￥{{item.Amount}}</td>
                                     <td>{{item.ProductionDate}}</td>
                                     <td >
                                        {{item.ShelfLife}}
@@ -162,10 +158,11 @@
                                     <td></td>
                                     <td></td>
                                     <td></td>
+                                    <td></td>
                                     <td>{{totalQuantity}}</td>
                                     <td></td>
                                     <td></td>
-                                    <td>{{countTotal}}</td>
+                                    <td>￥{{countTotal}}</td>
                                     <td></td>
                                     <td class="dataRow"></td>
                                 </tr>
@@ -251,8 +248,8 @@
                         items: ''
                     },
                     products: [{
-                        ProductId: '', ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', ContractPrice: 0, Price: 0,
-                        PackageQuantity: 0, SpecificationQuantitys: [1], Quantity: 1, ActualPackageQuantity: 0, ActualQuantity: 0, Amount: 0,
+                        ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', ContractPrice: 0, Price: 0,
+                        PackageQuantity: 0,SpecificationQuantity:1, SpecificationQuantitys: [1], Quantity: 1, ActualPackageQuantity: 0, ActualQuantity: 0, Amount: 0,
                         ProductionDate: '', ShelfLife: 0
                     }],
                     totalQuantity: 0,
@@ -292,7 +289,8 @@
                             var item = _self.products[i];
                             if (item.ProductId > 0 && item.Quantity > 0) {
                                 var price = _self.model.isGift?0:item.Price;
-                                data += "{\"ProductId\":" + item.ProductId + ",\"ContractPrice\":" + item.ContractPrice + ",\"Price\":" + price + ",\"Quantity\":" + item.Quantity + "},";
+                                data += "{\"ProductId\":" + item.ProductId + ",\"ContractPrice\":" + item.ContractPrice 
+                                     + ",\"Price\":" + price + ",\"Quantity\":" + item.Quantity + ",\"SpecificationQuantity\":" + item.SpecificationQuantity +"},";
                             }
                         }
                         if (data == "") {
@@ -349,7 +347,7 @@
                     },
                     addRow: function (event) {
                         this.products.push({
-                            ProductSkuId: '', ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', ContractPrice: 11, Price: 0,
+                            ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', ContractPrice: 0, Price: 0,
                             PackageQuantity: 0, SpecificationQuantitys: [1], Quantity: 1, ActualPackageQuantity: 0, ActualQuantity: 0, Amount: 0,
                             ProductionDate: '', ShelfLife: 0
                         });
@@ -385,7 +383,7 @@
                         }
                         //设置焦点
                         $.get("/StorePurchaseOrder/GetPurchaseOrderItem", data, function (result) {
-                            if (result.success) {
+                            if (result.success) {                               
                                 _self.products.$set(index, result.data);
                                 //设置焦点,延迟500，等待vue.js 渲染完毕                              
                                 setTimeout(function () {                                 
@@ -445,8 +443,8 @@
                         if(this.products.length>0)
                         {
                             this.products = [{
-                                ProductId: '', ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', ContractPrice: 0, Price: 0,
-                                PackageQuantity: 0, SpecificationQuantitys: [1], Quantity: 1, ActualPackageQuantity: 0, ActualQuantity: 0, Amount: 0,
+                                ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', ContractPrice: 0, Price: 0,
+                                PackageQuantity: 0,SpecificationQuantity: 1, SpecificationQuantitys: [1], Quantity: 1, ActualPackageQuantity: 0, ActualQuantity: 0, Amount: 0,
                                 ProductionDate: '', ShelfLife: 0
                             }];
                         }
@@ -463,7 +461,7 @@
                             item.Amount = price * qty;
                             bookQty += qty;
                             total += item.Amount;
-                            item.PackageQuantity =item.SpecificationQuantitys[0]==1?0: parseInt(qty / item.SpecificationQuantitys[0]);
+                            item.PackageQuantity =item.SpecificationQuantity==1?0: parseInt(qty / item.SpecificationQuantity);
                         })
                         _self.totalQuantity = bookQty;
                         return total;

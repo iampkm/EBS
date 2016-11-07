@@ -44,9 +44,9 @@ namespace EBS.Application.Facade
         public void Edit(EditStorePurchaseOrder model)
         {
             var entity = _db.Table.Find<StorePurchaseOrder>(model.Id);
-            entity = model.MapTo<StorePurchaseOrder>();
+            entity = model.MapTo<StorePurchaseOrder>(entity);
             entity.AddItems(model.ConvertJsonToItem());
-            _service.Update(entity);
+            _service.UpdateWithItem(entity);
             var reason = "修改采购单";
             _processHistoryService.Track(model.CreatedBy, model.CreatedByName, (int)entity.Status, entity.Id, FormType.StorePurchaseOrder, reason);
             _db.SaveChange();
@@ -78,12 +78,12 @@ namespace EBS.Application.Facade
             //修改明细数据和生产日期/保质期
             var entity = _db.Table.Find<StorePurchaseOrder>(model.Id);
             entity.ReceivedGoods();
-            entity = model.MapTo<StorePurchaseOrder>();
+            entity = model.MapTo<StorePurchaseOrder>(entity);
             var entityItems = _db.Table.FindAll<StorePurchaseOrderItem>(n => n.StorePurchaseOrderId == model.Id).ToList();
-            entity.AddItems(entityItems);
-            entity.UpdateReceivedGoodsItems(model.ConvertJsonToItem());
-            _service.UpdateModelAndItems(entity);
-            var reason = "采购单收货";
+            entity.SetItems(entityItems);
+            var reason= entity.UpdateReceivedGoodsItems(model.ConvertJsonToItem());
+            _db.Update(entity);
+            _db.Update(entity.Items.ToArray());
             _processHistoryService.Track(model.ReceivedBy, model.ReceivedByName, (int)entity.Status, entity.Id, FormType.StorePurchaseOrder, reason);
             _db.SaveChange();
         }

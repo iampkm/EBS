@@ -42,7 +42,22 @@ namespace EBS.Application.Facade.Mapping
                 throw new ArgumentNullException();
              Mapper.Initialize(cfg => cfg.CreateMap(self.GetType(), typeof(TResult)));           
            // Mapper.Map(self, self.GetType(), typeof(TResult));
-            return (TResult)Mapper.Map(self, self.GetType(), typeof(TResult));
+            return (TResult)Mapper.Map(self, self.GetType(), typeof(TResult)); 
+        }
+        /// <summary>
+        /// 对象对对象
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="self"></param>
+        /// <returns></returns>
+        public static TResult MapTo<TResult>(this object self,TResult target)
+        {
+            if (self == null)
+                throw new ArgumentNullException();
+            Mapper.Initialize(cfg => cfg.CreateMap(self.GetType(), typeof(TResult)));
+            // Mapper.Map(self, self.GetType(), typeof(TResult));
+           // return (TResult)Mapper.Map(self, self.GetType(), typeof(TResult));
+            return (TResult)Mapper.Map(self, target, self.GetType(), typeof(TResult));
         }
 
     }
