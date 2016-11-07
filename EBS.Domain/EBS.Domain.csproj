@@ -60,6 +60,7 @@
     <Compile Include="Entity\RoleMenu.cs" />
     <Compile Include="Entity\Store.cs" />
     <Compile Include="Entity\StoreInventory.cs" />
+    <Compile Include="Entity\StoreInventoryBatch.cs" />
     <Compile Include="Entity\StoreInventoryHistory.cs" />
     <Compile Include="Entity\StorePurchaseOrder.cs" />
     <Compile Include="Entity\StorePurchaseOrderItem.cs" />
@@ -73,7 +74,9 @@
     <Compile Include="Service\ProductService.cs" />
     <Compile Include="Service\PurchaseContractService.cs" />
     <Compile Include="Service\RoleService.cs" />
+    <Compile Include="Service\StoreInventoryService.cs" />
     <Compile Include="Service\StorePurchaseOrderService.cs" />
+    <Compile Include="Service\StoreInventoryBatchService.cs" />
     <Compile Include="ValueObject\PurchaseOrderStatus.cs" />
     <Compile Include="Service\StoreService.cs" />
     <Compile Include="Service\SupplierService.cs" />

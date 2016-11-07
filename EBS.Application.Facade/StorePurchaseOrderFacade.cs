@@ -20,12 +20,17 @@ namespace EBS.Application.Facade
         StorePurchaseOrderService _service;
         ProcessHistoryService _processHistoryService;
         BillSequenceService _sequenceService;
+        StoreInventoryService _storeInventoryService;
+        StoreInventoryBatchService _storeBatchService;
         public StorePurchaseOrderFacade(IDBContext dbContext)
         {
             _db = dbContext;
             _service = new StorePurchaseOrderService(this._db);
             _processHistoryService = new ProcessHistoryService(this._db);
             _sequenceService = new BillSequenceService(this._db);
+            _storeInventoryService = new StoreInventoryService(this._db);
+            _storeBatchService = new StoreInventoryBatchService(this._db);
+
         }
         public void Create(CreateStorePurchaseOrder model)
         {
@@ -85,6 +90,22 @@ namespace EBS.Application.Facade
             _db.Update(entity);
             _db.Update(entity.Items.ToArray());
             _processHistoryService.Track(model.ReceivedBy, model.ReceivedByName, (int)entity.Status, entity.Id, FormType.StorePurchaseOrder, reason);
+            _db.SaveChange();
+        }
+
+        public void SaveInventory(int id, int editBy, string editor)
+        {
+            // 生成批次号
+            var entity = _db.Table.Find<StorePurchaseOrder>(id);
+            if (entity == null) { throw new Exception("单据不存在"); }
+            entity.SaveInventory(editBy, editor);
+            _db.Update(entity);
+            var reason = "入库";
+           _processHistoryService.Track(entity.StoragedBy, entity.StoragedByName, (int)entity.Status, entity.Id, FormType.StorePurchaseOrder, reason);
+            // 写入库存,库存历史纪录
+            _storeInventoryService.StockInProducts(entity);
+            // 写入库存批次记录
+            _storeBatchService.SaveBatch(entity);
             _db.SaveChange();
         }
     }

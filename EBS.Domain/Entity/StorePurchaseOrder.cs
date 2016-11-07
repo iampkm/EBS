@@ -118,7 +118,19 @@ namespace EBS.Domain.Entity
                 throw new Exception("待入库状态才能收货");
             }          
         }
-       
+        public void SaveInventory(int editBy, string editor)
+        {
+            if (this.Status != PurchaseOrderStatus.WaitingStockIn)
+            {
+                throw new Exception("待入库状态才能入库");
+            }
+            this.StoragedBy = editBy;
+            this.StoragedByName = editor;
+            this.StoragedOn = DateTime.Now;
+            this.Status = PurchaseOrderStatus.HadStockIn;
+            this.GenerateBatchNo();
+        }
+
 
         public void Cancel()
         {
@@ -127,6 +139,15 @@ namespace EBS.Domain.Entity
                 throw new Exception("已入库单据不能作废");
             }
             this.Status = PurchaseOrderStatus.Cancel;
+        }
+
+        public void GenerateBatchNo()
+        {
+            var date = DateTime.Now;
+            var ts = date - Convert.ToDateTime(date.ToShortDateString());
+           
+           this.BatchNo= string.Format("{0}{1}", date.ToString("yyyyMMdd"),ts.TotalSeconds.ToString().PadLeft(6,'0'));
+
         }
 
     }

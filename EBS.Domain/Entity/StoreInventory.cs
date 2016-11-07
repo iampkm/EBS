@@ -8,6 +8,13 @@ namespace EBS.Domain.Entity
 {
     public class StoreInventory : BaseEntity
     {
+        public StoreInventory() { }
+        public StoreInventory(int storeId,int productId,int quantity) {
+            this.StoreId = storeId;
+            this.ProductId = productId;
+            this.IsQuit = false;
+            this.Quantity += quantity;
+        }
         /// <summary>
         /// 商品SKUID
         /// </summary>

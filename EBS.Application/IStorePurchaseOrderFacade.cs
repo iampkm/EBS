@@ -13,5 +13,6 @@ namespace EBS.Application
         void Delete(int id, int editBy, string editor, string reason);
         void Submit(int id, int editBy, string editor);
         void ReceivedGoods(ReceivedGoodsStorePurchaseOrder model);
+        void SaveInventory(int id, int editBy, string editor);
     }
 }
