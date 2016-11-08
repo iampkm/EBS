@@ -90,14 +90,21 @@ namespace EBS.Domain.Entity
             string result = "";
             foreach (var item in this._items)
             {
-                var diff = dic[item.Id].ActualQuantity - item.ActualQuantity;
-                item.ActualQuantity = dic[item.Id].ActualQuantity;
-                item.ProductionDate = dic[item.Id].ProductionDate;
-                item.ShelfLife = dic[item.Id].ShelfLife;
-                if(diff>0)
+                if(dic.ContainsKey(item.Id))
                 {
-                     result+=string.Format("收入{0},{1};",item.ProductId, diff); 
-                }              
+                    var diff = dic[item.Id].ActualQuantity - item.ActualQuantity;
+                    item.ActualQuantity = dic[item.Id].ActualQuantity;
+                    if (item.ActualQuantity < 0) { item.ActualQuantity = 0; }
+                    if (item.ActualQuantity > item.Quantity) { item.ActualQuantity = item.Quantity; }
+                    item.ProductionDate = dic[item.Id].ProductionDate;
+                    item.ShelfLife = dic[item.Id].ShelfLife;
+                    if (item.ShelfLife < 0) { item.ShelfLife = 0; }
+                    if (diff > 0)
+                    {
+                        result += string.Format("收入{0},{1};", item.ProductId, diff);
+                    }
+                }
+                           
             }
             return result;
         }
@@ -108,17 +115,18 @@ namespace EBS.Domain.Entity
             {
                 throw new Exception("只能提交初始单据");
             }
-            this.Status = PurchaseOrderStatus.WaitingStockIn;
+            this.Status = PurchaseOrderStatus.WaitReceivedGoods;
         }
 
         public void ReceivedGoods()
         {
-            if (this.Status != PurchaseOrderStatus.WaitingStockIn)
+            if (this.Status != PurchaseOrderStatus.WaitingStockIn||this.Status!= PurchaseOrderStatus.WaitReceivedGoods)
             {
-                throw new Exception("待入库状态才能收货");
-            }          
+                throw new Exception("待收货或待入库状态才能收货");
+            }
+            this.Status = PurchaseOrderStatus.WaitingStockIn;
         }
-        public void SaveInventory(int editBy, string editor)
+        public void UpdateStatus(int editBy, string editor)
         {
             if (this.Status != PurchaseOrderStatus.WaitingStockIn)
             {
@@ -145,8 +153,8 @@ namespace EBS.Domain.Entity
         {
             var date = DateTime.Now;
             var ts = date - Convert.ToDateTime(date.ToShortDateString());
-           
-           this.BatchNo= string.Format("{0}{1}", date.ToString("yyyyMMdd"),ts.TotalSeconds.ToString().PadLeft(6,'0'));
+            var seconds = Math.Truncate(ts.TotalSeconds).ToString().PadLeft(6, '0');
+           this.BatchNo= string.Format("{0}{1}", date.ToString("yyyyMMdd"),seconds);
 
         }
 

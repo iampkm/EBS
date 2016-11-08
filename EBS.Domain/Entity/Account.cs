@@ -21,13 +21,14 @@ namespace EBS.Domain.Entity
             this.CreatedOn = DateTime.Now;
             this.LastUpdateDate = DateTime.Now;
         }
-        public Account(string userName, string password, string nickName, int roleId)
+        public Account(string userName, string password, string nickName, int roleId,int storeId)
             : this()
         {
             this.UserName = userName;
             this.Password = password;
             this.NickName = nickName;
-            this.RoleId = roleId;           
+            this.RoleId = roleId;
+            this.StoreId = storeId;        
         }
 
         public string UserName { get; set; }
@@ -39,6 +40,10 @@ namespace EBS.Domain.Entity
         public string NickName { get; set; }
 
         public int RoleId { get; set; }
+        /// <summary>
+        /// 门店，值为 0
+        /// </summary>
+        public int StoreId { get; set; }
         public DateTime CreatedOn { get; private set; }
 
         public AccountStatus Status { get; private set; }

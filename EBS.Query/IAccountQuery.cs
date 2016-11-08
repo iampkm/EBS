@@ -8,6 +8,6 @@ namespace EBS.Query
 {
    public interface IAccountQuery
     {
-       IEnumerable<AccountInfo> GetPageList(Pager page, int? id, string userName, string nickNam);
+       IEnumerable<AccountInfo> GetPageList(Pager page, int? id, string userName, string nickNam, int storeId);
     }
 }

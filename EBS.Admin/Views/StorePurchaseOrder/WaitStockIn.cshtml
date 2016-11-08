@@ -220,6 +220,11 @@
                         var data = "";
                         for (var i = 0; i < _self.products.length; i++) {
                             var item = _self.products[i];
+                            if(item.Quantity < 0||item.ActualQuantity>item.Quantity)
+                            {
+                                bootbox.alert("商品["+item.ProductName+"]实收数不正确");
+                                return;
+                            }
                             if (item.ProductId > 0 && item.Quantity > 0) {
                                 var price = _self.model.isGift?0:item.Price;
                                 data += "{\"Id\":" + item.Id + ",\"ActualQuantity\":" + item.ActualQuantity + ",\"ProductionDate\":\"" + item.ProductionDate + "\",\"ShelfLife\":" + item.ShelfLife + "},";
@@ -239,9 +244,7 @@
                         var v_data = _self.model;
                         $.post("/StorePurchaseOrder/ReceiveGoods", v_data, function (result) {
                             if (result.success) {
-                                bootbox.alert("保存成功！", function () {
-                                    window.location.href = "/StorePurchaseOrder/Index";
-                                });
+                                bootbox.alert("保存成功！");
                             }
                             else {
                                 bootbox.alert(result.error);
@@ -249,17 +252,21 @@
                         }, "json");
                     }, 
                     saveInventory:function(){
-                        var _self = this;                       
-                        $.post("/StorePurchaseOrder/SaveInventory", {id:_self.model.id}, function (result) {
-                            if (result.success) {
-                                bootbox.alert("保存成功！", function () {
-                                    window.location.href = "/StorePurchaseOrder/Index";
-                                });
+                        var _self = this; 
+                        bootbox.confirm("您确定提交该记录？", function (result) {
+                            if (result) {
+                                $.post("/StorePurchaseOrder/SaveInventory", {id:_self.model.id}, function (result) {
+                                    if (result.success) {
+                                        bootbox.alert("保存成功！", function () {
+                                            window.location.href = "/StorePurchaseOrder/Index";
+                                        });
+                                    }
+                                    else {
+                                        bootbox.alert(result.error);
+                                    }
+                                }, "json");
                             }
-                            else {
-                                bootbox.alert(result.error);
-                            }
-                        }, "json");
+                        });                       
                     },
                     inputNext: function (event) {
                         var target = event.target;
@@ -304,7 +311,7 @@
                         var totalActualQty = 0;
                         var _self = this;
                         this.products.forEach(function (item) {
-                            var qty = parseInt(item.Quantity);
+                            var qty = parseInt(item.ActualQuantity);
                             var actualQty = parseInt(item.ActualQuantity);
                             var price = _self.model.isGift?0:item.Price;
                             item.Amount = price * qty;
@@ -314,13 +321,17 @@
                             //item.PackageQuantity =item.SpecificationQuantitys[0]==1?0: parseInt(qty / item.SpecificationQuantitys[0]);
                             item.ActualPackageQuantity =item.SpecificationQuantity==1?0: parseInt(qty / item.SpecificationQuantity);
                             //设置颜色
-                            item.BgColor = item.ActualQuantity==item.Quantity ?"bg-success":"bg-danger";
+                            item.BgColor = item.ActualQuantity==item.Quantity ?"bg-success":"bg-danger";                                                 
                         })
                         _self.totalQuantity = bookQty;
                         _self.totalActualQuantity = totalActualQty;
                         return total;
                     }
+                },
+                watch:{
+                    
                 }
+
             });
 
             $(".datepicker").datepicker({

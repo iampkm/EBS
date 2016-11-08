@@ -35,9 +35,9 @@ namespace EBS.Admin.Controllers
             return View();
         }
 
-        public JsonResult LoadData(Pager page, int? id, string userName, string nickName)
+        public JsonResult LoadData(Pager page, int? id, string userName, string nickName, int storeId)
         {
-            var rows = _accountQuery.GetPageList(page, id, userName, nickName);
+            var rows = _accountQuery.GetPageList(page, id, userName, nickName, storeId);
             return Json(new { success = true, data = rows, total = page.Total }, JsonRequestBehavior.AllowGet);
         }
 

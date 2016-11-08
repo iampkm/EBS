@@ -1,0 +1,191 @@
+﻿@model EBS.Query.DTO.StorePurchaseOrderDto
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+    .dataRow div {
+        margin-bottom: 0px;
+    }
+</style>
+<!-- demo root element -->
+<div id="app" class="box box-primary">
+    <div class="box-header with-border">
+        <ol class="breadcrumb" style="padding:0px;margin:1px;">
+            <li><a href="/StorePurchaseOrder/Index"><i class="fa fa-dashboard"></i>采购单管理</a></li>
+            <li class="active"><a href="/StorePurchaseOrder/Edit/{{model.id}}">收货入库</a></li>
+        </ol>
+    </div>
+    <form>
+        <div class="box-body">
+            <div class="row">
+                <div class="form-group col-sm-4 col-xs-6">                   
+                    <button type="button" class="btn btn-default btn-flat" v-on:click="print">打印</button>
+                    <a class="btn btn-default btn-flat" href="/StorePurchaseOrder/Index">取 消</a>
+                    <input type="hidden" v-model="model.id" />
+                </div>
+            </div>
+                <div class="row">
+                    <div class="col-xs-4 col-sm-4"></div>
+                    <div class="col-xs-4 col-sm-4">
+                        <h3 class="text-center text-success" style="border-bottom:2px solid;padding-bottom:1px;">
+                            <b>采购订单 @if(Model.IsGift)
+                            {<span>(赠品)</span>}</b>
+                        </h3>
+                    </div>
+                    <div class="col-xs-4 col-sm-4"></div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-4 col-sm-4">
+                        <span>单据号：@Model.Code</span>
+                    </div>
+                    <div class="col-xs-4 col-sm-4 text-center">
+                    </div>
+                    <div class="col-xs-4 col-sm-4">
+                        <span class="text-danger">单据状态：@Model.PurchaseOrderStatus</span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-4 col-sm-4">
+                        <span>供应商：@Model.SupplierName</span>
+                    </div>
+                    <div class="col-xs-4 col-sm-4 text-center">
+                    </div>
+                    <div class="col-xs-4 col-sm-4 ">
+                        <span>供应商单号：@Model.SupplierBill</span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-4 col-sm-4">
+                        <span>收货部门：@Model.StoreName</span>
+                    </div>
+                    <div class="col-xs-4 col-sm-4 text-center">
+                    </div>
+                    <div class="col-xs-4 col-sm-4">
+                        <span>制单日期：@Model.CreatedOn</span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th style="width:50px;">序号</th>
+                                        <th >商品编码</th>
+                                        <th>条码</th>
+                                        <th style="width:150px;">品名</th>
+                                        <th>规格</th>
+                                        <th>单位</th>
+                                        <th>合同进价</th>
+                                        <th>进价</th>
+                                        <th>件规</th>
+                                        <th>订货件数</th>
+                                        <th>订货数量</th>
+                                        <th>实收件数</th>
+                                        <th>实收数量</th>
+                                        <th>金额</th>
+                                        <th>生产日期</th>
+                                        <th>保质期</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody">
+                                    @{
+                                        var totalQuantity = 0;
+                                        var totalActualQuantity = 0;
+                                        decimal countTotal = 0;
+                                        var index = 0;
+                                    }
+                                    @foreach (var item in Model.Items)
+                                    {
+                                        totalQuantity += item.Quantity;
+                                        totalActualQuantity += item.ActualQuantity;
+                                        countTotal += item.Price * item.ActualQuantity;
+                                        <tr>
+                                            <td class="text-center">@(index+1)</td>
+                                            <td>@item.ProductCode</td>
+                                            <td>@item.BarCode</td>
+                                            <td>@item.ProductName</td>
+                                            <td>@item.Specification</td>
+                                            <td>@item.Unit</td>
+                                            <td>￥@item.ContractPrice</td>
+                                            <td>￥@item.Price</td>
+                                            <td>1 * @item.SpecificationQuantity</td>
+                                            <td>@item.PackageQuantity</td>
+                                            <td>@item.Quantity</td>
+                                            <td>@item.ActualPackageQuantity</td>
+                                            <td>@item.ActualQuantity</td>
+                                            <td>￥@(item.Price*item.ActualQuantity)</td>
+                                            <td>@item.ProductionTime</td>
+                                            <td>@item.ShelfLife</td>
+                                        </tr>
+                                    }
+
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td style="width:50px;"></td>
+                                        <td>合计：</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>@totalQuantity</td>
+                                        <td></td>
+                                        <td>@totalActualQuantity</td>
+                                        <td>￥@countTotal</td>
+                                        <td></td>
+                                        <td class="dataRow"></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-3 col-sm-3">
+                        <span>制单人：@Model.CreatedByName</span>
+                    </div>
+                    <div class="col-xs-3 col-sm-3">
+                        <span>供应商： </span>
+                    </div>
+                    <div class="col-xs-3 col-sm-3">
+                        <span>收货人：@Model.ReceivedByName</span>
+                    </div>
+                    <div class="col-xs-3 col-sm-3">
+                        <span>入库人：@Model.StoragedByName</span>
+                    </div>
+                </div>
+            </div>
+    </form>
+</div>
+<br />
+@section scripts{
+    <script>
+        $("doucument").ready(function () {
+            var demo = new Vue({
+                el: '#app',
+                data: {
+                    model: {
+                        id: @Model.Id                        
+                     }
+                },
+                methods: {
+                    print: function () {
+                       
+                    }
+                }  
+            });
+           
+        });
+    </script>
+}
+
+
+
+
+

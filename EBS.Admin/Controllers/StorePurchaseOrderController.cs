@@ -143,6 +143,7 @@ namespace EBS.Admin.Controllers
         /// <returns></returns>
         public JsonResult SaveInventory(int id)
         {
+            _storePurchaseOrderFacade.SaveInventory(id, _context.CurrentAccount.AccountId, _context.CurrentAccount.NickName);
             return Json(new { success = true });
         }
 
@@ -178,6 +179,12 @@ namespace EBS.Admin.Controllers
         {
             _storePurchaseOrderFacade.Submit(id, _context.CurrentAccount.AccountId, _context.CurrentAccount.NickName);
             return Json(new { success = true });
+        }
+
+        public ActionResult Print(int id)
+        {
+            var model = _storePurchaseOrderQuery.GetById(id);
+            return PartialView("StorePurchaseOrderTemplate",model);
         }
 
     }

@@ -12,6 +12,8 @@ namespace EBS.Application.DTO
         public string Password { get; set; }
         public string NickName { get; set; }
         public int RoleId { get; set; }
+
+        public int StoreId { get; set; }
     }
 
    public class EditAccountModel
@@ -19,5 +21,6 @@ namespace EBS.Application.DTO
        public int Id { get; set; }
        public string NickName { get; set; }
        public int RoleId { get; set; }
+        public int StoreId { get; set; }
     }
 }

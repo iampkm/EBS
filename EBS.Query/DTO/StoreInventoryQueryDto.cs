@@ -4,23 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EBS.Domain.Entity
+namespace EBS.Query.DTO
 {
-    public class StoreInventory : BaseEntity
+   public class StoreInventoryQueryDto
     {
-        public StoreInventory() {
-            this.IsQuit = false;
-        }
-        public StoreInventory(int storeId,int productId,int quantity):this() {
-            this.StoreId = storeId;
-            this.ProductId = productId;         
-            this.Quantity += quantity;
-        }
         /// <summary>
         /// 商品SKUID
         /// </summary>
         public int ProductId { get; set; }
         public int StoreId { get; set; }
+        public string StoreName { get; set; }
         /// <summary>
         /// 可售数量
         /// </summary>
@@ -41,5 +34,17 @@ namespace EBS.Domain.Entity
         /// 是否退市（例如不再进货销售）
         /// </summary>
         public bool IsQuit { get; set; }
+
+        public string BarCode { get; set; }
+
+        public string ProductCode { get; set; }
+
+        public string ProductName { get; set; }
+        /// <summary>
+        /// 规格
+        /// </summary>
+        public string Specification { get; set; }
+
+        public string SupplierName { get; set; }
     }
 }

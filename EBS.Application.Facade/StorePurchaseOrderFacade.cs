@@ -90,6 +90,8 @@ namespace EBS.Application.Facade
             _db.Update(entity);
             _db.Update(entity.Items.ToArray());
             _processHistoryService.Track(model.ReceivedBy, model.ReceivedByName, (int)entity.Status, entity.Id, FormType.StorePurchaseOrder, reason);
+            // 添加库存中不存在的商品
+            _storeInventoryService.CreateProductNotInInventory(entity);
             _db.SaveChange();
         }
 
@@ -98,7 +100,9 @@ namespace EBS.Application.Facade
             // 生成批次号
             var entity = _db.Table.Find<StorePurchaseOrder>(id);
             if (entity == null) { throw new Exception("单据不存在"); }
-            entity.SaveInventory(editBy, editor);
+            var entityItems = _db.Table.FindAll<StorePurchaseOrderItem>(n => n.StorePurchaseOrderId == entity.Id).ToList();
+            entity.SetItems(entityItems);
+            entity.UpdateStatus(editBy, editor);
             _db.Update(entity);
             var reason = "入库";
            _processHistoryService.Track(entity.StoragedBy, entity.StoragedByName, (int)entity.Status, entity.Id, FormType.StorePurchaseOrder, reason);

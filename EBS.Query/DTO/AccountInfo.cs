@@ -20,6 +20,8 @@ namespace EBS.Query.DTO
         public string RoleName { get; set; }
         public string CreatedOn { get; set; }
 
+        public string StoreName { get; set; }
+
         public AccountStatus Status { get; set; }
 
         public string StatusName

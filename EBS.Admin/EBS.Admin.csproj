@@ -147,6 +147,7 @@
     <Compile Include="Controllers\PurchaseContractController.cs" />
     <Compile Include="Controllers\RoleController.cs" />
     <Compile Include="Controllers\StoreController.cs" />
+    <Compile Include="Controllers\StoreInventoryController.cs" />
     <Compile Include="Controllers\StorePurchaseOrderController.cs" />
     <Compile Include="Controllers\SupplierController.cs" />
     <Compile Include="FluentValidationResource.Designer.cs">
@@ -282,6 +283,7 @@
     <Content Include="Database\category.sql" />
     <Content Include="Database\ebs.sql" />
     <Content Include="Database\ebs_mysql.sql" />
+    <Content Include="Database\menu.sql" />
     <Content Include="favicon.ico" />
     <Content Include="Content\bootstrap\fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
@@ -1207,6 +1209,11 @@
     <Content Include="Views\StorePurchaseOrder\Create.cshtml" />
     <Content Include="Views\StorePurchaseOrder\Edit.cshtml" />
     <Content Include="Views\StorePurchaseOrder\WaitStockIn.cshtml" />
+    <Content Include="Views\StorePurchaseOrder\HadStockedIn.cshtml" />
+    <Content Include="Views\StorePurchaseOrder\StorePurchaseOrderTemplate.cshtml" />
+    <Content Include="Views\StoreInventory\Index.cshtml" />
+    <Content Include="Views\StoreInventory\History.cshtml" />
+    <Content Include="Views\StoreInventory\Batch.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">

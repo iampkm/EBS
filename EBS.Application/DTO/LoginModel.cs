@@ -46,6 +46,8 @@ namespace EBS.Application.DTO
        public string UserName { get; set; }
        public string NickName { get; set; }
        public int RoleId { get; set; }
+
+       public int StoreId { get; set; }
       
    }
 }

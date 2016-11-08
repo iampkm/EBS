@@ -83,12 +83,16 @@ namespace EBS.Query.DTO
        /// <summary>
        /// 生产日期
        /// </summary>
-       public string ProductionDate { get; set; }
+       public DateTime ProductionDate { get; set; }
 
-       /// <summary>
-       /// 保质期：单位天
-       /// </summary>
-       public int ShelfLife { get; set; }
+       public string ProductionTime { get {
+                return ProductionDate.ToString("yyyy-MM-dd");
+            } }
+
+        /// <summary>
+        /// 保质期：单位天
+        /// </summary>
+        public int ShelfLife { get; set; }
              
        public void SetSpecificationQuantity() {
           this.SpecificationQuantity= this.SpecificationQuantitys[0];
