@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccountFacade.cs" />
+    <Compile Include="AdjustContractPriceFacade.cs" />
     <Compile Include="BrandFacade.cs" />
     <Compile Include="CategoryFacade.cs" />
     <Compile Include="Mapping\AutoMappingExtension.cs" />

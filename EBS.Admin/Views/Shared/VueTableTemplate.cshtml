@@ -100,7 +100,7 @@
                     </thead>
                 </table>
             </div>
-            <div id="tbBody" class="table-fixed-body" v-bind:style="{height:height}">
+            <div id="tbBody" class="table-fixed-body table-responsive" v-bind:style="{height:height}">
                 <table class="table table-bordered table-hover">
                     <tbody>
                         <tr v-for="(index,entry) in data | filterBy filterKey | orderBy sortKey sortOrders[sortKey]" v-on:click="selectRow(index)" style="cursor: pointer">

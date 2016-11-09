@@ -1,12 +1,20 @@
 ﻿@{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
+@section styles{
+    <link href="~/Content/zTree.min.css" rel="stylesheet" />
+    <style>
+        .ztree li span {
+            font-size: 14px;
+        }
+    </style>
+}
 <!-- demo root element -->
 <div id="app" class="box box-primary">
     <div class="box-header with-border">
         <ol class="breadcrumb" style="padding:0px;margin:1px;">
             <li><a href="/Store/Index"><i class="fa fa-dashboard"></i>门店管理</a></li>
-            <li class="active"><a href="/Store/Create">注册门店</a></li>
+            <li class="active"><a href="/Store/Create">新增门店</a></li>
         </ol>
     </div>
     <!-- /.box-header -->
@@ -17,22 +25,36 @@
                 <div class="row">
                     <div class="col-sm-4 col-xs-4">
                         <input type="hidden" v-model="model.id" />
-                        <v-input type="text" label="门店名：" v-bind:value.sync="model.name" maxlength="30" placeholder="门店名" required icon></v-input>
+                        <v-input type="text" label="门店名*：" v-bind:value.sync="model.name" maxlength="30" placeholder="门店名" required icon></v-input>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-sm-2 col-xs-3">
+                        <label for="inputPassword3" class="control-label">区域*：</label>
+                        <input type="hidden" class="form-control" v-model="model.areaId">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="区域" v-model="selectArea.areaName" readonly>
+                            <div class="input-group-btn">
+                                <button type="button" class="btn btn-default btn-flat" v-on:click="showArea()">
+                                    <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="form-group col-sm-4 col-xs-4">
-                        <v-input type="text" label="联系人：" v-bind:value.sync="model.contact" placeholder="联系人" required icon></v-input>
+                        <v-input type="text" label="联系人*：" v-bind:value.sync="model.contact" placeholder="联系人" required icon></v-input>
                     </div>
                 </div>
                 <div class="row">
                     <div class="form-group col-sm-4 col-xs-4">
-                        <v-input type="text" label="电话：" v-bind:value.sync="model.phone" placeholder="电话" required icon></v-input>
+                        <v-input type="text" label="电话*：" v-bind:value.sync="model.phone" placeholder="电话" required icon></v-input>
                     </div>
                 </div>
                 <div class="row">
                     <div class="form-group col-sm-4 col-xs-4">
-                        <v-input type="text" label="地址：" v-bind:value.sync="model.address" placeholder="地址" required icon></v-input>
+                        <v-input type="text" label="地址*：" v-bind:value.sync="model.address" placeholder="地址" required icon></v-input>
                     </div>
                 </div>
             </v-form>
@@ -46,12 +68,21 @@
             </div>
         </div>
     </form>
+    <v-modal title="选择区域" ok-text="确 定" cancel-text="取 消" v-bind:callback="selectedArea" v-bind:show.sync="selectArea.modal" v-bind:effect="fade" width="300">
+        <div slot="modal-body" class="modal-body">
+            <div style="height:400px;overflow-y:auto">
+                <ul id="ztree" class="ztree"></ul>
+            </div>
+        </div>
+    </v-modal>
 </div>
 @section scripts{
+<script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
     <script>
         $("doucument").ready(function () {
             var demo = new Vue({
                 components: {
+                    'v-modal': VueStrap.modal,
                     'v-input': VueStrap.input,
                     'v-form': VueStrap.formGroup
                 },
@@ -63,12 +94,22 @@
                         name: '',
                         contact: '',
                         phone: '',
-                        address:''
+                        address: '',
+                        areaId: ''
                     },
+                    selectArea: {
+                        modal: false,
+                        areaName:''
+                    }
+
                 },
                 methods: {
                     onSubmit: function () {
                         //获取选择节点
+                        if (this.model.areaId == '') {
+                            bootbox.alert("请选择门店");
+                            return;
+                        }
                         var v_data = this.model;                      
                         $.post("/Store/Create", v_data, function (result) {
                             if (result.success) {
@@ -80,9 +121,55 @@
                                 bootbox.alert(result.error);
                             }
                         }, "json");
+                    },
+                    selectedArea: function () {
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                        var nodes = treeObj.getSelectedNodes();
+                        if (nodes.length == 0) {
+                            bootbox.alert("请选择区域");
+                            return;
+                        }
+                        if (nodes[0].id.length / 2 < 3) //选中三级叶子节点
+                        {
+                            bootbox.alert("分类必须选到3级节点");
+                            return;
+                        }
+                        // 设置 选中的分类
+                        this.model.areaId = nodes[0].id;
+                        this.selectArea.areaName = nodes[0].text;
+                        this.selectArea.modal = false;
+                    },
+                    showArea: function () {
+                        this.selectArea.modal = true;
                     }
                 }
             });
+
+            //区域
+            var zTreeObj;
+            var setting = {
+                data: {
+                    simpleData: {
+                        enable: true,
+                        rootPId: 0
+                    }
+                },
+                async: {
+                    enable: true,
+                    url: "/Supplier/LoadChildArea",
+                    type: 'get'
+                },
+                callback: {
+                    onClick: function (event, treeId, treeNode) {
+                        //点击展开/折叠节点
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                        var open = !treeNode.open;
+                        treeObj.expandNode(treeNode, open, false, false);
+                    }
+                }
+            };
+            //异步加载
+            zTreeObj = $.fn.zTree.init($("#ztree"), setting);
 
         });
 

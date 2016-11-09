@@ -34,6 +34,10 @@ namespace EBS.Domain.Entity
         /// </summary>
         public int Quantity { get; set; }
         /// <summary>
+        /// 移动加权平均成本
+        /// </summary>
+        public decimal AvgCostPrice { get; set; }
+        /// <summary>
         /// 预警数量
         /// </summary>
         public int WarnQuantity { get; set; }

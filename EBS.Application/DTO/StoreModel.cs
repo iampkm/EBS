@@ -13,7 +13,7 @@ namespace EBS.Application.DTO
        }
        public int Id { get; set; }
         public string Name { get; set; }
-        public string SourceKey { get; set; }
+        public int AreaId { get; set; }
         public string Address { get; set; }
         public string Contact { get; set; }
         public string Phone { get; set; }

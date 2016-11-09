@@ -138,6 +138,7 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\AdjustContractPriceController.cs" />
     <Compile Include="Controllers\BrandController.cs" />
     <Compile Include="Controllers\CategoryController.cs" />
     <Compile Include="Controllers\CommonController.cs" />
@@ -1214,6 +1215,7 @@
     <Content Include="Views\StoreInventory\Index.cshtml" />
     <Content Include="Views\StoreInventory\History.cshtml" />
     <Content Include="Views\StoreInventory\Batch.cshtml" />
+    <Content Include="Views\AdjustContractPrice\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">

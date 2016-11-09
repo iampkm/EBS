@@ -49,6 +49,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entity\Account.cs" />
+    <Compile Include="Entity\AdjustContractPrice.cs" />
+    <Compile Include="Entity\AdjustContractPriceItem.cs" />
+    <Compile Include="Entity\AdjustSalePrice.cs" />
+    <Compile Include="Entity\AdjustSalePriceItem.cs" />
     <Compile Include="Entity\Area.cs" />
     <Compile Include="Entity\BillSequence.cs" />
     <Compile Include="Entity\Brand.cs" />
@@ -67,6 +71,7 @@
     <Compile Include="Entity\Supplier.cs" />
     <Compile Include="Service\AccountService.cs" />
     <Compile Include="Entity\AccountLoginHistory.cs" />
+    <Compile Include="Service\AdjustContractPriceService.cs" />
     <Compile Include="Service\BillSequenceService.cs" />
     <Compile Include="Service\BrandService.cs" />
     <Compile Include="Service\CategoryService.cs" />
@@ -77,6 +82,7 @@
     <Compile Include="Service\StoreInventoryService.cs" />
     <Compile Include="Service\StorePurchaseOrderService.cs" />
     <Compile Include="Service\StoreInventoryBatchService.cs" />
+    <Compile Include="ValueObject\AdjustContractPriceStatus.cs" />
     <Compile Include="ValueObject\PurchaseOrderStatus.cs" />
     <Compile Include="Service\StoreService.cs" />
     <Compile Include="Service\SupplierService.cs" />

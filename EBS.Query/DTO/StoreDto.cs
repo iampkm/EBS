@@ -13,9 +13,14 @@ namespace EBS.Query.DTO
         public string Address { get; set; }
         public string Contact { get; set; }
         public string Phone { get; set; }
+
+        public string Code { get; set; }
+
+        public string FullName { get; set; }
         /// <summary>
-        /// 日期字段设置为字符串，viewtable 中就可以显示了
+        /// 创建时间
         /// </summary>
         public string CreatedOn { get; set; }
+        
     }
 }

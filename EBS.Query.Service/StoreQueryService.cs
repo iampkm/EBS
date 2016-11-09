@@ -17,9 +17,8 @@ namespace EBS.Query.Service
         {
             this._query = query;
         }
-       public IEnumerable<StoreDto> GetPageList(Pager page, string name)
+       public IEnumerable<StoreDto> GetPageList(Pager page, string name,string code)
         {
-            IEnumerable<Store> rows;
             dynamic param = new ExpandoObject();
             string where = "";
             if (!string.IsNullOrEmpty(name))
@@ -27,27 +26,17 @@ namespace EBS.Query.Service
                 where += "and t0.Name like @Name ";
                 param.Name = string.Format("%{0}%", name);
             }
-            if (page.IsPaging)
+            if (!string.IsNullOrEmpty(code))
             {
-                rows = this._query.FindPage<Store>(page.PageIndex, page.PageSize).Where<Store>(where, param);
-                page.Total = this._query.Count<Store>(where, param);
+                where += "and t0.Code like @Code ";
+                param.Code = string.Format("{0}%", code);
             }
-            else
-            {
-                rows = this._query.FindAll<Store>();
-                page.Total = this._query.Count<Store>();
-            }
-            // 转换日期字段 : 临时解决办法
-            var result = rows.Select(n => new StoreDto()
-             {
-                 Id = n.Id,
-                 Name = n.Name,
-                 Contact = n.Contact,
-                 Address = n.Address,
-                 CreatedOn = n.CreatedOn.ToString(),
-                 Phone = n.Phone
-             });
-           return result;
+            string sql = "select t0.*,t1.FullName from Store t0 left join Area t1 on t0.AreaId=t1.Id where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
+            sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
+            var rows = this._query.FindAll<StoreDto>(sql, param);
+            page.Total = this._query.Count<Store>(where, param);
+            
+            return rows;
         }
     }
 }

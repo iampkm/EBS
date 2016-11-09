@@ -97,7 +97,6 @@ namespace EBS.Application.Facade
 
         public void SaveInventory(int id, int editBy, string editor)
         {
-            // 生成批次号
             var entity = _db.Table.Find<StorePurchaseOrder>(id);
             if (entity == null) { throw new Exception("单据不存在"); }
             var entityItems = _db.Table.FindAll<StorePurchaseOrderItem>(n => n.StorePurchaseOrderId == entity.Id).ToList();
@@ -110,6 +109,8 @@ namespace EBS.Application.Facade
             _storeInventoryService.StockInProducts(entity);
             // 写入库存批次记录
             _storeBatchService.SaveBatch(entity);
+            // 写入商品移动平均成本价
+
             _db.SaveChange();
         }
     }

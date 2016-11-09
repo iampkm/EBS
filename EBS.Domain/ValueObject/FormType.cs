@@ -14,7 +14,9 @@ namespace EBS.Domain.ValueObject
        public static string PurchaseContract { get {
            return "PurchaseContract";
        } }
-
+       /// <summary>
+       /// 门店采购单
+       /// </summary>
        public static string StorePurchaseOrder
        {
            get
@@ -22,5 +24,15 @@ namespace EBS.Domain.ValueObject
                return "StorePurchaseOrder";
            }
        }
+       /// <summary>
+       /// 调整合同价单
+       /// </summary>
+       public static string AdjustContractPrice
+       {
+           get
+           {
+               return "AdjustContractPrice";
+           }
+       } 
     }
 }

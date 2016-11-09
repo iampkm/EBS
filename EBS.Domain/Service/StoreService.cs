@@ -22,14 +22,27 @@ namespace EBS.Domain.Service
             {
                 throw new Exception("名称重复!");
             }
+            // 生成门店编码           
+            var firstAreaId = model.AreaId.Substring(0,2);
+            var result= _db.Table.FindAll<Store>(n => n.AreaId.Like(firstAreaId + "%"));            
+            var maxAreaIdNumber =  result.Max(n=>n.Number);
+            model.GenerateNewCode(maxAreaIdNumber);
             _db.Insert(model);           
         }
 
-        public void Update(Store model)
+        public void Update(Store model,string oldAreaId)
         {
             if (_db.Table.Exists<Store>(n => n.Name == model.Name && n.Id != model.Id))
             {
                 throw new Exception("名称重复!");
+            }
+            if (model.AreaId != oldAreaId)
+            { 
+                //如果区域发生改变，重新生成新的 code
+                var firstAreaId = model.AreaId.Substring(0, 2);
+                var result = _db.Table.FindAll<Store>(n => n.AreaId.Like(firstAreaId + "%"));
+                var maxAreaIdNumber = result.Max(n => n.Number);
+                model.GenerateNewCode(maxAreaIdNumber);
             }
             _db.Update(model);
         }

@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2016-11-04 17:34:49                          */
+/* Created on:     2016-11-09 17:46:25                          */
 /*==============================================================*/
 
 
@@ -9,6 +9,16 @@ drop index idx_account_username on Account;
 drop table if exists Account;
 
 drop table if exists AccountLoginHistory;
+
+drop index idx_adjustcontractprice_code on AdjustContractPrice;
+
+drop table if exists AdjustContractPrice;
+
+drop table if exists AdjustContractPriceItem;
+
+drop table if exists AdjustSalePrice;
+
+drop table if exists AdjustSalePriceItem;
 
 drop table if exists Area;
 
@@ -53,6 +63,8 @@ drop table if exists PurchaseOrderItem;
 drop table if exists Role;
 
 drop table if exists RoleMenu;
+
+drop index idx_store_Code on Store;
 
 drop table if exists Store;
 
@@ -117,6 +129,86 @@ create table AccountLoginHistory
 );
 
 alter table AccountLoginHistory comment '账号登录历史';
+
+/*==============================================================*/
+/* Table: AdjustContractPrice                                   */
+/*==============================================================*/
+create table AdjustContractPrice
+(
+   Id                   int not null auto_increment comment '编号',
+   Code                 nvarchar(50) comment '调价单号',
+   Name                 nvarchar(50) comment '调价名',
+   StoreId              int comment '门店Id',
+   SupplierId           int comment '供应商Id',
+   StartDate            datetime comment '开始日期',
+   EndDate              datetime comment '结束日期',
+   CreatedOn            datetime comment '创建时间',
+   CreatedBy            int comment '创建人',
+   UpdatedOn            datetime comment '修改时间',
+   UpdatedBy            int comment '修改人',
+   Status               int comment '状态',
+   primary key (Id)
+);
+
+/*==============================================================*/
+/* Index: idx_adjustcontractprice_code                          */
+/*==============================================================*/
+create unique index idx_adjustcontractprice_code on AdjustContractPrice
+(
+   Code
+);
+
+/*==============================================================*/
+/* Table: AdjustContractPriceItem                               */
+/*==============================================================*/
+create table AdjustContractPriceItem
+(
+   Id                   int not null auto_increment comment '编号',
+   AdjustContractPriceId int comment '调价单编码',
+   ProductId            int comment '商品编号',
+   OldContractPrice     decimal(8,2) comment '原合同价',
+   ContractPrice        decimal(8,2) comment '先合同价',
+   primary key (Id)
+);
+
+alter table AdjustContractPriceItem comment '调整合明细';
+
+/*==============================================================*/
+/* Table: AdjustSalePrice                                       */
+/*==============================================================*/
+create table AdjustSalePrice
+(
+   Id                   int not null auto_increment comment '编号',
+   Code                 nvarchar(50) comment '调价单号',
+   Name                 nvarchar(50) comment '调价名称',
+   StoreId              int comment '门店Id',
+   SupplierId           int comment '供应商Id',
+   StartDate            datetime comment '开始日期',
+   EndDate              datetime comment '结束日期',
+   CreatedOn            datetime comment '创建时间',
+   CreatedBy            int comment '创建人',
+   UpdatedOn            datetime comment '修改时间',
+   UpdatedBy            int comment '修改人',
+   Status               int comment '状态',
+   primary key (Id)
+);
+
+alter table AdjustSalePrice comment '调整售价';
+
+/*==============================================================*/
+/* Table: AdjustSalePriceItem                                   */
+/*==============================================================*/
+create table AdjustSalePriceItem
+(
+   Id                   int not null auto_increment comment '编号',
+   AdjustSalePriceId    int comment '调价单编码',
+   SalePrice            decimal(8,2) comment '先售价',
+   OldSalePrice         decimal(8,2) comment '原售价',
+   ProductId            int comment '商品编号',
+   primary key (Id)
+);
+
+alter table AdjustSalePriceItem comment '调整售价明细';
 
 /*==============================================================*/
 /* Table: Area                                                  */
@@ -188,6 +280,7 @@ create table Inventory
    ProductId            int comment '编码',
    WarehouseId          int comment '仓库编码',
    Quantity             int comment '实际库存数',
+   AvgCostPrice         decimal(8,2) comment '平均成本价',
    WarnQuantity         int comment '警告库存',
    IsQuit               bool comment '是否退出',
    primary key (Id)
@@ -283,7 +376,6 @@ create table Product
    OldPrice             decimal(8,2) comment '原价',
    SalePrice            decimal(8,2) comment '销售价',
    WholeSalePrice       decimal(8,2) comment '批发价',
-   CostPrice            decimal(8,2) comment '平均成本价',
    SubSkuCode           varchar(20) comment '子SKU代码',
    SubSkuQuantity       int comment '子SKU数量',
    SpecificationQuantity nvarchar(100) comment '件规, 多个逗号分隔',
@@ -446,10 +538,13 @@ alter table RoleMenu comment '角色菜单对应表';
 create table Store
 (
    Id                   int not null auto_increment comment '编号',
+   Code                 nvarchar(20) comment '代码',
+   Number               int comment '编号',
    Name                 nvarchar(128) comment '门店名',
    SourceKey            nvarchar(32) comment '门店唯一码',
    CreatedOn            datetime comment '创建时间',
    CreatedBy            int comment '创建人',
+   AreaId               char(6) comment '区域ID',
    Address              nvarchar(512) comment '地址',
    Contact              nvarchar(32) comment '联系人',
    Phone                nvarchar(32) comment '联系电话',
@@ -458,6 +553,14 @@ create table Store
 );
 
 alter table Store comment '门店';
+
+/*==============================================================*/
+/* Index: idx_store_Code                                        */
+/*==============================================================*/
+create unique index idx_store_Code on Store
+(
+   Code
+);
 
 /*==============================================================*/
 /* Table: StoreInventory                                        */
@@ -470,6 +573,7 @@ create table StoreInventory
    SaleQuantity         int comment '销售库存',
    OrderQuantity        int comment '订购库存',
    Quantity             int comment '实际库存数',
+   AvgCostPrice         decimal(8,2) comment '平均成本价',
    WarnQuantity         int comment '警告库存',
    IsQuit               bool comment '是否退出',
    primary key (Id)
@@ -565,6 +669,7 @@ create table StorePurchaseOrderItem
    ProductId            int comment '商品skuid',
    ContractPrice        decimal(8,2) comment '合同价',
    Price                decimal(8,2) comment '进价',
+   SpecificationQuantity int comment '件规',
    Quantity             int comment '数量',
    ActualQuantity       int comment '实际数量',
    ProductionDate       datetime comment '生产日期',

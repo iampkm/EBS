@@ -8,6 +8,7 @@ using Dapper.DBContext;
 using EBS.Domain.Service;
 using EBS.Domain.Entity;
 using EBS.Application.DTO;
+using EBS.Application.Facade.Mapping;
 namespace EBS.Application.Facade
 {
     public class StoreFacade : IStoreFacade
@@ -21,16 +22,16 @@ namespace EBS.Application.Facade
         }
         public void Create(StoreModel model)
         {
-            Store entity = new Store()
-            {
-                Name = model.Name,
-                Address = model.Address,
-                Contact = model.Contact,
-                CreatedBy = model.CreateBy,
-                CreatedOn = model.CreatedOn,
-                Phone = model.Phone
-            };
-
+            //Store entity = new Store()
+            //{
+            //    Name = model.Name,
+            //    Address = model.Address,
+            //    Contact = model.Contact,
+            //    CreatedBy = model.CreateBy,
+            //    CreatedOn = model.CreatedOn,
+            //    Phone = model.Phone
+            //};
+            var entity = model.MapTo<Store>();
             _service.Create(entity);
             _db.SaveChange();
         }
@@ -38,12 +39,9 @@ namespace EBS.Application.Facade
         public void Edit(StoreModel model)
         {
             Store entity = _db.Table.Find<Store>(model.Id);
-            entity.Id = model.Id;
-            entity.Name = model.Name;
-            entity.Phone = model.Phone;
-            entity.Address = model.Address;
-            entity.Contact = model.Contact;            
-            _service.Update(entity);
+            var oldAreaId = entity.AreaId;
+            entity = model.MapTo<Store>(entity);
+            _service.Update(entity, oldAreaId);
             _db.SaveChange();
         }
 

@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="AbstractQueryService.cs" />
     <Compile Include="AccountQueryService.cs" />
+    <Compile Include="AdjustContractPriceQueryService.cs" />
     <Compile Include="AreaQueryService.cs" />
     <Compile Include="BrandQueryService.cs" />
     <Compile Include="CategoryQueryService.cs" />

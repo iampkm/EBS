@@ -33,8 +33,11 @@ namespace EBS.Domain.Service
                     var oldQuantity = product.Quantity;
                     var addQuantity = productQuantityDic[product.ProductId].Quantity;
                     var price = productQuantityDic[product.ProductId].Price;
+                    //库存
                     product.Quantity += addQuantity;
                     product.SaleQuantity += addQuantity;
+                    // 计算移动加权平均成本
+                    product.AvgCostPrice = Math.Round((product.AvgCostPrice * oldQuantity  + price * addQuantity ) / oldQuantity + addQuantity); 
 
                     //记录修改历史
                     var history = new StoreInventoryHistory(product.ProductId,entity.StoreId, oldQuantity, addQuantity, 
@@ -42,6 +45,7 @@ namespace EBS.Domain.Service
                     inventoryHistorys.Add(history);
                 }
             }
+            // update storeinventory set quantity =quantity+@addQuantity ,saleQuantity=saleQuantity+@addQuantity where Id=@id and quantity=@oldQuantity
             _db.Update(inventorys.ToArray());
             _db.Insert(inventoryHistorys.ToArray());
         }

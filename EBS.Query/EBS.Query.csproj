@@ -43,6 +43,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DTO\AccountInfo.cs" />
+    <Compile Include="DTO\AdjustContractPriceDto.cs" />
+    <Compile Include="DTO\AdjustContractPriceItemDto.cs" />
     <Compile Include="DTO\AreaTreeNode.cs" />
     <Compile Include="DTO\CategoryTreeNode.cs" />
     <Compile Include="DTO\MenuInfo.cs" />
@@ -51,6 +53,7 @@
     <Compile Include="DTO\ProductDto.cs" />
     <Compile Include="DTO\PurchaseContractDto.cs" />
     <Compile Include="DTO\PurchaseContractItemDto.cs" />
+    <Compile Include="DTO\SearchContractPrice.cs" />
     <Compile Include="DTO\SearchStoreInventory.cs" />
     <Compile Include="DTO\SearchStoreInventoryBatch.cs" />
     <Compile Include="DTO\SearchStoreInventoryHistory.cs" />
@@ -65,6 +68,7 @@
     <Compile Include="DTO\StorePurchaseOrderQueryDto.cs" />
     <Compile Include="DTO\SupplierDto.cs" />
     <Compile Include="IAccountQuery.cs" />
+    <Compile Include="IAdjustContractPriceQuery.cs" />
     <Compile Include="IAreaQuery.cs">
       <SubType>Code</SubType>
     </Compile>

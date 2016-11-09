@@ -161,7 +161,10 @@
                        v-bind:args="selectStore.searchArgs" v-bind:data.sync="selectStore.rows">
                 <div class="row" style="margin-bottom:10px;" slot="customSearch">
                     <div class="col-xs-4 col-sm-3">
-                        <input class="form-control" v-model="selectStore.searchArgs.name" placeholder="输入门店名" debounce="300" />
+                        <input class="form-control" v-model="searchArgs.code" placeholder="门店编码" debounce="500" />
+                    </div>
+                    <div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="selectStore.searchArgs.name" placeholder="门店名" debounce="300" />
                     </div>
                 </div>
             </vue-table>
@@ -214,9 +217,9 @@
                         modal: false,
                         name: '',
                         gridColumns: [
-                           { name: 'Name', localName: '门店名'},
-                            { name: 'Contact', localName: '联系人' },
-                            { name: 'Address', localName: '地址' }
+                           { name: 'Code', localName: '门店编码' },
+                            { name: 'Name', localName: '门店名' },
+                            { name: 'FullName', localName: '区域', width: '200' }
                         ],
                         url: "/Store/LoadData",
                         searchArgs: { name: '' },
