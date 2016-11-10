@@ -18,18 +18,21 @@ namespace EBS.Application.Facade
        IDBContext _db;
         AdjustContractPriceService _service;
         ProcessHistoryService _processHistoryService;
+        BillSequenceService _sequenceService;
         public AdjustContractPriceFacade(IDBContext dbContext)
         {
             _db = dbContext;
             _service = new AdjustContractPriceService(this._db);
             _processHistoryService = new ProcessHistoryService(this._db);
+            _sequenceService = new BillSequenceService(this._db);
         }
         public void Create(AdjustContractPriceModel model)
         {
             var entity = new AdjustContractPrice();
             entity = model.MapTo<AdjustContractPrice>();
             entity.SetItems(model.ConvertJsonToItem());
-            entity.UpdatedBy = entity.CreatedBy;
+            entity.CreatedBy = model.UpdatedBy;
+            entity.Code = _sequenceService.GenerateNewCode(BillIdentity.AdjustContractPrice);
             _service.Create(entity);
             _db.SaveChange();
             var reason = "创建合同调价单";

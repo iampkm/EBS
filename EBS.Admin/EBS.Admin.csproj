@@ -1216,6 +1216,8 @@
     <Content Include="Views\StoreInventory\History.cshtml" />
     <Content Include="Views\StoreInventory\Batch.cshtml" />
     <Content Include="Views\AdjustContractPrice\Index.cshtml" />
+    <Content Include="Views\AdjustContractPrice\Create.cshtml" />
+    <Content Include="Views\AdjustContractPrice\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">

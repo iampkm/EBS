@@ -13,7 +13,6 @@ namespace EBS.Application.DTO
         public int StoreId { get; set; }
 
         public int SupplierId { get; set; }
-        public string Contact { get; set; }
         /// <summary>
         /// 
         /// </summary>

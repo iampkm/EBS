@@ -9,11 +9,13 @@ namespace EBS.Query
 {
    public interface IAdjustContractPriceQuery
     {
-        IEnumerable<AdjustContractPriceDto> GetPageList(Pager page, SearchSupplierContract condition);
-
-        IEnumerable<AdjustContractPriceItemDto> GetAdjustContractPriceItems(string productCodePriceInput);
+       IEnumerable<AdjustContractPriceDto> GetPageList(Pager page, SearchAdjustContractPrice condition);
+ 
         IEnumerable<AdjustContractPriceItemDto> GetAdjustContractPriceItems(int AdjustContractPriceId);
+        IEnumerable<AdjustContractPriceItemDto> GetItems(int AdjustContractPriceId, int supplierId, int storeId);
+        AdjustContractPriceItemDto GetAdjustContractPriceItem(string productCodeOrBarCode, int supplierId, int storeId);
 
-        Dictionary<int, string> GetAdjustContractPriceStatus();
+        IEnumerable<AdjustContractPriceItemDto> GetAdjustContractPriceList(string inputProducts, int supplierId, int storeId);
+
     }
 }

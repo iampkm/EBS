@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace EBS.Query.DTO
 {
-   public class SearchContractPrice
+   public class SearchAdjustContractPrice
     {
         public string Code { get; set; }
-        public string Name { get; set; }
+        public string ProductCodeOrBarCode { get; set; }
         public int SupplierId { get; set; }
         public int StoreId { get; set; }
 

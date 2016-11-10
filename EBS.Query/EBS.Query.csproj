@@ -53,7 +53,7 @@
     <Compile Include="DTO\ProductDto.cs" />
     <Compile Include="DTO\PurchaseContractDto.cs" />
     <Compile Include="DTO\PurchaseContractItemDto.cs" />
-    <Compile Include="DTO\SearchContractPrice.cs" />
+    <Compile Include="DTO\SearchAdjustContractPrice.cs" />
     <Compile Include="DTO\SearchStoreInventory.cs" />
     <Compile Include="DTO\SearchStoreInventoryBatch.cs" />
     <Compile Include="DTO\SearchStoreInventoryHistory.cs" />

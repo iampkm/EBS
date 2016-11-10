@@ -10,17 +10,18 @@ namespace EBS.Query.DTO
     {
         public int ProductId { get; set; }
         /// <summary>
-        /// 商品名
+        /// 品名
         /// </summary>
-        public string Name { get; set; }
+        public string ProductName { get; set; }
         /// <summary>
         /// 商品编码
         /// </summary>
-        public string Code { get; set; }
-
-        public string CategoryName { get; set; }
+        public string ProductCode { get; set; }
+        public string BarCode { get; set; }
 
         public string Specification { get; set; }
+
+        public string Unit { get; set; }
         /// <summary>
         /// 原合同价
         /// </summary>
@@ -29,5 +30,17 @@ namespace EBS.Query.DTO
         /// 合同价
         /// </summary>
         public decimal ContractPrice { get; set; }
+
+        public DateTime StartDate { get; set; }
+
+        public string StartTime {
+            get { return StartDate.ToString("yyyy-MM-dd"); }
+        }
+
+        public DateTime EndDate { get; set; }
+        public string EndTime
+        {
+            get { return EndDate.ToString("yyyy-MM-dd"); }
+        }
     }
 }

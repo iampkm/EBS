@@ -15,6 +15,7 @@ using EBS.Admin.Services;
 using EBS.Infrastructure.Extension;
 namespace EBS.Admin.Controllers
 {
+    [Permission]
     public class AdjustContractPriceController : Controller
     {
          IQuery _query;
@@ -32,18 +33,18 @@ namespace EBS.Admin.Controllers
         }
         public ActionResult Index()
         {
-            ViewBag.Status = _adjustContractPriceQuery.GetAdjustContractPriceStatus();
+           // ViewBag.Status = _adjustContractPriceQuery.GetAdjustContractPriceStatus();
             return View();
         }
 
         public ActionResult AuditIndex()
         {
-            ViewBag.Status = _adjustContractPriceQuery.GetAdjustContractPriceStatus();
+           // ViewBag.Status = _adjustContractPriceQuery.GetAdjustContractPriceStatus();
             ViewBag.waitingAudit = (int)AdjustContractPriceStatus.WaitingAudit;
             return View();
         }
 
-        public JsonResult LoadData(Pager page, SearchSupplierContract condition)
+        public JsonResult LoadData(Pager page, SearchAdjustContractPrice condition)
         {
             var rows = _adjustContractPriceQuery.GetPageList(page, condition);
 
@@ -51,7 +52,8 @@ namespace EBS.Admin.Controllers
         }
 
         public ActionResult Create()
-        {           
+        {
+            ViewBag.CreatedByName = _context.CurrentAccount.NickName;
             return View();
         }
 
@@ -73,15 +75,21 @@ namespace EBS.Admin.Controllers
         public ActionResult Edit(int id)
         {
             var model = _query.Find<AdjustContractPrice>(id);
-            var items = _adjustContractPriceQuery.GetAdjustContractPriceItems(id);
+            var items = _adjustContractPriceQuery.GetItems(id,model.SupplierId,model.StoreId);
+            // 追加合同起止日期
+            //var contract= _query.Find<PurchaseContract>(n => n.SupplierId == model.SupplierId && n.StoreId == model.StoreId && n.Status== PurchaseContractStatus.Audited);
+            //items.ForEach((item) =>
+            //{
+            //    item.StartDate = contract.StartDate;
+            //    item.EndDate = contract.EndDate;
+            //});
             ViewBag.AdjustContractPriceItems = JsonConvert.SerializeObject(items.ToArray());
             var supplier = _query.Find<Supplier>(model.SupplierId);
             ViewBag.SupplierName = supplier.Name;
             var store = _query.Find<Store>(model.StoreId);
             ViewBag.StoreName =store.Name ;
             //创建和待审可编辑
-            var editable = model.Status == AdjustContractPriceStatus.Create || model.Status == AdjustContractPriceStatus.WaitingAudit;
-            ViewBag.Editable = editable ? "true" : "false";
+            //var editable = model.Status == AdjustContractPriceStatus.Create || model.Status == AdjustContractPriceStatus.WaitingAudit;
             //查询处理流程：
             var logs= _query.FindAll<ProcessHistory>(n => n.FormId == id && n.FormType == FormType.AdjustContractPrice);
             ViewBag.Logs = logs;
@@ -114,11 +122,18 @@ namespace EBS.Admin.Controllers
             _adjustContractPriceFacade.Audit(id, _context.CurrentAccount.AccountId, _context.CurrentAccount.NickName);
             return Json(new { success = true });
         }
+       
 
-        public JsonResult ImportProduct(string productCodePriceInput)
+        public JsonResult GetItem(string productCodeOrBarCode, int supplierId, int storeId)
         {
-            var rows = _adjustContractPriceQuery.GetAdjustContractPriceItems(productCodePriceInput);
-            return Json(new { success = true, data = rows });
+            var result = _adjustContractPriceQuery.GetAdjustContractPriceItem(productCodeOrBarCode, supplierId, storeId);
+            return Json(new { success = true, data = result });
+        }
+
+        public JsonResult ImportProduct(string inputProducts, int supplierId, int storeId)
+        {
+            var result = _adjustContractPriceQuery.GetAdjustContractPriceList(inputProducts, supplierId, storeId);
+            return Json(new { success = true, data = result });
         }
 	}
 }

@@ -51,17 +51,17 @@
     <div class="table-container">
         <slot name="customSearch"></slot>
         <div class="table-toolBar row" v-show="showToolbar" style="margin-bottom:10px;">
-            <div class="col-xs-4 col-md-4">
+            <div class="col-xs-3 col-md-2">
                 <div class="input-group">
                     <span class="input-group-addon" v-if="showSearch"><i class="fa fa-search"></i></span>
                     <input name="query" class="form-control" placeholder="表内搜索" v-model="filterKey" v-if="showSearch">
                     <slot name="customButtons"></slot>                    
                 </div>
             </div>
-            <div class="col-xs-1 col-md-1">
+            <div class="col-xs-1 col-md-2">
                 <span v-show="showLoading" class="loading">loading...</span>
             </div>
-            <div class="col-xs-7 col-md-7">
+            <div class="col-xs-8 col-md-8">
                 <div class="btn-group pull-right">
                     <div class="btn-group" title="选择列">
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
