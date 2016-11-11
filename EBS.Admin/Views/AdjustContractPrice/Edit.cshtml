@@ -135,11 +135,11 @@
                                     <td>{{item.ProductName}}</td>
                                     <td>{{item.Specification}}</td>
                                     <td>{{item.Unit}}</td>
-                                    <td>￥{{item.OldContractPrice}}</td>
+                                    <td>￥{{item.ContractPrice}}</td>
                                     <td>
                                         <div class="input-group">
                                             <span class="input-group-addon">￥</span>
-                                            <input type="text" class="form-control quantity" v-model="item.ContractPrice" v-on:keyup.enter="inputNext" />
+                                            <input type="text" class="form-control quantity" v-model="item.AdjustPrice" v-on:keyup.enter="inputNext" />
                                         </div>
                                     </td>
                                     <td>{{item.StartTime}}~{{item.EndTime}}</td>
@@ -282,7 +282,7 @@
                         for (var i = 0; i < _self.products.length; i++) {
                             var item = _self.products[i];
                             if (item.ProductId > 0 && item.ContractPrice > 0) {
-                                data += "{\"ProductId\":" + item.ProductId + ",\"OldContractPrice\":" + item.OldContractPrice
+                                data += "{\"ProductId\":" + item.ProductId + ",\"AdjustPrice\":" + item.AdjustPrice
                                      + ",\"ContractPrice\":" + item.ContractPrice + "},";
                             }
                         }
@@ -297,7 +297,7 @@
                         $.post("/AdjustContractPrice/Edit", v_data, function (result) {
                             if (result.success) {
                                 bootbox.alert("保存成功！", function () {
-                                    window.location.href = "/AdjustContractPrice/Create";
+                                    window.location.href = "/AdjustContractPrice/Index";
                                 });
                             }
                             else {
@@ -339,7 +339,7 @@
                         this.modal = true;
                     },
                     addRow: function (event) {
-                        this.products.push({ ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', OldContractPrice: 0, ContractPrice: 0, StartTime: '', EndTime: '' });
+                        this.products.push({ ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', AdjustPrice: 0, ContractPrice: 0, StartTime: '', EndTime: '' });
                         //设置焦点
                         var target = event.srcElement || event.target;
                         var row = target.localName == "button" ? $(target).parent().parent() : $(target).parent().parent().parent();
@@ -429,7 +429,7 @@
                     },
                     clearItems: function () {
                         if (this.products.length > 0) {
-                            this.products = [{ ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', OldContractPrice: 0, ContractPrice: 0, StartTime: '', EndTime: '' }];
+                            this.products = [{ ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', AdjustPrice: 0, ContractPrice: 0, StartTime: '', EndTime: '' }];
                         }
                     }
                 },

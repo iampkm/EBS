@@ -15,21 +15,24 @@
             <li class="active"><a href="/StorePurchaseOrder/Edit/{{model.id}}">收货入库</a></li>
         </ol>
     </div>
-    <form>
+    <form>       
         <div class="box-body">
             <div class="row">
-                <div class="form-group col-sm-4 col-xs-6">                   
-                    <button type="button" class="btn btn-default btn-flat" v-on:click="print">打印</button>
+                <div class="form-group col-sm-4 col-xs-6">
+                    <button type="button" class="btn btn-primary btn-flat" v-on:click="print">打印</button>
                     <a class="btn btn-default btn-flat" href="/StorePurchaseOrder/Index">取 消</a>
                     <input type="hidden" v-model="model.id" />
                 </div>
             </div>
+            <div id="printDiv">
                 <div class="row">
                     <div class="col-xs-4 col-sm-4"></div>
                     <div class="col-xs-4 col-sm-4">
                         <h3 class="text-center text-success" style="border-bottom:2px solid;padding-bottom:1px;">
-                            <b>采购订单 @if(Model.IsGift)
-                            {<span>(赠品)</span>}</b>
+                            <b>
+                                采购订单 @if (Model.IsGift)
+                                {<span>(赠品)</span>}
+                            </b>
                         </h3>
                     </div>
                     <div class="col-xs-4 col-sm-4"></div>
@@ -64,17 +67,16 @@
                         <span>制单日期：@Model.CreatedOn</span>
                     </div>
                 </div>
-
                 <div class="row">
                     <div class="col-xs-12 col-sm-12">
                         <div class="table-responsive">
-                            <table class="table table-bordered">
+                            <table class="table table-bordered table-printfontsize">
                                 <thead>
                                     <tr>
                                         <th style="width:50px;">序号</th>
-                                        <th >商品编码</th>
+                                        <th>商品编码</th>
                                         <th>条码</th>
-                                        <th style="width:150px;">品名</th>
+                                        <th style="width:200px;">品名</th>
                                         <th>规格</th>
                                         <th>单位</th>
                                         <th>合同进价</th>
@@ -102,7 +104,7 @@
                                         totalActualQuantity += item.ActualQuantity;
                                         countTotal += item.Price * item.ActualQuantity;
                                         <tr>
-                                            <td class="text-center">@(index+1)</td>
+                                            <td class="text-center">@(index + 1)</td>
                                             <td>@item.ProductCode</td>
                                             <td>@item.BarCode</td>
                                             <td>@item.ProductName</td>
@@ -115,12 +117,11 @@
                                             <td>@item.Quantity</td>
                                             <td>@item.ActualPackageQuantity</td>
                                             <td>@item.ActualQuantity</td>
-                                            <td>￥@(item.Price*item.ActualQuantity)</td>
-                                            <td>@item.ProductionTime</td>
+                                            <td>￥@(item.Price * item.ActualQuantity)</td>
+                                            <td>@item.ProductionDate</td>
                                             <td>@item.ShelfLife</td>
                                         </tr>
                                     }
-
                                 </tbody>
                                 <tfoot>
                                     <tr>
@@ -160,11 +161,13 @@
                         <span>入库人：@Model.StoragedByName</span>
                     </div>
                 </div>
-            </div>
+            </div>               
+         </div>
     </form>
 </div>
 <br />
 @section scripts{
+<script src="~/Scripts/jquery.PrintArea.js"></script>
     <script>
         $("doucument").ready(function () {
             var demo = new Vue({
@@ -175,8 +178,8 @@
                      }
                 },
                 methods: {
-                    print: function () {
-                       
+                    print: function () {                      
+                         $("#printDiv").printArea();                       
                     }
                 }  
             });

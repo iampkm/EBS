@@ -22,15 +22,15 @@ namespace EBS.Domain.Entity
         public int ProductId { get; set; }
         public int StoreId { get; set; }
         /// <summary>
-        /// 可售数量
+        /// 可售总数量
         /// </summary>
         public int SaleQuantity { get; set; }
         /// <summary>
-        /// 预订数量
+        /// 预订总数量
         /// </summary>
         public int OrderQuantity { get; set; }
         /// <summary>
-        /// 库存数量
+        /// 库存总数量
         /// </summary>
         public int Quantity { get; set; }
         /// <summary>

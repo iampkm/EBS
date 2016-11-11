@@ -44,8 +44,8 @@ namespace EBS.Application.Facade
         public void Edit(AdjustContractPriceModel model)
         {
             var entity = _db.Table.Find<AdjustContractPrice>(model.Id);
-            entity = model.MapTo<AdjustContractPrice>();
-            entity.SetItems(model.ConvertJsonToItem());
+            entity = model.MapTo<AdjustContractPrice>(entity);
+            entity.AddItems(model.ConvertJsonToItem());
             entity.UpdatedOn = DateTime.Now;
             _service.Update(entity);
             var reason = "修改合同调价单";

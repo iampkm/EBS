@@ -25,7 +25,7 @@ namespace EBS.Query.DTO
         /// <summary>
         /// 原合同价
         /// </summary>
-        public decimal OldContractPrice { get; set; }
+        public decimal AdjustPrice { get; set; }
         /// <summary>
         /// 合同价
         /// </summary>

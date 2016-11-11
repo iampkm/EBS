@@ -23,13 +23,16 @@ namespace EBS.Admin.Controllers
         IStorePurchaseOrderFacade _storePurchaseOrderFacade;
         IAreaQuery _areaQuery;
         IContextService _context;
-        public StorePurchaseOrderController(IContextService contextService, IQuery query, IStorePurchaseOrderQuery StorePurchaseOrderQuery, IStorePurchaseOrderFacade StorePurchaseOrderFacade, IAreaQuery areaQuery)
+        IAdjustContractPriceQuery _adjustContractPriceQuery;
+        public StorePurchaseOrderController(IContextService contextService, IQuery query, IStorePurchaseOrderQuery StorePurchaseOrderQuery, 
+            IStorePurchaseOrderFacade StorePurchaseOrderFacade, IAreaQuery areaQuery,IAdjustContractPriceQuery adjustContractPriceQuery)
         {
             this._query = query;
             this._storePurchaseOrderQuery = StorePurchaseOrderQuery;
             this._storePurchaseOrderFacade = StorePurchaseOrderFacade;
             this._areaQuery = areaQuery;
             this._context = contextService;
+            this._adjustContractPriceQuery = adjustContractPriceQuery;
         }
 
         public ActionResult Index()
@@ -73,12 +76,10 @@ namespace EBS.Admin.Controllers
         public ActionResult Edit(int id)
         {
             var model = _storePurchaseOrderQuery.GetById(id);
-
-
-
             var page = "Edit";
             switch (model.Status)
             {
+                case PurchaseOrderStatus.WaitReceivedGoods:
                 case PurchaseOrderStatus.WaitingStockIn:
                     page = "WaitStockIn";
                     model.ReceivedByName = _context.CurrentAccount.NickName;
@@ -161,6 +162,9 @@ namespace EBS.Admin.Controllers
         public JsonResult GetPurchaseOrderItem(string productCodeOrBarCode, int supplierId, int storeId)
         {
             var result = _storePurchaseOrderQuery.GetPurchaseOrderItem(productCodeOrBarCode, supplierId, storeId);
+            //  查询是否有自主调价
+            var item= _adjustContractPriceQuery.GetAdjustContractPriceItem(productCodeOrBarCode, supplierId, storeId);
+             
             return Json(new { success = true, data = result });
         }
 

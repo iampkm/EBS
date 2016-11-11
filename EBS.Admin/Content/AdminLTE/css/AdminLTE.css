@@ -22,7 +22,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   /*font-family: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;*/
-    font-family: Microsoft YaHei,'ËÎÌå', Tahoma, Helvetica, Arial, "\5b8b\4f53", sans-serif;
+    /*font-family: Microsoft YaHei,'ËÎÌå', Tahoma, Helvetica, Arial, "\5b8b\4f53", sans-serif;*/
+  font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Î¢ÈíÑÅºÚ",Arial,sans-serif;
   font-weight: 400;
   overflow-x: hidden;
   overflow-y: hidden;
@@ -169,7 +170,8 @@ h6,
 .h5,
 .h6 {
   /*font-family: 'Source Sans Pro', sans-serif;*/
-   font-family: Microsoft YaHei,'ËÎÌå', Tahoma, Helvetica, Arial, "\5b8b\4f53", sans-serif;
+   /*font-family: Microsoft YaHei,'ËÎÌå', Tahoma, Helvetica, Arial, "\5b8b\4f53", sans-serif;*/
+   font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Î¢ÈíÑÅºÚ",Arial,sans-serif;
 }
 /* General Links */
 a {
@@ -301,7 +303,8 @@ a:focus {
   line-height: 50px;
   text-align: center;
   width: 230px;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  /*font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;*/
+  font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Î¢ÈíÑÅºÚ",Arial,sans-serif;
   padding: 0 15px;
   font-weight: 300;
   overflow: hidden;
@@ -4945,4 +4948,7 @@ table.text-center th {
   .table-responsive > .table tr td {
     white-space: normal !important;
   }
+  .table-printfontsize {
+        font-size: 12px;
+    }
 }

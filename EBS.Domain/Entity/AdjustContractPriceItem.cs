@@ -11,12 +11,13 @@ namespace EBS.Domain.Entity
        public int AdjustContractPriceId { get; set; }
         public int ProductId { get; set; }
         /// <summary>
-        /// 原合同价
-        /// </summary>
-        public decimal OldContractPrice { get; set; }
-        /// <summary>
         /// 合同价
         /// </summary>
-        public decimal ContractPrice { get; set; }
+        public decimal ContractPrice { get; set; } 
+       /// <summary>
+        /// 调整价
+        /// </summary>
+        public decimal AdjustPrice { get; set; }
+        
     }
 }

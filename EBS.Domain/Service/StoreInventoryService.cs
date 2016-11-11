@@ -30,17 +30,17 @@ namespace EBS.Domain.Service
             {
                 if (productQuantityDic.ContainsKey(product.ProductId))
                 {
-                    var oldQuantity = product.Quantity;
-                    var addQuantity = productQuantityDic[product.ProductId].Quantity;
+                    var inventoryQuantity = product.Quantity;
+                    var addQuantity = productQuantityDic[product.ProductId].ActualQuantity;
                     var price = productQuantityDic[product.ProductId].Price;
                     //库存
                     product.Quantity += addQuantity;
                     product.SaleQuantity += addQuantity;
                     // 计算移动加权平均成本
-                    product.AvgCostPrice = Math.Round((product.AvgCostPrice * oldQuantity  + price * addQuantity ) / oldQuantity + addQuantity); 
+                    product.AvgCostPrice = Math.Round((product.AvgCostPrice * inventoryQuantity + price * addQuantity) / product.Quantity); 
 
                     //记录修改历史
-                    var history = new StoreInventoryHistory(product.ProductId,entity.StoreId, oldQuantity, addQuantity, 
+                    var history = new StoreInventoryHistory(product.ProductId,entity.StoreId, inventoryQuantity, addQuantity, 
                         price,entity.BatchNo,entity.Id,entity.Code,ValueObject.BillIdentity.StorePurchaseOrder,entity.StoragedBy);
                     inventoryHistorys.Add(history);
                 }

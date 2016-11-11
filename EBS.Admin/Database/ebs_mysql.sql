@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2016-11-10 09:47:18                          */
+/* Created on:     2016-11-11 17:33:53                          */
 /*==============================================================*/
 
 
@@ -166,8 +166,8 @@ create table AdjustContractPriceItem
    Id                   int not null auto_increment comment '编号',
    AdjustContractPriceId int comment '调价单编码',
    ProductId            int comment '商品编号',
-   OldContractPrice     decimal(8,2) comment '原合同价',
-   ContractPrice        decimal(8,2) comment '先合同价',
+   ContractPrice        decimal(8,2) comment '合同价',
+   AdjustPrice          decimal(8,2) comment '调整价',
    primary key (Id)
 );
 

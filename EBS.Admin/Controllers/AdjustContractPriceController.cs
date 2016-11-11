@@ -76,13 +76,7 @@ namespace EBS.Admin.Controllers
         {
             var model = _query.Find<AdjustContractPrice>(id);
             var items = _adjustContractPriceQuery.GetItems(id,model.SupplierId,model.StoreId);
-            // 追加合同起止日期
-            //var contract= _query.Find<PurchaseContract>(n => n.SupplierId == model.SupplierId && n.StoreId == model.StoreId && n.Status== PurchaseContractStatus.Audited);
-            //items.ForEach((item) =>
-            //{
-            //    item.StartDate = contract.StartDate;
-            //    item.EndDate = contract.EndDate;
-            //});
+
             ViewBag.AdjustContractPriceItems = JsonConvert.SerializeObject(items.ToArray());
             var supplier = _query.Find<Supplier>(model.SupplierId);
             ViewBag.SupplierName = supplier.Name;
@@ -91,8 +85,8 @@ namespace EBS.Admin.Controllers
             //创建和待审可编辑
             //var editable = model.Status == AdjustContractPriceStatus.Create || model.Status == AdjustContractPriceStatus.WaitingAudit;
             //查询处理流程：
-            var logs= _query.FindAll<ProcessHistory>(n => n.FormId == id && n.FormType == FormType.AdjustContractPrice);
-            ViewBag.Logs = logs;
+            //var logs= _query.FindAll<ProcessHistory>(n => n.FormId == id && n.FormType == FormType.AdjustContractPrice);
+            //ViewBag.Logs = logs;
           
             return View(model);
         }

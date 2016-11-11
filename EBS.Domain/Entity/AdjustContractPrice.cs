@@ -45,6 +45,17 @@ namespace EBS.Domain.Entity
                 return this._items;
             }
         }
+        public void AddItems(List<AdjustContractPriceItem> items)
+        {
+            foreach (var item in items)
+            {
+                item.AdjustContractPriceId = this.Id;
+                if (!this._items.Exists(n => n.ProductId == item.ProductId))
+                {
+                    this._items.Add(item);
+                }               
+            }
+        }
 
         public void SetItems(List<AdjustContractPriceItem> items)
         {

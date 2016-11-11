@@ -50,6 +50,10 @@ namespace EBS.Query.DTO
         public string ProductName { get; set; }
 
         public string ProductCode { get; set; }
+        public string BarCode { get; set; }
+        public string Specification { get; set; }
+
+        public string Unit { get; set; }
 
         public decimal OldContractPrice { get; set; }
         public decimal ContractPrice { get; set; }

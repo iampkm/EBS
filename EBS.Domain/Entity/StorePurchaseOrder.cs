@@ -120,17 +120,20 @@ namespace EBS.Domain.Entity
 
         public void ReceivedGoods()
         {
-            if (this.Status != PurchaseOrderStatus.WaitingStockIn||this.Status!= PurchaseOrderStatus.WaitReceivedGoods)
+            if (this.Status == PurchaseOrderStatus.WaitingStockIn || this.Status == PurchaseOrderStatus.WaitReceivedGoods)
             {
+                this.Status = PurchaseOrderStatus.WaitingStockIn;
+            }
+            else {
                 throw new Exception("待收货或待入库状态才能收货");
             }
-            this.Status = PurchaseOrderStatus.WaitingStockIn;
+           
         }
         public void UpdateStatus(int editBy, string editor)
         {
             if (this.Status != PurchaseOrderStatus.WaitingStockIn)
             {
-                throw new Exception("待入库状态才能入库");
+                throw new Exception("请先收货！");
             }
             this.StoragedBy = editBy;
             this.StoragedByName = editor;

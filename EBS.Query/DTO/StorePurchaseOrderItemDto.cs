@@ -83,11 +83,12 @@ namespace EBS.Query.DTO
        /// <summary>
        /// 生产日期
        /// </summary>
-       public DateTime ProductionDate { get; set; }
+       public string ProductionDate { get; set; }
+       //public DateTime? ProductionDate { get; set; }
 
-       public string ProductionTime { get {
-                return ProductionDate.ToString("yyyy-MM-dd");
-            } }
+       //public string ProductionTime { get {
+       //    return ProductionDate.HasValue? ProductionDate.Value.ToString("yyyy-MM-dd"):"";
+       //     } }
 
         /// <summary>
         /// 保质期：单位天
