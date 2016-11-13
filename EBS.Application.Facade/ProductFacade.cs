@@ -16,21 +16,42 @@ namespace EBS.Application.Facade
     {
         IDBContext _db;
         ProductService _productSkuService;
+        AdjustSalePriceService _adjustSalePriceService;
+        ProcessHistoryService _processHistoryService;
+        BillSequenceService _sequenceService;
         public ProductFacade(IDBContext dbContext)
         {
             _db = dbContext;
             _productSkuService = new ProductService(this._db);
+            _adjustSalePriceService = new AdjustSalePriceService(this._db);
+            _processHistoryService = new ProcessHistoryService(this._db);
+            _sequenceService = new BillSequenceService(this._db);
         }
         public void Create(ProductModel model)
         {
             Product entity = model.MapTo<Product>();
             _productSkuService.Create(entity);
+            // 有变价，记录变价
+            if (entity.SalePrice > 0)
+            {
+                var newCode = _sequenceService.GenerateNewCode(BillIdentity.AdjustSalePrice);
+                var adjustEntity = _adjustSalePriceService.Create(entity, model.SalePrice, newCode, 0, "");
+                _db.Insert(adjustEntity);
+            }
             _db.SaveChange();
         }
 
         public void Edit(ProductModel model)
         {
             var entity = _db.Table.Find<Product>(model.Id);
+            // 有变价，记录变价
+            if (model.SalePrice != entity.SalePrice)
+            {
+                var newCode = _sequenceService.GenerateNewCode(BillIdentity.AdjustSalePrice);
+                var adjustEntity = _adjustSalePriceService.Create(entity, model.SalePrice, newCode, 0, "");             
+                _db.Insert(adjustEntity);
+
+            }
             entity = model.MapTo<Product>();
             _productSkuService.Update(entity);
             _db.SaveChange();

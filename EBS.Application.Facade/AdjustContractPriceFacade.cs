@@ -37,7 +37,7 @@ namespace EBS.Application.Facade
             _db.SaveChange();
             var reason = "创建合同调价单";
             entity = _db.Table.Find<AdjustContractPrice>(n => n.Code == entity.Code);
-            _processHistoryService.Track(model.UpdatedBy, model.UpdatedByName, (int)entity.Status, entity.Id, FormType.AdjustContractPrice, reason);
+            _processHistoryService.Track(model.UpdatedBy, model.UpdatedByName, (int)entity.Status, entity.Id, BillIdentity.AdjustContractPrice.ToString(), reason);
             _db.SaveChange();
         }
 
@@ -49,7 +49,7 @@ namespace EBS.Application.Facade
             entity.UpdatedOn = DateTime.Now;
             _service.Update(entity);
             var reason = "修改合同调价单";
-            _processHistoryService.Track(model.UpdatedBy, model.UpdatedByName, (int)entity.Status, entity.Id, FormType.AdjustContractPrice, reason);
+            _processHistoryService.Track(model.UpdatedBy, model.UpdatedByName, (int)entity.Status, entity.Id, BillIdentity.AdjustContractPrice.ToString(), reason);
             _db.SaveChange();
         }
 
@@ -59,7 +59,7 @@ namespace EBS.Application.Facade
             entity.Cancel();
             entity.EditBy(editBy);
             _db.Update(entity);
-            _processHistoryService.Track(editBy, editor, (int)entity.Status, entity.Id, FormType.AdjustContractPrice, reason);
+            _processHistoryService.Track(editBy, editor, (int)entity.Status, entity.Id, BillIdentity.AdjustContractPrice.ToString(), reason);
             _db.SaveChange();
         }
 
@@ -71,7 +71,7 @@ namespace EBS.Application.Facade
             entity.EditBy(editBy);
             _db.Update(entity);
             var reason = "提交审核";
-            _processHistoryService.Track(editBy, editor, (int)entity.Status, entity.Id, FormType.AdjustContractPrice, reason);
+            _processHistoryService.Track(editBy, editor, (int)entity.Status, entity.Id, BillIdentity.AdjustContractPrice.ToString(), reason);
             _db.SaveChange();
 
         }
@@ -83,7 +83,7 @@ namespace EBS.Application.Facade
             entity.EditBy(editBy);
             _db.Update(entity);
             var reason = "审核通过";
-            _processHistoryService.Track(editBy, editor, (int)entity.Status, entity.Id, FormType.AdjustContractPrice, reason);
+            _processHistoryService.Track(editBy, editor, (int)entity.Status, entity.Id, BillIdentity.AdjustContractPrice.ToString(), reason);
             _db.SaveChange();
         }
     }

@@ -11,7 +11,7 @@ namespace EBS.Domain.Entity
        public int AdjustContractPriceId { get; set; }
         public int ProductId { get; set; }
         /// <summary>
-        /// 合同价
+        /// 原售价
         /// </summary>
         public decimal ContractPrice { get; set; } 
        /// <summary>

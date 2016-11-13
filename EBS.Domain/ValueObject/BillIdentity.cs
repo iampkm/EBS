@@ -39,9 +39,16 @@ namespace EBS.Domain.ValueObject
         SaleBackOrder = 14,
         [Description("合同调价单")]
         /// <summary>
-        /// 销售退订单
+        /// 合同调价单
         /// </summary>
         AdjustContractPrice = 15,
+        [Description("商品调价单")]
+        /// <summary>
+        /// 商品调价单
+        /// </summary>
+        AdjustSalePrice = 16,
+
+
         // 通用单据  10~49 ， 门店单据50~-99
         [Description("门店采购订单")]      
         /// <summary>

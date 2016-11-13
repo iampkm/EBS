@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="DTO\AccountModel.cs" />
     <Compile Include="DTO\AdjustContractPriceModel.cs" />
+    <Compile Include="DTO\AdjustSalePriceModel.cs" />
     <Compile Include="DTO\CreateStorePurchaseOrder.cs" />
     <Compile Include="DTO\EditStorePurchaseOrder.cs" />
     <Compile Include="DTO\LoginModel.cs" />
@@ -60,6 +61,7 @@
     <Compile Include="DTO\SupplierModel.cs" />
     <Compile Include="IAccountFacade.cs" />
     <Compile Include="IAdjustContractPriceFacade.cs" />
+    <Compile Include="IAdjustSalePriceFacade.cs" />
     <Compile Include="IBrandFacade.cs" />
     <Compile Include="ICategoryFacade.cs" />
     <Compile Include="IMenuFacade.cs" />

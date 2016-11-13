@@ -1,0 +1,149 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<!-- demo root element -->
+<div id="app">
+    <div class="box box-primary">
+        <div class="box-header">
+            <ol class="breadcrumb" style="padding:0px;margin:1px;">
+                <li><a href="/AdjustSalePrice/Index"><i class="fa fa-dashboard"></i> 商品调价管理</a></li>
+            </ol>
+        </div>
+        <div class="box-body">
+            <vue-table v-ref:vtable v-bind:columns="gridColumns"
+                       v-bind:url="url"
+                       v-bind:args="searchArgs" v-bind:data.sync="rows">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                    <div class="col-xs-3 col-sm-2">
+                        <input class="form-control" v-model="searchArgs.code" placeholder="调价单号" debounce="500" />
+                    </div>
+                    <div class="col-xs-3  col-sm-2">
+                        <input class="form-control" v-model="searchArgs.productCodeOrBarCode" placeholder="商品编码或条码" debounce="500" />
+                    </div>                    
+                    <div class="form-group col-sm-2 col-xs-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">状态</span>
+                                <select name="brand" class="form-control" v-model="searchArgs.status">
+                                    <option value="0">-请选择-</option>
+                                    @foreach (var item in ViewBag.Status)
+                                    {
+                                        <option value="@item.Key">@item.Value</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                </div>
+                <span class="input-group-btn" slot="customButtons">
+                    <a class="btn btn-warning btn-flat" href="/AdjustSalePrice/Create">新 增</a>
+                    <button type="button" class="btn btn-success btn-flat" v-on:click="submitAudit()">调价生效</button>
+                    <button type="button" class="btn btn-danger btn-flat" v-on:click="remove()">作 废</button>
+                </span>
+            </vue-table>
+        </div>
+        <!-- /.box-body -->
+    </div>
+    <div class="clearfix"></div>
+    <!-- modal -->
+    <v-modal title="作废原因" ok-text="确 定" cancel-text="取 消" v-bind:callback="callback" v-bind:show.sync="modal" v-bind:effect="fade" width="300">
+        <div slot="modal-body" class="modal-body">
+            <input type="hidden" v-model="selectedId" />
+            <v-input type="textarea" v-bind:value.sync="removeReason" placeholder="请录入作废理由" required icon></v-input>
+        </div>
+    </v-modal>    
+</div>
+@{Html.RenderPartial("VueTableTemplate");}
+@section scripts{
+    <script src="~/Content/Vue/vuetable/vuetable.js"></script>
+    <script>
+
+        var vue = new Vue({
+            components: {
+                'v-modal': VueStrap.modal,
+                'v-input': VueStrap.input
+            },
+            el: '#app',
+            data: {
+                modal: false,
+                selectedId: 0,
+                removeReason: '',
+                searchQuery: '',
+                gridColumns: [
+                    { name: 'Code', localName: '调价单号', style: "<a href='/AdjustSalePrice/Edit/{id}'>{column}</a>" },
+                    { name: 'ProductCode', localName: '商品编码' },
+                    { name: 'BarCode', localName: '条码' },
+                    { name: 'ProductName', localName: '品名' },
+                    { name: 'Specification', localName: '规格', width: '80' },
+                    { name: 'Unit', localName: '单位', width: '80' },
+                    { name: 'SalePrice', localName: '原售价', style: "￥{column}", width: '80' },
+                    { name: 'AdjustPrice', localName: '现售价', style: "￥{column}", width: '80' },
+                    { name: 'AdjustSalePriceStatus', localName: '状态', width: '80' },
+                    { name: 'UpdatedByName', localName: '修改人' },
+                    { name: 'UpdatedOn', localName: '修改时间', width: '180' }
+                ],
+                url: "/AdjustSalePrice/LoadData",
+                searchArgs: { code: '', productCodeOrBarCode: '', supplierId: 0, storeId: 0, status: 0 },
+                rows: []               
+            },
+            methods: {
+                remove: function () {
+                    var selectRow = this.rows.filter(function (item, index) {
+                        if (item.checked) {
+                            return true;
+                        }
+                    });
+                    if (selectRow.length == 0) {
+                        bootbox.alert("请选择一条记录");
+                        return;
+                    }
+                    this.selectedId = selectRow[0].Id;
+                    this.modal = true;
+                },
+                callback: function () {
+                    var v_self = this;
+                    var selectId = v_self.selectedId;
+                    var remark = v_self.removeReason;
+                    $.post("/AdjustSalePrice/Delete", { id: selectId, reason: remark }, function (result) {
+                        if (result.success) {
+                            v_self.$refs.vtable.loadData();
+                            v_self.modal = false;
+                        }
+                        else {
+                            bootbox.alert(result.error);
+                        }
+                    }, "json");
+                },
+                submitAudit: function () {
+                    var selectRow = this.rows.filter(function (item, index) {
+                        if (item.checked) {
+                            return true;
+                        }
+                    });
+                    if (selectRow.length == 0) {
+                        bootbox.alert("请选择一条记录");
+                        return;
+                    }
+                    var selectId = selectRow[0].Id;
+                    v_self = this;
+                    bootbox.confirm("您确定提交该记录？", function (result) {
+                        if (result) {
+                            $.post("/AdjustSalePrice/Submit", { id: selectId }, function (result) {
+                                if (result.success) {
+                                    v_self.$refs.vtable.loadData();
+                                }
+                                else {
+                                    bootbox.alert(result.error);
+                                }
+                            }, "json");
+                        }
+                    });
+                }               
+            }
+        })
+
+    </script>
+}
+
+
+
+

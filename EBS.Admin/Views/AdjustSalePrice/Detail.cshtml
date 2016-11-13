@@ -1,0 +1,183 @@
+﻿@model EBS.Domain.Entity.AdjustSalePrice
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+    .dataRow div {
+        margin-bottom: 0px;
+    }
+</style>
+<!-- demo root element -->
+<div id="app" class="box box-primary">
+    <div class="box-header with-border">
+        <ol class="breadcrumb" style="padding:0px;margin:1px;">
+            <li><a href="/AdjustSalePrice/Index"><i class="fa fa-dashboard"></i>商品调价单管理</a></li>
+            <li class="active"><a href="/AdjustSalePrice/Detail/{{model.id}}">商品调价单</a></li>
+        </ol>
+    </div>
+    <!-- /.box-header -->
+    <!-- form start -->
+    <form>
+        <div class="box-body" >
+            <div class="row">
+                <div class="form-group col-sm-4 col-xs-6">
+                    <button type="button" class="btn btn-default btn-flat" v-on:click="print">打印</button>
+                    <a class="btn btn-default btn-flat" href="/AdjustSalePrice/Index">取 消</a>
+                    <input type="hidden" v-model="model.id" />
+                </div>
+            </div>
+            <div id="printDiv">
+
+                <div class="row">
+                    <div class="col-xs-4 col-sm-4"></div>
+                    <div class="col-xs-4 col-sm-4"><h3 class="text-center text-success" style="border-bottom:2px solid;padding-bottom:1px;"><b>商品调价单</b></h3></div>
+                    <div class="col-xs-4 col-sm-4"></div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-4 col-sm-4">
+                        <span></span>
+                    </div>
+                    <div class="col-xs-4 col-sm-4 text-center">
+                    </div>
+                    <div class="col-xs-4 col-sm-4">
+                        <span>状态：@ViewBag.Status </span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-4 col-sm-4">
+                        <span>单据号：</span>
+                    </div>
+                    <div class="col-xs-4 col-sm-4 text-center">
+                    </div>
+                    <div class="col-xs-4 col-sm-4">
+                        <span>制单日期：@Model.CreatedOn.ToString("yyyy-MM-dd HH:mm:ss")</span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-printfontsize">
+                                <thead>
+                                    <tr>
+                                        <th style="width:50px;">序号</th>
+                                        <th style="width:150px;">商品编码</th>
+                                        <th>条码</th>
+                                        <th>品名</th>
+                                        <th>规格</th>
+                                        <th>单位</th>
+                                        <th title="最新合同参考进价">进价</th>
+                                        <th>原价</th>
+                                        <th style="width:200px;">现价</th>
+                                        <th>毛利额</th>
+                                        <th>毛利率</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody">
+                                    <tr v-for="(index,item) in products">
+                                        <td class="text-center">{{index+1}}</td>
+                                        <td>
+                                            {{item.ProductCode}}
+                                        </td>
+                                        <td>{{item.BarCode}}</td>
+                                        <td>{{item.ProductName}}</td>
+                                        <td>{{item.Specification}}</td>
+                                        <td>{{item.Unit}}</td>
+                                        <td>￥{{item.ContractPrice}}</td>
+                                        <td>￥{{item.SalePrice}}</td>
+                                        <td>
+                                            ￥{{item.AdjustPrice}}
+                                        </td>
+                                        <td v-bind:class="{'text-danger':item.Profit<=0}">{{item.Profit}}</td>
+                                        <td v-bind:class="{'text-danger':item.Profit<=0}">{{item.ProfitMargin}}%</td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td></td>
+                                        <td style="width:50px;"></td>
+                                        <td>合计：</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>                                   
+                                        <td>{{profitTotal}}</td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-3 col-sm-3">
+                        <span>制单人： @ViewBag.CreatedByName</span>
+                    </div>
+                    @*<div class="col-xs-3 col-sm-3">
+                <span>供应商：</span>
+            </div>
+            <div class="col-xs-3 col-sm-3">
+                <span>收货人：</span>
+            </div>
+            <div class="col-xs-3 col-sm-3">
+                <span>入库人：</span>
+            </div>*@
+                </div>
+
+            </div>
+        </div>
+    </form>
+    <!-- modal -->   
+</div>
+@section scripts{
+<script src="~/Scripts/jquery.PrintArea.js"></script>
+    <script>
+        $("doucument").ready(function () {
+            var demo = new Vue({
+                components: {
+                    'v-modal': VueStrap.modal,
+                    'v-input': VueStrap.input
+                },
+                el: '#app',
+                data: {
+                    valid: false,
+                    modal: false,
+                    model: {
+                        id: @Model.Id,
+                        code: '@Model.Code',
+                        items: ''
+                    },
+                    products: @Html.Raw(ViewBag.AdjustSalePriceItems),
+                    inputProducts: ''
+                },
+                methods: {                    
+                    print: function () {
+                        $("#printDiv").printArea();   
+                    }                  
+                },
+                computed: {
+                    profitTotal: function () {
+                        var _self = this;
+                        var _profitTotal = 0;
+                        _self.products.forEach(function (item) {
+                            item.Profit = item.AdjustPrice - item.ContractPrice;
+                            if (item.AdjustPrice > 0)
+                            {
+                                var result = item.Profit / item.AdjustPrice * 100;
+                                item.ProfitMargin = result.toFixed(2);
+                            }
+                            _profitTotal += item.Profit;
+                        });
+
+                        return _profitTotal;
+                    }
+                }
+            });
+
+        });
+
+
+    </script>
+}
+

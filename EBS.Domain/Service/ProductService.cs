@@ -111,5 +111,22 @@ namespace EBS.Domain.Service
             }
             return products;
         }
+        /// <summary>
+        /// 商品Id 键值对
+        /// </summary>
+        /// <param name="productSalePriceDic"></param>
+        public void UpdateSalePrice(Dictionary<int, decimal> productSalePriceDic)
+        {
+            var products = _db.Table.Find<Product>(productSalePriceDic.Keys.ToArray());
+            foreach (var product in products)
+            {
+                if (productSalePriceDic.ContainsKey(product.Id))
+                {
+                    product.SalePrice = productSalePriceDic[product.Id];
+                }
+            }
+            _db.Update<Product>(products.ToArray());
+        }
+       
     }
 }

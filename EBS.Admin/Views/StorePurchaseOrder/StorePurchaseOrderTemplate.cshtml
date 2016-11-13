@@ -1,6 +1,7 @@
 ﻿@model EBS.Query.DTO.StorePurchaseOrderDto
 @{
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    //Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    Layout = null;
 }
 <style>
     .dataRow div {
@@ -8,9 +9,9 @@
     }
 </style>
 <!-- demo root element -->
-<div id="printTemplate" class="box box-primary">   
+<div class="box box-primary">   
     <form>
-        <div class="box-body">            
+        <div id="printTemplate" class="box-body visible-print">            
             <div class="row">
                 <div class="col-xs-4 col-sm-4"></div>
                 <div class="col-xs-4 col-sm-4"><h3 class="text-center text-success" style="border-bottom:2px solid;padding-bottom:1px;">
@@ -52,7 +53,7 @@
             <div class="row">
                 <div class="col-xs-12 col-sm-12">
                     <div class="table-responsive">
-                        <table class="table table-bordered">
+                        <table class="table table-bordered table-printfontsize">
                             <thead>
                                 <tr>
                                     <th style="width:50px;">序号</th>
@@ -78,6 +79,7 @@
                                     var totalQuantity = 0;
                                     var totalActualQuantity = 0;
                                     decimal countTotal = 0;
+                                    var index = 0;
                                 }
                                 @foreach (var item in Model.Items)
                                 {
@@ -85,7 +87,7 @@
                                     totalActualQuantity += item.ActualQuantity;
                                     countTotal += item.Price * item.ActualQuantity;
                                     <tr>
-                                        <td class="text-center">index+1</td>
+                                        <td class="text-center">@(index+1)</td>
                                         <td>@item.ProductCode</td>
                                         <td>@item.BarCode</td>
                                         <td>@item.ProductName</td>
@@ -143,9 +145,11 @@
                     <span>入库人：@Model.StoragedByName</span>
                 </div>
             </div>
-        </div>
+            @*<div style="page-break-after: always;"></div>*@
+        </div>       
     </form>
 </div>
+
 
 
 

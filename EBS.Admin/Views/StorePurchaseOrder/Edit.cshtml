@@ -100,7 +100,7 @@
                                     <th>合同进价</th>
                                     <th>进价</th>
                                     <th>件规</th>
-                                    <th >订货件数</th>
+                                    <th>订货件数</th>
                                     <th style="width:100px;">订货数量</th>
                                     <th>实收件数</th>
                                     <th>实收数量</th>
@@ -117,7 +117,7 @@
                                     </td>
                                     <td class="text-center">{{index+1}}</td>
                                     <td>
-                                        <input type="text" class="form-control productCode" v-model="item.ProductCode" v-on:keyup.enter="inputProduct(item.ProductCode,index)" placeholder="录入编码或扫码" />                                        
+                                        <input type="text" class="form-control productCode" v-model="item.ProductCode" v-on:keyup.enter="inputProduct(item.ProductCode,index)" placeholder="录入编码或扫码" />
                                     </td>
                                     <td>{{item.BarCode}}</td>
                                     <td>{{item.ProductName}}</td>
@@ -226,10 +226,12 @@
             </vue-table>
         </div>
     </v-modal>
+    <div id="printDiv" ></div>
 </div>
 @{Html.RenderPartial("VueTableTemplate");}
-@section scripts{
+@section scripts{   
     <script src="~/Content/Vue/vuetable/vuetable.js"></script>
+    <script src="~/Scripts/jquery.PrintArea.js"></script>
     <script>
         $("doucument").ready(function () {
             var demo = new Vue({
@@ -297,7 +299,7 @@
                             var item = _self.products[i];
                             if (item.ProductId > 0 && item.Quantity > 0) {
                                 var price = _self.model.isGift?0:item.Price;
-                                data += "{\"ProductId\":" + item.ProductId + ",\"ContractPrice\":" + item.ContractPrice 
+                                data += "{\"ProductId\":" + item.ProductId + ",\"ContractPrice\":" + item.ContractPrice
                                      + ",\"Price\":" + price + ",\"Quantity\":" + item.Quantity + ",\"SpecificationQuantity\":" + item.SpecificationQuantity +"},";
                             }
                         }
@@ -437,7 +439,7 @@
                         this.clearItems();
                         var selecteds = this.selectStore.rows.filter(function (item) {
                             return item.checked;
-                        });                       
+                        });
                         if (selecteds) {
                             this.model.storeId = selecteds[0].Id;
                             this.selectStore.name = selecteds[0].Name;
@@ -445,7 +447,12 @@
                         }
                     },
                     print: function () {
-
+                        var data = {id:this.model.id};
+                        $.get("/StorePurchaseOrder/Print", data, function (result) { 
+                            $("#printDiv").html(result);   
+                            $("#printTemplate").printArea();  
+                        });
+                             
                     },
                     clearItems:function(){
                         if(this.products.length>0)

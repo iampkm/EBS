@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2016-11-11 17:33:53                          */
+/* Created on:     2016/11/12 16:06:28                          */
 /*==============================================================*/
 
 
@@ -181,10 +181,6 @@ create table AdjustSalePrice
    Id                   int not null auto_increment comment '编号',
    Code                 nvarchar(50) comment '调价单号',
    Name                 nvarchar(50) comment '调价名称',
-   StoreId              int comment '门店Id',
-   SupplierId           int comment '供应商Id',
-   StartDate            datetime comment '开始日期',
-   EndDate              datetime comment '结束日期',
    CreatedOn            datetime comment '创建时间',
    CreatedBy            int comment '创建人',
    UpdatedOn            datetime comment '修改时间',
@@ -203,7 +199,7 @@ create table AdjustSalePriceItem
    Id                   int not null auto_increment comment '编号',
    AdjustSalePriceId    int comment '调价单编码',
    SalePrice            decimal(8,2) comment '先售价',
-   OldSalePrice         decimal(8,2) comment '原售价',
+   AdjustPrice          decimal(8,2) comment '原售价',
    ProductId            int comment '商品编号',
    primary key (Id)
 );
