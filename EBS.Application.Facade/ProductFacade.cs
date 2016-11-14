@@ -15,14 +15,14 @@ namespace EBS.Application.Facade
     public class ProductFacade : IProductFacade
     {
         IDBContext _db;
-        ProductService _productSkuService;
+        ProductService _productService;
         AdjustSalePriceService _adjustSalePriceService;
         ProcessHistoryService _processHistoryService;
         BillSequenceService _sequenceService;
         public ProductFacade(IDBContext dbContext)
         {
             _db = dbContext;
-            _productSkuService = new ProductService(this._db);
+            _productService = new ProductService(this._db);
             _adjustSalePriceService = new AdjustSalePriceService(this._db);
             _processHistoryService = new ProcessHistoryService(this._db);
             _sequenceService = new BillSequenceService(this._db);
@@ -30,7 +30,8 @@ namespace EBS.Application.Facade
         public void Create(ProductModel model)
         {
             Product entity = model.MapTo<Product>();
-            _productSkuService.Create(entity);
+            entity.Code = _productService.GenerateNewCode(entity.CategoryId);
+            _db.Insert(entity);
             // 有变价，记录变价
             if (entity.SalePrice > 0)
             {
@@ -53,20 +54,20 @@ namespace EBS.Application.Facade
 
             }
             entity = model.MapTo<Product>();
-            _productSkuService.Update(entity);
+            _db.Update(entity);
             _db.SaveChange();
         }
 
 
         public void PublishToggle(string ids, bool isPublish)
         {
-            _productSkuService.PublishToggle(ids, isPublish);
+            _productService.PublishToggle(ids, isPublish);
             _db.SaveChange();
         }
 
         public string Import(string productsIpput)
         {
-            var products = _productSkuService.ConvertToProduct(productsIpput);
+            var products = _productService.ConvertToProduct(productsIpput);
             string errors = "";
             var successProducts = new List<Product>();
             foreach (var product in products)
@@ -81,7 +82,7 @@ namespace EBS.Application.Facade
                     errors += string.Format("[{0}] 品牌ID[{1}]错误 <br />", product.Name, product.BrandId);
                     continue;
                 }
-                product.Code = _productSkuService.GenerateNewCode(product.CategoryId);
+                product.Code = _productService.GenerateNewCode(product.CategoryId);
                 successProducts.Add(product);
             }
             _db.Insert<Product>(successProducts.ToArray());

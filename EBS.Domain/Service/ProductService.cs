@@ -16,16 +16,6 @@ namespace EBS.Domain.Service
             this._db = dbContext;
         }
 
-        public void Create(Product model)
-        {
-            if (_db.Table.Exists<Product>(n => n.Name == model.Name))
-            {
-                throw new Exception("名称重复!");
-            }
-            model.Code = GenerateNewCode(model.CategoryId);
-            _db.Insert(model);
-        }
-
         public string GenerateNewCode(string categoryId)
         {
             // 生成一个新的 Code 序列号
@@ -37,15 +27,6 @@ namespace EBS.Domain.Service
             codeSequence = _db.Table.Find<ProductCodeSequence>(n => n.GuidCode == codeSequence.GuidCode);
             var sequenceId = codeSequence.Id > 999999 ? codeSequence.Id.ToString() : codeSequence.Id.ToString().PadLeft(6, '0');
             return categoryId + sequenceId;
-        }
-
-        public void Update(Product model)
-        {
-            //if (_db.Table.Exists<Product>(n => n.Name == model.Name && n.Id != model.Id))
-            //{
-            //    throw new Exception("名称重复!");
-            //}
-            _db.Update(model);
         }
 
         public void Delete(string ids)

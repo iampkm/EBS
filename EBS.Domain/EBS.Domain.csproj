@@ -85,6 +85,7 @@
     <Compile Include="Service\StoreInventoryBatchService.cs" />
     <Compile Include="ValueObject\AdjustContractPriceStatus.cs" />
     <Compile Include="ValueObject\AdjustSalePriceStatus.cs" />
+    <Compile Include="ValueObject\SaleOrderStatus.cs" />
     <Compile Include="ValueObject\PurchaseOrderStatus.cs" />
     <Compile Include="Service\StoreService.cs" />
     <Compile Include="Service\SupplierService.cs" />
@@ -101,8 +102,8 @@
     <Compile Include="CacheEventCustomer.cs" />
     <Compile Include="Entity\InventoryHistory.cs" />
     <Compile Include="Entity\Warehouse.cs" />
-    <Compile Include="Entity\SalesOrder.cs" />
-    <Compile Include="Entity\SalesOrderItem.cs" />
+    <Compile Include="Entity\SaleOrder.cs" />
+    <Compile Include="Entity\SaleOrderItem.cs" />
     <Compile Include="Entity\Category.cs" />
     <Compile Include="Entity\Product.cs" />
     <Compile Include="Entity\ProductSpecification.cs" />
