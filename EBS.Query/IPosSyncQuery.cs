@@ -26,7 +26,7 @@ namespace EBS.Query
        /// <param name="page"></param>
        /// <param name="storeId">门店</param>
        /// <returns></returns>
-       IEnumerable<ProductSync> QueryProductSync(Pager page, int storeId);
+       IEnumerable<ProductSync> QueryProductSync(Pager page);
        IEnumerable<ProductSync> QueryProductSync(int[] Ids, int storeId);
 
        IEnumerable<ChangeDataSync> QueryChangeData(DateTime lastQueryTime);

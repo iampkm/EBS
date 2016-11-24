@@ -48,10 +48,12 @@
     <Compile Include="DTO\AccountModel.cs" />
     <Compile Include="DTO\AdjustContractPriceModel.cs" />
     <Compile Include="DTO\AdjustSalePriceModel.cs" />
+    <Compile Include="DTO\CreatedWorkScheduleMessage.cs" />
     <Compile Include="DTO\CreateStorePurchaseOrder.cs" />
     <Compile Include="DTO\EditStorePurchaseOrder.cs" />
     <Compile Include="DTO\LoginModel.cs" />
     <Compile Include="DTO\MenuModel.cs" />
+    <Compile Include="DTO\PaidSaleOrderMessage.cs" />
     <Compile Include="DTO\ProductModel.cs" />
     <Compile Include="DTO\ProductPriceModel.cs" />
     <Compile Include="DTO\PurchaseContractModel.cs" />
@@ -65,6 +67,7 @@
     <Compile Include="IBrandFacade.cs" />
     <Compile Include="ICategoryFacade.cs" />
     <Compile Include="IMenuFacade.cs" />
+    <Compile Include="IPosSyncFacade.cs" />
     <Compile Include="IProductFacade.cs" />
     <Compile Include="IPurchaseContractFacade.cs" />
     <Compile Include="IRoleFacade.cs" />
