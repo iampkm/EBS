@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using EBS.Application.Message;
 namespace EBS.Application
 {
     /// <summary>
@@ -11,6 +11,6 @@ namespace EBS.Application
     /// </summary>
    public interface IPosSyncFacade
     {
-        
+       void HandlerMessage(SaleOrderSyncMessage message);
     }
 }

@@ -74,6 +74,9 @@
     <Compile Include="IStoreFacade.cs" />
     <Compile Include="IStorePurchaseOrderFacade.cs" />
     <Compile Include="ISupplierFacade.cs" />
+    <Compile Include="Message\IMessage.cs" />
+    <Compile Include="Message\InputCashAmountMessage.cs" />
+    <Compile Include="Message\SaleOrderSyncMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
