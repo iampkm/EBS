@@ -1,7 +1,7 @@
 ﻿using EBS.Domain.ValueObject;
 using System;
 using System.Collections.Generic;
-namespace EBS.Domain.Orders
+namespace EBS.Domain.Entity
 {
    public class SaleOrder:BaseEntity
     {

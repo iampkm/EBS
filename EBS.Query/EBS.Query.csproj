@@ -79,6 +79,7 @@
     <Compile Include="IBrandQuery.cs" />
     <Compile Include="ICategoryQuery.cs" />
     <Compile Include="IMenuQuery.cs" />
+    <Compile Include="IPosSyncQuery.cs" />
     <Compile Include="IProcessHistoryQuery.cs" />
     <Compile Include="IProductQuery.cs" />
     <Compile Include="IPurchaseContractQuery.cs" />
@@ -88,6 +89,12 @@
     <Compile Include="IStoreQuery.cs" />
     <Compile Include="ISupplierQuery.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SyncObject\AccountSync.cs" />
+    <Compile Include="SyncObject\ChangeDataSync.cs" />
+    <Compile Include="SyncObject\ProductSync.cs" />
+    <Compile Include="SyncObject\StoreSync.cs" />
+    <Compile Include="SyncObject\VipCardSync.cs" />
+    <Compile Include="SyncObject\VipProductSync.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Domain\EBS.Domain.csproj">
@@ -99,6 +106,7 @@
       <Name>EBS.Infrastructure</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

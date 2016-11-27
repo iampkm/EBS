@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EBS.Domain.Orders
+namespace EBS.Domain.Entity
 {
    public class SaleOrderItem:BaseEntity
     {

@@ -24,8 +24,12 @@ namespace EBS.Domain.Service
             }
             // 生成门店编码           
             var firstAreaId = model.AreaId.Substring(0,2);
-            var result= _db.Table.FindAll<Store>(n => n.AreaId.Like(firstAreaId + "%"));            
-            var maxAreaIdNumber =  result.Max(n=>n.Number);
+            var result= _db.Table.FindAll<Store>(n => n.AreaId.Like(firstAreaId + "%"));
+            var maxAreaIdNumber = 0;
+            if(result.Count()>0)
+            {
+                maxAreaIdNumber =  result.Max(n=>n.Number);
+            }
             model.GenerateNewCode(maxAreaIdNumber);
             _db.Insert(model);           
         }
@@ -41,7 +45,11 @@ namespace EBS.Domain.Service
                 //如果区域发生改变，重新生成新的 code
                 var firstAreaId = model.AreaId.Substring(0, 2);
                 var result = _db.Table.FindAll<Store>(n => n.AreaId.Like(firstAreaId + "%"));
-                var maxAreaIdNumber = result.Max(n => n.Number);
+                var maxAreaIdNumber = 0;
+                if (result.Count() > 0)
+                {
+                    maxAreaIdNumber = result.Max(n => n.Number);
+                }
                 model.GenerateNewCode(maxAreaIdNumber);
             }
             _db.Update(model);
