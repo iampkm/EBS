@@ -11,6 +11,8 @@ namespace EBS.Application
     /// </summary>
    public interface IPosSyncFacade
     {
-       void HandlerMessage(SaleOrderSyncMessage message);
+       void SaleOrderSync(string body);
+       void InputCashAmountSync(string body);
+       void WorkScheduleSync(string body);
     }
 }

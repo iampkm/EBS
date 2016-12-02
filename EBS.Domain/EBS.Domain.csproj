@@ -70,6 +70,7 @@
     <Compile Include="Entity\StorePurchaseOrderItem.cs" />
     <Compile Include="Entity\Supplier.cs" />
     <Compile Include="Entity\VipCard.cs" />
+    <Compile Include="Entity\WorkSchedule.cs" />
     <Compile Include="Event\SaleOrderSyncEvent.cs" />
     <Compile Include="Event\SaleOrderSyncHander.cs" />
     <Compile Include="Service\AccountService.cs" />

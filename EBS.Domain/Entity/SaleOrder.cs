@@ -14,35 +14,57 @@ namespace EBS.Domain.Entity
             this.Status = SaleOrderStatus.Create;
         }
         /// <summary>
-        /// 订单编号 ： 单据类型 2 + 账号4位+ （year-2016） 3位+ 下单的秒数（86400，5位） ：12000100086400
+        /// 订单编号 ： 单据类型 2 + 账号4位+ （日期20160101） 3位+ 下单的秒数（86400，5位）+ 2位随机
         /// </summary>
         public string Code { get; set; }
-
         public int StoreId { get; set; }
         /// <summary>
-        /// 支付状态
+        /// Pos 机ID
         /// </summary>
-        public PaidStatus PaidStatus { get; set; }
+        public int PosId { get; set; }
+        /// <summary>
+        /// 订单类型：销售单1，销售退单2
+        /// </summary>
+        public int OrderType { get; set; }
         /// <summary>
         /// 支付方式
         /// </summary>
         public PaymentWay PaymentWay { get; set; }
         /// <summary>
-        /// 支付时间
+        /// 退款账户
+        /// </summary>
+        public string RefundAccount { get; set; }
+        /// <summary>
+        /// 支付日期
         /// </summary>
         public DateTime? PaidDate { get; set; }
-        /// <summary>
-        /// 下单时段
-        /// </summary>
+
         public int Hour { get; set; }
+        
         /// <summary>
-        /// 订单状态
+        /// 订单金额 = 实际价格RealAmount * 数量
+        /// </summary>
+        public decimal OrderAmount { get; private set; }
+        /// <summary>
+        /// 现金支付金额
+        /// </summary>
+        public decimal PayAmount { get; set; }
+        /// <summary>
+        /// 刷卡支付，微信支付，阿里支付等在线支付金额
+        /// </summary>
+        public decimal OnlinePayAmount { get; set; }
+        /// <summary>
+        /// 销售单状态
         /// </summary>
         public SaleOrderStatus Status { get; set; }
+
         public DateTime CreatedOn { get; set; }
+
         public int CreatedBy { get; set; }
-        public DateTime UpdatedOn { get; set; }
+
         public int UpdatedBy { get; set; }
+
+        public DateTime UpdatedOn { get; set; }
 
         public virtual IEnumerable<SaleOrderItem> Items
         {

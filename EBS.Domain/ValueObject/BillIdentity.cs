@@ -12,6 +12,17 @@ namespace EBS.Domain.ValueObject
     /// </summary>
    public enum BillIdentity
     {
+        [Description("销售订单")]
+        /// <summary>
+        /// 销售订单
+        /// </summary>
+        SaleOrder = 1,
+        [Description("销售退订单")]
+        /// <summary>
+        /// 销售退订单
+        /// </summary>
+        SaleRefund = 2,
+
         [Description("采购合同")]
         /// <summary>
         ///  采购合同
@@ -27,16 +38,7 @@ namespace EBS.Domain.ValueObject
         /// 采购退单订单
         /// </summary>
         PurchaseBackOrder = 12,
-        [Description("销售订单")]
-        /// <summary>
-        /// 销售订单
-        /// </summary>
-        SaleOrder = 13,
-        [Description("销售退订单")]
-        /// <summary>
-        /// 销售退订单
-        /// </summary>
-        SaleBackOrder = 14,
+        
         [Description("合同调价单")]
         /// <summary>
         /// 合同调价单
@@ -54,12 +56,12 @@ namespace EBS.Domain.ValueObject
         /// <summary>
         /// 门店采购订单
         /// </summary>
-        StorePurchaseOrder = 50,
+        StorePurchaseOrder = 51,
         [Description("门店采购退单订单")]
         /// <summary>
         /// 门店采购退单订单
         /// </summary>
-        StorePurchaseBackOrder = 51,
+        StorePurchaseBackOrder = 52,
        
         
     }
