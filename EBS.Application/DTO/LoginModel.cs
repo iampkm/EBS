@@ -48,6 +48,25 @@ namespace EBS.Application.DTO
        public int RoleId { get; set; }
 
        public int StoreId { get; set; }
-      
-   }
+        /// <summary>
+        /// 逗号分隔门店ID 字符串，为空表示可查看所有
+        /// </summary>
+        public string CanViewStores { get; set; }
+        /// <summary>
+        /// 是否显示门店选择组件
+        /// </summary>
+        /// <returns></returns>
+        public bool ShowSelectStore()
+        {
+            var viewStoresArray = CanViewStores.Split(',');
+            if (viewStoresArray.Length == 0 || viewStoresArray.Length > 1)
+            {
+                return true;
+            }
+            else {
+                return false;  //只有一个门店值，只能查看当前门店,就默认当前账号门店，不显示
+            }
+        }
+
+    }
 }

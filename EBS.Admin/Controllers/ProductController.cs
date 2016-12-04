@@ -85,11 +85,11 @@ namespace EBS.Admin.Controllers
             return Json(new { success = true });
         }
 
-        public JsonResult PublishToggle(string ids, bool isPublish)
-        {
-            this._productFacade.PublishToggle(ids, isPublish);
-            return Json(new { success = true });
-        }
+        //public JsonResult PublishToggle(string ids, bool isPublish)
+        //{
+        //    this._productFacade.PublishToggle(ids, isPublish);
+        //    return Json(new { success = true });
+        //}
 
         public JsonResult Import(string productsInput)
         {

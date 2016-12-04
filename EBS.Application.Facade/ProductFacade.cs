@@ -59,11 +59,11 @@ namespace EBS.Application.Facade
         }
 
 
-        public void PublishToggle(string ids, bool isPublish)
-        {
-            _productService.PublishToggle(ids, isPublish);
-            _db.SaveChange();
-        }
+        //public void PublishToggle(string ids, bool isPublish)
+        //{
+        //    _productService.PublishToggle(ids, isPublish);
+        //    _db.SaveChange();
+        //}
 
         public string Import(string productsIpput)
         {

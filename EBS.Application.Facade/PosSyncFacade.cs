@@ -8,15 +8,20 @@ using EBS.Application.Facade.Mapping;
 using Dapper.DBContext;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json;
+using EBS.Domain.Service;
 namespace EBS.Application.Facade
 {
    public class PosSyncFacade:IPosSyncFacade
     {
        IDBContext _db;
-
+        ProductService _productService;
+        StoreInventoryService _storeInventoryService;
+        
         public PosSyncFacade(IDBContext dbContext)
         {
             _db = dbContext;
+            _productService = new ProductService(_db);
+            _storeInventoryService = new StoreInventoryService(_db);
 
         }
 
@@ -26,6 +31,7 @@ namespace EBS.Application.Facade
             var model = JsonConvert.DeserializeObject<SaleOrder>(body, dateTimeConverter);
             model.Hour = model.CreatedOn.Hour; //设置订单时段
             _db.Insert(model);
+            _storeInventoryService.MinusInventory(model);
             _db.SaveChange();
         }
 

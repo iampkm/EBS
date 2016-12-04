@@ -46,6 +46,34 @@ namespace EBS.Domain.Service
 
         public void Create(Account model)
         {
+            //自动生成一个工号,门店编码+2位顺序号
+            var preAccount = _db.Table.Find<Account>("select * from Account where StoreId=@StoreId order by UserName desc limit 1",
+                new { StoreId = model.StoreId });
+            var store = _db.Table.Find<Store>(n => n.Id == model.StoreId);
+            var firstName = store == null ? "1000" : store.Code;
+            var lastName = "";
+            if (preAccount == null)
+            {
+                lastName = "01";
+            }
+            else {
+                //总长度6位，取末尾两位
+                var maxNumber = 0;
+                int.TryParse(preAccount.UserName.Substring(4, 2), out maxNumber);               
+                maxNumber = maxNumber + 1;
+                if (maxNumber > 99) throw new Exception("当前门店账号已经申请满了");
+                lastName = maxNumber.ToString().PadLeft(2, '0');
+            }
+            model.UserName = firstName + lastName;
+            // 如果账号属于门店，门店查看权限自少包含自身门店ID
+            if (store != null)
+            {
+                var storeIdArray = model.CanViewStores.Split(',');
+                if (!storeIdArray.Contains(model.StoreId.ToString()))
+                {
+                    model.CanViewStores = model.CanViewStores.Length == 0 ? model.StoreId.ToString() : model.CanViewStores + "," + model.StoreId.ToString();
+                }
+            }
             if (_db.Table.Exists<Account>(n => n.UserName == model.UserName))
             {
                 throw new Exception("名称重复!");
@@ -61,6 +89,17 @@ namespace EBS.Domain.Service
             Account entity = _db.Table.Find<Account>(model.Id);
             entity.NickName = model.NickName;
             entity.RoleId = model.RoleId;
+           // entity.StoreId = model.StoreId;   // 不允许修改账号所属门店          
+            entity.CanViewStores = model.CanViewStores;
+            // 包含门店ID 必须检查自身门店是否存在查看权限
+            if (entity.StoreId > 0)
+            {
+                var storeIdArray = entity.CanViewStores.Split(',');
+                if (!storeIdArray.Contains(entity.StoreId.ToString()))
+                {
+                    entity.CanViewStores = entity.CanViewStores.Length == 0 ? entity.StoreId.ToString() : entity.CanViewStores + "," + entity.StoreId.ToString();
+                }
+            }
             entity.LastUpdateDate = DateTime.Now;
             _db.Update(entity);
         }

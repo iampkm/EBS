@@ -12,7 +12,7 @@ namespace EBS.Domain.Entity
         /// <summary>
         /// SKU编码
         /// </summary>
-        public string ProductId { get; set; }
+        public int ProductId { get; set; }
         /// <summary>
         /// SKU编码
         /// </summary>
@@ -33,6 +33,10 @@ namespace EBS.Domain.Entity
         /// 销售价
         /// </summary>
         public decimal SalePrice { get; set; }
+        /// <summary>
+        /// 实际折后价
+        /// </summary>
+        public decimal RealPrice { get; set; }
         /// <summary>
         /// 数量
         /// </summary>

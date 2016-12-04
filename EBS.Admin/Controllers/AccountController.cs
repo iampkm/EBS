@@ -12,6 +12,7 @@ using EBS.Query.DTO;
 using EBS.Domain.Entity;
 using Dapper.DBContext;
 using EBS.Infrastructure;
+using EBS.Infrastructure.Extension;
 namespace EBS.Admin.Controllers
 {
 
@@ -82,6 +83,19 @@ namespace EBS.Admin.Controllers
         {
             var model = _query.Find<Account>(id);
             ViewBag.Roles = _query.FindAll<Role>();
+            ViewBag.StoreName = "";
+            ViewBag.CanViewStores = "";
+            if (model.StoreId > 0)
+            {
+                ViewBag.StoreName = _query.Find<Store>(model.StoreId).Name;
+            }
+            if (!string.IsNullOrEmpty(model.CanViewStores))
+            {
+                var storeIds = model.CanViewStores.Split(',').ToIntArray();
+                var nameArray = _query.Find<Store>(storeIds).Select(n => n.Name).ToArray();
+                ViewBag.CanViewStores = string.Join(",", nameArray);
+            }
+           
             return View(model);
         }
 

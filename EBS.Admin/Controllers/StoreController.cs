@@ -33,7 +33,8 @@ namespace EBS.Admin.Controllers
 
         public JsonResult LoadData(Pager page, string name, string code)
         {
-            var rows = _storeQuery.GetPageList(page, name,code);
+            // 显示当前用户有权限查看的门店信息
+            var rows = _storeQuery.GetPageList(page, name,code, _context.CurrentAccount.CanViewStores);
 
             return Json(new { success = true, data = rows, total = page.Total }, JsonRequestBehavior.AllowGet);
         }
@@ -69,6 +70,19 @@ namespace EBS.Admin.Controllers
         public JsonResult Delete(string ids)
         {
             _storeFacade.Delete(ids);
+            return Json(new { success = true });
+        }
+        public ActionResult EditLicense()
+        {
+            ViewBag.View =_context.CurrentAccount.ShowSelectStore()?"true":"false";
+            ViewBag.StoreId = _context.CurrentAccount.StoreId;
+            return View();
+        }
+
+        [HttpPost]
+        public JsonResult EditLicense(int storeId,string license)
+        {
+            _storeFacade.EditLicense(storeId, license);
             return Json(new { success = true });
         }
 	}

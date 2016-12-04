@@ -1226,6 +1226,7 @@
     <Content Include="Views\AdjustSalePrice\Create.cshtml" />
     <Content Include="Views\AdjustSalePrice\Edit.cshtml" />
     <Content Include="Views\AdjustSalePrice\Detail.cshtml" />
+    <Content Include="Views\Store\EditLicense.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">

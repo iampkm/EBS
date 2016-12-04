@@ -16,12 +16,12 @@
             <v-form v-bind:valid.sync="valid">
                 <div class="row">
                     <div class="col-sm-4 col-xs-4">
-                        <v-input type="text" label="账号名：" v-bind:value.sync="model.userName" help="账号名称必须6~30位之间" minlength="6" maxlength="30" placeholder="账号名" required icon></v-input>
+                        <v-input type="text" label="工号：" v-bind:value.sync="model.userName" placeholder="工号自动生成" readonly icon></v-input>
                     </div>
                 </div>
                 <div class="row">
                     <div class="form-group col-sm-4 col-xs-4">
-                        <v-input type="text" label="昵称：" v-bind:value.sync="model.nickName" placeholder="昵称" required icon></v-input>
+                        <v-input type="text" label="姓名：" v-bind:value.sync="model.nickName" placeholder="姓名" required icon></v-input>
                     </div>
                 </div>
                 <div class="row">
@@ -48,12 +48,23 @@
                             <input type="text" class="form-control" v-model="selectStore.name" placeholder="选择门店,可为空" readonly>
                             <span class="input-group-btn">
                                 <button class="btn btn-flat btn-default" type="button" v-on:click="showStore"><i class="fa fa-search"></i></button>
+                                <button class="btn btn-flat btn-default" type="button" v-on:click="clearStore"><i class="fa fa-eraser"></i></button>
                             </span>
                         </div>
-                    </div>  
+                    </div>                    
                 </div>
                 <div class="row">
-                    
+                    <div class="form-group col-sm-4 col-xs-6">
+                        <label for="inputPassword4" class="control-label">门店权限：</label>
+                        <div class="input-group">
+                            <input type="hidden" class="form-control" v-model="model.canViewStores">
+                            <input type="text" class="form-control" v-model="selectViewStore.name" placeholder="可以查看门店的权限，为空表示所有权限" readonly>
+                            <span class="input-group-btn">
+                                <button class="btn btn-flat btn-default" type="button" v-on:click="showViewStore"><i class="fa fa-search"></i></button>
+                                <button class="btn btn-flat btn-default" type="button" v-on:click="clearViewStore"><i class="fa fa-eraser"></i></button>
+                            </span>
+                        </div>
+                    </div>    
                 </div>
             </v-form>
         </div>
@@ -79,6 +90,19 @@
             </vue-table>
         </div>
     </v-modal>
+    <v-modal title="选择门店权限" ok-text="确 定" cancel-text="取 消" v-bind:callback="getViewStore" v-bind:show.sync="selectViewStore.modal" v-bind:effect="fade" width="50%">
+        <div slot="modal-body" class="modal-body">
+            <vue-table v-bind:columns="selectViewStore.gridColumns"
+                       v-bind:url="selectViewStore.url" v-bind:show-toolbar="false"
+                       v-bind:args="selectViewStore.searchArgs" v-bind:data.sync="selectViewStore.rows">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                    <div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="selectViewStore.searchArgs.name" placeholder="输入门店名" debounce="300" />
+                    </div>
+                </div>
+            </vue-table>
+        </div>
+    </v-modal>
 </div>
 @{Html.RenderPartial("VueTableTemplate");}
 @section scripts{
@@ -98,9 +122,22 @@
                         userName: '',
                         nickName:'',
                         roleId: 0,
-                        storeId:0,
+                        storeId: 0,
+                        canViewStores:''
                     },
                     selectStore: {
+                        modal: false,
+                        name: '',
+                        gridColumns: [
+                           { name: 'Name', localName: '门店名' },
+                            { name: 'Contact', localName: '联系人' },
+                            { name: 'Address', localName: '地址' }
+                        ],
+                        url: "/Store/LoadData",
+                        searchArgs: { name: '' },
+                        rows: []
+                    },
+                    selectViewStore: {
                         modal: false,
                         name: '',
                         gridColumns: [
@@ -132,6 +169,10 @@
                     showStore: function () {
                         this.selectStore.modal = true;
                     },
+                    clearStore: function () {
+                        this.model.storeId = 0;
+                        this.selectStore.name = "";
+                    },
                     getStore: function () {
                         var selecteds = this.selectStore.rows.filter(function (item) {
                             return item.checked;
@@ -140,8 +181,37 @@
                             this.model.storeId = selecteds[0].Id;
                             this.selectStore.name = selecteds[0].Name;
                             this.selectStore.modal = false;
+
+                            // 默认权限为当前门店权限
+                            this.selectViewStore.name = selecteds[0].Name;
+                            this.model.canViewStores = selecteds[0].Id;
                         }
+                        
                     },
+                    showViewStore: function () {
+                        this.selectViewStore.modal = true;
+                    },
+                    clearViewStore: function () {
+                        this.model.canViewStores = "";
+                        this.selectViewStore.name = "";
+                    },
+                    getViewStore: function () {
+                        var _self = this;
+                        var ids = new Array();
+                        var names = new Array();
+                        _self.selectViewStore.rows.forEach(function (item) {
+                            if (item.checked)
+                            {
+                                ids.push(item.Id);
+                                names.push(item.Name);
+                            }
+                        })
+                        if (ids) {
+                            this.model.canViewStores = ids.join(',');
+                            this.selectViewStore.name = names.join(',');
+                            this.selectViewStore.modal = false;
+                        }
+                    }
                 }
             });           
 

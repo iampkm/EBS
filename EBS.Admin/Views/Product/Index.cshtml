@@ -47,8 +47,8 @@
                         <span class="input-group-btn" slot="customButtons">
                             <a class="btn btn-warning btn-flat" href="/Product/Create">新 增</a>
                             <a class="btn btn-success btn-flat" v-on:click="showModal">导入商品</a>
-                            <button type="button" class="btn btn-default btn-flat" v-on:click="publish(true)">上架</button>
-                            <button type="button" class="btn btn-default btn-flat" v-on:click="publish(false)">下架</button>
+                            @*<button type="button" class="btn btn-default btn-flat" v-on:click="publish(true)">上架</button>
+                            <button type="button" class="btn btn-default btn-flat" v-on:click="publish(false)">下架</button>*@
                         </span>
                     </vue-table>
                 </div>
@@ -157,29 +157,29 @@
                             }
                         });
                     },
-                    publish:function(v_isPublsh){
-                        var v_ids = "";
-                        this.rows.forEach(function (item, index) {
-                            if (item.checked) {
-                                v_ids = item.Id + ",";
-                            }
-                        });
-                        if (v_ids == "") {
-                            bootbox.alert("请选择一条记录");
-                            return;
-                        }
-                        v_ids = v_ids.substring(0, v_ids.length - 1);
-                        v_self = this;
-                        $.post("/Product/PublishToggle", { ids: v_ids,isPublish: v_isPublsh}, function (result) {
-                            if (result.success) {
-                                v_self.$refs.vtable.loadData();
-                            }
-                            else {
-                                bootbox.alert(result.error);
-                            }
-                        }, "json");
+                    //publish:function(v_isPublsh){
+                    //    var v_ids = "";
+                    //    this.rows.forEach(function (item, index) {
+                    //        if (item.checked) {
+                    //            v_ids = item.Id + ",";
+                    //        }
+                    //    });
+                    //    if (v_ids == "") {
+                    //        bootbox.alert("请选择一条记录");
+                    //        return;
+                    //    }
+                    //    v_ids = v_ids.substring(0, v_ids.length - 1);
+                    //    v_self = this;
+                    //    $.post("/Product/PublishToggle", { ids: v_ids,isPublish: v_isPublsh}, function (result) {
+                    //        if (result.success) {
+                    //            v_self.$refs.vtable.loadData();
+                    //        }
+                    //        else {
+                    //            bootbox.alert(result.error);
+                    //        }
+                    //    }, "json");
 
-                    },
+                    //},
                     cancelSelect:function(){
                         var treeObj = $.fn.zTree.getZTreeObj("ztree");
                         var nodes = treeObj.getSelectedNodes();

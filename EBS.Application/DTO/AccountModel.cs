@@ -14,6 +14,8 @@ namespace EBS.Application.DTO
         public int RoleId { get; set; }
 
         public int StoreId { get; set; }
+
+        public string CanViewStores { get; set; }
     }
 
    public class EditAccountModel
@@ -22,5 +24,6 @@ namespace EBS.Application.DTO
        public string NickName { get; set; }
        public int RoleId { get; set; }
         public int StoreId { get; set; }
+        public string CanViewStores { get; set; }
     }
 }

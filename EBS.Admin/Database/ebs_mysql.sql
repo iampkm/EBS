@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2016/11/12 16:06:28                          */
+/* Created on:     2016-12-04 16:19:41                          */
 /*==============================================================*/
 
 
@@ -36,6 +36,8 @@ drop table if exists InventoryHistory;
 
 drop table if exists Menu;
 
+drop table if exists Picture;
+
 drop index idx_ProcessHistory_fromId on ProcessHistory;
 
 drop table if exists ProcessHistory;
@@ -44,9 +46,17 @@ drop index idx_product_code on Product;
 
 drop table if exists Product;
 
+drop table if exists ProductAreaPrice;
+
 drop index idx_pcodeseq_guidcode on ProductCodeSequence;
 
 drop table if exists ProductCodeSequence;
+
+drop table if exists ProductDetails;
+
+drop table if exists ProductPicture;
+
+drop table if exists ProductStorePrice;
 
 drop index idx_purcontract_code on PurchaseContract;
 
@@ -63,6 +73,10 @@ drop table if exists PurchaseOrderItem;
 drop table if exists Role;
 
 drop table if exists RoleMenu;
+
+drop table if exists SaleOrder;
+
+drop table if exists SaleOrderItem;
 
 drop index idx_store_Code on Store;
 
@@ -84,6 +98,16 @@ drop index idx_supplier_code on Supplier;
 
 drop table if exists Supplier;
 
+drop table if exists SupplierProduct;
+
+drop table if exists TransferOrder;
+
+drop table if exists TransferOrderItem;
+
+drop table if exists VipCard;
+
+drop table if exists VipProduct;
+
 drop table if exists Warehouse;
 
 /*==============================================================*/
@@ -101,6 +125,7 @@ create table Account
    LoginErrorCount      int comment 'µ«¬º¥ÌŒÛ¥Œ ˝',
    LastUpdateDate       datetime comment '◊Ó∫Û–ﬁ∏ƒ ±º‰',
    StoreId              int comment '√≈µÍ',
+   CanViewStores        varchar(200) comment 'ø…“‘≤È—Ø√≈µÍ',
    primary key (Id)
 );
 
@@ -180,7 +205,6 @@ create table AdjustSalePrice
 (
    Id                   int not null auto_increment comment '±‡∫≈',
    Code                 nvarchar(50) comment 'µ˜º€µ•∫≈',
-   Name                 nvarchar(50) comment 'µ˜º€√˚≥∆',
    CreatedOn            datetime comment '¥¥Ω® ±º‰',
    CreatedBy            int comment '¥¥Ω®»À',
    UpdatedOn            datetime comment '–ﬁ∏ƒ ±º‰',
@@ -318,13 +342,25 @@ create table Menu
 alter table Menu comment 'œµÕ≥≤Àµ•';
 
 /*==============================================================*/
+/* Table: Picture                                               */
+/*==============================================================*/
+create table Picture
+(
+   Id                   int not null auto_increment comment 'Õº∆¨ID',
+   Url                  varchar(500) comment '¡¥Ω”µÿ÷∑',
+   Title                varchar(50) comment 'Õº∆¨±ÍÃ‚',
+   primary key (Id)
+);
+
+alter table Picture comment 'Õº∆¨';
+
+/*==============================================================*/
 /* Table: ProcessHistory                                        */
 /*==============================================================*/
 create table ProcessHistory
 (
    Id                   int not null auto_increment comment '±‡∫≈',
    CreatedBy            int comment '¥¥Ω®»À',
-   CreatedByName        nvarchar(64) comment '¥¥Ω®»À√˚',
    CreatedOn            datetime comment '¥¥Ω® ±º‰',
    Status               int comment '◊¥Ã¨',
    FormId               int comment '±Ìµ•Id',
@@ -364,9 +400,7 @@ create table Product
    Height               decimal comment '∏ﬂ',
    Weight               decimal comment '÷ÿ¡ø',
    Unit                 nvarchar(10) comment 'µ•Œª',
-   Description          text comment 'œÍ«È√Ë ˆ',
    Keywords             nvarchar(200) comment 'πÿº¸◊÷',
-   IsPublish            bool comment ' «∑Ò…œº‹',
    BarCode              nvarchar(50) comment 'Ãı¬Î',
    Specification        nvarchar(200) comment 'πÊ∏Ò√˚',
    OldPrice             decimal(8,2) comment '‘≠º€',
@@ -376,6 +410,9 @@ create table Product
    SubSkuQuantity       int comment '◊”SKU ˝¡ø',
    SpecificationQuantity nvarchar(100) comment 'º˛πÊ, ∂‡∏ˆ∂∫∫≈∑÷∏Ù',
    CreatedOn            datetime comment '¥¥Ω® ±º‰',
+   CreatedBy            int comment '¥¥Ω®»À',
+   UpdatedOn            datetime comment '–ﬁ∏ƒ ±º‰',
+   UpdatedBy            int comment '–ﬁ∏ƒ»À',
    primary key (Id)
 );
 
@@ -387,6 +424,18 @@ alter table Product comment '…Ã∆∑';
 create unique index idx_product_code on Product
 (
    Code
+);
+
+/*==============================================================*/
+/* Table: ProductAreaPrice                                      */
+/*==============================================================*/
+create table ProductAreaPrice
+(
+   Id                   int not null auto_increment,
+   ProductId            int,
+   AreaId               char(6),
+   SalePrice            decimal(8,2),
+   primary key (Id)
 );
 
 /*==============================================================*/
@@ -407,6 +456,41 @@ alter table ProductCodeSequence comment '≤˙∆∑±‡¬Î–Ú¡–∫≈£¨¥À±Ì”√¿¥…˙≥……Ã∆∑SKU ±Ì÷
 create unique index idx_pcodeseq_guidcode on ProductCodeSequence
 (
    GuidCode
+);
+
+/*==============================================================*/
+/* Table: ProductDetails                                        */
+/*==============================================================*/
+create table ProductDetails
+(
+   ProductId            int  not null,
+   Description          text comment 'œÍ«È√Ë ˆ',
+   primary key (ProductId)
+);
+
+alter table ProductDetails comment '…Ã∆∑œÍ«È';
+
+/*==============================================================*/
+/* Table: ProductPicture                                        */
+/*==============================================================*/
+create table ProductPicture
+(
+   Id                   int not null comment '±‡∫≈',
+   ProductId            int comment '…Ã∆∑±‡∫≈',
+   PictureId            int comment 'Õº∆¨Id',
+   primary key (Id)
+);
+
+/*==============================================================*/
+/* Table: ProductStorePrice                                     */
+/*==============================================================*/
+create table ProductStorePrice
+(
+   Id                   int not null auto_increment,
+   ProductId            int,
+   StoreId              int,
+   SalePrice            decimal(8,2),
+   primary key (Id)
 );
 
 /*==============================================================*/
@@ -529,6 +613,50 @@ create table RoleMenu
 alter table RoleMenu comment 'Ω«…´≤Àµ•∂‘”¶±Ì';
 
 /*==============================================================*/
+/* Table: SaleOrder                                             */
+/*==============================================================*/
+create table SaleOrder
+(
+   Id                   int not null auto_increment,
+   Code                 nvarchar(20) comment '±‡¬Î',
+   StoreId              int comment '√≈µÍ',
+   PosId                int comment 'Posª˙Id',
+   OrderType            int comment '∂©µ•¿‡–Õ',
+   RefundAccount        varchar(60) comment 'ÕÀøÓ’À∫≈',
+   Status               int comment '◊¥Ã¨',
+   OrderAmount          decimal(8,2) comment '∂©µ•Ω∂Ó',
+   PayAmount            decimal(8,2) comment 'œ÷Ω÷ß∏∂Ω∂Ó',
+   OnlinePayAmount      decimal(8,2) comment '‘⁄œﬂ÷ß∏∂Ω∂Ó',
+   PaymentWay           int comment '÷ß∏∂∑Ω Ω',
+   PaidDate             datetime comment '÷ß∏∂ ±º‰',
+   Hour                 int comment ' ±∂Œ',
+   CreatedOn            datetime comment '¥¥Ω® ±º‰',
+   CreatedBy            int comment '¥¥Ω®»À',
+   UpdatedOn            datetime comment '–ﬁ∏ƒ ±º‰',
+   UpdatedBy            int comment '–ﬁ∏ƒ»À',
+   primary key (Id)
+);
+
+alter table SaleOrder comment 'œ˙ €∂©µ•';
+
+/*==============================================================*/
+/* Table: SaleOrderItem                                         */
+/*==============================================================*/
+create table SaleOrderItem
+(
+   Id                   int not null,
+   SaleOrderId          int comment 'œ˙ €±‡¬Î',
+   ProductId            int comment '…Ã∆∑Id',
+   ProductCode          nvarchar(20) comment '…Ã∆∑±‡¬Î',
+   ProductName          nvarchar(50) comment '…Ã∆∑√˚',
+   AvgCostPrice         decimal(8,2) comment '∆Ωæ˘≥…±æº€',
+   SalePrice            decimal(8,2) comment 'œ˙ €º€',
+   RealPrice            decimal(8,2) comment ' µº  €º€',
+   Quanttiy             int comment ' ˝¡ø',
+   primary key (Id)
+);
+
+/*==============================================================*/
 /* Table: Store                                                 */
 /*==============================================================*/
 create table Store
@@ -545,6 +673,7 @@ create table Store
    Contact              nvarchar(32) comment '¡™œµ»À',
    Phone                nvarchar(32) comment '¡™œµµÁª∞',
    Setting              text comment '…Ë÷√',
+   LicenseCode          varchar(50) comment '√≈µÍ ⁄»®¬Î',
    primary key (Id)
 );
 
@@ -627,6 +756,7 @@ create table StorePurchaseOrder
 (
    Id                   int not null auto_increment comment '±‡∫≈',
    Code                 nvarchar(20) comment '∂©µ•∫≈',
+   OrderType            int comment 'µ•æ›¿‡–Õ: Ω¯ 1 ÕÀ 2',
    StoreId              int comment '√≈µÍId',
    SupplierBill         nvarchar(20) comment 'π©”¶…Ãµ•æ›∫≈',
    SupplierId           int comment 'π©”¶…ÃId',
@@ -709,6 +839,81 @@ alter table Supplier comment 'π©”¶…Ã';
 create unique index idx_supplier_code on Supplier
 (
    Code
+);
+
+/*==============================================================*/
+/* Table: SupplierProduct                                       */
+/*==============================================================*/
+create table SupplierProduct
+(
+   Id                   int not null auto_increment comment '±‡∫≈',
+   SupplierId           int comment 'π©”¶…ÃId',
+   ProductId            int comment '…Ã∆∑',
+   Price                decimal(8,2) comment 'º€∏Ò',
+   primary key (Id)
+);
+
+alter table SupplierProduct comment 'π©”¶…Ã…Ã∆∑';
+
+/*==============================================================*/
+/* Table: TransferOrder                                         */
+/*==============================================================*/
+create table TransferOrder
+(
+   Id                   int not null auto_increment comment '±‡∫≈',
+   Code                 varchar(20) comment 'µ˜≤¶µ•∫≈',
+   FromStoreId          int comment '¥”√≈µÍ',
+   FromStoreName        char(50) comment '¥”√≈µÍ√˚',
+   ToStoreName          char(50) comment 'µΩ√≈µÍ√˚',
+   ToStoreId            int comment 'µΩ√≈µÍ',
+   Status               int comment '◊¥Ã¨',
+   CreatedOn            datetime comment '¥¥Ω® ±º‰',
+   CreatedBy            int comment '¥¥Ω®»À',
+   CreatedByName        varchar(30) comment '¥¥Ω®»À√˚',
+   UpdatedOn            datetime comment '–ﬁ∏ƒ ±º‰',
+   UpdatedBy            int comment '–ﬁ∏ƒ»À',
+   UpdatedByName        varchar(30) comment '–ﬁ∏ƒ»À√˚',
+   primary key (Id)
+);
+
+alter table TransferOrder comment 'µ˜≤¶µ•';
+
+/*==============================================================*/
+/* Table: TransferOrderItem                                     */
+/*==============================================================*/
+create table TransferOrderItem
+(
+   Id                   int not null comment '±‡∫≈',
+   TransferOrderId      int comment 'µ˜≤¶µ•ID',
+   ProductId            int comment 'SKU±‡¬Î',
+   Quantity             int comment ' ˝¡ø',
+   primary key (Id)
+);
+
+alter table TransferOrderItem comment 'µ˜≤¶√˜œ∏';
+
+/*==============================================================*/
+/* Table: VipCard                                               */
+/*==============================================================*/
+create table VipCard
+(
+   Id                   int not null auto_increment,
+   Code                 varchar(50) comment 'ª·‘±ø®∫≈',
+   Discount             decimal(8,2) comment '’€ø€',
+   primary key (Id)
+);
+
+alter table VipCard comment 'ª·‘±ø®';
+
+/*==============================================================*/
+/* Table: VipProduct                                            */
+/*==============================================================*/
+create table VipProduct
+(
+   Id                   int not null auto_increment,
+   ProductId            int,
+   SalePrice            decimal(8,2),
+   primary key (Id)
 );
 
 /*==============================================================*/

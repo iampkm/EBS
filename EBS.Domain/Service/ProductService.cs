@@ -39,20 +39,20 @@ namespace EBS.Domain.Service
             _db.Delete<Product>(arrIds);
         }
 
-        public void PublishToggle(string ids, bool isPublish)
-        {
-            if (string.IsNullOrEmpty(ids))
-            {
-                throw new Exception("id 参数为空");
-            }
-            var arrIds = ids.Split(',').ToIntArray();
-            var products = _db.Table.Find<Product>(arrIds);
-            foreach (var item in products)
-            {
-                item.IsPublish = isPublish;
-            }
-            _db.Update<Product>(products.ToArray());
-        }
+        //public void PublishToggle(string ids, bool isPublish)
+        //{
+        //    if (string.IsNullOrEmpty(ids))
+        //    {
+        //        throw new Exception("id 参数为空");
+        //    }
+        //    var arrIds = ids.Split(',').ToIntArray();
+        //    var products = _db.Table.Find<Product>(arrIds);
+        //    foreach (var item in products)
+        //    {
+        //        item.IsPublish = isPublish;
+        //    }
+        //    _db.Update<Product>(products.ToArray());
+        //}
 
         public List<Product> ConvertToProduct(string productsInput)
         {
@@ -79,7 +79,6 @@ namespace EBS.Domain.Service
                             InputRate = 17,
                             OutRate = 17,
                             CreatedOn = DateTime.Now,
-                            IsPublish = true,
                             IsGift = false
                         };
                         products.Add(product);

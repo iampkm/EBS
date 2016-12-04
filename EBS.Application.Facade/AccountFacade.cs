@@ -22,13 +22,18 @@ namespace EBS.Application.Service
         {
             model.Validate();
             var account = _accountService.CheckAccount(model.UserName, model.Password, model.IpAddress);
-            return new AccountInfo() { AccountId = account.Id, UserName = account.UserName, RoleId = account.RoleId ,NickName = account.NickName,StoreId = account.StoreId};
+            return new AccountInfo() { AccountId = account.Id, UserName = account.UserName,
+                RoleId = account.RoleId ,NickName = account.NickName,
+                StoreId = account.StoreId,
+                CanViewStores = account.CanViewStores
+            };
         }
 
 
         public void Create(CreateAccountModel model)
-        {
+        {           
             Account entity = new Account(model.UserName, model.Password, model.NickName, model.RoleId,model.StoreId);
+            entity.CanViewStores = model.CanViewStores;
             _accountService.Create(entity);
             _db.SaveChange();
         }

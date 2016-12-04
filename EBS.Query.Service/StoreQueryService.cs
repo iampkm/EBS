@@ -17,7 +17,7 @@ namespace EBS.Query.Service
         {
             this._query = query;
         }
-       public IEnumerable<StoreDto> GetPageList(Pager page, string name,string code)
+       public IEnumerable<StoreDto> GetPageList(Pager page, string name,string code, string canViewStores)
         {
             dynamic param = new ExpandoObject();
             string where = "";
@@ -30,6 +30,11 @@ namespace EBS.Query.Service
             {
                 where += "and t0.Code like @Code ";
                 param.Code = string.Format("{0}%", code);
+            }
+            if (!string.IsNullOrEmpty(canViewStores))
+            {
+                where += "and t0.Id in (@CanViewStore) ";
+                param.CanViewStore = canViewStores;
             }
             string sql = "select t0.*,t1.FullName from Store t0 left join Area t1 on t0.AreaId=t1.Id where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);

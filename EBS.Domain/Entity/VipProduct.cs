@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace EBS.Domain.Entity
 {
-   public class VipCard:BaseEntity
+   public class VipProduct:BaseEntity
     {
-        public string Code { get; set; }
+         public int ProductId { get; set; }
 
-        public decimal Discount { get; set; }
+         public decimal SalePrice { get; set; }
     }
 }

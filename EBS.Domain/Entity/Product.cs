@@ -66,15 +66,7 @@ namespace EBS.Domain.Entity
         /// <summary>
         /// 重量 单位：  千克
         /// </summary>
-        public decimal Weight { get; set; }
-        /// <summary>
-        /// 商品详情描述
-        /// </summary>
-        public string Description { get; set; }       
-        /// <summary>
-        /// 是否发布上架
-        /// </summary>
-        public bool IsPublish { get; set; }       
+        public decimal Weight { get; set; } 
       
         /// <summary>
        /// 规格

@@ -121,5 +121,15 @@ namespace EBS.Admin.Controllers
             _posFacade.SaleOrderSync(body);
             return "1";
         }
-	}
+        public string InputCashAmountSync(string body)
+        {
+            _posFacade.InputCashAmountSync(body);
+            return "1";
+        }
+        public string WorkScheduleSync(string body)
+        {
+            _posFacade.WorkScheduleSync(body);
+            return "1";
+        }
+    }
 }

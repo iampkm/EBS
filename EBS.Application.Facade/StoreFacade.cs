@@ -47,8 +47,20 @@ namespace EBS.Application.Facade
 
         public void Delete(string ids)
         {
-            _service.Delete(ids);
+            throw new Exception("门店不允许删除");
+           // _service.Delete(ids);
             _db.SaveChange();
+        }
+
+        public void EditLicense(int id,string license)
+        {
+            if (string.IsNullOrEmpty(license)) throw new Exception("门店授权码不能为空");
+            var model = _db.Table.Find<Store>(id);
+            model.LicenseCode = license;
+            model.EncryptionLicense();
+            _db.Update(model);
+            _db.SaveChange();
+
         }
     }
 }

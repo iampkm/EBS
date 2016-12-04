@@ -56,6 +56,11 @@ namespace EBS.Domain.Entity
         /// </summary>
         public int LoginErrorCount { get; private set; }
 
+        /// <summary>
+        ///可以查看门店的权限， 0查看所有，逗号分隔门店ID
+        /// </summary>
+        public string CanViewStores { get; set; }
+
         public void Actived()
         {
             this.Status = AccountStatus.Active;

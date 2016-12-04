@@ -11,5 +11,7 @@ namespace EBS.Application
         void Create(StoreModel model);
         void Edit(StoreModel model);
         void Delete(string ids);
+
+        void EditLicense(int id,string license);
     }
 }
