@@ -30,13 +30,14 @@ namespace EBS.Application.Facade
         public void Create(ProductModel model)
         {
             Product entity = model.MapTo<Product>();
+            entity.CreatedBy = model.UpdatedBy;
             entity.Code = _productService.GenerateNewCode(entity.CategoryId);
             _db.Insert(entity);
             // 有变价，记录变价
             if (entity.SalePrice > 0)
             {
                 var newCode = _sequenceService.GenerateNewCode(BillIdentity.AdjustSalePrice);
-                var adjustEntity = _adjustSalePriceService.Create(entity, model.SalePrice, newCode, 0, "");
+                var adjustEntity = _adjustSalePriceService.Create(entity, model.SalePrice, newCode, model.UpdatedBy);
                 _db.Insert(adjustEntity);
             }
             _db.SaveChange();
@@ -49,7 +50,7 @@ namespace EBS.Application.Facade
             if (model.SalePrice != entity.SalePrice)
             {
                 var newCode = _sequenceService.GenerateNewCode(BillIdentity.AdjustSalePrice);
-                var adjustEntity = _adjustSalePriceService.Create(entity, model.SalePrice, newCode, 0, "");             
+                var adjustEntity = _adjustSalePriceService.Create(entity, model.SalePrice, newCode, model.UpdatedBy);             
                 _db.Insert(adjustEntity);
 
             }
@@ -65,7 +66,7 @@ namespace EBS.Application.Facade
         //    _db.SaveChange();
         //}
 
-        public string Import(string productsIpput)
+        public string Import(string productsIpput,int editor)
         {
             var products = _productService.ConvertToProduct(productsIpput);
             string errors = "";
@@ -84,6 +85,9 @@ namespace EBS.Application.Facade
                 }
                 product.Code = _productService.GenerateNewCode(product.CategoryId);
                 successProducts.Add(product);
+            }
+            if (successProducts.Count == 0) {
+                throw new Exception("符合导入条件的商品数为0，请检查模板格式");
             }
             _db.Insert<Product>(successProducts.ToArray());
             _db.SaveChange();

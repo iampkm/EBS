@@ -49,7 +49,7 @@ namespace EBS.Application.Facade
         {
             throw new Exception("门店不允许删除");
            // _service.Delete(ids);
-            _db.SaveChange();
+           // _db.SaveChange();
         }
 
         public void EditLicense(int id,string license)

@@ -59,7 +59,7 @@
                 </div>
                 <div class="row">
                     <div class="col-sm-4 col-xs-4">
-                        <v-input type="text" label="编码 *："  v-bind:value.sync="model.code" minlength="7" maxlength="7"  placeholder="供应商类别1位+区域2位+简称4位" required icon>                           
+                        <v-input type="text" label="编码 *："  v-bind:value.sync="model.code" minlength="7" maxlength="7"  placeholder="供应商类别1位+区域2位+简称4位" required readonly icon>                           
                         </v-input> 
                         <input type="hidden" v-model="newCode" />
                     </div>  
@@ -218,6 +218,14 @@
                         var _code = "";
                         if (this.model.shortName != "") {
                             var _letter = pinyinUtil.getFirstLetter(this.model.shortName);
+                            //不足４位，自动随机数补齐
+                            var len = 4 - _letter.length;
+                            if (len > 0)
+                            {
+                                var number = Math.floor(Math.random() * 1000);
+                                var str = String(number);
+                                _letter = _letter + str.substring(0, len);
+                            }
                             _code = _code + _letter;
                         }
                         if (this.model.areaId != "")

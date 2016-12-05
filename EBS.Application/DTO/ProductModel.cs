@@ -8,6 +8,11 @@ namespace EBS.Application.DTO
 {
    public class ProductModel
     {
+       public ProductModel()
+       {
+           this.UpdatedOn = DateTime.Now;
+       }
+
        public int Id { get; set; }
         /// <summary>
         /// 商品名称，长度限制20个字符内
@@ -76,10 +81,6 @@ namespace EBS.Application.DTO
         /// </summary>
         public string Description { get; set; }
         /// <summary>
-        /// 是否发布上架
-        /// </summary>
-        public bool IsPublish { get; set; }
-        /// <summary>
         /// 规格
         /// </summary>
         public string Specification { get; set; }
@@ -114,9 +115,15 @@ namespace EBS.Application.DTO
 
         public string Unit { get; set; }
         /// <summary>
-        /// 创建时间
+        /// 创建时间/修改时间
         /// </summary>
-        public DateTime CreatedOn { get; set; }
+        public DateTime UpdatedOn { get; set; }
+       /// <summary>
+       /// 修改人
+       /// </summary>
+        public int UpdatedBy { get; set; }
+
+        
 
     }
 }

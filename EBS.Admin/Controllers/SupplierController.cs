@@ -19,13 +19,15 @@ namespace EBS.Admin.Controllers
          IQuery _query;
         ISupplierQuery _supplierQuery;
         ISupplierFacade _supplierFacade;
-        IAreaQuery _areaQuery;       
-        public SupplierController(IQuery query, ISupplierQuery supplierQuery, ISupplierFacade supplierFacade,IAreaQuery areaQuery)
+        IAreaQuery _areaQuery;
+        ICategoryQuery _categoryQuery;     
+        public SupplierController(IQuery query, ISupplierQuery supplierQuery, ISupplierFacade supplierFacade,IAreaQuery areaQuery,ICategoryQuery _categoryQuery)
         {
             this._query = query;
             this._supplierQuery = supplierQuery;
             this._supplierFacade = supplierFacade;
-            this._areaQuery = areaQuery;         
+            this._areaQuery = areaQuery;
+            this._categoryQuery = _categoryQuery;
         }
         public ActionResult Index()
         {           
@@ -37,7 +39,7 @@ namespace EBS.Admin.Controllers
             var rows = _supplierQuery.GetPageList(page, name,code);
 
             return Json(new { success = true, data = rows, total = page.Total }, JsonRequestBehavior.AllowGet);
-        }
+        }        
 
         public ActionResult Create()
         {
@@ -92,5 +94,29 @@ namespace EBS.Admin.Controllers
            
            // return Json(new { success = true, data = rows });
         }
-	}
+
+        #region 供应商商品维护
+        /// <summary>
+        /// 供应商商品
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult Product()
+        {
+            LoadCategory();
+            return View();
+        }
+        public JsonResult Import()
+        {
+            return Json(new { success = true });
+        }
+
+        private void LoadCategory()
+        {
+            var treeNodes = _categoryQuery.GetCategoryTree();
+            var tree = JsonConvert.SerializeObject(treeNodes);
+            ViewBag.Tree = tree;
+        }
+
+        #endregion
+    }
 }

@@ -29,7 +29,7 @@
                 </div>                 
                 <div class="row">
                     <div class="col-sm-2 col-xs-3">
-                        <v-input type="text" label="门店授权码*：" v-bind:value.sync="model.license" maxlength="30" placeholder="门店授权码" required icon></v-input>
+                        <v-input type="password" label="门店授权码*：" v-bind:value.sync="model.license" minlength=6 maxlength="30" placeholder="门店授权码" required icon></v-input>
                     </div>
                 </div>                
             </v-form>

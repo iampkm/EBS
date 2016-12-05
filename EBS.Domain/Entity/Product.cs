@@ -11,6 +11,7 @@ namespace EBS.Domain.Entity
         public Product()
         {
             this.CreatedOn = DateTime.Now;
+            this.UpdatedOn = DateTime.Now;
         }
         /// <summary>
         /// 商品名称，长度限制20个字符内
@@ -88,10 +89,7 @@ namespace EBS.Domain.Entity
         /// 批发价
         /// </summary>
        public decimal WholeSalePrice { get; set; }
-        /// <summary>
-        /// 移动平均成本价
-        /// </summary>
-       public decimal CostPrice { get; set; }       
+  
        /// <summary>
        /// 子SKU编码 ：  最小进货单位 拆零使用
        /// </summary>
@@ -104,6 +102,10 @@ namespace EBS.Domain.Entity
        /// 创建时间
        /// </summary>
        public DateTime CreatedOn { get; set; }
+
+       public int CreatedBy { get; set; }
+       public int UpdatedBy { get; set; }
+       public DateTime UpdatedOn { get; set; }
        /// <summary>
        /// 单位
        /// </summary>

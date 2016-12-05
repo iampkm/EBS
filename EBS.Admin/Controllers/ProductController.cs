@@ -19,19 +19,20 @@ namespace EBS.Admin.Controllers
         IQuery _query;
         IProductQuery _productQuery;
         IProductFacade _productFacade;
-        ICategoryQuery _categoryQuery;     
+        ICategoryQuery _categoryQuery;
+        IContextService _context;
 
-        public ProductController(IQuery query, IProductQuery productQuery, IProductFacade productFacade, ICategoryQuery categoryQuery)
+        public ProductController(IContextService context,IQuery query, IProductQuery productQuery, IProductFacade productFacade, ICategoryQuery categoryQuery)
         {
             this._query = query;
             this._productQuery = productQuery;
             this._productFacade = productFacade;
-            this._categoryQuery = categoryQuery;          
+            this._categoryQuery = categoryQuery;
+            this._context = context;
         }
         public ActionResult Index()
         {
             LoadCategory();
-            LoadBrand();
             return View();
         }
 
@@ -58,21 +59,20 @@ namespace EBS.Admin.Controllers
         {
             
             LoadCategory();
-            LoadBrand();
             //显示当前品类 规格名
             return View();
         }
         [HttpPost]
         public JsonResult Create(ProductModel model)
-        {            
+        {
+            model.UpdatedBy = _context.CurrentAccount.AccountId;
             this._productFacade.Create(model);
             return Json(new { success = true });
         }
         public ActionResult Edit(int id)
-        {
-           
+        {           
             LoadCategory();
-            LoadBrand();
+
             //显示当前品类 规格名
             var model = _query.Find<Product>(id);
             ViewBag.categoryName = _query.Find<Category>(model.CategoryId).Name;         
@@ -81,6 +81,7 @@ namespace EBS.Admin.Controllers
         [HttpPost]
         public JsonResult Edit(ProductModel model)
         {
+            model.UpdatedBy = _context.CurrentAccount.AccountId;
             this._productFacade.Edit(model);
             return Json(new { success = true });
         }
@@ -93,7 +94,7 @@ namespace EBS.Admin.Controllers
 
         public JsonResult Import(string productsInput)
         {
-            var error= this._productFacade.Import(productsInput);
+            var error= this._productFacade.Import(productsInput,_context.CurrentAccount.AccountId);
             return Json(new { success = true, data = error });
         }
 

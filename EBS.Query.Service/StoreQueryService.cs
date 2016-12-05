@@ -8,6 +8,7 @@ using EBS.Query.DTO;
 using EBS.Domain.Entity;
 using Dapper.DBContext;
 using System.Dynamic;
+using EBS.Infrastructure.Extension;
 namespace EBS.Query.Service
 {
    public class StoreQueryService:IStoreQuery
@@ -33,8 +34,8 @@ namespace EBS.Query.Service
             }
             if (!string.IsNullOrEmpty(canViewStores))
             {
-                where += "and t0.Id in (@CanViewStore) ";
-                param.CanViewStore = canViewStores;
+                where += "and t0.Id in @CanViewStore ";
+                param.CanViewStore = canViewStores.Split(',').ToIntArray();
             }
             string sql = "select t0.*,t1.FullName from Store t0 left join Area t1 on t0.AreaId=t1.Id where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);

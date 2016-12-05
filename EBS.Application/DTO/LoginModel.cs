@@ -58,8 +58,12 @@ namespace EBS.Application.DTO
         /// <returns></returns>
         public bool ShowSelectStore()
         {
+            if (string.IsNullOrEmpty(CanViewStores))
+            {
+                return true;
+            }
             var viewStoresArray = CanViewStores.Split(',');
-            if (viewStoresArray.Length == 0 || viewStoresArray.Length > 1)
+            if (viewStoresArray.Length > 1)
             {
                 return true;
             }

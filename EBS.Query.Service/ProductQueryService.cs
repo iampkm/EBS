@@ -41,7 +41,7 @@ namespace EBS.Query.Service
                 where += "and t0.BrandId=@BrandId ";
                 param.BrandId = brandId;
             }
-            string sql = @"select t0.Id,t0.Name,t0.Code,t0.BarCode,t0.Specification,t0.SalePrice,t0.IsPublish,t1.Name as CategoryName,t2.Name as BrandName 
+            string sql = @"select t0.Id,t0.Name,t0.Code,t0.BarCode,t0.Specification,t0.SalePrice,t1.Name as CategoryName,t2.Name as BrandName 
 from product t0 inner join category t1 on t0.CategoryId = t1.Id
 inner join brand t2 on t0.BrandId = t2.Id
 where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";

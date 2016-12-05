@@ -64,6 +64,15 @@ namespace EBS.Domain.Service
                 if (item.Contains("\t"))
                 {
                     string[] columns = item.Split('\t');
+                    var templength = 0m;
+                    var tempwidth = 0m;
+                    var tempHeight = 0m;
+                    var tempWeight = 0m;
+                    Decimal.TryParse(columns[7], out templength);
+                    Decimal.TryParse(columns[8], out tempwidth);
+                    Decimal.TryParse(columns[9], out tempHeight);
+                    Decimal.TryParse(columns[10], out tempWeight);
+                    
                     if (!products.Exists(n => n.Name == columns[0].Trim()))
                     {
                         var product = new Product()
@@ -76,6 +85,10 @@ namespace EBS.Domain.Service
                             Specification = columns[4],
                             SpecificationQuantity = string.IsNullOrEmpty(columns[5]) ? "1" : columns[5],
                             Unit = columns[6],
+                            Length = templength,
+                            Width = tempWeight,
+                            Height = tempHeight,
+                            Weight = tempWeight,
                             InputRate = 17,
                             OutRate = 17,
                             CreatedOn = DateTime.Now,
@@ -107,6 +120,6 @@ namespace EBS.Domain.Service
             }
             _db.Update<Product>(products.ToArray());
         }
-       
+
     }
 }

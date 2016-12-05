@@ -1,0 +1,286 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+@section styles{
+    <link href="~/Content/zTree.min.css" rel="stylesheet" />
+    <style>
+        .ztree li span {
+            font-size: 14px;
+        }
+    </style>
+}
+<!-- demo root element -->
+<div id="app">
+    <div class="box box-primary">
+        <div class="box-header">
+            <ol class="breadcrumb" style="padding:0px;margin:1px;">
+                <li><a href="/Supplier/Index"><i class="fa fa-dashboard"></i>供应商管理</a></li>
+                <li><a href="/Supplier/Product">供应商比价</a></li>
+            </ol>
+        </div>
+        <div class="box-body">
+            <div class="row">
+                <div class="col-xs-10 col-sm-10">
+                    <vue-table v-ref:vtable v-bind:columns="gridColumns"
+                               v-bind:url="url"
+                               v-bind:args="searchArgs" v-bind:data.sync="rows">
+                        <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                            <div class="col-xs-2">
+                                <input class="form-control" v-model="searchArgs.codeOrBarCode" placeholder="商品编码/条码" debounce="500" />
+                            </div>
+                            <div class="col-xs-2">
+                                <input class="form-control" v-model="searchArgs.name" placeholder="商品名称" debounce="500" />
+                            </div>
+                            <div class="form-group col-sm-2 col-xs-3">                               
+                                <div class="input-group ">
+                                    <input type="hidden" class="form-control" v-model="searchArgs.brandId">
+                                    <input type="text" class="form-control" v-model="selectBrand.name" placeholder="选择品牌" readonly>
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-flat btn-default" type="button" v-on:click="showBrand"><i class="fa fa-search"></i></button>
+                                        <button class="btn btn-flat btn-default" type="button" v-on:click="clearBrand"><i class="fa fa-eraser"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-sm-2 col-xs-3">
+                                <div class="input-group ">
+                                    <input type="hidden" class="form-control" v-model="searchArgs.supplierId">
+                                    <input type="text" class="form-control" v-model="selectSupplier.name" placeholder="选择供应商" readonly>
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-flat btn-default" type="button" v-on:click="showSupplier"><i class="fa fa-search"></i></button>
+                                        <button class="btn btn-flat btn-default" type="button" v-on:click="clearSupplier"><i class="fa fa-eraser"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>                       
+                        <span class="input-group-btn" slot="customButtons">
+                            <a class="btn btn-warning btn-flat" href="/Supplier/Import">导入商品</a>
+                        </span>
+                    </vue-table>
+                </div>
+                <div class="col-xs-2 col-sm-2">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">品类查询&nbsp;&nbsp;<button class="btn btn-flat btn-warning" v-on:click="cancelSelect()">取消选择</button></div>
+                        <div class="panel-body" style="padding:2px;overflow-y:auto">
+                            <ul id="ztree" class="ztree"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.box-body -->
+    </div>
+    <div class="clearfix"></div>
+    <v-modal title="选择品牌" ok-text="确 定" cancel-text="取 消" v-bind:callback="getBrand" v-bind:show.sync="selectBrand.modal" v-bind:effect="fade" width="50%">
+        <div slot="modal-body" class="modal-body">
+            <vue-table v-bind:columns="selectBrand.gridColumns"
+                       v-bind:url="selectBrand.url" v-bind:show-toolbar="false"
+                       v-bind:args="selectBrand.searchArgs" v-bind:data.sync="selectBrand.rows">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                    <div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="selectBrand.searchArgs.name" placeholder="品牌名" debounce="300" />
+                    </div>
+                </div>
+            </vue-table>
+        </div>
+    </v-modal>
+    <v-modal title="选择供应商" ok-text="确 定" cancel-text="取 消" v-bind:callback="getSupplier" v-bind:show.sync="selectSupplier.modal" v-bind:effect="fade" width="60%">
+        <div slot="modal-body" class="modal-body">
+            <vue-table v-bind:columns="selectSupplier.gridColumns"
+                       v-bind:url="selectSupplier.url" v-bind:show-toolbar="false"
+                       v-bind:args="selectSupplier.searchArgs" v-bind:data.sync="selectSupplier.rows">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                    <div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="selectSupplier.searchArgs.code" placeholder="输入供应编码" debounce="300" />
+                    </div>
+                    <div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="selectSupplier.searchArgs.name" placeholder="输入供应商名" debounce="300" />
+                    </div>
+                </div>
+            </vue-table>
+        </div>
+    </v-modal>
+</div>
+@{Html.RenderPartial("VueTableTemplate");}
+@section scripts{
+    <script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
+    <script src="~/Content/Vue/vuetable/vuetable.js"></script>
+    <script>
+        $("doucument").ready(function () {
+            var vue = new Vue({
+                components: {
+                    'v-modal': VueStrap.modal,
+                    'v-input': VueStrap.input
+                },
+                el: '#app',
+                data: {
+                    modal: false,
+                    searchQuery: '',
+                    gridColumns: [
+                        { name: 'Name', localName: '商品名', style: "<a href='/Product/Edit/{id}'>{column}</a>", width: '200' },
+                        { name: 'Code', localName: '编码' },
+                        { name: 'BarCode', localName: '条码' },
+                        { name: 'CategoryName', localName: '品类' },
+                        { name: 'BrandName', localName: '品牌' },
+                        { name: 'Specification', localName: '规格' },
+                        { name: 'SupplierName1', localName: '供应商1' },
+                        { name: 'SupplierName2', localName: '供应商2' }
+                    ],
+                    url: "/Product/LoadData",
+                    searchArgs: { name: '',codeOrBarCode:'',categoryId:'',brandId:0, supplierId: 0,},
+                    rows: [],
+                    productsInput:'',
+                    importInfo:'',
+                    importing:false,
+                    selectBrand: {
+                        modal: false,
+                        name: '',
+                        gridColumns: [
+                           { name: 'Id', localName: '编码' },
+                            { name: 'Name', localName: '名称' }
+                        ],
+                        url: "/Brand/LoadData",
+                        searchArgs: { name: '' },
+                        rows: []
+                    },
+                    selectSupplier: {
+                        modal: false,
+                        name: '',
+                        gridColumns: [
+                            { name: 'Code', localName: '编码', width: '100' },
+                            { name: 'Name', localName: '供应商名', width: '300' },
+                            { name: 'AreaName', localName: '供货区域', width: '200' },
+                            { name: 'SupplierType', localName: '类型', width: '100' },
+                        ],
+                        url: "/Supplier/LoadData",
+                        searchArgs: { name: '', code: '' },
+                        rows: []
+                    },
+                },
+                methods: {
+                    remove: function () {
+                        var v_ids = "";
+                        this.rows.forEach(function (item, index) {
+                            if (item.checked) {
+                                v_ids = item.Id + ",";
+                            }
+                        });
+                        if (v_ids == "") {
+                            bootbox.alert("请选择一条记录");
+                            return;
+                        }
+                        v_ids = v_ids.substring(0, v_ids.length - 1);
+                        v_self = this;
+                        bootbox.confirm("您确定删除该记录？", function (result) {
+                            if (result) {
+                                $.post("/Product/Delete", { ids: v_ids }, function (result) {
+                                    if (result.success) {
+                                        v_self.$refs.vtable.loadData();
+                                    }
+                                    else {
+                                        bootbox.alert(result.error);
+                                    }
+                                }, "json");
+                            }
+                        });
+                    },
+                    cancelSelect:function(){
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                        var nodes = treeObj.getSelectedNodes();
+                        if (nodes.length>0) {
+                            treeObj.cancelSelectedNode(nodes[0]);
+                        }
+                        vue.searchArgs.categoryId ="";
+                    },
+                    showModal: function () {
+                        this.modal = true;
+                    },
+                    importProduct:function()
+                    {
+                        var data = this.productsInput;
+                        if(data==""){return;}
+                        var _self = this;
+                        if(_self.importing){return;}
+                        _self.importInfo ="导入中...";
+                        _self.importing = true;
+                        $.post("/Product/Import", { productsInput: data }, function (result) {
+                            if (result.success) {
+                                _self.importInfo =result.data;
+                                _self.$refs.vtable.loadData();
+                                _self.productsInput = "";
+                            }
+                            else {
+                                _self.importInfo ="";
+                                bootbox.alert(result.error);
+                            }
+                            _self.importing = false;
+                        }, "json");
+                    },
+                    showBrand: function () {
+                        this.selectBrand.modal = true;
+                    },
+                    clearBrand: function () {
+                        this.model.BrandId = 0;
+                        this.selectBrand.name = "";
+                    },
+                    getBrand: function () {
+                        var selecteds = this.selectBrand.rows.filter(function (item) {
+                            return item.checked;
+                        });
+                        if (selecteds) {
+                            this.model.BrandId = selecteds[0].Id;
+                            this.selectBrand.name = selecteds[0].Name;
+                            this.selectBrand.modal = false;
+                        }
+                    },
+                    showSupplier: function () {
+                        this.selectSupplier.modal = true;
+                    },
+                    clearSupplier: function () {
+                        this.searchArgs.supplierId = 0;
+                        this.selectSupplier.name = "";
+                    },
+                    getSupplier: function () {
+                        var selecteds = this.selectSupplier.rows.filter(function (item) {
+                            return item.checked;
+                        });
+                        if (selecteds) {
+                            this.searchArgs.supplierId = selecteds[0].Id;
+                            this.selectSupplier.name = selecteds[0].Name;
+                            this.selectSupplier.modal = false;
+                        }
+                    },
+                }
+            });
+
+            var zTreeObj;
+            // zTree 的参数配置，深入使用请参考 API 文档（setting 配置详解）
+            var setting = {
+                data: {
+                    simpleData: {
+                        enable: true,
+                    }
+                },
+                callback:{
+                    onClick:function(event, treeId, treeNode){
+                        //点击展开/折叠节点
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                        var open = !treeNode.open;
+                        treeObj.expandNode(treeNode, open, false, false);
+                        vue.searchArgs.categoryId =treeNode.id;
+                    }
+                }
+            };
+            // zTree 的数据属性，深入使用请参考 API 文档（zTreeNode 节点数据详解）
+            var zNodes =@Html.Raw(ViewBag.Tree) ;
+            zTreeObj = $.fn.zTree.init($("#ztree"), setting, zNodes);
+        })
+
+
+
+    </script>
+}
+
+
+
+

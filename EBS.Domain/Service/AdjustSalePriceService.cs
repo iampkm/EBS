@@ -25,7 +25,7 @@ namespace EBS.Domain.Service
             _db.Insert(model);
         }
 
-        public AdjustSalePrice Create(Product product, decimal adjustPrice,string code,int editBy,string editor)
+        public AdjustSalePrice Create(Product product, decimal adjustPrice,string code,int editBy)
         {
             AdjustSalePrice model = new AdjustSalePrice();
             model.Code = code;

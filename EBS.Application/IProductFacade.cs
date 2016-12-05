@@ -13,6 +13,6 @@ namespace EBS.Application
 
         //void PublishToggle(string ids, bool isPublish);
 
-        string Import(string productsIpput);
+        string Import(string productsIpput, int editor);
     }
 }

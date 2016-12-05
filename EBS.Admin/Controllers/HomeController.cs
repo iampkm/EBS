@@ -15,9 +15,11 @@ namespace EBS.Admin.Controllers
     public class HomeController : Controller
     {
         IQuery _query;
-        public HomeController(IQuery query)
+        IContextService _context;
+        public HomeController(IContextService context,IQuery query)
         {
             this._query = query;
+            _context = context;
         }
         public ActionResult Index()
         {
@@ -34,6 +36,11 @@ namespace EBS.Admin.Controllers
         public ActionResult DashBoard()
         {
             return View();
+        }
+
+        public string CurrentUser()
+        {
+            return _context.CurrentAccount.NickName;
         }
 
         private string loadMenu()
