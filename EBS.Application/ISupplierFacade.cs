@@ -11,5 +11,6 @@ namespace EBS.Application
        void Create(SupplierModel model);
        void Edit(SupplierModel model);
         void Delete(string ids);
+        void ImportProduct(int supplierId, string products);
     }
 }

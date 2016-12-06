@@ -8,6 +8,7 @@ using Dapper.DBContext;
 using EBS.Domain.Service;
 using EBS.Domain.Entity;
 using EBS.Application.DTO;
+using EBS.Infrastructure.Extension;
 namespace EBS.Application.Facade
 {
     public class SupplierFacade : ISupplierFacade
@@ -71,5 +72,29 @@ namespace EBS.Application.Facade
             _service.Delete(ids);
             _db.SaveChange();
         }
+
+
+        public void ImportProduct(int supplierId, string products)
+        {
+            var productPriceDic = products.ToDecimalDic();
+            List<SupplierProduct> insertList = new List<SupplierProduct>();
+            List<SupplierProduct> updateList = new List<SupplierProduct>();
+            var productModels= _db.Table.FindAll<Product>("select Id,Code from Product where Code in @Codes", productPriceDic.Keys.ToArray());
+            foreach (var product in productModels)
+            {
+                var model= _db.Table.Find<SupplierProduct>(n => n.ProductId == product.Id && n.SupplierId == supplierId);
+                if (model == null)
+                {
+                    insertList.Add(new SupplierProduct(0, supplierId, product.Id, productPriceDic[product.Code]));
+                }
+                else {
+                    model.Price = productPriceDic[product.Code];
+                    updateList.Add(model);
+                }
+            }
+            _db.Insert<SupplierProduct>(insertList.ToArray());
+            _db.Update<SupplierProduct>(updateList.ToArray());
+            _db.SaveChange();
+        }       
     }
 }

@@ -62,6 +62,7 @@
     <Compile Include="DTO\SearchStoreInventoryHistory.cs" />
     <Compile Include="DTO\SearchStorePurchaseOrder.cs" />
     <Compile Include="DTO\SearchSupplierContract.cs" />
+    <Compile Include="DTO\ShelfTreeNode.cs" />
     <Compile Include="DTO\StoreDto.cs" />
     <Compile Include="DTO\StoreInventoryBatchQueryDto.cs" />
     <Compile Include="DTO\StoreInventoryHistoryQueryDto.cs" />
@@ -84,6 +85,7 @@
     <Compile Include="IProductQuery.cs" />
     <Compile Include="IPurchaseContractQuery.cs" />
     <Compile Include="IRoleQuery.cs" />
+    <Compile Include="IShelfQuery.cs" />
     <Compile Include="IStoreInventoryQuery.cs" />
     <Compile Include="IStorePurchaseOrderQuery.cs" />
     <Compile Include="IStoreQuery.cs" />

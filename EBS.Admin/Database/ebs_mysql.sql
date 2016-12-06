@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2016-12-04 16:19:41                          */
+/* Created on:     2016-12-06 11:43:04                          */
 /*==============================================================*/
 
 
@@ -77,6 +77,20 @@ drop table if exists RoleMenu;
 drop table if exists SaleOrder;
 
 drop table if exists SaleOrderItem;
+
+drop table if exists Shelf;
+
+drop table if exists ShelfLayer;
+
+drop table if exists ShelfLayerProduct;
+
+drop table if exists Stocktaking;
+
+drop table if exists StocktakingItem;
+
+drop table if exists StocktakingPlan;
+
+drop table if exists StocktakingPlanItem;
 
 drop index idx_store_Code on Store;
 
@@ -655,6 +669,137 @@ create table SaleOrderItem
    Quanttiy             int comment '数量',
    primary key (Id)
 );
+
+/*==============================================================*/
+/* Table: Shelf                                                 */
+/*==============================================================*/
+create table Shelf
+(
+   Id                   int not null auto_increment comment '编号',
+   StoreId              int,
+   Code                 varchar(20) comment '货架码',
+   Number               int comment '货架码',
+   Name                 varchar(50) comment '货架名',
+   primary key (Id)
+);
+
+alter table Shelf comment '货架';
+
+/*==============================================================*/
+/* Table: ShelfLayer                                            */
+/*==============================================================*/
+create table ShelfLayer
+(
+   Id                   int not null comment '编号',
+   Code                 varchar(20) comment '货架码',
+   Number               int comment '货架码',
+   ShelfId              int comment '货架名',
+   primary key (Id)
+);
+
+alter table ShelfLayer comment '货架层';
+
+/*==============================================================*/
+/* Table: ShelfLayerProduct                                     */
+/*==============================================================*/
+create table ShelfLayerProduct
+(
+   Id                   int not null comment '编号',
+   StoreId              int,
+   Code                 varchar(20) comment '货架码',
+   Number               int comment '货架码',
+   ProductId            int comment '商品ID',
+   Quantity             int,
+   ShelfLayerId         int,
+   primary key (Id)
+);
+
+/*==============================================================*/
+/* Table: Stocktaking                                           */
+/*==============================================================*/
+create table Stocktaking
+(
+   Id                   int not null auto_increment comment '编号',
+   StocktakingPlanId    int comment '盘点计划编号',
+   Code                 nvarchar(20) comment '盘点单号',
+   StocktakingType      int comment '盘点表类型1 盘点空表，2 盘点修正表',
+   ShelfCode            nvarchar(20) comment '货架码',
+   CreateTime           datetime comment '创建时间',
+   CreateBy             int comment '创建人',
+   CreateByName         nvarchar(50) comment '创建人名',
+   Status               int comment '状态（待审，已审）',
+   StoreId              int comment '门店',
+   Note                 nvarchar(1000) comment '备注',
+   primary key (Id)
+);
+
+alter table Stocktaking comment '盘点表';
+
+/*==============================================================*/
+/* Table: StocktakingItem                                       */
+/*==============================================================*/
+create table StocktakingItem
+(
+   Id                   int not null comment '编号',
+   StocktakingId        int,
+   ProductId            nvarchar(50) comment '商品编码',
+   ProductName          nvarchar(300) comment '商品名',
+   BarCode              nvarchar(50) comment '条码',
+   Specification        nvarchar(100) comment '规格',
+   CostPrice            decimal(8,2) comment '调拨成本价',
+   SalesPrice           decimal(8,2) comment '销售价',
+   Quantity             int comment '盘点锁定库存数',
+   CountQuantity        int comment '盘点数量',
+   CorectQuantity       int comment '修正数',
+   CorectReason         nvarchar(500) comment '修正原因',
+   Note                 nvarchar(500) comment '备注',
+   primary key (Id)
+);
+
+alter table StocktakingItem comment '盘点明细';
+
+/*==============================================================*/
+/* Table: StocktakingPlan                                       */
+/*==============================================================*/
+create table StocktakingPlan
+(
+   Id                   int not null auto_increment comment '编号',
+   Code                 nvarchar(20) comment '盘点代码',
+   CreateBy             int comment '创建人',
+   CreateByName         nvarchar(50) comment '创建人名',
+   CreateTime           datetime comment '创建时间（盘点日期）',
+   UpdateBy             int comment '更新人',
+   UpdateByName         nvarchar(50) comment '更新人名',
+   UpdateTime           datetime comment '更新时间',
+   Method               int comment '盘点方式（大盘：小盘）',
+   Status               int comment '盘点状态（待盘，初盘，复盘，终盘）',
+   StoreId              int comment '门店编号',
+   Note                 nvarchar(1000) comment '备注',
+   StocktakingDate      datetime comment '盘点日期',
+   primary key (Id)
+);
+
+alter table StocktakingPlan comment '盘点计划';
+
+/*==============================================================*/
+/* Table: StocktakingPlanItem                                   */
+/*==============================================================*/
+create table StocktakingPlanItem
+(
+   Id                   int not null auto_increment comment '编号',
+   StocktakingPlanId    int comment '盘点计划编号',
+   ProductId            int comment '系统编码',
+   ProductName          nvarchar(300) comment '商品名',
+   BarCode              nvarchar(50) comment '条码',
+   Specification        nvarchar(100) comment '规格',
+   CostPrice            decimal(8,2) comment '调拨成本价',
+   SalePrice            decimal(8,2) comment '销售价',
+   Quantity             int comment '库存数量',
+   CountQuantity        int comment '盘点数量',
+   primary key (Id)
+);
+
+alter table StocktakingPlanItem comment '盘点计划明细';
 
 /*==============================================================*/
 /* Table: Store                                                 */

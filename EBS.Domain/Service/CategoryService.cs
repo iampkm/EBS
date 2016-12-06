@@ -48,12 +48,12 @@ namespace EBS.Domain.Service
             {
                 if (nodes.Count == 0)
                 {
-                    model.Id = "11";
+                    model.Id = "10";
                 }
                 else
                 {
                     var maxNumber = nodes.Max(n => Convert.ToInt32(n.Id)) + 1;
-                    var startNumber = 10;
+                    var startNumber = 9;
                     for (int i = 0; i < nodes.Count; i++)
                     {
                         var node = nodes[i];

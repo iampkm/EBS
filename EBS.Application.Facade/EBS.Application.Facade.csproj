@@ -66,6 +66,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PurchaseContractFacade.cs" />
     <Compile Include="RoleFacade.cs" />
+    <Compile Include="ShelfFacade.cs" />
     <Compile Include="StoreFacade.cs" />
     <Compile Include="StorePurchaseOrderFacade.cs" />
     <Compile Include="SupplierFacade.cs" />
@@ -78,6 +79,10 @@
     <ProjectReference Include="..\EBS.Domain\EBS.Domain.csproj">
       <Project>{5dd4ab82-555f-4f86-8613-2cdce5df0e43}</Project>
       <Name>EBS.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EBS.Infrastructure\EBS.Infrastructure.csproj">
+      <Project>{867f0957-0862-4c10-83c3-dca12e188ff3}</Project>
+      <Name>EBS.Infrastructure</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

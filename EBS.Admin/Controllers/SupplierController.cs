@@ -105,8 +105,15 @@ namespace EBS.Admin.Controllers
             LoadCategory();
             return View();
         }
-        public JsonResult Import()
+
+        public ActionResult ImportProduct()
         {
+            return View();
+        }
+        [HttpPost]
+        public JsonResult ImportProduct(int supplierId,string products)
+        {
+            _supplierFacade.ImportProduct(supplierId, products);
             return Json(new { success = true });
         }
 

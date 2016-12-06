@@ -1,0 +1,136 @@
+﻿@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<!-- demo root element -->
+<div id="app" class="box box-primary">
+    <div class="box-header with-border">
+        <ol class="breadcrumb" style="padding:0px;margin:1px;">
+            <li><a href="/Supplier/Index"><i class="fa fa-dashboard"></i>供应商管理</a></li>
+            <li class="active"><a href="/Supplier/ImportProduct">导入商品</a></li>
+        </ol>
+    </div>
+    <!-- /.box-header -->
+    <!-- form start -->
+    <form v-on:submit.prevent="onSubmit">
+        <div class="box-body">
+            <v-form v-bind:valid.sync="valid">
+                <div class="row">
+                    <div class="col-sm-2 col-xs-3">
+                        <label>供应商</label>
+                        <div class="input-group ">
+                            <input type="hidden" class="form-control" v-model="model.supplierId">
+                            <input type="text" class="form-control" v-model="selectSupplier.name" placeholder="选择供应商" readonly>
+                            <span class="input-group-btn">
+                                <button class="btn btn-flat btn-default" type="button" v-on:click="showSupplier"><i class="fa fa-search"></i></button>
+                                <button class="btn btn-flat btn-default" type="button" v-on:click="clearSupplier"><i class="fa fa-eraser"></i></button>
+                            </span>
+                        </div>
+                    </div>                    
+                </div>
+                <div class="row">
+                    <div class="col-sm-2 col-xs-3">
+                        <v-input type="textarea" label="商品列表*：" v-bind:value.sync="model.products"  placeholder="复制excel文件中的商品编码，商品价两列格粘贴到该文本框中" required icon></v-input>
+                    </div>                   
+                </div>
+               
+            </v-form>
+        </div>
+        <div class="box-footer">
+            <div class="row">
+                <div class="col-sm-4 col-xs-4">
+                    <button type="submit" class="btn btn-warning btn-flat" v-bind:disabled="!valid">保 存</button>
+                    <a class="btn btn-default btn-flat" href="/Supplier/Index">取 消</a>
+                </div>
+            </div>
+        </div>
+    </form>
+    <!-- modal -->
+    <v-modal title="选择供应商" ok-text="确 定" cancel-text="取 消" v-bind:callback="getSupplier" v-bind:show.sync="selectSupplier.modal" v-bind:effect="fade" width="60%">
+        <div slot="modal-body" class="modal-body">
+            <vue-table v-bind:columns="selectSupplier.gridColumns"
+                       v-bind:url="selectSupplier.url" v-bind:show-toolbar="false"
+                       v-bind:args="selectSupplier.searchArgs" v-bind:data.sync="selectSupplier.rows">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                    <div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="selectSupplier.searchArgs.code" placeholder="输入供应编码" debounce="300" />
+                    </div>
+                    <div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="selectSupplier.searchArgs.name" placeholder="输入供应商名" debounce="300" />
+                    </div>
+                </div>
+            </vue-table>
+        </div>
+    </v-modal>
+</div>
+@{Html.RenderPartial("VueTableTemplate");}
+@section scripts{
+    <script src="~/Content/Vue/vuetable/vuetable.js"></script>
+    <script>
+        $("doucument").ready(function () {
+            var demo = new Vue({
+                components: {
+                    'v-modal': VueStrap.modal,
+                    'v-input': VueStrap.input,
+                    'v-form': VueStrap.formGroup
+                },
+                el: '#app',
+                data: {
+                    valid: false,
+                    model: {
+                        supplierId:0,
+                        products:''
+                    },
+                    selectSupplier: {
+                        modal: false,
+                        name: '',
+                        gridColumns: [
+                            { name: 'Code', localName: '编码', width: '100' },
+                            { name: 'Name', localName: '供应商名', width: '300' },
+                            { name: 'AreaName', localName: '供货区域', width: '200' },
+                            { name: 'SupplierType', localName: '类型', width: '100' },
+                        ],
+                        url: "/Supplier/LoadData",
+                        searchArgs: { name: '', code: '' },
+                        rows: []
+                    },
+                },
+                methods: {
+                    onSubmit: function () {
+                        //获取选择节点
+                        if (this.model.supplierId == 0) { bootbox.alert("请选择供应商！"); return; }
+                        var v_data = this.model;
+                        $.post("/Supplier/ImportProduct", v_data, function (result) {
+                            if (result.success) {
+                                bootbox.alert("保存成功！", function () {
+                                    window.location.href = "/Supplier/Product";
+                                });
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
+                    },                    
+                    showSupplier: function () {
+                        this.selectSupplier.modal = true;
+                    },
+                    clearSupplier: function () {
+                        this.model.supplierId = 0;
+                        this.selectSupplier.name = "";
+                    },
+                    getSupplier: function () {
+                        var selecteds = this.selectSupplier.rows.filter(function (item) {
+                            return item.checked;
+                        });
+                        if (selecteds) {
+                            this.model.supplierId = selecteds[0].Id;
+                            this.selectSupplier.name = selecteds[0].Name;
+                            this.selectSupplier.modal = false;
+                        }
+                    },
+                }
+            });            
+
+        });        
+
+    </script>
+}
