@@ -41,8 +41,8 @@ namespace EBS.Admin.Controllers
         public JsonResult GetShelfTree(int storeId)
         {
             var treeNodes = _shelfQuery.GetShelfTree(storeId);
-            var tree = JsonConvert.SerializeObject(treeNodes);
-            return Json(new { success = true, data = tree });
+           // var tree = JsonConvert.SerializeObject(treeNodes);
+            return Json(new { success = true, data = treeNodes });
         }
 
         public JsonResult CreateShelf(int storeId,string name,string code)
@@ -64,7 +64,7 @@ namespace EBS.Admin.Controllers
             return Json(new { success = true, data = node });
         }
 
-        public JsonResult Edit(string id, string text)
+        public JsonResult Edit(string id, string name)
         {
            // _shelfFacade.Edit(id, text);
             return Json(new { success = true });

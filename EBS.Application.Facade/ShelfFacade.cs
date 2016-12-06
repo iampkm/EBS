@@ -46,5 +46,10 @@ namespace EBS.Application.Facade
             _db.SaveChange();
             return model.Code;
         }
+
+        public void EditShelf(int id, string name)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

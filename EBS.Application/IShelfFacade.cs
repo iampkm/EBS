@@ -13,5 +13,7 @@ namespace EBS.Application
        string CreateShelfLayer(int shelfId);
 
        string CreateProduct(int storeId, int shelfLayerId, string productCodeOrBarCode);
+
+        void EditShelf(int id, string name);
     }
 }

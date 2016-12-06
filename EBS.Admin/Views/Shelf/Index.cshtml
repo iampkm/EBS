@@ -22,31 +22,34 @@
     <form v-on:submit.prevent="onSubmit">
         <div class="box-body">
             <div class="row">                
-                <div class="form-group col-sm-2 col-xs-3">
+                <div class="col-sm-2 col-xs-3">
                     <div class="input-group ">
-                        <input type="hidden" class="form-control" v-model="model.storeId">
+                        <input type="hidden" class="form-control" v-model="storeId">
                         <input type="text" class="form-control" v-model="selectStore.name" placeholder="选择门店" readonly>
                         <span class="input-group-btn">
                             <button class="btn btn-flat btn-default" type="button" v-on:click="showStore"><i class="fa fa-search"></i></button>
                         </span>
                     </div>
-                </div>      
+                </div> 
+                <div class="col-sm-10 col-xs-9">
+                    <button type="button" class="btn btn-success btn-flat" v-on:click="create()">
+                        <span class="glyphicon glyphicon-plus">新增货架</span>
+                    </button>
+                    <button type="button" class="btn btn-success btn-flat" v-on:click="createLayer()">
+                        <span class="glyphicon glyphicon-plus">新增货架层</span>
+                    </button>
+                    <button type="button" class="btn btn-success btn-flat" v-on:click="edit()"><span class="glyphicon glyphicon-pencil">修改</span></button>
+                    <button type="button" class="btn btn-success btn-flat" v-on:click="remove()"><span class="glyphicon glyphicon-trash">删除</span></button>
+                    <button type="button" class="btn btn-success btn-flat" v-on:click="cancelSelect()"><span class="glyphicon glyphicon-minus">取消选择</span></button>
+                    <button type="button" class="btn btn-success btn-flat" v-on:click="reloadTree()">
+                        <span class="glyphicon glyphicon-refresh">刷新</span>
+                    </button>
+                </div>     
             </div>
             <div class="row">               
                 <div class="col-xs-4 col-sm-4">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <button type="button" class="btn btn-success btn-flat" v-on:click="create()">
-                                <span class="glyphicon glyphicon-plus">新增货架</span>
-                            </button>
-                            <button type="button" class="btn btn-success btn-flat" v-on:click="create()">
-                                <span class="glyphicon glyphicon-plus">新增货架层</span>
-                            </button>
-                            <button type="button" class="btn btn-success btn-flat" v-on:click="edit()"><span class="glyphicon glyphicon-pencil">修改</span></button>
-                            <button type="button" class="btn btn-success btn-flat" v-on:click="remove()"><span class="glyphicon glyphicon-trash">删除</span></button>
-                            <button type="button" class="btn btn-success btn-flat" v-on:click="cancelSelect()"><span class="glyphicon glyphicon-minus">取消选择</span></button>
-                        </div>
-                        <div class="panel-body">
+                    <div class="panel panel-default">                       
+                        <div class="panel-body" style="overflow-y:auto;height:500px;">
                             <ul id="ztree" class="ztree"></ul>
                         </div>
                     </div>
@@ -65,10 +68,9 @@
     <v-modal v-bind:title="modalTitle" ok-text="保 存" cancel-text="取 消" v-bind:callback="onSubmit" v-bind:show.sync="modal" v-bind:effect="fade" width="800">
         <div slot="modal-body" class="modal-body">
             <div class="row">
-                <div class="form-group col-sm-4 col-xs-4">
-                    <label for="inputPassword3" class="control-label">货架编码：</label>
-                    <input type="hidden" v-model="model.parentId" />                  
-                    <v-input type="text" label="货架编码：" v-bind:value.sync="model.code" placeholder="货架编码" maxlength="4" pattern="^[0-9]+$" icon></v-input>
+                <div class="form-group col-sm-4 col-xs-4">                    
+                    <input type="hidden" v-model="model.pId" />                  
+                    <v-input type="text" label="货架编码：" v-bind:value.sync="model.code" placeholder="为空自动生成" maxlength="4" pattern="^[0-9]+$" icon></v-input>
                 </div>
             </div>
             <div class="row">
@@ -111,13 +113,13 @@
                     modalTitle:"新增货架",
                     valid: false,
                     operate:'add',
+                    storeId:0,
                     model: {
-                        id:'',
+                        id:0,
                         name: '',
-                        parentId: '',
-                        parentName:'',
-                        code:'',
-                        storeId:0,
+                        pId: 0,
+                        code:'',                       
+                        showName:''
                     },
                     selectStore: {
                         modal: false,
@@ -141,16 +143,19 @@
                             v_url ="/Shelf/Edit" ;
                         }
                         var v_self = this;
-                        if(this.model.storeId==0){
+                        if(this.storeId==0){
                             bootbox.alert("请选择门店");return;
                         }
                         $.post(v_url, v_data, function (result) {
                             if (result.success) {
-                                v_self.modal = false;
-                                if(v_self.operate=="add"){
-                                  //  v_self.model.code = result.code;
-                                }
+                                v_self.modal = false;                               
                                 v_self.refreshTree(result.data);
+                              //  reloadTree(v_self.storeId);
+                                v_self.model.id = 0;
+                                v_self.model.pId = 0;
+                                v_self.model.name="";
+                                v_self.model.code="";
+                                v_self.model.showName="";
                             }
                             else {
                                 bootbox.alert(result.error);
@@ -162,32 +167,60 @@
                         var parentNode = treeObj.getSelectedNodes()[0];
                         if(this.operate=="add")
                         {
-                            //var nodeName = "["+this.model.id+"] "+ this.model.text;
-                            //var nodeName =this.model.code + "("+this.model.code+")";
-                            //var newNode = {id:this.model.id, name:nodeName,pId:this.model.parentId,text:this.model.code };
-                            //if(parentNode)
-                            //{    //有父节点
-                            //    newNode.pId = parentNode.id;
-                            //}
                            treeObj.addNodes(parentNode, node);
                         }
                         else{
-                            //编辑
-                          //  parentNode.name ="["+parentNode.id+"] " + this.model.text;
                             treeObj.updateNode(node);
                         }
 
                     },
+                    reloadTree:function()
+                    {
+                        //加载选择门店的货架数据
+                        var selectStore = this.storeId;
+                        if(selectStore==0){return;}
+                        $.get("/Shelf/GetShelfTree", { storeId: selectStore }, function (result) {
+                            if (result.success) {                                    
+                                loadTree(result.data);
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
+                    },
                     create: function () {
                         this.operate ="add";
+                        this.cancelSelect(); //添加货架不需要选择节点                      
+                        this.modal = true;
+                    },
+                    createLayer:function(){
+                        this.operate ="add";
+                        var v_self = this;
                         var treeObj = $.fn.zTree.getZTreeObj("ztree");
                         var selectNode = treeObj.getSelectedNodes()[0];
-                        if(selectNode)
+                        if(selectNode&&selectNode.code.length==4)
                         {
-                            this.model.id = selectNode.id;
-                            this.model.name = selectNode.name;
+                            var v_url="/Shelf/CreateLayer" ;
+                            var v_data = {shelfId:selectNode.id }
+                            $.post(v_url, v_data, function (result) {
+                                if (result.success) {  
+                                    v_self.refreshTree(result.data);
+                                  //  reloadTree(v_self.storeId);
+                                    v_self.model.id = 0;
+                                    v_self.model.pId = 0;
+                                    v_self.model.name="";
+                                    v_self.model.code="";
+                                    v_self.model.showName="";
+                                }
+                                else {
+                                    bootbox.alert(result.error);
+                                }
+                            }, "json");
                         }
-                        this.modal = true;
+                        else
+                        {
+                            bootbox.alert("请选择一个货架");
+                        }
                     },
                     edit:function(){
 
@@ -195,17 +228,17 @@
                         this.modalTitle="修改货架"
                         var treeObj = $.fn.zTree.getZTreeObj("ztree");
                         var selectNode = treeObj.getSelectedNodes()[0];
-                        if(selectNode)
+                        //只能编辑货架
+                        if(selectNode&&selectNode.code.length==4)
                         {
                             var parentNode = selectNode.getParentNode();
                             if(parentNode)
                             {
-                                this.model.parentId = parentNode.id;
-                                this.model.parentName = parentNode.name;
+                                this.model.pId = parentNode.id;
                             }
                             this.model.id = selectNode.id;
                             this.model.name = selectNode.name;
-                            this.model.text = selectNode.text;
+                            this.model.code = selectNode.code;
                             this.modal = true;
                         }
                         else
@@ -247,7 +280,7 @@
                         this.selectStore.modal = true;
                     },
                     clearStore: function () {
-                        this.model.storeId = 0;
+                        this.storeId = 0;
                         this.selectStore.name = "";
                     },
                     getStore: function () {
@@ -255,39 +288,16 @@
                             return item.checked;
                         });
                         if (selecteds) {
-                            this.model.storeId = selecteds[0].Id;
+                            this.storeId = selecteds[0].Id;
                             this.selectStore.name = selecteds[0].Name;
                             this.selectStore.modal = false;
-
-                            //加载选择门店的货架数据
-                            $.get("/Shelf/GetShelfTree", { storeId: this.model.storeId }, function (result) {
-                                if (result.success) {                                    
-                                    loadTree(result.data);
-                                }
-                                else {
-                                    bootbox.alert(result.error);
-                                }
-                            }, "json");
+                            this.reloadTree();                           
                         }
 
                     },
-                },
-                watch:{
-                    'modal':function(val,oldVal)
-                    {
-                        if(!val){
-                            this.model={
-                                id:'',
-                                name: '',
-                                parentId: '',
-                                parentName:'',
-                                text:'',
-                            };
-                        }
-                    }
                 }
             });
-            var zNodes =@Html.Raw(ViewBag.Tree) ;        
+             var zNodes =@Html.Raw(ViewBag.Tree) ; 
             loadTree(zNodes);
         });
 
@@ -297,8 +307,15 @@
             // zTree 的参数配置，深入使用请参考 API 文档（setting 配置详解）
             var setting = {
                 data: {
-                    simpleData: {
-                        enable: true,
+                    key:{name:"showName"}
+                },
+                callback:{
+                    onClick:function(event, treeId, treeNode){
+                        //点击展开/折叠节点
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                        var open = !treeNode.open;
+                        treeObj.expandNode(treeNode, open, false, false);
+                       // vue.searchArgs.categoryId =treeNode.id;
                     }
                 }
             };
