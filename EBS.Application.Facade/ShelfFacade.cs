@@ -14,12 +14,10 @@ namespace EBS.Application.Facade
    public class ShelfFacade:IShelfFacade
     {
         IDBContext _db;
-        CategoryService _service;
         ShelfService _shelfService;
         public ShelfFacade(IDBContext dbContext)
         {
             _db = dbContext;
-            _service = new CategoryService(this._db);
             _shelfService = new ShelfService(this._db);
         }
 
@@ -47,9 +45,38 @@ namespace EBS.Application.Facade
             return model.Code;
         }
 
+        public string InsertBefore(string productCodeOrBarCode, int shelfProductId)
+        {
+            var model = _shelfService.InsertBefore(productCodeOrBarCode, shelfProductId);
+            _db.Insert(model);
+            _db.SaveChange();
+            return model.Code;
+        }
+         
+
         public void EditShelf(int id, string name)
         {
-            throw new NotImplementedException();
+            var model= _db.Table.Find<Shelf>(id);
+            model.Name = name;
+            _db.Update(model);
+            _db.SaveChange();
+        }
+
+
+        public void DeleteAll(int id,string code)
+        {
+            if (code.Length == 4)
+            {
+                _shelfService.DeleteShelf(id);
+            }
+            else if (code.Length == 6)
+            {
+                _shelfService.DeleteShelfLayer(id);
+            }
+            else {
+                _shelfService.DeleteShelfLayerProduct(id);
+            }
+            _db.SaveChange();
         }
     }
 }

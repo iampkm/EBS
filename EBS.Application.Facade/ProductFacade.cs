@@ -10,6 +10,7 @@ using Dapper.DBContext;
 using EBS.Domain.Service;
 using EBS.Domain.ValueObject;
 using EBS.Application.Facade.Mapping;
+using System.Diagnostics;
 namespace EBS.Application.Facade
 {
     public class ProductFacade : IProductFacade
@@ -68,6 +69,8 @@ namespace EBS.Application.Facade
 
         public string Import(string productsIpput,int editor)
         {
+            Stopwatch st = new Stopwatch();
+            st.Start();
             var products = _productService.ConvertToProduct(productsIpput);
             string errors = "";
             var successProducts = new List<Product>();
@@ -91,7 +94,8 @@ namespace EBS.Application.Facade
             }
             _db.Insert<Product>(successProducts.ToArray());
             _db.SaveChange();
-            return errors == "" ? "导入成功" : errors;
+            st.Stop();
+            return string.Format("导入结束。总耗时：{0}:{1}:{2}。{3}", st.Elapsed.Hours, st.Elapsed.Minutes, st.Elapsed.Seconds, errors);            
         }
 
         private Dictionary<string, decimal> GetProductDic(string productIds)

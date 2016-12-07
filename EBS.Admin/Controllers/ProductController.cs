@@ -75,7 +75,8 @@ namespace EBS.Admin.Controllers
 
             //显示当前品类 规格名
             var model = _query.Find<Product>(id);
-            ViewBag.categoryName = _query.Find<Category>(model.CategoryId).Name;         
+            ViewBag.categoryName = _query.Find<Category>(model.CategoryId).Name;
+            ViewBag.brandName = _query.Find<Brand>(model.BrandId).Name;
             return View(model);
         }
         [HttpPost]

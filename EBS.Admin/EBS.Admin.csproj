@@ -1231,6 +1231,8 @@
     <Content Include="Views\Supplier\Product.cshtml" />
     <Content Include="Views\Supplier\ImportProduct.cshtml" />
     <Content Include="Views\Shelf\Index.cshtml" />
+    <Content Include="Views\Shelf\PrintShelfGrid.cshtml" />
+    <Content Include="Views\Shelf\PrintShelfStocktaking.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">

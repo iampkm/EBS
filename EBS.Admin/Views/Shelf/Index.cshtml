@@ -44,19 +44,60 @@
                     <button type="button" class="btn btn-success btn-flat" v-on:click="reloadTree()">
                         <span class="glyphicon glyphicon-refresh">刷新</span>
                     </button>
+                    <button type="button" class="btn btn-default btn-flat" v-on:click="PrintShelfGrid()" title="打印棚格图">
+                        <span class="glyphicon glyphicon-print" aria-hidden="true">棚格图</span>
+                    </button>
+                    <button type="button" class="btn btn-default btn-flat" v-on:click="PrintShelfStocktaing()" title="打印盘点表">
+                        <span class="glyphicon glyphicon-print" aria-hidden="true">盘点表</span>
+                    </button>
+                    <button type="button" class="btn btn-warning btn-flat" v-on:click="showAddProduct()" title="添加商品">
+                        <span class="glyphicon glyphicon-print" aria-hidden="true">添加商品</span>
+                    </button>
+                    <button type="button" class="btn btn-warning btn-flat" v-on:click="deleteProduct()" title="删除商品">
+                        <span class="glyphicon glyphicon-print" aria-hidden="true">删除商品</span>
+                    </button>
                 </div>     
             </div>
-            <div class="row">               
-                <div class="col-xs-4 col-sm-4">
-                    <div class="panel panel-default">                       
+            <div class="row" style="margin-top:10px;">               
+                <div class="col-xs-4 col-sm-4" > 
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            货架列表
+                        </div>
                         <div class="panel-body" style="overflow-y:auto;height:500px;">
                             <ul id="ztree" class="ztree"></ul>
                         </div>
-                    </div>
+                    </div>                  
+                   
                 </div>
                 <div class="col-xs-8 col-sm-8">
-
+                    <vue-table v-ref:vtable v-bind:columns="gridColumns"
+                               v-bind:url="url"
+                               v-bind:args="searchArgs" v-bind:data.sync="rows" v-bind:show-toolbar="showTool">
+                        @*<div class="row" style="margin-bottom:10px;" slot="customSearch">
+                <div class="col-xs-2">
+                    <input class="form-control" v-model="searchArgs.codeOrBarCode" placeholder="商品编码/条码" debounce="500" />
                 </div>
+                <div class="col-xs-2">
+                    <input class="form-control" v-model="searchArgs.name" placeholder="商品名称" debounce="500" />
+                </div>
+                <div class="form-group col-sm-2 col-xs-3">
+                    <div class="input-group ">
+                        <input type="hidden" class="form-control" v-model="searchArgs.brandId">
+                        <input type="text" class="form-control" v-model="selectBrand.name" placeholder="选择品牌" readonly>
+                        <span class="input-group-btn">
+                            <button class="btn btn-flat btn-default" type="button" v-on:click="showBrand"><i class="fa fa-search"></i></button>
+                            <button class="btn btn-flat btn-default" type="button" v-on:click="clearBrand"><i class="fa fa-eraser"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <span class="input-group-btn" slot="customButtons">
+                <a class="btn btn-warning btn-flat" href="/Product/Create">新 增</a>
+                <a class="btn btn-success btn-flat" v-on:click="showModal">导入商品</a>
+            </span>*@
+                    </vue-table>
+                </div>  
             </div>
         </div>
         <!-- /.box-body -->
@@ -93,15 +134,27 @@
             </vue-table>
         </div>
     </v-modal>
+    <v-modal title="添加商品" ok-text="保 存" cancel-text="取 消" v-bind:callback="saveProduct" v-bind:show.sync="shelfProduct.modal" v-bind:effect="fade" width="800">
+        <div slot="modal-body" class="modal-body">
+            <div class="row">
+                <div class="col-sm-4 col-xs-4">
+                    <label><input type="checkbox" v-model="shelfProduct.insertBefore" />插入</label>
+                    <input type="text" class="form-control" v-model="shelfProduct.productCodeOrBarCode" v-on:keyup.enter="saveProduct" placeholder="录入商品编码或条码" />
+                </div>
+            </div>
+        </div>
+    </v-modal>
 </div>
 @{Html.RenderPartial("VueTableTemplate");}
 @section scripts{
     <script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
 <script src="~/Content/Vue/vuetable/vuetable.js"></script>
+<script src="~/Scripts/jquery.PrintArea.js"></script>
     <script>
+        var vue;
         $("doucument").ready(function () {
 
-            var vue = new Vue({
+             vue = new Vue({
                 components: {
                     'v-modal': VueStrap.modal,
                     'v-input': VueStrap.input,
@@ -132,6 +185,22 @@
                         url: "/Store/LoadData",
                         searchArgs: { name: '' },
                         rows: []
+                    },
+                    gridColumns: [
+                       { name: 'Code', localName: '货架码', style: "<a href='/Product/Edit/{id}'>{column}</a>", width: '200' },
+                       { name: 'ProductCode', localName: '编码' },
+                       { name: 'BarCode', localName: '条码' },
+                       { name: 'Specification', localName: '规格' },
+                       { name: 'SalePrice', localName: '售价' }
+                    ],
+                    url: "/Shelf/QueryShelfProduct",
+                    searchArgs: { storeId: 0,code:'' },
+                    rows: [],
+                    showTool:false,
+                    shelfProduct:{
+                        modal:false,
+                        insertBefore:false, // 是否插入
+                        productCodeOrBarCode:''
                     }
                 },
                 methods: {
@@ -150,7 +219,6 @@
                             if (result.success) {
                                 v_self.modal = false;                               
                                 v_self.refreshTree(result.data);
-                              //  reloadTree(v_self.storeId);
                                 v_self.model.id = 0;
                                 v_self.model.pId = 0;
                                 v_self.model.name="";
@@ -164,13 +232,14 @@
                     },
                     refreshTree:function(node){
                         var treeObj = $.fn.zTree.getZTreeObj("ztree");
-                        var parentNode = treeObj.getSelectedNodes()[0];
+                        var selectedNode = treeObj.getSelectedNodes()[0];
                         if(this.operate=="add")
                         {
-                           treeObj.addNodes(parentNode, node);
+                            treeObj.addNodes(selectedNode, node);
                         }
                         else{
-                            treeObj.updateNode(node);
+                            selectedNode.showName = this.model.code+"("+this.model.name+")";
+                            treeObj.updateNode(selectedNode);
                         }
 
                     },
@@ -250,12 +319,12 @@
                         var treeObj = $.fn.zTree.getZTreeObj("ztree");
                         var selectNode = treeObj.getSelectedNodes()[0];
                         if(selectNode==null){
-                            bootbox.alert("请选择一个品类");
+                            bootbox.alert("请选择一个货架节点");
                             return;
                         }
-                        bootbox.confirm("您确定删除该记录？", function (result) {
+                        bootbox.confirm("该操作将删除所有货架及商品，你确定要删除吗？", function (result) {
                             if (result) {
-                                $.post("/Shelf/Remove", { id: selectNode.id }, function (result) {
+                                $.post("/Shelf/Remove", { id: selectNode.id,code:selectNode.code}, function (result) {
                                     if (result.success) {
                                         //删除子节点
                                         treeObj.removeChildNodes(selectNode);
@@ -295,6 +364,59 @@
                         }
 
                     },
+                     PrintShelfGrid:function() {
+                        PrintTemplate("/ProductShelf/PrintShelfGrid");
+                    },
+                     PrintShelfStocktaing:function() {
+                        PrintTemplate("/ProductShelf/PrintShelfStocktaking");
+                    },
+                     PrintTemplate:function(templateUrl) {
+                        //选择所有货架
+                        $treeView = $('#treeview');
+                        var enabledArray = $treeView.find("div[data-level='1']:has(:checkbox:checked)");
+                        var selectedNodes = "";
+                        enabledArray.each(function(index, item) {
+                            selectedNodes += $(item).attr("id") + ",";
+                        });
+                        selectedNodes = selectedNodes.substring(0, selectedNodes.length - 1); //去掉末尾逗号
+                        if (selectedNodes == "") {
+                            showInfo("msg", "选择打印的货架");
+                            return;
+                        }
+                        $.get(templateUrl, { shelfIds: selectedNodes }, function(result) {
+                            $("#printBox").html(result);
+                            $("#printBox").attr("class", "show");
+                            $("#printBox").printArea();
+                            $("#printBox").attr("class", "hide");
+                        }, "text");
+                     },
+                     showAddProduct:function(){
+                         this.shelfProduct.modal = true;
+                     },
+                     saveProduct:function(){
+                         var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                         var selectNode = treeObj.getSelectedNodes()[0];
+                         if(selectNode&&selectNode.code.length>4)
+                         {
+                             var v_url="/Shelf/CreateProduct" ;
+                             var v_data = {id:selectNode.id,code:selectNode.code,storeId:this.storeId,productCodeOrBarCode: shelfProduct.productCodeOrBarCode}
+                             $.post(v_url, v_data, function (result) {
+                                 if (result.success) {  
+                                                             
+                                 }
+                                 else {
+                                     bootbox.alert(result.error);
+                                 }
+                             }, "json");
+                         }
+                         else{
+                             bootbox.alert("请选择一个货架层，或者一个要插入的商品列");
+                         }
+                     },
+                     deleteProduct:function()
+                     {
+                        
+                     }
                 }
             });
              var zNodes =@Html.Raw(ViewBag.Tree) ; 
@@ -315,20 +437,20 @@
                         var treeObj = $.fn.zTree.getZTreeObj("ztree");
                         var open = !treeNode.open;
                         treeObj.expandNode(treeNode, open, false, false);
-                       // vue.searchArgs.categoryId =treeNode.id;
-                    }
+                        // vue.searchArgs.categoryId =treeNode.id;
+                        // 查询货架商品 
+                        vue.searchArgs.code = treeNode.code ;
+                        vue.searchArgs.storeId = vue.storeId;
+                       
+                   }
                 }
             };
             // zTree 的数据属性，深入使用请参考 API 文档（zTreeNode 节点数据详解）           
             zTreeObj = $.fn.zTree.init($("#ztree"), setting, zNodes);
         }
 
+
+
     </script>
 }
-
-
-
-
-
-
 

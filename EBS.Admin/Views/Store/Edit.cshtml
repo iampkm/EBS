@@ -83,6 +83,7 @@
         $("doucument").ready(function () {
             var demo = new Vue({
                 components: {
+                    'v-modal': VueStrap.modal,
                     'v-input': VueStrap.input,
                     'v-form': VueStrap.formGroup
                 },
@@ -128,12 +129,7 @@
                         if (nodes.length == 0) {
                             bootbox.alert("请选择区域");
                             return;
-                        }
-                        if (nodes[0].id.length / 2 < 3) //选中三级叶子节点
-                        {
-                            bootbox.alert("分类必须选到3级节点");
-                            return;
-                        }
+                        }                       
                         // 设置 选中的分类
                         this.model.areaId = nodes[0].id;
                         this.selectArea.areaName = nodes[0].text;
@@ -144,6 +140,32 @@
                     }
                 }
             });
+
+            //区域
+            var zTreeObj;
+            var setting = {
+                data: {
+                    simpleData: {
+                        enable: true,
+                        rootPId: 0
+                    }
+                },
+                async: {
+                    enable: true,
+                    url: "/Supplier/LoadChildArea",
+                    type: 'get'
+                },
+                callback: {
+                    onClick: function (event, treeId, treeNode) {
+                        //点击展开/折叠节点
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                        var open = !treeNode.open;
+                        treeObj.expandNode(treeNode, open, false, false);
+                    }
+                }
+            };
+            //异步加载
+            zTreeObj = $.fn.zTree.init($("#ztree"), setting);
 
         });
 

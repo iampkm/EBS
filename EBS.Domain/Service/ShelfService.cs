@@ -123,5 +123,78 @@ namespace EBS.Domain.Service
             return model;
         }
 
+        public ShelfLayerProduct InsertBefore(string productCodeOrBarCode, int shelfProductId)
+        {
+            var locationProduct = _db.Table.Find<ShelfLayerProduct>(shelfProductId);
+            return InsertBefore(productCodeOrBarCode, locationProduct.ShelfLayerId, locationProduct.StoreId, locationProduct.Id);
+          
+        }
+
+        public ShelfLayerProduct InsertBefore(string productCodeOrBarCode, int shelfLayerId, int storeId, int insertProductId)
+        {
+            if (string.IsNullOrWhiteSpace(productCodeOrBarCode)) { throw new ArgumentException("商品编码或条码不能为空"); }
+            if (shelfLayerId == 0) { throw new ArgumentException("请选择一个货架层"); }
+            var product = _db.Table.Find<Product>(n => n.Code == productCodeOrBarCode || n.BarCode == productCodeOrBarCode);
+            if (product == null) { throw new ArgumentException("商品不存在"); }
+            var layer = _db.Table.Find<ShelfLayer>(shelfLayerId);
+            if (layer == null) { throw new ArgumentException("货架层不存在"); }
+            if (_db.Table.Exists<ShelfLayerProduct>(n => n.ShelfLayerId == shelfLayerId && n.ProductId == product.Id))
+            {
+                throw new Exception("该货架层中已经存在此商品");
+            }
+            //先修改后插入
+            var allGoods = _db.Table.FindAll<ShelfLayerProduct>(n=> n.StoreId == storeId&&n.ShelfLayerId == layer.Id ).OrderBy(n => n.Number).ToList();
+            var insertGoods = allGoods.FirstOrDefault(p => p.Id == insertProductId);
+            ShelfLayerProduct model = new ShelfLayerProduct();
+            model.Number = insertGoods.Number;
+            model.Code = insertGoods.Code;
+            model.ProductId = product.Id;
+            model.ShelfLayerId = layer.Id;
+            model.StoreId = storeId;
+            //从插入商品开始，修改货架号和number
+            foreach (var item in allGoods)
+            {
+                if (item.Number >= insertGoods.Number)
+                {
+                    item.Number = item.Number + 1;
+                    item.Code = layer.Code + item.Number.ToString().PadLeft(2, '0');
+                    _db.Update(item);
+                }
+            }
+            return model;
+        }
+
+        public void DeleteShelf(int id)
+        {
+            var model = _db.Table.Find<Shelf>(id);
+            if (model == null) throw new Exception("货架为空");
+            var code = model.Code + "%";
+            if (_db.Table.Exists<ShelfLayerProduct>(n => n.StoreId == model.StoreId && n.Code.Like(code)))
+            {
+                _db.Delete<ShelfLayerProduct>(n => n.StoreId == model.StoreId && n.Code.Like(code));
+            }
+            if (_db.Table.Exists<ShelfLayer>(n => n.ShelfId == id))
+            {
+                _db.Delete<ShelfLayer>(n => n.ShelfId == id);
+            }
+            _db.Delete<Shelf>(id);
+        }
+
+        public void DeleteShelfLayer(int id)
+        {
+            var model = _db.Table.Find<ShelfLayer>(id);
+            if (model == null) throw new Exception("货架层为空");
+            if (_db.Table.Exists<ShelfLayerProduct>(n => n.ShelfLayerId == id))
+            {
+                _db.Delete<ShelfLayerProduct>(n => n.ShelfLayerId == id);
+            }
+            _db.Delete<ShelfLayer>(id);
+        }
+
+        public void DeleteShelfLayerProduct(int id)
+        {
+            _db.Delete<ShelfLayerProduct>(id);
+        }
+
     }
 }

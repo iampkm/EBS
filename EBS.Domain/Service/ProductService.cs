@@ -56,8 +56,8 @@ namespace EBS.Domain.Service
 
         public List<Product> ConvertToProduct(string productsInput)
         {
-            List<Product> products = new List<Product>();
-            string[] productIdArray = productsInput.Trim().Split('\n');
+            List<Product> products = new List<Product>(3000);
+            string[] productIdArray = productsInput.Trim('\n').Split('\n');
             foreach (var item in productIdArray)
             {
                 if (string.IsNullOrEmpty(item)) continue;
@@ -67,35 +67,30 @@ namespace EBS.Domain.Service
                     var templength = 0m;
                     var tempwidth = 0m;
                     var tempHeight = 0m;
-                    var tempWeight = 0m;
                     Decimal.TryParse(columns[7], out templength);
                     Decimal.TryParse(columns[8], out tempwidth);
                     Decimal.TryParse(columns[9], out tempHeight);
-                    Decimal.TryParse(columns[10], out tempWeight);
-                    
-                    if (!products.Exists(n => n.Name == columns[0].Trim()))
+                    var brandId = 0;
+                    int.TryParse(columns[2], out brandId);
+                    var product = new Product()
                     {
-                        var product = new Product()
-                        {
-                            Name = columns[0].Length > 10 ? columns[0].Substring(0, 10) : columns[0],
-                            ShowName = columns[0],
-                            CategoryId = columns[1],
-                            BrandId = Convert.ToInt32(columns[2]),
-                            BarCode = columns[3],
-                            Specification = columns[4],
-                            SpecificationQuantity = string.IsNullOrEmpty(columns[5]) ? "1" : columns[5],
-                            Unit = columns[6],
-                            Length = templength,
-                            Width = tempWeight,
-                            Height = tempHeight,
-                            Weight = tempWeight,
-                            InputRate = 17,
-                            OutRate = 17,
-                            CreatedOn = DateTime.Now,
-                            IsGift = false
-                        };
-                        products.Add(product);
-                    }
+                        Name = columns[0].Length > 10 ? columns[0].Substring(0, 10) : columns[0],
+                        ShowName = columns[0],
+                        CategoryId = columns[1],
+                        BrandId = brandId,
+                        BarCode = columns[3],
+                        Specification = columns[4],
+                        SpecificationQuantity = string.IsNullOrEmpty(columns[5]) ? "1" : columns[5],
+                        Unit = columns[6],
+                        Length = templength,
+                        Width = tempwidth,
+                        Height = tempHeight,
+                        InputRate = 17,
+                        OutRate = 17,
+                        CreatedOn = DateTime.Now,
+                        IsGift = false
+                    };
+                    products.Add(product);
                 }
                 else
                 {

@@ -1,0 +1,53 @@
+﻿@model IEnumerable<EBS.Query.DTO.PrintShelfGridDto>
+<div class="container-fluid">
+    @foreach (var shelf in Model)
+    {
+        if (shelf.Layers.Count() == 0) { continue; }
+
+        int index = shelf.Layers.Count();
+        <div class="row">
+            <div class="col-xs-4 col-sm-4"></div>
+            <div class="col-xs-4 col-sm-4"><h3 class="" style="border-bottom:1px solid;text-align:center"><b>货架棚格图</b></h3></div>
+            <div class="col-xs-4 col-sm-4"></div>
+        </div>
+        <div class="row">
+            <div class="col-xs-4 col-sm-4"><span>门店：</span><span>@shelf.StoreName</span></div>
+            <div class="col-xs-4 col-sm-4"><span>货架码：</span><span id="code">@shelf.Code @shelf.Name</span></div>
+            <div class="col-xs-4 col-sm-4"><span>日期：</span><span>@DateTime.Now.ToString()</span></div>
+        </div>
+        <table class="table table-bordered table-printfontsize">
+            <tbody id="tableData">
+                @foreach (var layer in shelf.Layers.OrderByDescending(n => n.Number).ToList())
+                {
+                    int i = 1;
+                    <tr class="item">
+                        <td style="width:40px;">@(index--) 层</td>
+                        @foreach (var goods in layer.Items)
+                        {
+                            string colspanInfo = "";
+                            //合并最后一列
+                            colspanInfo = i == layer.Items.Count() ? string.Format("colspan={0}", shelf.MaxColumn - layer.Items.Count() > 0 ? shelf.MaxColumn - layer.Items.Count() + 1 : 0) : "";
+                            <td @colspanInfo style="width: 80px; text-align: center;" >
+                                <b>@goods.Code</b><br />
+                                @(goods.ProductName.Length >= 12 ? goods.ProductName.Substring(0, 12) : goods.ProductName)<br />
+                                @goods.SalesPrice.ToString("F2")
+                            </td>
+                            i++;
+                        }
+                        <!--按实际商品数合并单元格列-->
+                        @if (layer.Items.Count() == 0)
+                        {
+                            <td colspan="@(shelf.MaxColumn)">
+                                &nbsp;<br />
+                                &nbsp;<br />
+                                &nbsp;
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    <!--打印分页 colspan="6"-->
+        <div style="page-break-after :always"></div>
+    }
+</div>

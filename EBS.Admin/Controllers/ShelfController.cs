@@ -57,23 +57,71 @@ namespace EBS.Admin.Controllers
             var node = _shelfQuery.QueryShelfLayer(shelfId, layerCode);
             return Json(new { success = true, data = node });
         }
-        public JsonResult CreateProduct(int storeId, int shelfLayerId, string productCodeOrBarCode)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id">选择的节点id</param>
+        /// <param name="code">代码</param>
+        /// <param name="storeId"></param>
+        /// <param name="productCodeOrBarCode"></param>
+        /// <returns></returns>
+        public JsonResult CreateProduct(int id,string code,int storeId,string productCodeOrBarCode)
         {
-            var layerProductCode = _shelfFacade.CreateProduct(storeId, shelfLayerId, productCodeOrBarCode);
-            var node = _shelfQuery.QueryProduct(shelfLayerId, layerProductCode);
-            return Json(new { success = true, data = node });
+            
+            if (code.Length == 6)
+            {
+                // 货架层
+                var layerProductCode = _shelfFacade.CreateProduct(storeId, id, productCodeOrBarCode);
+                var node = _shelfQuery.QueryProduct(id, layerProductCode);
+                return Json(new { success = true, data = node });
+            }
+            else if (code.Length == 8)
+            { 
+                //商品 插入模式
+                _shelfFacade.InsertBefore(productCodeOrBarCode,id);
+            }
+           
+           //var 
+          return Json(new { success = true, data = "" });
         }
 
-        public JsonResult Edit(string id, string name)
+        public JsonResult Edit(int id, string name)
         {
-           // _shelfFacade.Edit(id, text);
+            _shelfFacade.EditShelf(id, name);
             return Json(new { success = true });
         }
 
-        public JsonResult Remove(string id)
+        public JsonResult Remove(int id,string code)
         {
-           // _shelfFacade.Delete(id);
+            _shelfFacade.DeleteAll(id,code);
             return Json(new { success = true });
+        }
+
+        public JsonResult QueryShelfProduct(int storeId, string code)
+        {
+            var rows= _shelfQuery.QueryShelfProduct(storeId, code);
+            return Json(new { success = true, data = rows, total = rows.Count() });
+        }
+
+        /// <summary>
+        /// 打印棚格图 模板
+        /// </summary>
+        /// <param name="shelfIds"></param>
+        /// <returns></returns>
+        public PartialViewResult PrintShelfGrid(string shelfIds)
+        {
+            var models = _shelfQuery.GetShelfGridInfo(shelfIds);
+            return PartialView(models);
+        }
+        /// <summary>
+        /// 打印商品盘点表 模板
+        /// </summary>
+        /// <param name="shelfIds"></param>
+        /// <returns></returns>      
+        public PartialViewResult PrintShelfStocktaking(string shelfIds)
+        {
+            var models = _shelfQuery.GetPrintShelfInfo(shelfIds);
+            return PartialView(models);
         }
 	}
 }
