@@ -14,7 +14,7 @@
 <div id="app" class="box box-primary">
     <div class="box-header with-border">
         <ol class="breadcrumb" style="padding:0px;margin:1px;">
-            <li><a href="/Shelf/Index"><i class="fa fa-dashboard"></i>货架</a></li>
+            <li><a href="/Shelf/Index"><i class="fa fa-dashboard"></i>货架管理</a></li>
         </ol>
     </div>
     <!-- /.box-header -->
@@ -32,11 +32,14 @@
                     </div>
                 </div> 
                 <div class="col-sm-10 col-xs-9">
-                    <button type="button" class="btn btn-success btn-flat" v-on:click="create()">
-                        <span class="glyphicon glyphicon-plus">新增货架</span>
+                    <button type="button" class="btn btn-warning btn-flat" v-on:click="create()">
+                        <span class="glyphicon glyphicon-plus">货架</span>
                     </button>
-                    <button type="button" class="btn btn-success btn-flat" v-on:click="createLayer()">
-                        <span class="glyphicon glyphicon-plus">新增货架层</span>
+                    <button type="button" class="btn btn-warning btn-flat" v-on:click="createLayer()">
+                        <span class="glyphicon glyphicon-plus">层</span>
+                    </button>
+                    <button type="button" class="btn btn-warning btn-flat" v-on:click="showAddProduct()" title="添加商品">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true">商品</span>
                     </button>
                     <button type="button" class="btn btn-success btn-flat" v-on:click="edit()"><span class="glyphicon glyphicon-pencil">修改</span></button>
                     <button type="button" class="btn btn-success btn-flat" v-on:click="remove()"><span class="glyphicon glyphicon-trash">删除</span></button>
@@ -50,16 +53,14 @@
                     <button type="button" class="btn btn-default btn-flat" v-on:click="PrintShelfStocktaing()" title="打印盘点表">
                         <span class="glyphicon glyphicon-print" aria-hidden="true">盘点表</span>
                     </button>
-                    <button type="button" class="btn btn-warning btn-flat" v-on:click="showAddProduct()" title="添加商品">
-                        <span class="glyphicon glyphicon-print" aria-hidden="true">添加商品</span>
-                    </button>
-                    <button type="button" class="btn btn-warning btn-flat" v-on:click="deleteProduct()" title="删除商品">
+                    
+                    @*<button type="button" class="btn btn-warning btn-flat" v-on:click="deleteProduct()" title="删除商品">
                         <span class="glyphicon glyphicon-print" aria-hidden="true">删除商品</span>
-                    </button>
+                    </button>*@
                 </div>     
             </div>
             <div class="row" style="margin-top:10px;">               
-                <div class="col-xs-4 col-sm-4" > 
+                <div class="col-xs-3 col-sm-3" > 
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             货架列表
@@ -70,32 +71,18 @@
                     </div>                  
                    
                 </div>
-                <div class="col-xs-8 col-sm-8">
+                <div class="col-xs-9 col-sm-9">
                     <vue-table v-ref:vtable v-bind:columns="gridColumns"
                                v-bind:url="url"
                                v-bind:args="searchArgs" v-bind:data.sync="rows" v-bind:show-toolbar="showTool">
-                        @*<div class="row" style="margin-bottom:10px;" slot="customSearch">
-                <div class="col-xs-2">
-                    <input class="form-control" v-model="searchArgs.codeOrBarCode" placeholder="商品编码/条码" debounce="500" />
-                </div>
-                <div class="col-xs-2">
-                    <input class="form-control" v-model="searchArgs.name" placeholder="商品名称" debounce="500" />
-                </div>
-                <div class="form-group col-sm-2 col-xs-3">
-                    <div class="input-group ">
-                        <input type="hidden" class="form-control" v-model="searchArgs.brandId">
-                        <input type="text" class="form-control" v-model="selectBrand.name" placeholder="选择品牌" readonly>
-                        <span class="input-group-btn">
-                            <button class="btn btn-flat btn-default" type="button" v-on:click="showBrand"><i class="fa fa-search"></i></button>
-                            <button class="btn btn-flat btn-default" type="button" v-on:click="clearBrand"><i class="fa fa-eraser"></i></button>
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <span class="input-group-btn" slot="customButtons">
-                <a class="btn btn-warning btn-flat" href="/Product/Create">新 增</a>
-                <a class="btn btn-success btn-flat" v-on:click="showModal">导入商品</a>
-            </span>*@
+                        <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                            <div class="col-xs-2">
+                                <input class="form-control" v-model="searchArgs.productCodeOrBarCode" placeholder="商品编码/条码" debounce="500" />
+                            </div>
+                            <div class="col-xs-2">
+                                <input class="form-control" v-model="searchArgs.productName" placeholder="商品名称" debounce="500" />
+                            </div>                
+                         </div>
                     </vue-table>
                 </div>  
             </div>
@@ -128,7 +115,10 @@
                        v-bind:args="selectStore.searchArgs" v-bind:data.sync="selectStore.rows">
                 <div class="row" style="margin-bottom:10px;" slot="customSearch">
                     <div class="col-xs-4 col-sm-3">
-                        <input class="form-control" v-model="selectStore.searchArgs.name" placeholder="输入门店名" debounce="300" />
+                        <input class="form-control" v-model="selectStore.searchArgs.code" placeholder="门店编码" debounce="300" />
+                    </div>
+                    <div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="selectStore.searchArgs.name" placeholder="门店名" debounce="300" />
                     </div>
                 </div>
             </vue-table>
@@ -137,14 +127,14 @@
     <v-modal title="添加商品" ok-text="保 存" cancel-text="取 消" v-bind:callback="saveProduct" v-bind:show.sync="shelfProduct.modal" v-bind:effect="fade" width="800">
         <div slot="modal-body" class="modal-body">
             <div class="row">
-                <div class="col-sm-4 col-xs-4">
-                    <label><input type="checkbox" v-model="shelfProduct.insertBefore" />插入</label>
+                <div class="col-sm-4 col-xs-4">                   
                     <input type="text" class="form-control" v-model="shelfProduct.productCodeOrBarCode" v-on:keyup.enter="saveProduct" placeholder="录入商品编码或条码" />
                 </div>
             </div>
         </div>
     </v-modal>
 </div>
+<div id="printBox"></div>
 @{Html.RenderPartial("VueTableTemplate");}
 @section scripts{
     <script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
@@ -183,18 +173,19 @@
                            { name: 'FullName', localName: '区域', width: '200' }
                         ],
                         url: "/Store/LoadData",
-                        searchArgs: { name: '' },
+                        searchArgs: { name: '',code:'' },
                         rows: []
                     },
                     gridColumns: [
-                       { name: 'Code', localName: '货架码', style: "<a href='/Product/Edit/{id}'>{column}</a>", width: '200' },
+                       { name: 'Code', localName: '货架码', width: '100' },
+                       { name: 'ProductName', localName: '品名' , width: '200'},
                        { name: 'ProductCode', localName: '编码' },
                        { name: 'BarCode', localName: '条码' },
                        { name: 'Specification', localName: '规格' },
                        { name: 'SalePrice', localName: '售价' }
                     ],
                     url: "/Shelf/QueryShelfProduct",
-                    searchArgs: { storeId: 0,code:'' },
+                    searchArgs: { storeId: 0,code:'',productCodeOrBarCode:'',productName:'' },
                     rows: [],
                     showTool:false,
                     shelfProduct:{
@@ -365,24 +356,27 @@
 
                     },
                      PrintShelfGrid:function() {
-                        PrintTemplate("/ProductShelf/PrintShelfGrid");
+                        this.PrintTemplate("/Shelf/PrintShelfGrid");
                     },
                      PrintShelfStocktaing:function() {
-                        PrintTemplate("/ProductShelf/PrintShelfStocktaking");
+                        this.PrintTemplate("/Shelf/PrintShelfStocktaking");
                     },
                      PrintTemplate:function(templateUrl) {
                         //选择所有货架
-                        $treeView = $('#treeview');
-                        var enabledArray = $treeView.find("div[data-level='1']:has(:checkbox:checked)");
-                        var selectedNodes = "";
-                        enabledArray.each(function(index, item) {
-                            selectedNodes += $(item).attr("id") + ",";
-                        });
-                        selectedNodes = selectedNodes.substring(0, selectedNodes.length - 1); //去掉末尾逗号
-                        if (selectedNodes == "") {
-                            showInfo("msg", "选择打印的货架");
-                            return;
-                        }
+                         var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                        
+                         var shelfIdArray = new Array();
+                         var nodes= treeObj.getCheckedNodes(true);
+                         if(nodes.length==0)
+                         {
+                             bootbox.alert( "选择打印的货架");return;
+                         }
+                         nodes.forEach(function(item){
+                             if(item.code.length==4){
+                                 shelfIdArray.push(item.id);
+                             }                            
+                         });                         
+                         var selectedNodes=shelfIdArray.join() ;
                         $.get(templateUrl, { shelfIds: selectedNodes }, function(result) {
                             $("#printBox").html(result);
                             $("#printBox").attr("class", "show");
@@ -398,11 +392,41 @@
                          var selectNode = treeObj.getSelectedNodes()[0];
                          if(selectNode&&selectNode.code.length>4)
                          {
+                             var layerId = 0;
+                             var productId = 0;
+                             var isSelectLayer = false;
+                             var insertIndex = -1;
+                             if(selectNode.code.length==6){
+                                 //选择的货架层
+                                 layerId = selectNode.id;
+                                 isSelectLayer= true;
+                             }
+                             else
+                             {
+                                 layerId = selectNode.getParentNode().id;
+                                 productId = selectNode.id;
+                                 insertIndex = selectNode.getIndex()+1; //插入位置加1
+                             }
+
                              var v_url="/Shelf/CreateProduct" ;
-                             var v_data = {id:selectNode.id,code:selectNode.code,storeId:this.storeId,productCodeOrBarCode: shelfProduct.productCodeOrBarCode}
+                             var v_data = {
+                                 storeId:this.storeId,
+                                 shelfLayerId:layerId,
+                                 productCodeOrBarCode: this.shelfProduct.productCodeOrBarCode,
+                                 shelfProductId:productId
+                             };
+                             var _self = this;
                              $.post(v_url, v_data, function (result) {
-                                 if (result.success) {  
-                                                             
+                                 if (result.success) { 
+                                     if(isSelectLayer)
+                                     {
+                                         treeObj.addNodes(selectNode,insertIndex,result.data);
+                                     }
+                                     else
+                                     {
+                                         treeObj.addNodes(selectNode.getParentNode(),insertIndex,result.data);
+                                     } 
+                                     _self.shelfProduct.productCodeOrBarCode="";
                                  }
                                  else {
                                      bootbox.alert(result.error);
@@ -412,10 +436,6 @@
                          else{
                              bootbox.alert("请选择一个货架层，或者一个要插入的商品列");
                          }
-                     },
-                     deleteProduct:function()
-                     {
-                        
                      }
                 }
             });
@@ -431,6 +451,7 @@
                 data: {
                     key:{name:"showName"}
                 },
+                check:{enable:true,},
                 callback:{
                     onClick:function(event, treeId, treeNode){
                         //点击展开/折叠节点

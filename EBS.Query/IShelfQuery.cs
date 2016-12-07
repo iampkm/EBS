@@ -34,6 +34,6 @@ namespace EBS.Query
        /// <param name="storeId">门店</param>
        /// <param name="code">货架代码</param>
        /// <returns></returns>
-       IEnumerable<ShelfLayerProductDto> QueryShelfProduct(int storeId, string code);
+       IEnumerable<ShelfLayerProductDto> QueryShelfProduct(int storeId, string code, string productCodeOrBarCode, string productName);
     }
 }

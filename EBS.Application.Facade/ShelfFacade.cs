@@ -37,22 +37,14 @@ namespace EBS.Application.Facade
             return model.Code;
         }
 
-        public string CreateProduct(int storeId, int shelfLayerId, string productCodeOrBarCode)
+        public string CreatePorduct(int storeId, int shelfLayerId, string productCodeOrBarCode, int shelfProductId)
         {
-            var model = _shelfService.CreateProduct(storeId,shelfLayerId,productCodeOrBarCode);        
+            var model = _shelfService.CreateProduct(storeId, shelfLayerId, productCodeOrBarCode, shelfProductId);
             _db.Insert(model);
             _db.SaveChange();
             return model.Code;
         }
 
-        public string InsertBefore(string productCodeOrBarCode, int shelfProductId)
-        {
-            var model = _shelfService.InsertBefore(productCodeOrBarCode, shelfProductId);
-            _db.Insert(model);
-            _db.SaveChange();
-            return model.Code;
-        }
-         
 
         public void EditShelf(int id, string name)
         {
@@ -78,5 +70,7 @@ namespace EBS.Application.Facade
             }
             _db.SaveChange();
         }
+
+       
     }
 }

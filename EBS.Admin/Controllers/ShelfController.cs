@@ -65,24 +65,11 @@ namespace EBS.Admin.Controllers
         /// <param name="storeId"></param>
         /// <param name="productCodeOrBarCode"></param>
         /// <returns></returns>
-        public JsonResult CreateProduct(int id,string code,int storeId,string productCodeOrBarCode)
+        public JsonResult CreateProduct(int storeId, int shelfLayerId, string productCodeOrBarCode, int shelfProductId)
         {
-            
-            if (code.Length == 6)
-            {
-                // 货架层
-                var layerProductCode = _shelfFacade.CreateProduct(storeId, id, productCodeOrBarCode);
-                var node = _shelfQuery.QueryProduct(id, layerProductCode);
-                return Json(new { success = true, data = node });
-            }
-            else if (code.Length == 8)
-            { 
-                //商品 插入模式
-                _shelfFacade.InsertBefore(productCodeOrBarCode,id);
-            }
-           
-           //var 
-          return Json(new { success = true, data = "" });
+            var layerProductCode = _shelfFacade.CreatePorduct(storeId, shelfLayerId, productCodeOrBarCode,shelfProductId);
+            var node = _shelfQuery.QueryProduct(shelfLayerId, layerProductCode);
+            return Json(new { success = true, data = node });
         }
 
         public JsonResult Edit(int id, string name)
@@ -97,9 +84,9 @@ namespace EBS.Admin.Controllers
             return Json(new { success = true });
         }
 
-        public JsonResult QueryShelfProduct(int storeId, string code)
+        public JsonResult QueryShelfProduct(int storeId, string code,string productCodeOrBarCode,string productName)
         {
-            var rows= _shelfQuery.QueryShelfProduct(storeId, code);
+            var rows= _shelfQuery.QueryShelfProduct(storeId, code,  productCodeOrBarCode,  productName);
             return Json(new { success = true, data = rows, total = rows.Count() });
         }
 

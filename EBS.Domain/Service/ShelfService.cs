@@ -92,7 +92,18 @@ namespace EBS.Domain.Service
             return model;
         }
 
-        public ShelfLayerProduct CreateProduct(int storeId, int shelfLayerId, string productCodeOrBarCode)
+        public ShelfLayerProduct CreateProduct(int storeId, int shelfLayerId, string productCodeOrBarCode, int shelfProductId)
+        {
+            if (shelfProductId ==0) //等于 0 说明选择的是层 
+            {
+                return CreateProduct(storeId, shelfLayerId, productCodeOrBarCode);
+            }
+            else {
+                return InsertBefore(storeId, shelfLayerId, productCodeOrBarCode, shelfProductId);
+            }
+        }
+
+        private ShelfLayerProduct CreateProduct(int storeId, int shelfLayerId, string productCodeOrBarCode)
         {
             if (string.IsNullOrWhiteSpace(productCodeOrBarCode)) { throw new ArgumentException("商品编码或条码不能为空"); }
             if (shelfLayerId == 0) { throw new ArgumentException("请选择一个货架层"); }
@@ -123,14 +134,7 @@ namespace EBS.Domain.Service
             return model;
         }
 
-        public ShelfLayerProduct InsertBefore(string productCodeOrBarCode, int shelfProductId)
-        {
-            var locationProduct = _db.Table.Find<ShelfLayerProduct>(shelfProductId);
-            return InsertBefore(productCodeOrBarCode, locationProduct.ShelfLayerId, locationProduct.StoreId, locationProduct.Id);
-          
-        }
-
-        public ShelfLayerProduct InsertBefore(string productCodeOrBarCode, int shelfLayerId, int storeId, int insertProductId)
+        private ShelfLayerProduct InsertBefore(int storeId, int shelfLayerId, string productCodeOrBarCode,  int insertProductId)
         {
             if (string.IsNullOrWhiteSpace(productCodeOrBarCode)) { throw new ArgumentException("商品编码或条码不能为空"); }
             if (shelfLayerId == 0) { throw new ArgumentException("请选择一个货架层"); }
