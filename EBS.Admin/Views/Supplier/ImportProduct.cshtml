@@ -11,9 +11,9 @@
     </div>
     <!-- /.box-header -->
     <!-- form start -->
-    <form v-on:submit.prevent="onSubmit">
+    <form @*v-on:submit.prevent="onSubmit"*@>
         <div class="box-body">
-            <v-form v-bind:valid.sync="valid">
+            @*<v-form v-bind:valid.sync="valid">*@
                 <div class="row">
                     <div class="col-sm-2 col-xs-3">
                         <label>供应商</label>
@@ -25,21 +25,57 @@
                                 <button class="btn btn-flat btn-default" type="button" v-on:click="clearSupplier"><i class="fa fa-eraser"></i></button>
                             </span>
                         </div>
-                    </div>                    
+                    </div> 
+                    <div class="col-sm-4 col-xs-4">
+                        <v-input type="textarea" label="供应商商品：" v-bind:value.sync="model.products" placeholder="复制excel文件中的商品编码，商品价两列格粘贴到该文本框中" required icon></v-input>
+                    </div>                     
                 </div>
                 <div class="row">
-                    <div class="col-sm-2 col-xs-3">
-                        <v-input type="textarea" label="商品列表*：" v-bind:value.sync="model.products"  placeholder="复制excel文件中的商品编码，商品价两列格粘贴到该文本框中" required icon></v-input>
-                    </div>                   
+                    <div class="col-xs-12 col-sm-12">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                @*<caption>
+                                    <h3 class="panel-title">
+                                        <button type="button" class="btn btn-success btn-flat" v-on:click="showModal()">导入商品明细</button>
+                                    </h3>
+                                </caption>*@
+                                <thead>
+                                    <tr>
+                                        <th style="width:30px;"></th>
+                                        <th style="width:50px;"></th>
+                                        <th style="width:150px;">编码</th>
+                                        <th>品名</th>
+                                        <th>品类</th>
+                                        <th>规格</th>
+                                        <th style="width:150px;">价格</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(index,item) in products">
+                                        <td>{{index+1}}</td>
+                                        <td style="width:50px;">
+                                            <button type="button" class="btn btn-flat btn-success" title="删除行" v-on:click="removeRow(index)"><span class="fa fa-trash"></span></button>
+                                        </td>
+                                        <td>{{item.Code}}</td>
+                                        <td>{{item.Name}}</td>
+                                        <td>{{item.CategoryName}}</td>
+                                        <td>{{item.Specification}}</td>
+                                        <td class="dataRow">
+                                            <input type="text" class="form-control" name="Price" v-model="item.Price" v-on:keyup.enter="inputNext($event)" />
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-               
-            </v-form>
+            @*</v-form>*@
         </div>
         <div class="box-footer">
             <div class="row">
                 <div class="col-sm-4 col-xs-4">
-                    <button type="submit" class="btn btn-warning btn-flat" v-bind:disabled="!valid">保 存</button>
-                    <a class="btn btn-default btn-flat" href="/Supplier/Index">取 消</a>
+                    <button type="submit" class="btn btn-warning btn-flat" @*v-bind:disabled="!valid"*@>保 存</button>
+                    <a class="btn btn-default btn-flat" href="/Supplier/Product">取 消</a>
                 </div>
             </div>
         </div>
@@ -78,8 +114,10 @@
                     valid: false,
                     model: {
                         supplierId:0,
-                        products:''
+                        items: ''
                     },
+                    products: [],
+                    inputProducts:'',
                     selectSupplier: {
                         modal: false,
                         name: '',
@@ -95,10 +133,24 @@
                     },
                 },
                 methods: {
-                    onSubmit: function () {
+                    onSubmit: function () {                       
                         //获取选择节点
+                        var _self = this;
                         if (this.model.supplierId == 0) { bootbox.alert("请选择供应商！"); return; }
-                        var v_data = this.model;
+                        var v_data = _self.model;                       
+                        var data = "";
+                        for (var i = 0; i < _self.products.length; i++) {
+                            var item = _self.products[i];
+                            data += "{\"ProductId\":" + item.ProductId + ",\"Price\":" + item.Price + ",\"SupplierId\":" + _self.supplierId + "},";
+                        }
+                        if (data == "") {
+                            bootbox.alert("请导入商品");
+                            return;
+                        }
+                        data = data.substring(0, data.length - 1);
+                        data = "[" + data + "]";
+                        _self.model.items = data;
+                       
                         $.post("/Supplier/ImportProduct", v_data, function (result) {
                             if (result.success) {
                                 bootbox.alert("保存成功！", function () {
@@ -109,7 +161,36 @@
                                 bootbox.alert(result.error);
                             }
                         }, "json");
-                    },                    
+                    },
+                    importProduct: function () {
+                        var data = this.inputProducts;
+                        var _self = this;
+                        $.post("/Supplier/QueryProduct", { productCodePriceInput: data }, function (result) {
+                            if (result.success) {
+                                _self.products = [];
+                                result.data.forEach(function (item) {
+                                    _self.products.push(item);
+                                });
+                                _self.modal = false;
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
+                    },
+                    removeRow: function (index) {
+                        this.products.splice(index, 1);
+                    },
+                    inputNext: function (event) {
+                        var target = event.target;
+                        var row = $(target).parent().parent();
+                        if (row.next().length > 0) {
+                            row.next().find("input[name='Price']").focus().select();
+                        }
+                        else {
+                            this.onSubmit();
+                        }
+                    },
                     showSupplier: function () {
                         this.selectSupplier.modal = true;
                     },

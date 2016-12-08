@@ -30,7 +30,6 @@ namespace EBS.Domain.Entity
         /// </summary>
         public string Specification { get; set; }
 
-        private decimal costPrice;
         /// <summary>
         /// 成本价
         /// </summary>

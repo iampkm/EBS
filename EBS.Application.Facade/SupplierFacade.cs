@@ -9,6 +9,7 @@ using EBS.Domain.Service;
 using EBS.Domain.Entity;
 using EBS.Application.DTO;
 using EBS.Infrastructure.Extension;
+using Newtonsoft.Json;
 namespace EBS.Application.Facade
 {
     public class SupplierFacade : ISupplierFacade
@@ -76,22 +77,20 @@ namespace EBS.Application.Facade
         }
 
 
-        public void ImportProduct(int supplierId, string products)
+        public void ImportProduct(string supplierProductJson)
         {
-            var productPriceDic = products.ToDecimalDic();
+            var productPriceDic =JsonConvert.DeserializeObject<List<SupplierProduct>>(supplierProductJson) ;
             List<SupplierProduct> insertList = new List<SupplierProduct>();
             List<SupplierProduct> updateList = new List<SupplierProduct>();
-            var productModels= _db.Table.FindAll<Product>("select Id,Code from Product where Code in @Codes", productPriceDic.Keys.ToArray());
-            foreach (var product in productModels)
+            foreach (var product in productPriceDic)
             {
-                var model= _db.Table.Find<SupplierProduct>(n => n.ProductId == product.Id && n.SupplierId == supplierId);
+                var model= _db.Table.Find<SupplierProduct>(n => n.ProductId == product.Id && n.SupplierId == product.SupplierId);
                 if (model == null)
                 {
-                    insertList.Add(new SupplierProduct(0, supplierId, product.Id, productPriceDic[product.Code]));
+                    insertList.Add(product);
                 }
-                else {
-                    model.Price = productPriceDic[product.Code];
-                    updateList.Add(model);
+                else {                   
+                    updateList.Add(product);
                 }
             }
             _db.Insert<SupplierProduct>(insertList.ToArray());

@@ -13,5 +13,7 @@ namespace EBS.Query
 
         IDictionary<int, string> GetSupplierType();
 
+        IEnumerable<SupplierProductDto> GetSupplierProducts(string productCodePriceInput);
+
     }
 }

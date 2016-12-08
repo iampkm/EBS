@@ -114,11 +114,19 @@ namespace EBS.Admin.Controllers
         {
             return View();
         }
+
+
         [HttpPost]
-        public JsonResult ImportProduct(int supplierId,string products)
+        public JsonResult ImportProduct(string supplierProductJson)
         {
-            _supplierFacade.ImportProduct(supplierId, products);
+             _supplierFacade.ImportProduct(supplierProductJson);
             return Json(new { success = true });
+        }
+
+        public JsonResult QueryProduct(string productCodePriceInput)
+        {
+            var rows = _supplierQuery.GetSupplierProducts(productCodePriceInput);
+            return Json(new { success = true, data = rows });
         }
 
         private void LoadCategory()

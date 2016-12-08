@@ -45,6 +45,23 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             return rows;
         }
 
+        public IEnumerable<SupplierProductDto> GetSupplierProducts(string productCodePriceInput)
+        {
+            if (string.IsNullOrEmpty(productCodePriceInput)) throw new Exception("商品明细为空");
+            var dic = productCodePriceInput.ToDecimalDic();
+            string sql = "select p.Id as ProductId,p.Code,p.`Name`,p.Specification,c.FullName as CategoryName from Product p inner join category c on p.categoryId = c.Id where p.code in @Codes";
+            var productItems = _query.FindAll<SupplierProductDto>(sql, new { Codes = dic.Keys.ToArray() });
+            foreach (var product in productItems)
+            {
+                if (dic.ContainsKey(product.Code))
+                {
+                    product.Price = dic[product.Code];
+                }
+               
+            }
+            return productItems;
+        }
+
         public IDictionary<int, string> GetSupplierType()
         {
             return typeof(SupplierType).GetValueToDescription();
