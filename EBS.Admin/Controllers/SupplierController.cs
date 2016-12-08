@@ -20,9 +20,11 @@ namespace EBS.Admin.Controllers
         ISupplierQuery _supplierQuery;
         ISupplierFacade _supplierFacade;
         IAreaQuery _areaQuery;
-        ICategoryQuery _categoryQuery;     
-        public SupplierController(IQuery query, ISupplierQuery supplierQuery, ISupplierFacade supplierFacade,IAreaQuery areaQuery,ICategoryQuery _categoryQuery)
+        ICategoryQuery _categoryQuery;
+        IContextService _context;
+        public SupplierController(IContextService context,IQuery query, ISupplierQuery supplierQuery, ISupplierFacade supplierFacade,IAreaQuery areaQuery,ICategoryQuery _categoryQuery)
         {
+            this._context = context;
             this._query = query;
             this._supplierQuery = supplierQuery;
             this._supplierFacade = supplierFacade;
@@ -57,6 +59,7 @@ namespace EBS.Admin.Controllers
         [HttpPost]
         public JsonResult Create(SupplierModel model)
         {
+            model.editedBy = _context.CurrentAccount.AccountId;
             _supplierFacade.Create(model);
             return Json(new { success = true });
         }
@@ -71,6 +74,7 @@ namespace EBS.Admin.Controllers
         [HttpPost]
         public JsonResult Edit(SupplierModel model)
         {
+            model.editedBy = _context.CurrentAccount.AccountId;
             _supplierFacade.Edit(model);
             return Json(new { success = true });
         }

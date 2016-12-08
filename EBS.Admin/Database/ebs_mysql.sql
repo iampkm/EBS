@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2016-12-06 11:43:04                          */
+/* Created on:     2016-12-08 14:18:11                          */
 /*==============================================================*/
 
 
@@ -375,6 +375,7 @@ create table ProcessHistory
 (
    Id                   int not null auto_increment comment '编号',
    CreatedBy            int comment '创建人',
+   CreatedByName        varchar(50) comment '创建人名',
    CreatedOn            datetime comment '创建时间',
    Status               int comment '状态',
    FormId               int comment '表单Id',
@@ -690,7 +691,7 @@ alter table Shelf comment '货架';
 /*==============================================================*/
 create table ShelfLayer
 (
-   Id                   int not null comment '编号',
+   Id                   int not null auto_increment comment '编号',
    Code                 varchar(20) comment '货架码',
    Number               int comment '货架码',
    ShelfId              int comment '货架名',
@@ -704,7 +705,7 @@ alter table ShelfLayer comment '货架层';
 /*==============================================================*/
 create table ShelfLayerProduct
 (
-   Id                   int not null comment '编号',
+   Id                   int not null auto_increment comment '编号',
    StoreId              int,
    Code                 varchar(20) comment '货架码',
    Number               int comment '货架码',
@@ -740,7 +741,7 @@ alter table Stocktaking comment '盘点表';
 /*==============================================================*/
 create table StocktakingItem
 (
-   Id                   int not null comment '编号',
+   Id                   int not null auto_increment comment '编号',
    StocktakingId        int,
    ProductId            nvarchar(50) comment '商品编码',
    ProductName          nvarchar(300) comment '商品名',

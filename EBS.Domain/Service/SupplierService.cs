@@ -34,16 +34,21 @@ namespace EBS.Domain.Service
             _db.Update(model);
         }
 
-        public void Delete(string ids)
+        public int[] ValidateSupplierIds(string ids)
         {
             if (string.IsNullOrEmpty(ids))
             {
                 throw new Exception("id 参数为空");
             }
-            var arrIds = ids.Split(',').ToIntArray();
-            _db.Delete<Supplier>(arrIds);
-            _db.SaveChange();
-            //删除权限
+            var idArray = ids.Split(',').ToIntArray();
+            foreach(var supplierId in idArray)
+            {
+                if (_db.Table.Exists<PurchaseContract>(n => n.SupplierId == supplierId))
+                {
+                    throw new Exception("有供应商已经被使用，不能删除");
+                }
+            }
+            return idArray;
         }
     }
 }

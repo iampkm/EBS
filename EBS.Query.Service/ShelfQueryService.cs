@@ -8,44 +8,49 @@ using EBS.Domain.Entity;
 using Dapper.DBContext;
 using System.Dynamic;
 using EBS.Query.DTO;
+using EBS.Infrastructure.Caching;
 namespace EBS.Query.Service
 {
     public class ShelfQueryService : IShelfQuery
     {
         IQuery _query;
-        public ShelfQueryService(IQuery query)
+        ICacheManager _cacheService;
+        public ShelfQueryService(IQuery query,ICacheManager cache)
         {
             this._query = query;
+            _cacheService = cache;
         }
         public IEnumerable<DTO.ShelfTreeNode> GetShelfTree(int storeId)
         {
-            //货架
-            List<ShelfTreeNode> trees = new List<ShelfTreeNode>();
-            var shelfs = _query.FindAll<Shelf>(n => n.StoreId == storeId).OrderBy(n => n.Code).ToList();
-            foreach (var shelf in shelfs)
-            {
-                var shelfNode = new ShelfTreeNode(shelf.Id, shelf.Name, string.Format("{0}({1})", shelf.Code, shelf.Name), shelf.Code);
-                trees.Add(shelfNode);
-                // 层
-                var layers = _query.FindAll<ShelfLayer>(n => n.ShelfId == shelf.Id).OrderBy(n => n.Code).ToList();
-                foreach (var layer in layers)
+            //var result = _cacheService.Get<IEnumerable<ShelfTreeNode>>(CacheKeys.EBS_Shelf_All,() => {
+                //货架
+                var trees = new List<ShelfTreeNode>();
+                var shelfs = _query.FindAll<Shelf>(n => n.StoreId == storeId).OrderBy(n => n.Code).ToList();
+                foreach (var shelf in shelfs)
                 {
-                    var layerName = string.Format("{0}({1}层)", layer.Code, layer.Number);
-                    var layerNode = new ShelfTreeNode(layer.Id, layerName, layerName, layer.Code);
-                    shelfNode.children.Add(layerNode);
-                    // 商品
-                    var products = _query.FindAll<ShelfLayerProduct>(n => n.ShelfLayerId == layer.Id).OrderBy(n => n.Code).ToList();
-                    foreach (var product in products)
+                    var shelfNode = new ShelfTreeNode(shelf.Id, shelf.Name, string.Format("{0}({1})", shelf.Code, shelf.Name), shelf.Code);
+                    trees.Add(shelfNode);
+                    // 层
+                    var layers = _query.FindAll<ShelfLayer>(n => n.ShelfId == shelf.Id).OrderBy(n => n.Code).ToList();
+                    foreach (var layer in layers)
                     {
-                        var layerProductName = string.Format("{0}({1}列)", product.Code, layer.Number);
-                        var productNode = new ShelfTreeNode(product.Id, layerProductName, layerProductName, product.Code);
-                        layerNode.children.Add(productNode);
+                        var layerName = string.Format("{0}({1}层)", layer.Code, layer.Number);
+                        var layerNode = new ShelfTreeNode(layer.Id, layerName, layerName, layer.Code);
+                        shelfNode.children.Add(layerNode);
+                        // 商品
+                        var products = _query.FindAll<ShelfLayerProduct>(n => n.ShelfLayerId == layer.Id).OrderBy(n => n.Code).ToList();
+                        foreach (var product in products)
+                        {
+                            var layerProductName = string.Format("{0}({1}列)", product.Code, layer.Number);
+                            var productNode = new ShelfTreeNode(product.Id, layerProductName, layerProductName, product.Code);
+                            layerNode.children.Add(productNode);
+                        }
                     }
+
                 }
-
-            }
-
-            return trees;
+                return trees;
+            //});
+            //return result;
         }
 
 
@@ -101,13 +106,13 @@ where s.Id in ({0})";
                     Code = n.Code,
                     Number = n.Number,
                     ShelfId = n.ShelfId
-                });
+                }).ToList();
                 foreach (var layer in shelf.Layers)
                 {
                     var psql = @"select s.*,p.Name as ProductName,p.code as ProductCode,p.BarCode,p.Specification,p.SalePrice from shelflayerproduct s inner join product p on s.productId= p.id
-where s.shelflayerid=@ShelfLayerId and s.StoreId=@StoreId";
+where s.shelflayerid=@ShelfLayerId ";
 
-                    layer.Items = _query.FindAll<ShelfLayerProductDto>(psql, new { ShelfLayerId = layer.Id,StoreId=shelf.StoreId });
+                    layer.Items = _query.FindAll<ShelfLayerProductDto>(psql, new { ShelfLayerId = layer.Id });
                     if (layer.Items.Count() > shelf.MaxColumn)
                     {
                         shelf.MaxColumn = layer.Items.Count();
@@ -115,37 +120,35 @@ where s.shelflayerid=@ShelfLayerId and s.StoreId=@StoreId";
                 }
             }
             return shelfs;
-        }
+        }       
 
-        public IEnumerable<ShelfLayerProductDto> QueryShelfProduct(int storeId, string code)
+        public IEnumerable<ShelfLayerProductDto> QueryShelfProduct(int storeId, string code, string productCodeOrBarCode="", string productName="")
         {
-            string psql = @"select s.*,p.Name as ProductName,p.code as ProductCode,p.BarCode,p.Specification,p.SalePrice from shelflayerproduct s inner join product p on s.productId= p.id
-where s.StoreId=@StoreId and s.code like @Code ";
-            var result = _query.FindAll<ShelfLayerProductDto>(psql, new { StoreId = storeId, Code = code + "%" });
-            return result;
-        }
+            //var result = _cacheService.Get<IEnumerable<ShelfLayerProductDto>>(CacheKeys.EBS_Shelf_Products, () =>
+            //{
 
-        public IEnumerable<ShelfLayerProductDto> QueryShelfProduct(int storeId, string code, string productCodeOrBarCode, string productName)
-        {
-            dynamic param = new ExpandoObject();
-            string where = "";
-            if (!string.IsNullOrEmpty(productCodeOrBarCode))
-            {
-                where += "and ( p.Code=@ProductCodeOrBarCode or p.BarCode=@ProductCodeOrBarCode ) ";
-                param.ProductCodeOrBarCode = productCodeOrBarCode;
-            }
-            if (!string.IsNullOrEmpty(productName))
-            {
-                where += "and p.Name like @ProductName ";
-                param.ProductName = string.Format("{0}%", productName);
-            }
-            //门店 和货架码是必填参数
-            param.StoreId = storeId;
-            param.Code = code + "%";
-            string psql = @"select s.*,p.Name as ProductName,p.code as ProductCode,p.BarCode,p.Specification,p.SalePrice from shelflayerproduct s inner join product p on s.productId= p.id
-where s.StoreId=@StoreId and s.code like @Code "+where;
-            var result= _query.FindAll<ShelfLayerProductDto>(psql, param);
-            return result;
+                dynamic param = new ExpandoObject();
+                string where = "";
+                if (!string.IsNullOrEmpty(productCodeOrBarCode))
+                {
+                    where += "and ( p.Code=@ProductCodeOrBarCode or p.BarCode=@ProductCodeOrBarCode ) ";
+                    param.ProductCodeOrBarCode = productCodeOrBarCode;
+                }
+                if (!string.IsNullOrEmpty(productName))
+                {
+                    where += "and p.Name like @ProductName ";
+                    param.ProductName = string.Format("{0}%", productName);
+                }
+                //门店 和货架码是必填参数
+                param.StoreId = storeId;
+                param.Code = code + "%";
+                string psql = @"select s.*,p.Name as ProductName,p.code as ProductCode,p.BarCode,p.Specification,p.SalePrice from shelflayerproduct s inner join product p on s.productId= p.id
+where s.StoreId=@StoreId and s.code like @Code " + where;
+                var rows = _query.FindAll<ShelfLayerProductDto>(psql, param);
+                return rows;
+            //});
+
+            //return result;
         }
     }
 }

@@ -48,7 +48,14 @@ namespace EBS.Application.DTO
         /// 供货区域
         /// </summary>
         public string AreaId { get; set; }
-        public int CreatedBy { get; set; }
+       /// <summary>
+       /// 编辑人
+       /// </summary>
+        public int editedBy { get; set; }
+        /// <summary>
+        /// 编辑人名
+        /// </summary>
+        public string editor { get; set; }
 
         public int Type { get; set; }
     }

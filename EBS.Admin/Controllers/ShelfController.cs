@@ -86,7 +86,7 @@ namespace EBS.Admin.Controllers
 
         public JsonResult QueryShelfProduct(int storeId, string code,string productCodeOrBarCode,string productName)
         {
-            var rows= _shelfQuery.QueryShelfProduct(storeId, code,  productCodeOrBarCode,  productName);
+            var rows= _shelfQuery.QueryShelfProduct(storeId, code,  productCodeOrBarCode,  productName).OrderBy(n=>n.Code).ToList();
             return Json(new { success = true, data = rows, total = rows.Count() });
         }
 

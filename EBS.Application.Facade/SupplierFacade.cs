@@ -15,6 +15,7 @@ namespace EBS.Application.Facade
     {
         IDBContext _db;
         SupplierService _service;
+        
         public SupplierFacade(IDBContext dbContext)
         {
             _db = dbContext;
@@ -34,8 +35,8 @@ namespace EBS.Application.Facade
                 ShortName = model.ShortName,
                 LicenseNo = model.LicenseNo,
                 TaxNo = model.TaxNo,
-                CreatedBy = model.CreatedBy,
-                UpdatedBy = model.CreatedBy,
+                CreatedBy = model.editedBy,
+                UpdatedBy = model.editedBy,
                 Contact = model.Contact,
                 Phone = model.Phone,
                 Type = (Domain.ValueObject.SupplierType)model.Type
@@ -58,7 +59,7 @@ namespace EBS.Application.Facade
             entity.ShortName = model.ShortName;
             entity.LicenseNo = model.LicenseNo;
             entity.TaxNo = model.TaxNo;        
-            entity.UpdatedBy = model.CreatedBy;
+            entity.UpdatedBy = model.editedBy;
             entity.Contact = model.Contact;
             entity.Phone = model.Phone;
             entity.UpdatedOn = DateTime.Now;
@@ -69,8 +70,9 @@ namespace EBS.Application.Facade
 
         public void Delete(string ids)
         {
-            _service.Delete(ids);
-            _db.SaveChange();
+           var idArray= _service.ValidateSupplierIds(ids);
+           _db.Delete<Supplier>(idArray);
+           _db.SaveChange();
         }
 
 

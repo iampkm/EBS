@@ -164,6 +164,10 @@
                     onSubmit: function () {
                         //获取选择节点
                         var v_data = this.model;
+                        if (this.model.areaId == '') {
+                            bootbox.alert("请选择区域");
+                            return;
+                        }
                         $.post("/Supplier/Edit", v_data, function (result) {
                             if (result.success) {
                                 bootbox.alert("保存成功！", function () {
@@ -177,20 +181,18 @@
                     },
                     selectedNode: function () {
                         var treeObj = $.fn.zTree.getZTreeObj("ztree");
-                        var nodes = treeObj.getSelectedNodes();
-                        if (nodes.length == 0) {
-                            bootbox.alert("请选择品类");
-                            return;
-                        }
-                        if (nodes[0].id.length / 2 < 3) //选中三级叶子节点
+                        var selectArea = treeObj.getSelectedNodes()[0];
+                        if (selectArea)
                         {
-                            bootbox.alert("分类必须选到3级节点");
+                            // 设置 选中的分类
+                            this.model.areaId = nodes[0].id;
+                            this.model.areaName = nodes[0].text;
+                            this.modal = false;
+                        }
+                        else{
+                            bootbox.alert("请选择区域");
                             return;
                         }
-                        // 设置 选中的分类
-                        this.model.areaId = nodes[0].id;
-                        this.model.areaName = nodes[0].name;
-                        this.modal = false;
                     },
                     showArea: function () {
                         this.modal = true;
@@ -261,14 +263,6 @@
             zTreeObj = $.fn.zTree.init($("#ztree"), setting);
 
         });
-
-        //function filter(treeId, parentNode, childNodes) {
-        //    if (!childNodes) return null;
-        //    for (var i = 0, l = childNodes.length; i < l; i++) {
-        //        childNodes[i].name = childNodes[i].name.replace(/\.n/g, '.');
-        //    }
-        //    return childNodes;
-        //}
 
     </script>
 }

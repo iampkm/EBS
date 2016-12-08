@@ -48,6 +48,7 @@
     <Compile Include="DTO\AdjustSalePriceDto.cs" />
     <Compile Include="DTO\AdjustSalePriceItemDto.cs" />
     <Compile Include="DTO\AreaTreeNode.cs" />
+    <Compile Include="DTO\CacheKeys.cs" />
     <Compile Include="DTO\CategoryTreeNode.cs" />
     <Compile Include="DTO\MenuInfo.cs" />
     <Compile Include="DTO\Pager.cs" />

@@ -68,6 +68,10 @@
     <Compile Include="Entity\Shelf.cs" />
     <Compile Include="Entity\ShelfLayer.cs" />
     <Compile Include="Entity\ShelfLayerProduct.cs" />
+    <Compile Include="Entity\Stocktaking.cs" />
+    <Compile Include="Entity\StocktakingItem.cs" />
+    <Compile Include="Entity\StocktakingPlan.cs" />
+    <Compile Include="Entity\StocktakingPlanItem.cs" />
     <Compile Include="Entity\Store.cs" />
     <Compile Include="Entity\StoreInventory.cs" />
     <Compile Include="Entity\StoreInventoryBatch.cs" />
@@ -108,6 +112,10 @@
     <Compile Include="ValueObject\AccountStatus.cs" />
     <Compile Include="ValueObject\BillIdentity.cs" />
     <Compile Include="ValueObject\FormType.cs" />
+    <Compile Include="ValueObject\StocktakingPlanMethod.cs" />
+    <Compile Include="ValueObject\StocktakingPlanStatus.cs" />
+    <Compile Include="ValueObject\StocktakingStatus.cs" />
+    <Compile Include="ValueObject\StocktakingType.cs" />
     <Compile Include="ValueObject\SupplierType.cs" />
     <Compile Include="ValueObject\DateRange.cs" />
     <Compile Include="ValueObject\LoginStatus.cs" />
