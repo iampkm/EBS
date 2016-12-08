@@ -60,5 +60,10 @@ namespace EBS.Domain.Entity
         public int StoreId { get; set; }
 
         public virtual List<StocktakingPlanItem> Items { get; set; }
+
+        public void GenerateNewCode()
+        { 
+            
+        }
     }
 }

@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2016-12-08 14:18:11                          */
+/* Created on:     2016-12-08 17:43:10                          */
 /*==============================================================*/
 
 
@@ -725,9 +725,9 @@ create table Stocktaking
    Code                 nvarchar(20) comment '盘点单号',
    StocktakingType      int comment '盘点表类型1 盘点空表，2 盘点修正表',
    ShelfCode            nvarchar(20) comment '货架码',
-   CreateTime           datetime comment '创建时间',
-   CreateBy             int comment '创建人',
-   CreateByName         nvarchar(50) comment '创建人名',
+   CreatedBy            int comment '创建人',
+   CreatedByName        nvarchar(50) comment '创建人名',
+   CreateOn             datetime comment '创建时间',
    Status               int comment '状态（待审，已审）',
    StoreId              int comment '门店',
    Note                 nvarchar(1000) comment '备注',
@@ -766,12 +766,12 @@ create table StocktakingPlan
 (
    Id                   int not null auto_increment comment '编号',
    Code                 nvarchar(20) comment '盘点代码',
-   CreateBy             int comment '创建人',
-   CreateByName         nvarchar(50) comment '创建人名',
-   CreateTime           datetime comment '创建时间（盘点日期）',
-   UpdateBy             int comment '更新人',
-   UpdateByName         nvarchar(50) comment '更新人名',
-   UpdateTime           datetime comment '更新时间',
+   CreatedBy            int comment '创建人',
+   CreatedByName        nvarchar(50) comment '创建人名',
+   CreateOn             datetime comment '创建时间',
+   UpdatedBy            int comment '更新人',
+   UpdatedByName        nvarchar(50) comment '更新人名',
+   UpdatedOn            datetime comment '更新时间',
    Method               int comment '盘点方式（大盘：小盘）',
    Status               int comment '盘点状态（待盘，初盘，复盘，终盘）',
    StoreId              int comment '门店编号',

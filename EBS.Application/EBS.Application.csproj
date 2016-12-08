@@ -59,6 +59,7 @@
     <Compile Include="DTO\PurchaseContractModel.cs" />
     <Compile Include="DTO\ReceivedGoodsStorePurchaseOrder.cs" />
     <Compile Include="DTO\RoleModel.cs" />
+    <Compile Include="DTO\StocktakingPlanModel.cs" />
     <Compile Include="DTO\StoreModel.cs" />
     <Compile Include="DTO\SupplierModel.cs" />
     <Compile Include="IAccountFacade.cs" />
@@ -72,6 +73,7 @@
     <Compile Include="IPurchaseContractFacade.cs" />
     <Compile Include="IRoleFacade.cs" />
     <Compile Include="IShelfFacade.cs" />
+    <Compile Include="IStocktakingPlanFacade.cs" />
     <Compile Include="IStoreFacade.cs" />
     <Compile Include="IStorePurchaseOrderFacade.cs" />
     <Compile Include="ISupplierFacade.cs" />
