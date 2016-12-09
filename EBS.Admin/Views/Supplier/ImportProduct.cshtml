@@ -5,7 +5,7 @@
 <div id="app" class="box box-primary">
     <div class="box-header with-border">
         <ol class="breadcrumb" style="padding:0px;margin:1px;">
-            <li><a href="/Supplier/Index"><i class="fa fa-dashboard"></i>供应商管理</a></li>
+            <li><a href="/Supplier/Product"><i class="fa fa-dashboard"></i>供应商管理</a></li>
             <li class="active"><a href="/Supplier/ImportProduct">导入商品</a></li>
         </ol>
     </div>
@@ -26,8 +26,9 @@
                             </span>
                         </div>
                     </div> 
-                    <div class="col-sm-4 col-xs-4">
-                        <v-input type="textarea" label="供应商商品：" v-bind:value.sync="model.products" placeholder="复制excel文件中的商品编码，商品价两列格粘贴到该文本框中" required icon></v-input>
+                    <div class="form-group col-sm-4 col-xs-4">                      
+                        <label>供应商商品</label>
+                        <textarea v-model="inputProducts" class="form-control"   placeholder="复制excel文件中的商品编码，商品价两列格粘贴到该文本框中"></textarea>
                     </div>                     
                 </div>
                 <div class="row">
@@ -74,7 +75,7 @@
         <div class="box-footer">
             <div class="row">
                 <div class="col-sm-4 col-xs-4">
-                    <button type="submit" class="btn btn-warning btn-flat" @*v-bind:disabled="!valid"*@>保 存</button>
+                    <button type="button" class="btn btn-warning btn-flat" v-on:click="onSubmit">保 存</button>
                     <a class="btn btn-default btn-flat" href="/Supplier/Product">取 消</a>
                 </div>
             </div>
@@ -136,12 +137,12 @@
                     onSubmit: function () {                       
                         //获取选择节点
                         var _self = this;
-                        if (this.model.supplierId == 0) { bootbox.alert("请选择供应商！"); return; }
+                        if (_self.model.supplierId == 0) { bootbox.alert("请选择供应商！"); return; }
                         var v_data = _self.model;                       
                         var data = "";
                         for (var i = 0; i < _self.products.length; i++) {
                             var item = _self.products[i];
-                            data += "{\"ProductId\":" + item.ProductId + ",\"Price\":" + item.Price + ",\"SupplierId\":" + _self.supplierId + "},";
+                            data += "{\"ProductId\":" + item.ProductId + ",\"Price\":" + item.Price + ",\"SupplierId\":" + _self.model.supplierId + "},";
                         }
                         if (data == "") {
                             bootbox.alert("请导入商品");
@@ -208,6 +209,24 @@
                             this.selectSupplier.modal = false;
                         }
                     },
+                },
+                watch: {
+                    'inputProducts': function (val, oldVal) {
+                        if (val == "") { return;}
+                        var data = val;
+                        var _self = this;
+                        $.post("/Supplier/QueryProduct", { productCodePriceInput: data }, function (result) {
+                            if (result.success) {
+                                _self.products = [];
+                                result.data.forEach(function (item) {
+                                    _self.products.push(item);
+                                });
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
+                    }                   
                 }
             });            
 

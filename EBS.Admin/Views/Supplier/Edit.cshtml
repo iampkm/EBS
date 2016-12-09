@@ -2,14 +2,6 @@
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
-@section styles{
-    <link href="~/Content/zTree.min.css" rel="stylesheet" />
-    <style>
-        .ztree li span {
-            font-size: 14px;
-        }
-    </style>
-}
 <!-- demo root element -->
 <div id="app" class="box box-primary">
     <div class="box-header with-border">
@@ -25,30 +17,23 @@
             <v-form v-bind:valid.sync="valid">
                 <div class="row">
                     <div class="col-sm-4 col-xs-4">
+                        <v-input type="text" label="编码：" v-bind:value.sync="model.code" placeholder="自动生成" required readonly icon>
+                        </v-input>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4 col-xs-4">
                         <input type="hidden" v-model="model.id" />
                         <v-input type="text" label="供应商名*：" v-bind:value.sync="model.name" maxlength="30" placeholder="供应商名" required icon></v-input>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-sm-2 col-xs-3">
-                        <v-input type="text" label="简称*：" v-bind:value.sync="model.shortName" minlength="2" maxlength="4" placeholder="2~4个汉字简称" required icon></v-input>
-                    </div>
-                    <div class="form-group col-sm-2 col-xs-3">
-                        <label for="inputPassword3" class="control-label">供货区域*：</label>
-                        <input type="hidden" class="form-control" v-model="model.categoryId">
-                        <div class="input-group">
-                            <input type="text" class="form-control" placeholder="供货区域" v-model="model.areaName" readonly>
-                            <div class="input-group-btn">
-                                <button type="button" class="btn btn-default btn-flat" v-on:click="showArea()">
-                                    <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                        <v-input type="text" label="简称*：" v-bind:value.sync="model.shortName" minlength="2" placeholder="供应商简称" required icon></v-input>
+                    </div>                    
                     <div class="form-group col-sm-2 col-xs-3">
                         <label for="inputPassword3" class="control-label">类别*：</label>
-                        <div class="input-group">
-                            @*<span class="input-group-addon">类别</span>*@
+                        <div class="input-group">                          
                             <select name="brand" class="form-control" v-model="model.type">
                                 @foreach (var item in ViewBag.SupplierTypes)
                                 {
@@ -57,22 +42,7 @@
                             </select>
                         </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-4 col-xs-4">
-                        <v-input type="text" label="编码 *：" v-bind:value.sync="model.code" minlength="7" maxlength="7" placeholder="供应商类别1位+区域2位+简称4位" required icon>
-                        </v-input>
-                        <input type="hidden" v-model="newCode" />
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-4 col-xs-4">
-                            <label for="inputPassword3" class="control-label">&nbsp;</label>
-                            <div class="input-group">
-                                <button type="button" class="btn btn-flat" v-on:click="checkCode" v-bind:class="buttonClass">{{buttonText}}</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                </div>                
                 <div class="row">
                     <div class="col-sm-4 col-xs-4">
                         <v-input type="text" label="地址*：" v-bind:value.sync="model.address" maxlength="50" placeholder="地址" required icon></v-input>
@@ -114,24 +84,12 @@
             </div>
         </div>
     </form>
-    <!-- modal -->
-    <v-modal title="选择区域" ok-text="确 定" cancel-text="取 消" v-bind:callback="selectedNode" v-bind:show.sync="modal" v-bind:effect="fade" width="300">
-        <div slot="modal-body" class="modal-body">
-            <div style="height:400px;overflow-y:auto">
-                <ul id="ztree" class="ztree"></ul>
-            </div>
-        </div>
-    </v-modal>
 </div>
 @section scripts{
-    <script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
-<script src="~/Content/jquery/py/pinyin_dict_firstletter.js"></script>
-<script src="~/Content/jquery/py/pinyinUtil.js"></script>
     <script>
         $("doucument").ready(function () {
             var demo = new Vue({
                 components: {
-                    'v-modal': VueStrap.modal,
                     'v-input': VueStrap.input,
                     'v-form': VueStrap.formGroup
                 },
@@ -150,24 +108,16 @@
                         bankAccount: '@Model.BankAccount',
                         taxNo: '@Model.TaxNo',
                         licenseNo: '@Model.LicenseNo',
-                        areaId: '@Model.AreaId',
                         areaName: '@ViewBag.areaName',
                         type:'@((int)Model.Type)',
                         qq: '@Model.QQ',
                         address: '@Model.Address'
-
-                    },
-                    buttonText: '检查编号',
-                    buttonClass:"btn-default"
+                    }
                 },
                 methods: {
                     onSubmit: function () {
                         //获取选择节点
                         var v_data = this.model;
-                        if (this.model.areaId == '') {
-                            bootbox.alert("请选择区域");
-                            return;
-                        }
                         $.post("/Supplier/Edit", v_data, function (result) {
                             if (result.success) {
                                 bootbox.alert("保存成功！", function () {
@@ -178,89 +128,9 @@
                                 bootbox.alert(result.error);
                             }
                         }, "json");
-                    },
-                    selectedNode: function () {
-                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
-                        var selectArea = treeObj.getSelectedNodes()[0];
-                        if (selectArea)
-                        {
-                            // 设置 选中的分类
-                            this.model.areaId = nodes[0].id;
-                            this.model.areaName = nodes[0].text;
-                            this.modal = false;
-                        }
-                        else{
-                            bootbox.alert("请选择区域");
-                            return;
-                        }
-                    },
-                    showArea: function () {
-                        this.modal = true;
-                    },
-                    checkCode: function (value)
-                    {
-                        var _self = this;                      
-                        var value = _self.model.code;
-                        $.ajax({
-                            type: "post",
-                            url: "/Supplier/CheckCode",
-                            data: { code: value },
-                            dataType: "json",
-                            success: function (result) {
-                                if (result.success) {
-                                    _self.buttonText = result.data ? "未使用" : '已使用';
-                                    _self.buttonClass = result.data ? "btn-success" : 'btn-danger';
-                                     
-                                }
-                            }
-                        });                      
-                    }
-                },
-                computed: {
-                    newCode: function () {
-                        var _code = "";
-                        if (this.model.shortName != "") {
-                            var _letter = pinyinUtil.getFirstLetter(this.model.shortName);
-                            _code = _code + _letter;
-                        }
-                        if (this.model.areaId != "")
-                        {
-                            _code = this.model.areaId.substring(0, 2) + _code;
-                        }
-                        if (this.model.type != "0")
-                        {
-                            _code = this.model.type + _code;
-                        }                                         
-                        this.model.code = _code;                       
-                        return _code;
                     }
                 }
-            });
-            var zTreeObj;
-            // zTree 的参数配置，深入使用请参考 API 文档（setting 配置详解）
-            var setting = {
-                data: {
-                    simpleData: {
-                        enable: true,
-                        rootPId: 0
-                    }
-                },
-                async: {
-                    enable: true,
-                    url: "/Supplier/LoadChildArea",
-                    type: 'get'
-                },
-                callback: {
-                    onClick: function (event, treeId, treeNode) {
-                        //点击展开/折叠节点
-                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
-                        var open = !treeNode.open;
-                        treeObj.expandNode(treeNode, open, false, false);
-                    }
-                }
-            };
-            //异步加载
-            zTreeObj = $.fn.zTree.init($("#ztree"), setting);
+            });           
 
         });
 

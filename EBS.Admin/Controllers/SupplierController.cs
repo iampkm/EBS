@@ -41,19 +41,18 @@ namespace EBS.Admin.Controllers
             var rows = _supplierQuery.GetPageList(page, name,code);
 
             return Json(new { success = true, data = rows, total = page.Total }, JsonRequestBehavior.AllowGet);
-        }        
+        } 
 
+        //public string LoadChildArea()
+        //{
+        //    var treeNodes = _areaQuery.GetTree();
+        //    var tree = JsonConvert.SerializeObject(treeNodes);
+        //    return tree;
+        //}
         public ActionResult Create()
         {
             ViewBag.SupplierTypes = _supplierQuery.GetSupplierType();
             return View();
-        }
-
-        public string LoadChildArea()
-        {
-            var treeNodes = _areaQuery.GetTree();
-            var tree = JsonConvert.SerializeObject(treeNodes);
-            return tree;
         }
 
         [HttpPost]
@@ -66,7 +65,6 @@ namespace EBS.Admin.Controllers
         public ActionResult Edit(int id)
         {
             var model = _query.Find<Supplier>(id);
-            ViewBag.areaName = _query.Find<Area>(model.AreaId).FullName;
             ViewBag.SupplierTypes = _supplierQuery.GetSupplierType();
             return View(model);
         }
@@ -110,6 +108,13 @@ namespace EBS.Admin.Controllers
             return View();
         }
 
+        public JsonResult LoadSupplierProducts(Pager page, string name,string codeOrBarCode,string categoryId,int brandId,string supplierIds)
+        {
+            var rows = _supplierQuery.QuerySupplierProducts(page, name,codeOrBarCode,categoryId, brandId,supplierIds);
+
+            return Json(new { success = true, data = rows, total = rows.Count() });
+        }
+
         public ActionResult ImportProduct()
         {
             return View();
@@ -117,9 +122,9 @@ namespace EBS.Admin.Controllers
 
 
         [HttpPost]
-        public JsonResult ImportProduct(string supplierProductJson)
+        public JsonResult ImportProduct(string items)
         {
-             _supplierFacade.ImportProduct(supplierProductJson);
+            _supplierFacade.ImportProduct(items);
             return Json(new { success = true });
         }
 

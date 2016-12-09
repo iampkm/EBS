@@ -13,6 +13,8 @@ namespace EBS.Query.DTO
 
         public string Name { get; set; }
 
+        public string ShortName { get; set; }
+
         public string Code { get; set; }
         /// <summary>
         /// 联系人
@@ -27,6 +29,5 @@ namespace EBS.Query.DTO
 
         public SupplierType Type { get; set; }
 
-        public string AreaName { get; set; }
     }
 }

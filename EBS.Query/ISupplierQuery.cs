@@ -13,7 +13,9 @@ namespace EBS.Query
 
         IDictionary<int, string> GetSupplierType();
 
-        IEnumerable<SupplierProductDto> GetSupplierProducts(string productCodePriceInput);
+        IEnumerable<SupplierProductItemDto> GetSupplierProducts(string productCodePriceInput);
+
+        IEnumerable<SupplierProductDto> QuerySupplierProducts(Pager page, string name, string codeOrBarCode, string categoryId, int brandId, string supplierIds);
 
     }
 }

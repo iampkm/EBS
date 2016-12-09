@@ -10,6 +10,7 @@ using EBS.Domain.Entity;
 using EBS.Application.DTO;
 using EBS.Infrastructure.Extension;
 using Newtonsoft.Json;
+using EBS.Application.Facade.Mapping;
 namespace EBS.Application.Facade
 {
     public class SupplierFacade : ISupplierFacade
@@ -24,48 +25,21 @@ namespace EBS.Application.Facade
         }
         public void Create(SupplierModel model)
         {
-            Supplier entity = new Supplier()
-            {
-                Name = model.Name,
-                Code = model.Code,
-                QQ = model.QQ,
-                Address = model.Address,
-                AreaId = model.AreaId,
-                Bank = model.Bank,
-                BankAccount = model.BankAccount,
-                ShortName = model.ShortName,
-                LicenseNo = model.LicenseNo,
-                TaxNo = model.TaxNo,
-                CreatedBy = model.editedBy,
-                UpdatedBy = model.editedBy,
-                Contact = model.Contact,
-                Phone = model.Phone,
-                Type = (Domain.ValueObject.SupplierType)model.Type
-            };
-
-            _service.Create(entity);
+            Supplier entity = model.MapTo<Supplier>();
+            entity.CreatedBy = model.editedBy;
+            entity.UpdatedBy = model.editedBy;
+            entity.Code= _service.GenerateNewCode((int)entity.Type);
+            _db.Insert(entity);
             _db.SaveChange();
         }
 
         public void Edit(SupplierModel model)
         {
             Supplier entity = _db.Table.Find<Supplier>(model.Id);
-            entity.Code = model.Code;
-            entity.Name = model.Name;
-            entity.QQ = model.QQ;
-            entity.Address = model.Address;
-            entity.AreaId = model.AreaId;
-            entity.Bank = model.Bank;
-            entity.BankAccount = model.BankAccount;
-            entity.ShortName = model.ShortName;
-            entity.LicenseNo = model.LicenseNo;
-            entity.TaxNo = model.TaxNo;        
+            entity = model.MapTo<Supplier>(entity);
             entity.UpdatedBy = model.editedBy;
-            entity.Contact = model.Contact;
-            entity.Phone = model.Phone;
             entity.UpdatedOn = DateTime.Now;
-            entity.Type = (Domain.ValueObject.SupplierType)model.Type;
-            _service.Update(entity);
+            _db.Update(entity);
             _db.SaveChange();
         }
 
@@ -79,22 +53,27 @@ namespace EBS.Application.Facade
 
         public void ImportProduct(string supplierProductJson)
         {
-            var productPriceDic =JsonConvert.DeserializeObject<List<SupplierProduct>>(supplierProductJson) ;
+            var productPriceList =JsonConvert.DeserializeObject<List<SupplierProduct>>(supplierProductJson) ;
             List<SupplierProduct> insertList = new List<SupplierProduct>();
             List<SupplierProduct> updateList = new List<SupplierProduct>();
-            foreach (var product in productPriceDic)
+            foreach (var product in productPriceList)
             {
-                var model= _db.Table.Find<SupplierProduct>(n => n.ProductId == product.Id && n.SupplierId == product.SupplierId);
+                SupplierProduct model = _db.Table.Find<SupplierProduct>(n => n.ProductId == product.Id && n.SupplierId == product.SupplierId);
                 if (model == null)
                 {
                     insertList.Add(product);
                 }
-                else {                   
-                    updateList.Add(product);
+                else {
+                    model.Price = product.Price;
+                    updateList.Add(model);
                 }
             }
-            _db.Insert<SupplierProduct>(insertList.ToArray());
-            _db.Update<SupplierProduct>(updateList.ToArray());
+            if (insertList.Count > 0) {
+                _db.Insert<SupplierProduct>(insertList.ToArray());
+            }
+            if (updateList.Count > 0) {
+                _db.Update<SupplierProduct>(updateList.ToArray());
+            }           
             _db.SaveChange();
         }       
     }

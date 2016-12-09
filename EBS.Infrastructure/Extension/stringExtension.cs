@@ -18,7 +18,7 @@ namespace EBS.Infrastructure.Extension
        public static Dictionary<string, decimal> ToDecimalDic(this string value)
        {
            Dictionary<string, decimal> dicProductPrice = new Dictionary<string, decimal>(1000);
-           string[] productIdArray = value.Split('\n');
+           string[] productIdArray = value.Trim('\n').Split('\n');
            foreach (var item in productIdArray)
            {
                if (item.Contains("\t"))
@@ -50,7 +50,7 @@ namespace EBS.Infrastructure.Extension
        public static Dictionary<string, int> ToIntDic(this string value)
        {
            Dictionary<string, int> dicProductPrice = new Dictionary<string, int>(1000);
-           string[] productIdArray = value.Split('\n');
+           string[] productIdArray = value.Trim('\n').Split('\n');
            foreach (var item in productIdArray)
            {
                if (item.Contains("\t"))

@@ -55,12 +55,6 @@ namespace EBS.Domain.Entity
        /// 执照编号
        /// </summary>
        public string LicenseNo { get; set; }
-
-       /// <summary>
-       /// 供货区域
-       /// </summary>
-       public string AreaId { get; set; }
-
        public DateTime CreatedOn { get; set; }
 
        public int CreatedBy { get; set; }

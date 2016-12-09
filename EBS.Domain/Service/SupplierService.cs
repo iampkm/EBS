@@ -14,26 +14,24 @@ namespace EBS.Domain.Service
         public SupplierService(IDBContext dbContext)
         {
             this._db = dbContext;
-        }
-
-        public void Create(Supplier model)
-        {
-            if (_db.Table.Exists<Supplier>(n => n.Code == model.Code))
-            {
-                throw new Exception("编码重复，请修改!");
+        }       
+        public string GenerateNewCode(int type)
+        { 
+            var typeCode = type.ToString()+"%";
+            string sql = "select code from Supplier where code like @Code order by code desc limit 1";
+            var maxModel= _db.Table.Find<Supplier>(sql, new { Code = typeCode});
+             var number = 1;
+            if (maxModel == null)
+            {               
+                return string.Format("{0}{1}", type, number.ToString().PadLeft(3, '0'));
             }
-            _db.Insert(model);           
-        }
-
-        public void Update(Supplier model)
-        {
-            if (_db.Table.Exists<Supplier>(n => n.Code == model.Code))
-            {
-                throw new Exception("编码重复，请修改!");
+            else {
+                int.TryParse(maxModel.Code.Substring(1), out number);               
+                 number += 1;
+                var codeNumber = number > 999 ? number.ToString() : number.ToString().PadLeft(3, '0');
+                return string.Format("{0}{1}", type, codeNumber);
             }
-            _db.Update(model);
         }
-
         public int[] ValidateSupplierIds(string ids)
         {
             if (string.IsNullOrEmpty(ids))

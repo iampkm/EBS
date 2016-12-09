@@ -47,7 +47,6 @@
                 gridColumns: [
                     { name: 'Code', localName: '编码', style: "<a href='/Supplier/Edit/{id}'>{column}</a>", width: '100' },
                     { name: 'Name', localName: '供应商名', width: '300' },
-                    { name: 'AreaName', localName: '供货区域', width: '200' },
                     { name: 'SupplierType', localName: '类型', width: '100' },
                     { name: 'Contact', localName: '联系人' },
                     { name: 'Phone', localName: '电话' },
@@ -59,18 +58,18 @@
                 rows: []
             },
             methods: {
-                remove: function () {
-                    var v_ids = "";
+                remove: function () { 
+                    var idArray = new Array();
                     this.rows.forEach(function (item, index) {
                         if (item.checked) {
-                            v_ids = item.Id + ",";
+                            idArray.push(item.Id);
                         }
                     });
-                    if (v_ids == "") {
+                    if (idArray.length == 0) {
                         bootbox.alert("请选择一条记录");
                         return;
                     }
-                    v_ids = v_ids.substring(0, v_ids.length - 1);
+                    var v_ids = idArray.join();
                     v_self = this;
                     bootbox.confirm("您确定删除该记录？", function (result) {
                         if (result) {

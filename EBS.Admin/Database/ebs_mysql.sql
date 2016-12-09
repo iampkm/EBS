@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2016-12-08 17:43:10                          */
+/* Created on:     2016-12-09 14:11:29                          */
 /*==============================================================*/
 
 
@@ -969,7 +969,6 @@ create table Supplier
    BankAccount          nvarchar(50) comment '开户行账号',
    TaxNo                nvarchar(50) comment '税号',
    LicenseNo            nvarchar(50) comment '执照号',
-   AreaId               char(6) comment '供货区域',
    CreatedOn            datetime comment '创建时间',
    CreatedBy            int comment '创建人',
    UpdatedOn            datetime comment '修改时间',

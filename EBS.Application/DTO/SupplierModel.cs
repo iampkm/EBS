@@ -44,10 +44,6 @@ namespace EBS.Application.DTO
         /// </summary>
         public string LicenseNo { get; set; }
 
-        /// <summary>
-        /// 供货区域
-        /// </summary>
-        public string AreaId { get; set; }
        /// <summary>
        /// 编辑人
        /// </summary>

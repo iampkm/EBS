@@ -15,58 +15,72 @@
     <div class="box box-primary">
         <div class="box-header">
             <ol class="breadcrumb" style="padding:0px;margin:1px;">
-                <li><a href="/Supplier/Index"><i class="fa fa-dashboard"></i>供应商管理</a></li>
-                <li><a href="/Supplier/Product">供应商比价</a></li>
+                <li><a href="/Supplier/Product"><i class="fa fa-dashboard"></i>供应商商品</a></li>
+                @*<li><a href="/Supplier/Product">供应商比价</a></li>*@
             </ol>
         </div>
         <div class="box-body">
-            <div class="row">
-                <div class="col-xs-10 col-sm-10">
-                    <vue-table v-ref:vtable v-bind:columns="gridColumns"
-                               v-bind:url="url"
-                               v-bind:args="searchArgs" v-bind:data.sync="rows">
-                        <div class="row" style="margin-bottom:10px;" slot="customSearch">
-                            <div class="col-xs-2">
-                                <input class="form-control" v-model="searchArgs.codeOrBarCode" placeholder="商品编码/条码" debounce="500" />
-                            </div>
-                            <div class="col-xs-2">
-                                <input class="form-control" v-model="searchArgs.name" placeholder="商品名称" debounce="500" />
-                            </div>
-                            <div class="form-group col-sm-2 col-xs-3">                               
-                                <div class="input-group ">
-                                    <input type="hidden" class="form-control" v-model="searchArgs.brandId">
-                                    <input type="text" class="form-control" v-model="selectBrand.name" placeholder="选择品牌" readonly>
-                                    <span class="input-group-btn">
-                                        <button class="btn btn-flat btn-default" type="button" v-on:click="showBrand"><i class="fa fa-search"></i></button>
-                                        <button class="btn btn-flat btn-default" type="button" v-on:click="clearBrand"><i class="fa fa-eraser"></i></button>
-                                    </span>
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active"><a href="#home" role="tab" data-toggle="tab">供应商商品查询</a></li>
+                <li role="presentation"><a href="#profile" role="tab" data-toggle="tab">比价结果查询</a></li>
+            </ul>
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <!-- 供应商商品查询 -->
+                <div role="tabpanel" class="tab-pane active" id="home">
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-xs-10 col-sm-10">
+                            <vue-table v-ref:vtable v-bind:columns="gridColumns"
+                                       v-bind:url="url"
+                                       v-bind:args="searchArgs" v-bind:data.sync="rows" v-bind:show-pagination="showPage">
+                                <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                                    <div class="col-xs-2">
+                                        <input class="form-control" v-model="searchArgs.codeOrBarCode" placeholder="商品编码/条码" debounce="500" />
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <input class="form-control" v-model="searchArgs.name" placeholder="商品名称" debounce="500" />
+                                    </div>
+                                    <div class="form-group col-sm-2 col-xs-3">
+                                        <div class="input-group ">
+                                            <input type="hidden" class="form-control" v-model="searchArgs.brandId">
+                                            <input type="text" class="form-control" v-model="selectBrand.name" placeholder="选择品牌" readonly>
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-flat btn-default" type="button" v-on:click="showBrand"><i class="fa fa-search"></i></button>
+                                                <button class="btn btn-flat btn-default" type="button" v-on:click="clearBrand"><i class="fa fa-eraser"></i></button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2 col-xs-3">
+                                        <div class="input-group ">
+                                            <input type="hidden" class="form-control" v-model="searchArgs.supplierIds">
+                                            <input type="text" class="form-control" v-model="selectSupplier.name" placeholder="选择供应商" readonly>
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-flat btn-default" type="button" v-on:click="showSupplier"><i class="fa fa-search"></i></button>
+                                                <button class="btn btn-flat btn-default" type="button" v-on:click="clearSupplier"><i class="fa fa-eraser"></i></button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <span class="input-group-btn" slot="customButtons">
+                                    <a class="btn btn-warning btn-flat" href="/Supplier/ImportProduct">导入商品</a>
+                                    <button class="btn btn-success btn-flat" type="button">比价</button>
+                                </span>
+                            </vue-table>
+                        </div>
+                        <div class="col-xs-2 col-sm-2">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">品类查询&nbsp;&nbsp;<button class="btn btn-flat btn-warning" v-on:click="cancelSelect()">取消选择</button></div>
+                                <div class="panel-body" style="padding:2px;overflow-y:auto">
+                                    <ul id="ztree" class="ztree"></ul>
                                 </div>
                             </div>
-                            <div class="col-sm-2 col-xs-3">
-                                <div class="input-group ">
-                                    <input type="hidden" class="form-control" v-model="searchArgs.supplierId">
-                                    <input type="text" class="form-control" v-model="selectSupplier.name" placeholder="选择供应商" readonly>
-                                    <span class="input-group-btn">
-                                        <button class="btn btn-flat btn-default" type="button" v-on:click="showSupplier"><i class="fa fa-search"></i></button>
-                                        <button class="btn btn-flat btn-default" type="button" v-on:click="clearSupplier"><i class="fa fa-eraser"></i></button>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>                       
-                        <span class="input-group-btn" slot="customButtons">
-                            <a class="btn btn-warning btn-flat" href="/Supplier/ImportProduct">导入商品</a>
-                        </span>
-                    </vue-table>
-                </div>
-                <div class="col-xs-2 col-sm-2">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">品类查询&nbsp;&nbsp;<button class="btn btn-flat btn-warning" v-on:click="cancelSelect()">取消选择</button></div>
-                        <div class="panel-body" style="padding:2px;overflow-y:auto">
-                            <ul id="ztree" class="ztree"></ul>
                         </div>
                     </div>
                 </div>
+                <!-- 比价结果查询 -->
+                <div role="tabpanel" class="tab-pane" id="profile"></div>
             </div>
+              
         </div>
         <!-- /.box-body -->
     </div>
@@ -115,7 +129,6 @@
                 el: '#app',
                 data: {
                     modal: false,
-                    searchQuery: '',
                     gridColumns: [
                         { name: 'Name', localName: '商品名', style: "<a href='/Product/Edit/{id}'>{column}</a>", width: '200' },
                         { name: 'Code', localName: '编码' },
@@ -123,12 +136,13 @@
                         { name: 'CategoryName', localName: '品类' },
                         { name: 'BrandName', localName: '品牌' },
                         { name: 'Specification', localName: '规格' },
-                        { name: 'SupplierName1', localName: '供应商1' },
-                        { name: 'SupplierName2', localName: '供应商2' }
+                        { name: 'SupplierName', localName: '供应商' },
+                        { name: 'Price', localName: '供价' }
                     ],
-                    url: "/Product/LoadData",
-                    searchArgs: { name: '',codeOrBarCode:'',categoryId:'',brandId:0, supplierId: 0,},
+                    url: "/Supplier/LoadSupplierProducts",
+                    searchArgs: { name: '',codeOrBarCode:'',categoryId:'',brandId:0, supplierIds: '',},
                     rows: [],
+                    showPage:false,
                     productsInput:'',
                     importInfo:'',
                     importing:false,
@@ -241,13 +255,21 @@
                         this.selectSupplier.name = "";
                     },
                     getSupplier: function () {
+                        var idArray = new Array();
+                        var nameArray = new Array();
                         var selecteds = this.selectSupplier.rows.filter(function (item) {
+                            if(item.checked){
+                                idArray.push(item.Id);
+                                nameArray.push(item.ShortName);
+                            }
                             return item.checked;
                         });
-                        if (selecteds) {
-                            this.searchArgs.supplierId = selecteds[0].Id;
-                            this.selectSupplier.name = selecteds[0].Name;
+                        if (selecteds) {                            
+
+                            this.searchArgs.supplierIds = idArray.join();
+                            this.selectSupplier.name = nameArray.join();
                             this.selectSupplier.modal = false;
+                           
                         }
                     },
                 }
