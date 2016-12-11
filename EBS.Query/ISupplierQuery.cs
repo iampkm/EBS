@@ -16,6 +16,7 @@ namespace EBS.Query
         IEnumerable<SupplierProductItemDto> GetSupplierProducts(string productCodePriceInput);
 
         IEnumerable<SupplierProductDto> QuerySupplierProducts(Pager page, string name, string codeOrBarCode, string categoryId, int brandId, string supplierIds);
+        IEnumerable<ProductPriceCompare> QuerySupplierProductCompare(int supplierId1, int supplierId2, string productIds);
 
     }
 }

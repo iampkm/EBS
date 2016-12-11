@@ -51,7 +51,7 @@ namespace EBS.Application.Facade
         }
 
 
-        public void ImportProduct(string supplierProductJson)
+        public void ImportProduct(string supplierProductJson,int updatedBy)
         {
             var productPriceList =JsonConvert.DeserializeObject<List<SupplierProduct>>(supplierProductJson) ;
             List<SupplierProduct> insertList = new List<SupplierProduct>();
@@ -61,10 +61,14 @@ namespace EBS.Application.Facade
                 SupplierProduct model = _db.Table.Find<SupplierProduct>(n => n.ProductId == product.Id && n.SupplierId == product.SupplierId);
                 if (model == null)
                 {
+                    product.UpdatedBy = updatedBy;
+                    product.UpdatedOn = DateTime.Now;
                     insertList.Add(product);
                 }
                 else {
                     model.Price = product.Price;
+                    model.UpdatedBy = updatedBy;
+                    model.UpdatedOn = DateTime.Now;
                     updateList.Add(model);
                 }
             }
@@ -75,6 +79,23 @@ namespace EBS.Application.Facade
                 _db.Update<SupplierProduct>(updateList.ToArray());
             }           
             _db.SaveChange();
-        }       
+        }
+        public void MarkWaitSuppply(int markId, int unMarkId,int updatedBy)
+        {
+            var markModel = _service.MarkWaitSupply(markId,updatedBy);
+            var unMarkModel = _service.UnMarkWaitSupply(unMarkId, updatedBy);
+            _db.Update(markModel);
+            _db.Update(unMarkModel);
+            _db.SaveChange();
+        }
+
+        public void UnMarkWaitSuppply(int markId, int unMarkId, int updatedBy)
+        {
+            var markModel = _service.ResetMark(markId, updatedBy);
+            var markModel2 = _service.ResetMark(unMarkId, updatedBy);
+            _db.Update(markModel);
+            _db.Update(markModel2);
+            _db.SaveChange();
+        }
     }
 }

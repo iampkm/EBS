@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Dapper.DBContext;
 using EBS.Domain.Entity;
 using EBS.Infrastructure.Extension;
+using EBS.Domain.ValueObject;
+
 namespace EBS.Domain.Service
 {
    public class PurchaseContractService
@@ -16,39 +18,31 @@ namespace EBS.Domain.Service
             this._db = dbContext;
         }
 
-        public void Create(PurchaseContract model)
+        public void ValidateContract(PurchaseContract model)
         {           
-            // 同一个门店，同一个时间段内，与一个供应商，同一种经营方式只能有一个合同
-            if (_db.Table.Exists<PurchaseContract>(n => n.Code == model.Code))
+            
+            // 验证 同一个门店，同一个时间段内，与一个供应商，只能有一个合同
+            string sql = @"select * from PurchaseContract where SupplierId=@SupplierId and Status>@Status 
+and StartDate<=@Today and EndDate>=@Today";
+           var contracts= _db.Table.FindAll<PurchaseContract>(sql, 
+                new { SupplierId=model.SupplierId,Status=PurchaseContractStatus.Cancel,Today=DateTime.Now.Date }).ToList();
+            var storeArray = model.StoreIds.Split(',');
+            foreach (var storeId in storeArray)
             {
-                throw new Exception("合同编号已经存在"); 
-            }
-            _db.Insert(model);           
+                if (contracts.Exists(n => n.GetStores().Contains(storeId)))
+                {
+                    throw new Exception("门店与该供应商已经签有合同");
+                }
+            }    
         }
 
-        public void Update(PurchaseContract model)
+        public void ValidateContractCode(string code)
         {
-            if (_db.Table.Exists<PurchaseContract>(n => n.Code == model.Code && n.Id != model.Id))
+            // 验证编码重复
+            if (_db.Table.Exists<PurchaseContract>(n => n.Code == code))
             {
-                throw new Exception("合同编码不能重复!");
+                throw new Exception("合同编号已经存在");
             }
-            if (_db.Table.Exists<PurchaseContractItem>(n => n.PurchaseContractId == model.Id))
-            {
-                _db.Delete<PurchaseContractItem>(n => n.PurchaseContractId == model.Id);
-            }           
-            _db.Insert<PurchaseContractItem>(model.Items.ToArray());
-            _db.Update(model);
-        }
-
-        public void Delete(string ids)
-        {
-            if (string.IsNullOrEmpty(ids))
-            {
-                throw new Exception("id 参数为空");
-            }
-            var arrIds = ids.Split(',').ToIntArray();
-            _db.Delete<PurchaseContract>(arrIds);
-            //删除权限
         }
     }
 }

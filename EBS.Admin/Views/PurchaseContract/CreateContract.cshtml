@@ -1,0 +1,306 @@
+﻿@using EBS.Domain.ValueObject;
+@using EBS.Infrastructure.Extension;
+@model EBS.Query.DTO.PurchaseContractCreateDto
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+@section styles{
+    <link href="~/Content/zTree.min.css" rel="stylesheet" />
+    <style>
+        .ztree li span {
+            font-size: 14px;
+        }
+    </style>
+}
+<!-- demo root element -->
+<div id="app" class="box box-primary">
+    <div class="box-header with-border">
+        <ol class="breadcrumb" style="padding:0px;margin:1px;">
+            <li><a href="/Supplier/Product"><i class="fa fa-dashboard"></i>供应商商品</a></li>
+            <li class="active"><a href="/PurchaseContract/CreateContract/{{model.supplierId}}">创建采购合同</a></li>
+        </ol>
+    </div>
+    <!-- /.box-header -->
+    <!-- form start -->
+    <form v-on:submit.prevent="onSubmit">
+        <div class="box-body">
+            <v-form v-bind:valid.sync="valid">
+            <div class="row">
+                <div class="form-group col-sm-4 col-xs-4">
+                    <button type="submit" class="btn btn-warning btn-flat" v-bind:disabled="!valid"  >保 存</button>
+                    <a class="btn btn-default btn-flat" href="javascript:history.go(-1)">取 消</a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-2 col-xs-3">
+                    <input type="hidden" v-model="model.id" />
+                    <v-input type="text" label="合同编号*：" v-bind:value.sync="model.code" maxlength="30" placeholder="合同编号" required icon></v-input>
+                </div>
+                <div class="col-sm-2 col-xs-3">
+                    <v-input type="text" label="合同名*：" v-bind:value.sync="model.name" maxlength="50" placeholder="合同名" required icon></v-input>
+                </div>
+                <div class="form-group col-sm-2 col-xs-3">
+                    <label for="inputPassword3" class="control-label">合同日期：</label>
+                    <div class="input-group date" data-provide="datepicker" data-date-format="yyyy-mm-dd"
+                         data-date-language="zh-CN" data-date-clear-btn="true" data-date-autoclose="true">
+                        <div class="input-group-addon">
+                            <i class="fa fa-calendar"></i>
+                            <span>从</span>
+                        </div>
+                        <input type="text" class="form-control" v-model="model.startDate" readonly>
+                    </div>
+                </div>
+                <div class="form-group col-sm-2 col-xs-3">
+                    <label for="inputPassword3" class="control-label">&nbsp;</label>
+                    <div class="input-group date " data-provide="datepicker" data-date-format="yyyy-mm-dd"
+                         data-date-language="zh-CN" data-date-clear-btn="true" data-date-autoclose="true">
+                        <div class="input-group-addon">
+                            <i class="fa fa-calendar"></i>
+                            <span>到</span>
+                        </div>
+                        <input type="text" class="form-control" v-model="model.endDate" readonly>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-sm-2 col-xs-3">
+                    <label for="inputPassword3" class="control-label">供应商:</label>
+                    <div class="input-group ">
+                        <input type="hidden" class="form-control" v-model="model.supplierId">
+                        <input type="text" class="form-control"  v-model="selectSupplier.name" readonly>
+                        <span class="input-group-btn">
+                            <button class="btn btn-flat btn-default" type="button" v-on:click="showSupplier"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group col-sm-2 col-xs-3">
+                    <label for="inputPassword3" class="control-label">供应门店:</label>
+                    <div class="input-group ">
+                        <input type="hidden" class="form-control" v-model="model.storeIds">
+                        <input type="text" class="form-control" title="{{selectStore.name}}" v-model="selectStore.name" readonly>
+                        <span class="input-group-btn">
+                            <button class="btn btn-flat btn-default" type="button" v-on:click="showStore"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group col-sm-2 col-xs-3">
+                    <v-input type="text" label="联系人：" v-bind:value.sync="model.contact" placeholder="联系人" required icon></v-input>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="width:30px;"></th>
+                                    <th style="width:150px;">编码</th>
+                                    <th>品名</th>
+                                    <th>品类</th>
+                                    <th>规格</th>
+                                    <th style="width:150px;">供应价</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(index,item) in products">
+                                    <td>{{index+1}}</td>
+                                    <td>{{item.Code}}</td>
+                                    <td>{{item.Name}}</td>
+                                    <td>{{item.CategoryName}}</td>
+                                    <td>{{item.Specification}}</td>
+                                    <td >
+                                        {{item.ContractPrice}}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            </v-form>
+        </div>
+        <div class="box-footer">            
+        </div>
+    </form>
+    <!-- modal -->
+    <v-modal title="选择供应商" ok-text="确 定" cancel-text="取 消" v-bind:callback="getSupplier" v-bind:show.sync="selectSupplier.modal" v-bind:effect="fade" width="60%">
+        <div slot="modal-body" class="modal-body">
+            <vue-table v-ref:vtable v-bind:columns="selectSupplier.gridColumns"
+                       v-bind:url="selectSupplier.url" v-bind:show-toolbar="false"
+                       v-bind:args="selectSupplier.searchArgs" v-bind:data.sync="selectSupplier.rows">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                    <div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="selectSupplier.searchArgs.code" placeholder="输入供应编码" debounce="300" />
+                    </div>
+                    <div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="selectSupplier.searchArgs.name" placeholder="输入供应商名" debounce="300" />
+                    </div>
+                </div>
+            </vue-table>
+        </div>
+    </v-modal>
+    <v-modal title="选择门店" ok-text="确 定" cancel-text="取 消" v-bind:callback="getStore" v-bind:show.sync="selectStore.modal" v-bind:effect="fade" width="60%">
+        <div slot="modal-body" class="modal-body">
+            <div style="min-height:350px;max-height:500px;overflow:auto;"><ul id="ztree" class="ztree"></ul></div>
+        </div>
+    </v-modal>
+</div>
+@{Html.RenderPartial("VueTableTemplate");}
+@section scripts{
+    <script src="~/Content/Vue/vuetable/vuetable.js"></script>
+<script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
+    <script>
+        $("doucument").ready(function () {
+            var vue = new Vue({
+                components: {
+                    'v-modal': VueStrap.modal,
+                    'v-input': VueStrap.input,
+                    'v-form': VueStrap.formGroup
+                },
+                el: '#app',
+                data: {
+                    valid: false,
+                    model: {
+                        id:0 ,
+                        code: '',
+                        storeIds: '',
+                        name: '',
+                        supplierId: @Model.SupplierId,
+                        contact: '',
+                        startDate: '',
+                        endDate: '',
+                        items: ''
+                    },
+                    products: @Html.Raw(ViewBag.PurchaseContractItems),
+                    inputProducts: '',
+                    selectSupplier: {
+                        modal: false,
+                        name:'@Model.SupplierName',
+                        gridColumns: [
+                            { name: 'Code', localName: '编码',  width: '100' },
+                            { name: 'Name', localName: '供应商名', width: '300' },
+                            { name: 'AreaName', localName: '供货区域', width: '200' },
+                            { name: 'SupplierType', localName: '类型', width: '100' },
+                        ],
+                        url: "/Supplier/LoadData",
+                        searchArgs: { name: '', code: '' },
+                        rows: []
+                    },
+                    selectStore: {
+                        modal: false,
+                        name: ''                      
+                    }
+                },
+                methods: {
+                    onSubmit: function () {
+                        //获取选择节点
+                        var _self = this;
+                        var v_data = _self.model;
+                        var data = "";
+                        for (var i = 0; i < _self.products.length; i++) {
+                            var item = _self.products[i];
+                            data += "{\"PurchaseContractId\":" + _self.model.id +",\"ProductId\":" + item.ProductId + ",\"ContractPrice\":" + item.ContractPrice + "},";
+                        }
+                        if (data == "") {
+                            bootbox.alert("请导入商品");
+                            return;
+                        }
+                        data = data.substring(0, data.length - 1);
+                        data = "[" + data + "]";
+                        _self.model.items = data;
+                        // 日期校验
+                        if (_self.model.startDate == "" || _self.model.endDate == "") {
+                            bootbox.alert("请输入合同日期");
+                            return;
+                        }
+                        if (new Date(_self.model.endDate) < new Date(_self.model.startDate)) {
+                            bootbox.alert("结束日期不能大于开始日期");
+                            return;
+                        }
+                        if (_self.model.storeIds == "") {
+                            bootbox.alert("请选择门店");
+                            return;
+                        }
+                        $.post("/PurchaseContract/Create", v_data, function (result) {
+                            if (result.success) {
+                                bootbox.alert("保存成功！", function () {
+                                    window.location.href = "/PurchaseContract/Index";
+                                });
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
+                    },                    
+                    showSupplier: function () {
+                        this.selectSupplier.modal = true;
+                    },
+                    getSupplier: function () {
+                        var selecteds = this.selectSupplier.rows.filter(function (item) {
+                            return item.checked;
+                        });
+                        if (selecteds)
+                        {
+                            this.model.supplierId = selecteds[0].Id;
+                            this.selectSupplier.name =selecteds[0].Name;
+                            this.selectSupplier.modal = false;
+                        }
+                    },
+                    showStore: function () {
+                        this.selectStore.modal = true;
+                    },
+                    getStore: function () {
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree"); 
+                        var selecteds= treeObj.getCheckedNodes(true);
+                        if (selecteds) {
+                            var idArray = new Array();
+                            var nameArray = new Array();
+                            selecteds.forEach(function(item){
+                                if(item.level==1){
+                                    idArray.push(item.id);
+                                    nameArray.push(item.name);
+                                }
+                            })
+                            this.model.storeIds = idArray.join();
+                            this.selectStore.name = nameArray.join();
+                            this.selectStore.modal = false;
+                        }
+                    }
+                }
+            });
+
+            //加载门店tree
+            var zTreeObj;           
+            var setting = {
+                check: {
+                    enable:true
+                },               
+                async: {
+                    enable: true,
+                    url: "/Store/LoadStore",
+                    //autoParam: ["id", "name"]
+                },
+                callback:{
+                    onClick:function(event, treeId, treeNode){
+                        //点击展开/折叠节点
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                        var open = !treeNode.open;
+                        treeObj.expandNode(treeNode, open, false, false);
+                        // vue.searchArgs.categoryId =treeNode.id;                      
+                    }
+                }
+            };           
+            zTreeObj = $.fn.zTree.init($("#ztree"), setting);
+
+        });
+
+
+
+    </script>
+}
+
+
+
+
+
+

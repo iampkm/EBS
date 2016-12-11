@@ -20,7 +20,7 @@
             </ol>
         </div>
         <div class="box-body">
-            <ul class="nav nav-tabs" role="tablist">
+            <ul class="nav nav-tabs" role="tablist" id="myTab">
                 <li role="presentation" class="active"><a href="#home" role="tab" data-toggle="tab">供应商商品查询</a></li>
                 <li role="presentation"><a href="#profile" role="tab" data-toggle="tab">比价结果查询</a></li>
             </ul>
@@ -63,7 +63,7 @@
                                 </div>
                                 <span class="input-group-btn" slot="customButtons">
                                     <a class="btn btn-warning btn-flat" href="/Supplier/ImportProduct">导入商品</a>
-                                    <button class="btn btn-success btn-flat" type="button">比价</button>
+                                    <button class="btn btn-success btn-flat" type="button" v-on:click="comparePrice()">比价</button>
                                 </span>
                             </vue-table>
                         </div>
@@ -78,7 +78,70 @@
                     </div>
                 </div>
                 <!-- 比价结果查询 -->
-                <div role="tabpanel" class="tab-pane" id="profile"></div>
+                <div role="tabpanel" class="tab-pane" id="profile">
+                    <div class="col-xs-12 col-sm-12" style="margin-top:10px;">
+                        <div class="table-responsive">
+                            <table class="table table-bordered"> 
+                                <caption>                                    
+                                    <a href="/PurchaseContract/CreateContract/{{supplierId1}}" class="btn btn-flat btn-warning">与[{{supplierName1}}]签合同</a>
+                                    <a href="/PurchaseContract/CreateContract/{{supplierId2}}" class="btn btn-flat btn-warning">与[{{supplierName2}}]签合同</a>
+                                </caption>                              
+                                <thead>
+                                    <tr>
+                                        <th style="width:30px;"></th>
+                                        <th style="width:150px;"></th>
+                                        <th></th>
+                                        <th colspan="4" class="text-center">{{supplierName1}}</th>
+                                        <th colspan="4" class="text-center">{{supplierName2}}</th>
+                                    </tr>
+                                    <tr>
+                                        <th style="width:30px;"></th>
+                                        <th style="width:150px;">编码</th>
+                                        <th>品名</th>
+                                        <th>比价</th>
+                                        <th>供价</th>
+                                        <th>供货状态</th>
+                                        <th>比价状态</th>
+                                        <th>比价</th>
+                                        <th>供价</th>
+                                        <th>供货状态</th>
+                                        <th>比价状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(index,item) in products" style="cursor:pointer">
+                                        <td>{{index+1}}</td>
+                                        <td>{{item.Code}}</td>
+                                        <td>{{item.Name}}</td>
+                                        <td v-bind:class="{'bg-info':item.bgColor1}"> <!--compareStatus==1 未比价，已比价-->
+                                            <button type="button" class="btn btn-sm btn-flat btn-success" title="标记候选" v-show="item.CompareStatus1==1||item.CompareStatus1==4" v-on:click="mark(item.Id1,item.Id2)">
+                                                <span class="glyphicon glyphicon-ok"></span>
+                                            </button> 
+                                            <button type="button" class="btn btn-sm btn-flat btn-danger" title="取消候选" v-show="item.CompareStatus1==2" v-on:click="unMark(item.Id1,item.Id2)">
+                                                <span class="glyphicon glyphicon-remove"></span>
+                                            </button>  
+                                        </td>
+                                        <td v-bind:class="{'text-danger':item.textColor1,'bg-info':item.bgColor1}" >{{item.Price1}}</td>
+                                        <td v-bind:class="{'bg-info':item.bgColor1}">{{item.SupplyStatus1}}</td>
+                                        <td v-bind:class="{'bg-info':item.bgColor1}">{{item.ComparePriceStatus1}}</td>
+                                        <td v-bind:class="{'bg-info':item.bgColor2}">
+                                            <button type="button" class="btn btn-sm btn-flat btn-success" title="标记候选" v-show="item.CompareStatus2==1||item.CompareStatus2==4" v-on:click="mark(item.Id2,item.Id1)">
+                                                <span class="glyphicon glyphicon-ok"></span>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-flat btn-danger" title="取消候选"  v-show="item.CompareStatus2==2" v-on:click="unMark(item.Id2,item.Id1)">
+                                                <span class="glyphicon glyphicon-remove"></span>
+                                            </button>  
+                                        </td>
+                                        <td v-bind:class="{'text-danger':item.textColor2,'bg-info':item.bgColor2}">{{item.Price2}}</td>
+                                        <td v-bind:class="{'bg-info':item.bgColor2}">{{item.SupplyStatus2}}</td>
+                                        <td v-bind:class="{'bg-info':item.bgColor2}">{{item.ComparePriceStatus2}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
             </div>
               
         </div>
@@ -128,7 +191,6 @@
                 },
                 el: '#app',
                 data: {
-                    modal: false,
                     gridColumns: [
                         { name: 'Name', localName: '商品名', style: "<a href='/Product/Edit/{id}'>{column}</a>", width: '200' },
                         { name: 'Code', localName: '编码' },
@@ -137,15 +199,20 @@
                         { name: 'BrandName', localName: '品牌' },
                         { name: 'Specification', localName: '规格' },
                         { name: 'SupplierName', localName: '供应商' },
-                        { name: 'Price', localName: '供价' }
+                        { name: 'Price', localName: '供价' },
+                        { name: 'SupplyStatus', localName: '状态' }
                     ],
                     url: "/Supplier/LoadSupplierProducts",
                     searchArgs: { name: '',codeOrBarCode:'',categoryId:'',brandId:0, supplierIds: '',},
                     rows: [],
                     showPage:false,
-                    productsInput:'',
-                    importInfo:'',
-                    importing:false,
+                    products:[],  // 供应商比价
+                    supplierName1:'',
+                    supplierName2:'',
+                    supplierId1:0,
+                    supplierId2:0,
+                    checkAll1:false,
+                    checkAll2:false,
                     selectBrand: {
                         modal: false,
                         name: '',
@@ -163,7 +230,6 @@
                         gridColumns: [
                             { name: 'Code', localName: '编码', width: '100' },
                             { name: 'Name', localName: '供应商名', width: '300' },
-                            { name: 'AreaName', localName: '供货区域', width: '200' },
                             { name: 'SupplierType', localName: '类型', width: '100' },
                         ],
                         url: "/Supplier/LoadData",
@@ -172,32 +238,71 @@
                     },
                 },
                 methods: {
-                    remove: function () {
-                        var v_ids = "";
+                    remove: function (index) {
+                        this.products.splice(index,1); 
+                    },
+                    comparePrice:function(){
+                        var _self = this;
+                        if(this.supplierId1==0||this.supplierId2==0)
+                        {
+                            bootbox.alert("请选择两个比价供应商");return;
+                        }
+                        var idArray =new Array();
                         this.rows.forEach(function (item, index) {
                             if (item.checked) {
-                                v_ids = item.Id + ",";
+                                idArray.push(item.ProductId);
                             }
                         });
-                        if (v_ids == "") {
-                            bootbox.alert("请选择一条记录");
-                            return;
-                        }
-                        v_ids = v_ids.substring(0, v_ids.length - 1);
-                        v_self = this;
-                        bootbox.confirm("您确定删除该记录？", function (result) {
-                            if (result) {
-                                $.post("/Product/Delete", { ids: v_ids }, function (result) {
-                                    if (result.success) {
-                                        v_self.$refs.vtable.loadData();
+                        var selectedProductIds = idArray.join();
+                        var model ={
+                            supplierId1:this.supplierId1,
+                            supplierId2:this.supplierId2,
+                            productIds:selectedProductIds
+                        };
+                        $.get("/Supplier/QuerySupplierProductCompare", model, function (result) {
+                            if (result.success) {
+                                _self.products = [];
+                                result.data.forEach(function (item,index) {                                  
+                                    var obj ={
+                                        bgColor1:item.CompareStatus1==2,                                     
+                                        bgColor2:item.CompareStatus2==2,                                     
+                                        checked1:false,
+                                        checked2:false
                                     }
-                                    else {
-                                        bootbox.alert(result.error);
-                                    }
-                                }, "json");
+                                    var row = Object.assign({}, obj, item);
+                                    _self.products.push(row);
+                                });
+                                 $('#myTab a[href="#profile"]').tab('show');
                             }
-                        });
-                    },
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
+                    },                   
+                    mark:function(id1,id2)
+                    {
+                        _self= this;
+                        $.post("/Supplier/MarkWaitSuppply", {markId:id1,unMarkId:id2}, function (result) {
+                            if (result.success) {
+                                _self.comparePrice();
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
+                    },   
+                    unMark:function(id1,id2)
+                    {
+                        _self= this;
+                        $.post("/Supplier/UnMarkWaitSuppply", {markId:id1,unMarkId:id2}, function (result) {
+                            if (result.success) {
+                                _self.comparePrice();
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
+                    },    
                     cancelSelect:function(){
                         var treeObj = $.fn.zTree.getZTreeObj("ztree");
                         var nodes = treeObj.getSelectedNodes();
@@ -205,31 +310,7 @@
                             treeObj.cancelSelectedNode(nodes[0]);
                         }
                         vue.searchArgs.categoryId ="";
-                    },
-                    showModal: function () {
-                        this.modal = true;
-                    },
-                    importProduct:function()
-                    {
-                        var data = this.productsInput;
-                        if(data==""){return;}
-                        var _self = this;
-                        if(_self.importing){return;}
-                        _self.importInfo ="导入中...";
-                        _self.importing = true;
-                        $.post("/Product/Import", { productsInput: data }, function (result) {
-                            if (result.success) {
-                                _self.importInfo =result.data;
-                                _self.$refs.vtable.loadData();
-                                _self.productsInput = "";
-                            }
-                            else {
-                                _self.importInfo ="";
-                                bootbox.alert(result.error);
-                            }
-                            _self.importing = false;
-                        }, "json");
-                    },
+                    },                 
                     showBrand: function () {
                         this.selectBrand.modal = true;
                     },
@@ -269,10 +350,43 @@
                             this.searchArgs.supplierIds = idArray.join();
                             this.selectSupplier.name = nameArray.join();
                             this.selectSupplier.modal = false;
+                            if(idArray.length>=2)
+                            {
+                                this.supplierId1 =idArray[0];
+                                this.supplierId2 =idArray[1];
+                                this.supplierName1 =nameArray[0];
+                                this.supplierName2 =nameArray[1];
+                            }
                            
                         }
+                    },                    
+                },
+                watch:{
+                    'checkAll1':function(val,oldValue)
+                    {
+                        var self = this;
+                        var isChecked = val;
+                        this.products.forEach(function (item, index) {
+                            item.checked1 = isChecked;
+                            if(isChecked){item.checked2= false;}
+                            self.products.$set(index, item);
+                        });
+                        if(isChecked) this.checkAll2 = false;
+                        
+                    },
+                    'checkAll2':function(val,oldValue)
+                    {
+                        var self = this;
+                        var isChecked = val;
+                        this.products.forEach(function (item, index) {
+                            item.checked2 = isChecked; 
+                            if(isChecked){item.checked1= false;}
+                            self.products.$set(index, item);
+                        });
+                        if(isChecked) this.checkAll1 = false;
                     },
                 }
+
             });
 
             var zTreeObj;

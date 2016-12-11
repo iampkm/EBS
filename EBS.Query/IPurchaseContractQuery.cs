@@ -16,6 +16,6 @@ namespace EBS.Query
 
        Dictionary<int, string> GetPurchaseContractStatus();
 
-      
+        PurchaseContractCreateDto QueryContractInfo(int supplierId);
     }
 }

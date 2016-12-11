@@ -11,7 +11,7 @@ namespace EBS.Application.DTO
 
         public string Name { get; set; }
 
-        public int StoreId { get; set; }
+        public string StoreIds { get; set; }
         public int SupplierId { get; set; }
         public string Contact { get; set; }
         public int Cooperate { get; set; }
@@ -39,7 +39,7 @@ namespace EBS.Application.DTO
        public string Code { get; set; }
 
        public string Name { get; set; }
-        public int StoreId { get; set; }
+        public string StoreIds { get; set; }
 
        public int SupplierId { get; set; }
        public string Contact { get; set; }

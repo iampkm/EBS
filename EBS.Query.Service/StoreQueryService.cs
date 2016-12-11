@@ -44,5 +44,42 @@ namespace EBS.Query.Service
             
             return rows;
         }
+
+        public IEnumerable<StoreTreeNode> LoadStore()
+        {
+            // 查询一级区域
+            var areaRows = this._query.FindAll<Area>(n => n.Level == 1);
+            var stores = this._query.FindAll<Store>();
+            // 组装ztree树形结构
+            List<StoreTreeNode> list = new List<StoreTreeNode>();
+            foreach (var area in areaRows)
+            {                
+                // 找当前区域门店
+                var areaID = area.Id.Substring(0, 2);
+                var areaStores = stores.Where(n => n.AreaId.IndexOf(areaID)==0);
+                //只加载有门店的区域
+                if (!areaStores.Any()) { continue;  }
+                List<StoreTreeNode> storelist = new List<StoreTreeNode>();
+                foreach (var store in areaStores)
+                {
+                    var secondLayer = new StoreTreeNode()
+                    {
+                        id = store.Id,
+                        code = store.Code,
+                        name = store.Name
+                    };
+                    storelist.Add(secondLayer);
+                }
+                var firtLayer = new StoreTreeNode()
+                {
+                    id = Convert.ToInt32(area.Id),
+                    code = area.FullName,
+                    name = area.Name
+                };
+                firtLayer.children = storelist;
+                list.Add(firtLayer);
+            }
+            return list;
+        }
     }
 }

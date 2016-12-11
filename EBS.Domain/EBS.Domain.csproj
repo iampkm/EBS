@@ -117,6 +117,7 @@
     <Compile Include="ValueObject\StocktakingPlanStatus.cs" />
     <Compile Include="ValueObject\StocktakingStatus.cs" />
     <Compile Include="ValueObject\StocktakingType.cs" />
+    <Compile Include="ValueObject\SupplierProductStatus.cs" />
     <Compile Include="ValueObject\SupplierType.cs" />
     <Compile Include="ValueObject\DateRange.cs" />
     <Compile Include="ValueObject\LoginStatus.cs" />
@@ -137,6 +138,7 @@
     <Compile Include="Entity\Role.cs" />
     <Compile Include="ValueObject\PurchaseContractStatus.cs" />
     <Compile Include="ValueObject\StoreSetting.cs" />
+    <Compile Include="ValueObject\SupplyStatus.cs" />
     <Compile Include="ValueObject\TransferOrderStatus.cs" />
   </ItemGroup>
   <ItemGroup>

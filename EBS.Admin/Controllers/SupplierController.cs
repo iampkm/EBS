@@ -124,7 +124,7 @@ namespace EBS.Admin.Controllers
         [HttpPost]
         public JsonResult ImportProduct(string items)
         {
-            _supplierFacade.ImportProduct(items);
+            _supplierFacade.ImportProduct(items,this._context.CurrentAccount.AccountId);
             return Json(new { success = true });
         }
 
@@ -132,6 +132,33 @@ namespace EBS.Admin.Controllers
         {
             var rows = _supplierQuery.GetSupplierProducts(productCodePriceInput);
             return Json(new { success = true, data = rows });
+        }
+
+        public JsonResult QuerySupplierProductCompare(int supplierId1,int supplierId2,string productIds)
+        {
+            var rows = _supplierQuery.QuerySupplierProductCompare( supplierId1, supplierId2,  productIds);
+            return Json(new { success = true, data = rows });
+        }
+        /// <summary>
+        /// 标记供货
+        /// </summary>
+        /// <param name="markId"></param>
+        /// <param name="unMarkId"></param>
+        /// <returns></returns>
+        public JsonResult MarkWaitSuppply(int markId, int unMarkId)
+        {
+            _supplierFacade.MarkWaitSuppply(markId,unMarkId,_context.CurrentAccount.AccountId);
+            return Json(new { success = true});
+        }
+        /// <summary>
+        /// 取消标记供货
+        /// </summary>
+        /// <param name="markId"></param>
+        /// <returns></returns>
+        public JsonResult UnMarkWaitSuppply(int markId, int unMarkId)
+        {
+            _supplierFacade.UnMarkWaitSuppply(markId, unMarkId, _context.CurrentAccount.AccountId);
+            return Json(new { success = true });
         }
 
         private void LoadCategory()

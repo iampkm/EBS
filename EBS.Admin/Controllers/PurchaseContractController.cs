@@ -78,8 +78,8 @@ namespace EBS.Admin.Controllers
             ViewBag.PurchaseContractItems = JsonConvert.SerializeObject(items.ToArray());
             var supplier = _query.Find<Supplier>(model.SupplierId);
             ViewBag.SupplierName = supplier.Name;
-            var store = _query.Find<Store>(model.StoreId);
-            ViewBag.StoreName =store.Name ;
+            var stores = _query.Find<Store>(model.StoreIds.Split(',').ToIntArray()).Select(n=>n.Name).ToArray();
+            ViewBag.StoreName =string.Join(",",stores) ;
             //创建和待审可编辑
             var editable = model.Status == PurchaseContractStatus.Create || model.Status == PurchaseContractStatus.WaitingAudit;
             ViewBag.Editable = editable ? "true" : "false";
@@ -120,6 +120,18 @@ namespace EBS.Admin.Controllers
         {
             var rows = _purchaseContractQuery.GetPurchaseContractItems(productCodePriceInput);
             return Json(new { success = true, data = rows });
+        }
+
+        /// <summary>
+        ///  根据供应商比价结果创建合同
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public ActionResult CreateContract(int id)
+        {
+            var model = _purchaseContractQuery.QueryContractInfo(id);
+            ViewBag.PurchaseContractItems = JsonConvert.SerializeObject(model.Items.ToArray());
+            return View(model);
         }
 
     }

@@ -24,8 +24,6 @@ namespace EBS.Query.DTO
             }
         }
         public string Contact { get; set; }
-      
-        public string StoreName { get; set; }
         /// <summary>
         /// 合同开始日期
         /// </summary>

@@ -40,7 +40,7 @@ namespace EBS.Query.Service
             }
             if (condition.StoreId > 0)
             {
-                where += "and t0.StoreId=@StoreId ";
+                where += "and t0.StoreId in @StoreId ";
                 param.StoreId = condition.StoreId;
             }
             if (condition.Status > 0)
@@ -48,8 +48,8 @@ namespace EBS.Query.Service
                 where += "and t0.Status=@Status ";
                 param.Status = condition.Status;
             }
-            string sql = @"select t0.Id,t0.Name,t0.Code,t0.SupplierId,t0.Contact,t0.StartDate,t0.EndDate,t0.Status,t1.Code as SupplierCode,t1.Name as SupplierName,t2.Name as StoreName  
-from PurchaseContract t0 left join supplier t1 on t0.SupplierId = t1.Id left join store t2 on t0.StoreId = t2.Id
+            string sql = @"select t0.Id,t0.Name,t0.Code,t0.SupplierId,t0.Contact,t0.StartDate,t0.EndDate,t0.Status,t1.Code as SupplierCode,t1.Name as SupplierName   
+from PurchaseContract t0 left join supplier t1 on t0.SupplierId = t1.Id 
 where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<Product>(where, param);
             sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
@@ -63,7 +63,7 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
         public IEnumerable<PurchaseContractItemDto> GetPurchaseContractItems(string productCodePriceInput)
         {
             if (string.IsNullOrEmpty(productCodePriceInput)) throw new Exception("商品明细为空");     
-            var dic = GetProductDic(productCodePriceInput);
+            var dic = productCodePriceInput.ToDecimalDic();
             string sql = "select p.Id as ProductId,p.Code,p.`Name`,p.Specification,c.FullName as CategoryName from Product p inner join category c on p.categoryId = c.Id where p.code in @Codes";
             var productItems= _query.FindAll<PurchaseContractItemDto>(sql, new { Codes = dic.Keys.ToArray() });
             foreach (var product in productItems)
@@ -87,30 +87,30 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             return dic;
         }
 
-        private Dictionary<string, decimal> GetProductDic(string productIds)
+        /// <summary>
+        /// 根据供应商的比价结果，生成合同实体
+        /// </summary>
+        /// <param name="supplierId"></param>
+        /// <returns></returns>
+        public PurchaseContractCreateDto QueryContractInfo(int supplierId)
         {
-            Dictionary<string, decimal> dicProductPrice = new Dictionary<string, decimal>(1000);           
-            string[] productIdArray = productIds.Split('\n');
-            foreach (var item in productIdArray)
-            {
-                if (item.Contains("\t"))
-                {
-                    string[] parentIDAndQuantity = item.Split('\t');
-                    if (!dicProductPrice.ContainsKey(parentIDAndQuantity[0].Trim()))
-                    {                           
-                        dicProductPrice.Add(parentIDAndQuantity[0].Trim(), decimal.Parse(parentIDAndQuantity[1]));
-                    }                       
-                }
-                else
-                {
-                    if (!dicProductPrice.ContainsKey(item.Trim()))
-                    {
-                        dicProductPrice.Add(item.Trim(), 0);
-                    }
-                }
+            string sql = @"select t0.Id as ProductId,t0.Name,t0.Code,t0.BarCode,t0.Specification,t1.FullName as CategoryName,t2.Price as ContractPrice
+from product t0 inner
+join category t1 on t0.CategoryId = t1.Id
+inner
+join SupplierProduct t2 on t0.Id = t2.ProductId
+where t2.SupplierId = @SupplierId and t2.CompareStatus = @CompareStatus";
+            var items = _query.FindAll<PurchaseContractItemDto>(sql, new { SupplierId = supplierId, CompareStatus = (int)ComparePriceStatus.Success });
+            if (!items.Any()) {
+                throw new Exception("请标记要生成合同的供应商商品");
             }
-           
-            return dicProductPrice;
+            var model = new PurchaseContractCreateDto();
+            var supplier = _query.Find<Supplier>(supplierId);
+            model.SupplierId = supplierId;
+            model.SupplierName = supplier.Name;
+            model.SupplierCode = supplier.Code;
+            model.Items = items.ToList();
+            return model;
         }
 
     }

@@ -50,6 +50,7 @@
     <Compile Include="DTO\AreaTreeNode.cs" />
     <Compile Include="DTO\CacheKeys.cs" />
     <Compile Include="DTO\CategoryTreeNode.cs" />
+    <Compile Include="DTO\PurchaseContractCreateDto.cs" />
     <Compile Include="DTO\MenuInfo.cs" />
     <Compile Include="DTO\Pager.cs" />
     <Compile Include="DTO\PrintShelfGridDto.cs" />
@@ -73,6 +74,7 @@
     <Compile Include="DTO\StorePurchaseOrderDto.cs" />
     <Compile Include="DTO\StorePurchaseOrderItemDto.cs" />
     <Compile Include="DTO\StorePurchaseOrderQueryDto.cs" />
+    <Compile Include="DTO\StoreTreeNode.cs" />
     <Compile Include="DTO\SupplierDto.cs" />
     <Compile Include="DTO\SupplierProductDto.cs" />
     <Compile Include="IAccountQuery.cs" />

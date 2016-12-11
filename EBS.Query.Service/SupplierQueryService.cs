@@ -94,7 +94,7 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             if (string.IsNullOrEmpty(where)) {
                 return new List<SupplierProductDto>();
             }
-            string sql = @"select t0.Id,t0.Name,t0.Code,t0.BarCode,t0.Specification,t1.Name as CategoryName,t2.Name as BrandName, t4.Name as SupplierName ,t3.Price
+            string sql = @"select t0.Id as ProductId,t0.Name,t0.Code,t0.BarCode,t0.Specification,t1.Name as CategoryName,t2.Name as BrandName, t4.Name as SupplierName ,t3.Price,t3.Status
 from product t0 inner join category t1 on t0.CategoryId = t1.Id
 inner join brand t2 on t0.BrandId = t2.Id 
 right join supplierproduct t3 on t3.ProductId = t0.Id
@@ -115,9 +115,40 @@ where 1=1 {0} ORDER BY t0.Id desc ";
 
         }
 
+        public IEnumerable<ProductPriceCompare> QuerySupplierProductCompare(int supplierId1,int supplierId2,string productIds)
+        {
+            dynamic param = new ExpandoObject();
+            string where = "";
+            if (!string.IsNullOrEmpty(productIds))
+            {
+                where += "where p.Id in @ProductIds ";
+                param.ProductIds = productIds.Split(',').ToIntArray();
+            }
+            param.SupplierId1 = supplierId1;
+            param.SupplierId2 = supplierId2;
+
+            // 比较商品，多的放右边进行左链接
+            // 比较那个供应商的商品多
+            // _query.Count<SupplierProduct>(n=>n.SupplierId==)
+            string sql = @"select p.Id as ProductId, p.code,p.`Name`,s1.Id as Id1,s1.SupplierId as SupplierId1 ,
+S1.Price as Price1,s1.Status as Status1,s1.CompareStatus as CompareStatus1,S2.Id as Id2,IFNULL(S2.SupplierId,0) as SupplierId2,IFNULL(S2.Price,0) as Price2,
+IFNULL(s2.Status,0) as Status2 ,IFNULL(s2.CompareStatus,0) as CompareStatus2
+from(select * from supplierproduct where SupplierId = @SupplierId1 ) s1
+LEFT JOIN(select * from supplierproduct where SupplierId = @SupplierId2 ) s2
+on s1.ProductId = s2.ProductId
+left join product p on p.Id = s1.ProductId
+{0} order by p.Id ";
+            sql = string.Format(sql, where);
+            var rows = this._query.FindAll<ProductPriceCompare>(sql, param);
+            return rows;
+
+        }
+
         public IDictionary<int, string> GetSupplierType()
         {
             return typeof(SupplierType).GetValueToDescription();
         }
+
+       
     }
 }

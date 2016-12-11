@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Dapper.DBContext;
 using EBS.Domain.Entity;
 using EBS.Infrastructure.Extension;
+using EBS.Domain.ValueObject;
+
 namespace EBS.Domain.Service
 {
    public class SupplierService
@@ -48,5 +50,43 @@ namespace EBS.Domain.Service
             }
             return idArray;
         }
+
+        public SupplierProduct MarkWaitSupply(int id, int updatedBy)
+        {
+            var model = _db.Table.Find<SupplierProduct>(id);
+            model.CompareStatus = ComparePriceStatus.Success;
+            model.UpdatedBy = updatedBy;
+            return model;
+        }
+        public SupplierProduct UnMarkWaitSupply(int id, int updatedBy)
+        {
+            var model = _db.Table.Find<SupplierProduct>(id);
+            model.CompareStatus = ComparePriceStatus.Failed;
+            model.UpdatedBy = updatedBy;
+            return model;
+        }
+
+        public SupplierProduct ResetMark(int id, int updatedBy)
+        {
+            var model = _db.Table.Find<SupplierProduct>(id);
+            model.CompareStatus = ComparePriceStatus.WaitCompare;
+            model.UpdatedBy = updatedBy;
+            return model;
+        }
+
+        public List<SupplierProduct> EditSupplyStatus(int purchaseContractId, int supplierId,int updatedBy)
+        {
+            string sql = @"select p.* from purchasecontractItem c 
+inner join supplierproduct p on c.ProductId = p.ProductId
+where c.purchaseContractId = @PurchaseContractId and p.SupplierId = @SupplierId ";
+           var products= _db.Table.FindAll<SupplierProduct>(sql, new { PurchaseContractId = purchaseContractId, SupplierId = supplierId }).ToList();
+            products.ForEach((p) => {
+                p.Status = SupplierProductStatus.Supplying;
+                p.UpdatedBy = updatedBy;
+                p.UpdatedOn = DateTime.Now;              
+            });
+            return products;
+        }
+
     }
 }

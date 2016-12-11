@@ -11,6 +11,14 @@ namespace EBS.Application
        void Create(SupplierModel model);
        void Edit(SupplierModel model);
         void Delete(string ids);
-        void ImportProduct(string supplierProductJson);
+        void ImportProduct(string supplierProductJson, int updatedBy);
+        /// <summary>
+        ///  标记待候选
+        /// </summary>
+        /// <param name="id"></param>
+        void MarkWaitSuppply(int markId,int unMarkId, int updatedBy);
+
+        void UnMarkWaitSuppply(int markId, int unMarkId, int updatedBy);
+
     }
 }
