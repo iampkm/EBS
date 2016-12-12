@@ -67,6 +67,7 @@
     <Compile Include="DTO\SearchSupplierContract.cs" />
     <Compile Include="DTO\ShelfTreeNode.cs" />
     <Compile Include="DTO\StocktakingPlanDto.cs" />
+    <Compile Include="DTO\StocktakingSummaryDto.cs" />
     <Compile Include="DTO\StoreDto.cs" />
     <Compile Include="DTO\StoreInventoryBatchQueryDto.cs" />
     <Compile Include="DTO\StoreInventoryHistoryQueryDto.cs" />

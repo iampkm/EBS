@@ -67,6 +67,9 @@
                         <v-input type="text" label="开户行账号：" v-bind:value.sync="model.bankAccount" placeholder="开户行账号" icon></v-input>
                     </div>
                     <div class="form-group col-sm-2 col-xs-3">
+                        <v-input type="text" label="开户名：" v-bind:value.sync="model.bankAccountName" placeholder="开户名" icon></v-input>
+                    </div>
+                    <div class="form-group col-sm-2 col-xs-3">
                         <v-input type="text" label="税号：" v-bind:value.sync="model.taxNo" placeholder="税号" icon></v-input>
                     </div>
                     <div class="form-group col-sm-2 col-xs-3">
@@ -106,6 +109,7 @@
                         phone: '@Model.Phone',
                         bank: '@Model.Bank',
                         bankAccount: '@Model.BankAccount',
+                        accountName:'@Model.BankAccountName',
                         taxNo: '@Model.TaxNo',
                         licenseNo: '@Model.LicenseNo',
                         areaName: '@ViewBag.areaName',

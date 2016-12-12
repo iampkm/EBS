@@ -2,6 +2,7 @@
 using System.Web.Security;
 using Newtonsoft.Json;
 using EBS.Application.DTO;
+using System;
 namespace EBS.Admin.Services
 {
     public class ContextService : IContextService
@@ -23,7 +24,7 @@ namespace EBS.Admin.Services
                   //  return new AccountIdentity(accountId, accountName);
                     return account;
                 }
-                return null;
+                throw new Exception("账号已过期，请注销重新登录");
             }
         }
     }

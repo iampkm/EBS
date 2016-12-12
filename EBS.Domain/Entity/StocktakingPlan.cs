@@ -12,6 +12,9 @@ namespace EBS.Domain.Entity
         public StocktakingPlan()
         {
             Items = new List<StocktakingPlanItem>();
+            Status = StocktakingPlanStatus.FirstInventory;
+            this.CreatedOn = DateTime.Now;
+            this.UpdatedOn = DateTime.Now;
         }
        
         /// <summary>
@@ -22,30 +25,22 @@ namespace EBS.Domain.Entity
         /// 盘点时间
         /// </summary>
         public DateTime StocktakingDate { get; set; }
-        /// <summary>
-        /// 创建人编号
-        /// </summary>
-        public int CreateBy { get; set; }
+
+        public DateTime CreatedOn { get; set; }
+
+        public int CreatedBy { get; set; }
+
+        public DateTime UpdatedOn { get; set; }
+
+        public int UpdatedBy { get; set; }
         /// <summary>
         /// 创建人
         /// </summary>
-        public string CreateByName { get; set; }
-        /// <summary>
-        /// 创建时间
-        /// </summary>
-        public DateTime CreateTime { get; set; }
-        /// <summary>
-        /// 修改人编号
-        /// </summary>
-        public int UpdateBy { get; set; }
+        public string CreatedByName { get; set; }
         /// <summary>
         /// 修改人
         /// </summary>
-        public string UpdateByName { get; set; }
-        /// <summary>
-        /// 修改时间
-        /// </summary>
-        public DateTime UpdateTime { get; set; }
+        public string UpdatedByName { get; set; }
         /// <summary>
         /// 类型（大盘、小盘）
         /// </summary>
@@ -61,9 +56,30 @@ namespace EBS.Domain.Entity
 
         public virtual List<StocktakingPlanItem> Items { get; set; }
 
-        public void GenerateNewCode()
-        { 
-            
+
+        public void StartPlan(int editedBy,string editor)
+        {
+            UpdateInfo(editedBy, editor);
+            this.Status = StocktakingPlanStatus.FirstInventory;
         }
+
+        public void ChangeReplayStatus(int editedBy, string editor)
+        {
+            UpdateInfo(editedBy, editor);
+            this.Status = StocktakingPlanStatus.Replay;
+        }
+        public void ChangeCompleteStatus(int editedBy, string editor)
+        {
+            UpdateInfo(editedBy, editor);
+            this.Status = StocktakingPlanStatus.Complete;
+        }
+
+        private void UpdateInfo(int editedBy, string editor)
+        {
+            this.UpdatedBy = editedBy;
+            this.UpdatedByName = editor;
+            this.UpdatedOn = DateTime.Now;
+        }
+        
     }
 }

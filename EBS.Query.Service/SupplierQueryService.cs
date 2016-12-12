@@ -34,7 +34,7 @@ namespace EBS.Query.Service
                 where += "and t0.Code like @Code ";
                 param.Code = code+"%";
             }           
-            string sql = @"select t0.Id,t0.Name,t0.ShortName,t0.Code,t0.Contact,t0.QQ,t0.Phone,t0.Type  
+            string sql = @"select t0.Id,t0.Name,t0.ShortName,t0.Code,t0.Contact,t0.QQ,t0.Phone,t0.Type,t0.Bank,t0.BankAccount,t0.BankAccountName   
 from supplier t0 
 where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<ProductSku>(where, param);

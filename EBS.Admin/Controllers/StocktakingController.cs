@@ -14,5 +14,10 @@ namespace EBS.Admin.Controllers
         {
             return View();
         }
+
+        public ActionResult Audit()
+        {
+            return View();
+        }
 	}
 }

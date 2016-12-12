@@ -100,6 +100,7 @@
     <Compile Include="Service\RoleService.cs" />
     <Compile Include="Service\ShelfService.cs" />
     <Compile Include="Service\StocktakingPlanService.cs" />
+    <Compile Include="Service\StocktakingService.cs" />
     <Compile Include="Service\StoreInventoryService.cs" />
     <Compile Include="Service\StorePurchaseOrderService.cs" />
     <Compile Include="Service\StoreInventoryBatchService.cs" />

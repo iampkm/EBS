@@ -47,5 +47,14 @@ namespace EBS.Domain.Entity
         /// 盘点数量
         /// </summary> 
         public int CountQuantity { get; set; }
+
+        /// <summary>
+        /// 差异数量  盘点数-库存数
+        /// </summary>
+        /// <returns></returns>
+        public int GetDifferenceQuantity()
+        {
+            return this.CountQuantity - this.Quantity;
+        }
     }
 }

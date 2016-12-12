@@ -56,10 +56,55 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             return rows;
         }
 
+        public IEnumerable<StocktakingPlanDto> GetSummaryData(Pager page, SearchStocktakingPlan condition)
+        {
+            dynamic param = new ExpandoObject();
+            string where = "";
+            if (!string.IsNullOrEmpty(condition.Code))
+            {
+                where += "and t0.Code=@Code ";
+                param.Code = condition.Code;
+            }
+            if (condition.StoreId > 0)
+            {
+                where += "and t0.StoreId=@StoreId ";
+                param.StoreId = condition.StoreId;
+            }
+            if (condition.Status > 0)
+            {
+                where += "and t0.Status=@Status ";
+                param.Status = condition.Status;
+            }
+            if (condition.StocktakingDate.HasValue)
+            {
+                where += "and t0.StocktakingDate>=@beginDate and t0.StocktakingDate<@endDate ";
+                param.beginDate = condition.StocktakingDate;
+                param.endDate = condition.StocktakingDate.Value.AddDays(1);
+            }
+            string sql = @"select t0.Id,t0.`Code`,,t2.`Name` as StoreName,t0.`Status`,t0.Method,t0.StocktakingDate,t1.TotalInventoryQuantity,t1.TotalCountQuantity from stocktakingplan t0
+inner join
+(
+SELECT i.Id,sum(i.Quantity) as TotalInventoryQuantity,sum(i.CountQuantity) as TotalCountQuantity FROM stocktakingplan p 
+inner join stocktakingplanitem i on p.Id = i.StocktakingPlanId
+group by p.Id 
+) t1 on t0.Id = t1.Id
+inner join store t2 on t2.Id = t0.StoreId 
+where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
+
+            sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
+            var rows = this._query.FindAll<StocktakingPlanDto>(sql, param);
+            page.Total = this._query.Count<StocktakingPlan>(where, param);
+
+            return rows;
+        }
+
         public Dictionary<int, string> GetStocktakingPlanStatus()
         {
             var dic = typeof(StocktakingPlanStatus).GetValueToDescription();
             return dic;
         }
+
+
+      
     }
 }

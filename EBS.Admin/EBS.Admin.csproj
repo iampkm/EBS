@@ -1240,6 +1240,7 @@
     <Content Include="Views\StocktakingPlan\Create.cshtml" />
     <Content Include="Views\StocktakingPlan\Help.cshtml" />
     <Content Include="Views\PurchaseContract\CreateContract.cshtml" />
+    <Content Include="Views\StocktakingPlan\Summary.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">

@@ -12,6 +12,12 @@ namespace EBS.Application
        void Create(StocktakingPlanModel model);
 
        void Edit(StocktakingPlanModel model);
+
+       void StartPlan(int id, int editedBy, string editor);
+
+       void MergeDetial(int id, int editedBy, string editor);
+
+       void EndPlan(int id, int editedBy, string editor, string loginPassword);
     }
 
 }

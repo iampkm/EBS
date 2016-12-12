@@ -23,6 +23,10 @@ namespace EBS.Query.DTO
         public string QQ { get; set; }
         public string Phone { get; set; }
 
+        public string Bank { get; set; }
+        public string BankAccount { get; set; }
+        public string BankAccountName { get; set; }
+
         public string SupplierType { get {
                 return Type.Description();
             } }

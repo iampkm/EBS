@@ -53,7 +53,8 @@
                     </div>
                 </div>
                 <span class="input-group-btn" slot="customButtons">
-                    <a class="btn btn-warning btn-flat" href="/StocktakingPlan/Create">新增盘点</a>  
+                    <a class="btn btn-warning btn-flat" href="/StocktakingPlan/Create">新增盘点</a>
+                    <button type="button" class="btn btn-danger btn-flat" v-on:click="submitAudit()">开始盘点</button>
                     <a class="btn btn-success btn-flat" href="/StocktakingPlan/Help">盘点助手</a>                    
                 </span>
             </vue-table>
@@ -131,7 +132,7 @@
                     v_self = this;
                     bootbox.confirm("您确定提交该记录？", function (result) {
                         if (result) {
-                            $.post("/StocktakingPlan/Submit", { id: selectId }, function (result) {
+                            $.post("/StocktakingPlan/StartPlan", { id: selectId }, function (result) {
                                 if (result.success) {
                                     v_self.$refs.vtable.loadData();
                                 }

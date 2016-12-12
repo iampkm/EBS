@@ -11,6 +11,9 @@ namespace EBS.Query
     {
        IEnumerable<StocktakingPlanDto> GetPageList(Pager page, SearchStocktakingPlan condition);
 
+       IEnumerable<StocktakingPlanDto> GetSummaryData(Pager page, SearchStocktakingPlan condition);
        Dictionary<int, string> GetStocktakingPlanStatus();
+
+       
     }
 }

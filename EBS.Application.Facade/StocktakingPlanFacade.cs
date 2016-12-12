@@ -8,35 +8,79 @@ using Dapper.DBContext;
 using EBS.Domain.Service;
 using EBS.Application.Facade.Mapping;
 using EBS.Domain.Entity;
+using EBS.Domain.ValueObject;
 namespace EBS.Application.Facade
 {
    public class StocktakingPlanFacade:IStocktakingPlanFacade
     {
         IDBContext _db;
         StocktakingPlanService _service;
-
+        BillSequenceService _billService;
+        StoreInventoryService _inventoryService;
         public StocktakingPlanFacade(IDBContext dbContext)
         {
             _db = dbContext;
             _service = new StocktakingPlanService(_db);
+            _billService = new BillSequenceService(_db);
+            _inventoryService = new StoreInventoryService(_db);
         }
         public void Create(StocktakingPlanModel model)
         {
             var entity = model.MapTo<StocktakingPlan>();
-            entity.CreateBy = model.EditedBy;
-            entity.CreateByName = model.Editor;
-            entity.Status = Domain.ValueObject.StocktakingPlanStatus.FirstInventory;
-
-            entity.GenerateNewCode();
+            entity.CreatedBy = model.EditedBy;
+            entity.CreatedByName = model.Editor;
+            entity.Code = _billService.GenerateNewCode(BillIdentity.StoreStocktakingPlan);
             _service.ValidatePlan(entity);
-
             _db.Insert(entity);
             _db.SaveChange();
         }
 
         public void Edit(StocktakingPlanModel model)
         {
-            throw new NotImplementedException();
+            var entity = _db.Table.Find<StocktakingPlan>(model.Id);
+            entity = model.MapTo<StocktakingPlan>(entity);
+            entity.UpdatedBy = model.EditedBy;
+            entity.UpdatedByName = model.Editor;
+            entity.UpdatedOn = DateTime.Now;
+            _service.ValidatePlan(entity);
+            _db.Update(entity);
+            _db.SaveChange();
+        }
+
+        public void StartPlan(int id,int editedBy,string editor)
+        {
+            var entity = _db.Table.Find<StocktakingPlan>(id);
+            _service.AddInventoryItems(entity);
+            entity.StartPlan(editedBy,editor);
+            _db.Update(entity);
+            _db.SaveChange();
+
+        }
+
+        public void MergeDetial(int id, int editedBy, string editor)
+        {
+            var entity = _db.Table.Find<StocktakingPlan>(id);            
+            _service.MergeDetial(id);
+            entity.ChangeReplayStatus(editedBy, editor);
+            _db.Update(entity);
+            _db.SaveChange();
+        }
+
+        public void EndPlan(int id, int editedBy, string editor, string loginPassword)
+        {           
+            // 验证操作账号输入的密码，正确后才能进行盘点，防止误操作
+            var account = _db.Table.Find<Account>(editedBy);
+            if (!account.CheckPassword(loginPassword))
+            {
+                throw new Exception("密码错误");
+            }
+            var entity = _db.Table.Find<StocktakingPlan>(id);
+            _service.ValidateEndStatus(entity);
+            // 开始结转
+            entity.ChangeCompleteStatus(editedBy, editor);
+            _inventoryService.FixedInventory(entity);           
+            _db.Update(entity);
+            _db.SaveChange();
         }
     }
 }

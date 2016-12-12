@@ -45,12 +45,14 @@
             data: {
                 searchQuery: '',
                 gridColumns: [
-                    { name: 'Code', localName: '编码', style: "<a href='/Supplier/Edit/{id}'>{column}</a>", width: '100' },
+                    { name: 'Code', localName: '编码', style: "<a href='/Supplier/Edit/{id}'>{column}</a>", width: '80' },
                     { name: 'Name', localName: '供应商名', width: '300' },
-                    { name: 'SupplierType', localName: '类型', width: '100' },
                     { name: 'Contact', localName: '联系人' },
                     { name: 'Phone', localName: '电话' },
                     { name: 'QQ', localName: 'QQ' },
+                    { name: 'Bank', localName: '开户行', width: '300' },
+                    { name: 'BankAccount', localName: '开户行账号', width: '200' },
+                    { name: 'BankAccountName', localName: '开户名', width: '200' },
 
                 ],
                 url: "/Supplier/LoadData",

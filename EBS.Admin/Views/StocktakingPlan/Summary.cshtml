@@ -1,0 +1,174 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<!-- demo root element -->
+<div id="app">
+    <div class="box box-primary">
+        <div class="box-header">
+            <ol class="breadcrumb" style="padding:0px;margin:1px;">
+                <li><a href="/StocktakingPlan/Index"><i class="fa fa-dashboard"></i>盘点管理</a></li>
+                <li class="active"><a href="/StocktakingPlan/Summary">盘点差错汇总表</a></li>
+            </ol>
+        </div>
+        <div class="box-body">
+            <vue-table v-ref:vtable v-bind:columns="gridColumns"
+                       v-bind:url="url"
+                       v-bind:args="searchArgs" v-bind:data.sync="rows">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                    <div class="col-xs-3 col-sm-2">
+                        <input class="form-control" v-model="searchArgs.code" placeholder="单编号" debounce="500" />
+                    </div>
+                    <div class="form-group col-sm-2 col-xs-3">
+                        @*<label for="inputPassword3" class="control-label">盘点日期：</label>*@
+                        <div class="input-group date" data-provide="datepicker" data-date-format="yyyy-mm-dd"
+                             data-date-language="zh-CN" data-date-clear-btn="true" data-date-autoclose="true">
+                            <div class="input-group-addon">
+                                <i class="fa fa-calendar"></i>
+                                <span>盘点日期</span>
+                            </div>
+                            <input type="text" class="form-control" v-model="model.stocktakingDate" readonly>
+                        </div>
+                    </div>
+                    <div class="col-sm-2 col-xs-3" v-show="selectStore.view">
+                        <div class="input-group ">
+                            <input type="hidden" class="form-control" v-model="searchArgs.storeId">
+                            <input type="text" class="form-control" v-model="selectStore.name" placeholder="选择门店" readonly>
+                            <span class="input-group-btn">
+                                <button class="btn btn-flat btn-default" type="button" v-on:click="showStore"><i class="fa fa-search"></i></button>
+                                <button class="btn btn-flat btn-default" type="button" v-on:click="clearStore"><i class="fa fa-eraser"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-2 col-xs-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">状态</span>
+                            <select name="brand" class="form-control" v-model="searchArgs.status">
+                                <option value="0">-请选择-</option>
+                                @foreach (var item in ViewBag.Status)
+                                {
+                                    <option value="@item.Key">@item.Value</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <span class="input-group-btn" slot="customButtons">                   
+                    <button type="button" class="btn btn-warning btn-flat" v-on:click="submitAudit()">合并盘点</button>
+                    <button type="button" class="btn btn-danger btn-flat" v-on:click="submitAudit()">结束盘点</button>
+                    <a class="btn btn-success btn-flat" href="/StocktakingPlan/Help">盘点助手</a>
+                </span>
+            </vue-table>
+        </div>
+        <!-- /.box-body -->
+    </div>
+    <div class="clearfix"></div>
+    <!-- modal -->
+    <v-modal title="选择门店" ok-text="确 定" cancel-text="取 消" v-bind:callback="getStore" v-bind:show.sync="selectStore.modal" v-bind:effect="fade" width="60%">
+        <div slot="modal-body" class="modal-body">
+            <vue-table v-bind:columns="selectStore.gridColumns"
+                       v-bind:url="selectStore.url" v-bind:show-toolbar="false"
+                       v-bind:args="selectStore.searchArgs" v-bind:data.sync="selectStore.rows">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                    <div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="searchArgs.code" placeholder="门店编码" debounce="500" />
+                    </div>
+                    <div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="selectStore.searchArgs.name" placeholder="门店名" debounce="300" />
+                    </div>
+                </div>
+            </vue-table>
+        </div>
+    </v-modal>
+</div>
+@{Html.RenderPartial("VueTableTemplate");}
+@section scripts{
+    <script src="~/Content/Vue/vuetable/vuetable.js"></script>
+    <script>
+
+        var vue = new Vue({
+            components: {
+                'v-modal': VueStrap.modal,
+                'v-input': VueStrap.input
+            },
+            el: '#app',
+            data: {
+                gridColumns: [
+                { name: 'Code', localName: '单号', style: "<a href='/StocktakingPlan/Edit/{id}'>{column}</a>" },
+                { name: 'StoreName', localName: '门店' },
+                { name: 'StocktakingDate', localName: '盘点日期', width: '200' },
+                { name: 'StocktakingPlanMethod', localName: '类型', width: '80' },
+                { name: 'StocktakingPlanStatus', localName: '状态', width: '80' },
+                { name: 'TotalInventoryQuantity', localName: '库存数' },
+                { name: 'TotalCountQuantity', localName: '盘点数' },
+                { name: 'TotalDifferentQuantity', localName: '差异数',style: "<strong>{column}</strong>" },
+                ],
+                url: "/StocktakingPlan/LoadSummaryData",
+                searchArgs: { code: '', stocktakingDate: '', storeId: 0, status: 0 },
+                rows: [],
+                selectStore: {
+                    modal: false,
+                    name: '',
+                    view:@ViewBag.View,
+                    gridColumns: [
+                       { name: 'Code', localName: '门店编码' },
+                       { name: 'Name', localName: '门店名' },
+                       { name: 'FullName', localName: '区域', width: '200' }
+                    ],
+                    url: "/Store/LoadData",
+                    searchArgs: { name: '' },
+                    rows: []
+                }
+            },
+            methods: {
+                submitAudit: function () {
+                    var selectRow = this.rows.filter(function (item, index) {
+                        if (item.checked) {
+                            return true;
+                        }
+                    });
+                    if (selectRow.length == 0) {
+                        bootbox.alert("请选择一条记录");
+                        return;
+                    }
+                    var selectId = selectRow[0].Id;
+                    v_self = this;
+                    bootbox.confirm("您确定提交该记录？", function (result) {
+                        if (result) {
+                            $.post("/StocktakingPlan/StartPlan", { id: selectId }, function (result) {
+                                if (result.success) {
+                                    v_self.$refs.vtable.loadData();
+                                }
+                                else {
+                                    bootbox.alert(result.error);
+                                }
+                            }, "json");
+                        }
+                    });
+                },
+                showStore: function () {
+                    this.selectStore.modal = true;
+                },
+                clearStore: function () {
+                    this.searchArgs.storeId = 0;
+                    this.selectStore.name = "";
+                },
+                getStore: function () {
+                    var selecteds = this.selectStore.rows.filter(function (item) {
+                        return item.checked;
+                    });
+                    if (selecteds) {
+                        this.searchArgs.storeId = selecteds[0].Id;
+                        this.selectStore.name = selecteds[0].Name;
+                        this.selectStore.modal = false;
+                    }
+                }
+            }
+        })
+
+    </script>
+}
+
+
+
+

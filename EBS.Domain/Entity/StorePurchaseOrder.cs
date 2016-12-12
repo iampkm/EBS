@@ -158,7 +158,6 @@ namespace EBS.Domain.Entity
             var ts = date - Convert.ToDateTime(date.ToShortDateString());
             var seconds = Math.Truncate(ts.TotalSeconds).ToString().PadLeft(6, '0');
            this.BatchNo= string.Format("{0}{1}", date.ToString("yyyyMMdd"),seconds);
-
         }
 
     }

@@ -40,6 +40,11 @@ namespace EBS.Application.DTO
         /// </summary>
         public string BankAccount { get; set; }
         /// <summary>
+        /// 开户名
+        /// </summary>
+        public string BankAccountName { get; set; }
+
+        /// <summary>
         /// 执照编号
         /// </summary>
         public string LicenseNo { get; set; }
