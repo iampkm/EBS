@@ -45,11 +45,20 @@ namespace EBS.Query.Service
             return rows;
         }
 
-        public IEnumerable<StoreTreeNode> LoadStore()
+        public IEnumerable<StoreTreeNode> LoadStore(string canViewStores)
         {
             // 查询一级区域
             var areaRows = this._query.FindAll<Area>(n => n.Level == 1);
-            var stores = this._query.FindAll<Store>();
+            dynamic param = new ExpandoObject();
+            string where = "";
+            if (!string.IsNullOrEmpty(canViewStores))
+            {
+                where += "and t0.Id in @CanViewStore ";
+                param.CanViewStore = canViewStores.Split(',').ToIntArray();
+            }
+            string sql = "select * from Store t0 where 1=1 {0}";
+            sql = string.Format(sql, where);
+            var stores = this._query.FindAll<Store>(sql, param) as List<Store>;
             // 组装ztree树形结构
             List<StoreTreeNode> list = new List<StoreTreeNode>();
             foreach (var area in areaRows)

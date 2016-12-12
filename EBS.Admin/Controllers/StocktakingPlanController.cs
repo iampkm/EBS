@@ -67,6 +67,11 @@ namespace EBS.Admin.Controllers
             return Json(new { success = true, data = rows, total = page.Total });
         }
 
+        public ActionResult Detail()
+        {
+            return View();
+        }
+
         public ActionResult Create()
         {
             ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";

@@ -86,17 +86,10 @@ namespace EBS.Admin.Controllers
             return Json(new { success = true });
         }
 
-        //public JsonResult LoadStore()
-        //{
-        //    // 按区域和门店，加载二级树形结构
-        //    var row = this._storeQuery.LoadStore();
-        //    return Json(new { success = true,data = row });
-        //}
-
         public string LoadStore()
         {
             // 按区域和门店，加载二级树形结构
-            var row = this._storeQuery.LoadStore().ToArray();
+            var row = this._storeQuery.LoadStore(_context.CurrentAccount.CanViewStores).ToArray();
             return JsonConvert.SerializeObject(row);
         }
     }

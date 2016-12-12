@@ -40,5 +40,44 @@ namespace EBS.Query.DTO
         public int TotalDifferentQuantity { get {
             return this.TotalInventoryQuantity - TotalCountQuantity;
         } }
+
+
+        /// <summary>
+        /// 成本金额
+        /// </summary>
+        public decimal CostAmount { get; set; }
+        /// <summary>
+        /// 盘点成本金额
+        /// </summary>
+        public decimal CostCountAmount { get; set; }
+        /// <summary>
+        /// 成本金额差异
+        /// </summary>
+        public decimal CostAmountDifferent
+        {
+            get
+            {
+                return this.CostAmount - CostCountAmount;
+            }
+        }
+        /// <summary>
+        /// 销售金额
+        /// </summary>
+        public decimal SaleAmout { get; set; }
+        /// <summary>
+        /// 盘点销售金额
+        /// </summary>
+        public decimal SaleCountAmount { get; set; }
+        /// <summary>
+        /// 总差异数
+        /// </summary>
+        public decimal SaleAmoutDifferent
+        {
+            get
+            {
+                return this.SaleAmout - SaleCountAmount;
+            }
+        }
+
     }
 }

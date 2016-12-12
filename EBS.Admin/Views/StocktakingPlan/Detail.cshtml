@@ -17,6 +17,7 @@
             <ol class="breadcrumb" style="padding:0px;margin:1px;">
                 <li><a href="/StocktakingPlan/Index"><i class="fa fa-dashboard"></i>盘点管理</a></li>
                 <li class="active"><a href="/StocktakingPlan/Summary">盘点差错汇总表</a></li>
+                <li class="active"><a href="/StocktakingPlan/Detail/{{model.id}}">盘点明细表</a></li>
             </ol>
         </div>
         <div class="box-body">
@@ -61,7 +62,7 @@
                         </div>
                     </div>
                 </div>
-                <span class="input-group-btn" slot="customButtons">                   
+                <span class="input-group-btn" slot="customButtons">
                     <button type="button" class="btn btn-warning btn-flat" v-on:click="submitAudit()">合并盘点</button>
                     <button type="button" class="btn btn-danger btn-flat" v-on:click="submitAudit()">结束盘点</button>
                     <a class="btn btn-success btn-flat" href="/StocktakingPlan/Help">盘点助手</a>
@@ -81,7 +82,7 @@
 @{Html.RenderPartial("VueTableTemplate");}
 @section scripts{
     <script src="~/Content/Vue/vuetable/vuetable.js"></script>
-<script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
+    <script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
     <script>
         $("doucument").ready(function () {
             var vue = new Vue({
@@ -113,7 +114,7 @@
                     selectStore: {
                         modal: false,
                         name: '',
-                        view:@ViewBag.View,                    
+                        view:@ViewBag.View,
                     }
                 },
                 methods: {
@@ -150,7 +151,7 @@
                         this.selectStore.name = "";
                     },
                     getStore: function () {
-                        var treeObj = $.fn.zTree.getZTreeObj("ztree"); 
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
                         var selecteds= treeObj.getCheckedNodes(true);
                         if (selecteds) {
                             var idArray = new Array();
@@ -170,7 +171,7 @@
                             {
                                 bootbox.alert("请选择一个门店");
                             }
-                           
+
                         }
                     }
                 }
@@ -178,11 +179,11 @@
             });
 
             //加载门店tree
-            var zTreeObj;           
+            var zTreeObj;
             var setting = {
                 check: {
                     enable:true
-                },               
+                },
                 async: {
                     enable: true,
                     url: "/Store/LoadStore",
@@ -194,10 +195,10 @@
                         var treeObj = $.fn.zTree.getZTreeObj("ztree");
                         var open = !treeNode.open;
                         treeObj.expandNode(treeNode, open, false, false);
-                        // vue.searchArgs.categoryId =treeNode.id;                      
+                        // vue.searchArgs.categoryId =treeNode.id;
                     }
                 }
-            };           
+            };
             zTreeObj = $.fn.zTree.init($("#ztree"), setting);
 
         });

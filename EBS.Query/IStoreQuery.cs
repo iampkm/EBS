@@ -10,6 +10,6 @@ namespace EBS.Query
    public interface IStoreQuery
     {
        IEnumerable<StoreDto> GetPageList(Pager page, string name, string code,string canViewStores);
-        IEnumerable<StoreTreeNode> LoadStore();
+        IEnumerable<StoreTreeNode> LoadStore(string canViewStores);
     }
 }

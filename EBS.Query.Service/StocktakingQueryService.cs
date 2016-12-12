@@ -56,7 +56,7 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             return rows;
         }
 
-        public IEnumerable<StocktakingPlanDto> GetSummaryData(Pager page, SearchStocktakingPlan condition)
+        public IEnumerable<StocktakingSummaryDto> GetSummaryData(Pager page, SearchStocktakingPlan condition)
         {
             dynamic param = new ExpandoObject();
             string where = "";
@@ -81,10 +81,15 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
                 param.beginDate = condition.StocktakingDate;
                 param.endDate = condition.StocktakingDate.Value.AddDays(1);
             }
-            string sql = @"select t0.Id,t0.`Code`,,t2.`Name` as StoreName,t0.`Status`,t0.Method,t0.StocktakingDate,t1.TotalInventoryQuantity,t1.TotalCountQuantity from stocktakingplan t0
+            string sql = @"select t0.Id,t0.`Code`,t2.`Name` as StoreName,t0.`Status`,t0.Method,t0.StocktakingDate,t1.TotalInventoryQuantity,t1.TotalCountQuantity,
+t1.CostAmount,t1.CostCountAmount,t1.SaleAmout,t1.SaleCountAmount
+from stocktakingplan t0
 inner join
 (
-SELECT i.Id,sum(i.Quantity) as TotalInventoryQuantity,sum(i.CountQuantity) as TotalCountQuantity FROM stocktakingplan p 
+SELECT i.Id,sum(i.Quantity) as TotalInventoryQuantity,sum(i.CountQuantity) as TotalCountQuantity,
+sum(i.CostPrice*i.Quantity) as CostAmount,sum(i.CostPrice*i.CountQuantity) as CostCountAmount,
+sum(i.SalePrice*i.Quantity) as SaleAmout,sum(i.SalePrice*i.CountQuantity) as SaleCountAmount
+ FROM stocktakingplan p 
 inner join stocktakingplanitem i on p.Id = i.StocktakingPlanId
 group by p.Id 
 ) t1 on t0.Id = t1.Id
@@ -92,7 +97,7 @@ inner join store t2 on t2.Id = t0.StoreId
 where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
 
             sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
-            var rows = this._query.FindAll<StocktakingPlanDto>(sql, param);
+            var rows = this._query.FindAll<StocktakingSummaryDto>(sql, param);
             page.Total = this._query.Count<StocktakingPlan>(where, param);
 
             return rows;
