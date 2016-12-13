@@ -67,9 +67,24 @@ namespace EBS.Admin.Controllers
             return Json(new { success = true, data = rows, total = page.Total });
         }
 
-        public ActionResult Detail()
+        public ActionResult Detail(int id)
         {
             return View();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="planId">计划ID</param>
+        /// <param name="from">差异数 从</param>
+        /// <param name="to">差异数 到</param>
+        /// <param name="showDifference">显示差异</param>
+        /// <returns></returns>
+        public JsonResult LoadDetail(int planId, int? from, int? to, bool showDifference)
+        {
+            var rows = _stocktakingQuery.GetDetails(planId, from,to,showDifference).ToList();
+
+            return Json(new { success = true, data = rows, total = rows.Count });
         }
 
         public ActionResult Create()

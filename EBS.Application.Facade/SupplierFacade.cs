@@ -83,18 +83,24 @@ namespace EBS.Application.Facade
         public void MarkWaitSuppply(int markId, int unMarkId,int updatedBy)
         {
             var markModel = _service.MarkWaitSupply(markId,updatedBy);
-            var unMarkModel = _service.UnMarkWaitSupply(unMarkId, updatedBy);
             _db.Update(markModel);
-            _db.Update(unMarkModel);
+            if (unMarkId>0)
+            {
+                var unMarkModel = _service.UnMarkWaitSupply(unMarkId, updatedBy);
+                _db.Update(unMarkModel);
+            }
             _db.SaveChange();
         }
 
         public void UnMarkWaitSuppply(int markId, int unMarkId, int updatedBy)
         {
             var markModel = _service.ResetMark(markId, updatedBy);
-            var markModel2 = _service.ResetMark(unMarkId, updatedBy);
             _db.Update(markModel);
-            _db.Update(markModel2);
+            if (unMarkId>0)
+            {
+                var markModel2 = _service.ResetMark(unMarkId, updatedBy);
+                _db.Update(markModel2); 
+            }           
             _db.SaveChange();
         }
     }

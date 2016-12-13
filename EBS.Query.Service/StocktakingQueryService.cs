@@ -109,7 +109,22 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             return dic;
         }
 
-
-      
+        public IEnumerable<StocktakingPlanItemDto> GetDetails(int planId, int? from, int? to, bool showDifference)
+        {
+            var rows = _query.FindAll<StocktakingPlanItem>(n => n.StocktakingPlanId == planId) as IEnumerable<StocktakingPlanItemDto>;
+            if (from.HasValue)
+            {
+                rows = rows.Where(n => n.GetDifferenceQuantity() >= from.Value);
+            }
+            if (to.HasValue)
+            {
+                rows = rows.Where(n => n.GetDifferenceQuantity() <= to.Value);
+            }
+            if (showDifference)
+            {
+                rows = rows.Where(n => n.GetDifferenceQuantity() != 0);
+            }
+            return rows;
+        }
     }
 }

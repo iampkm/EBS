@@ -73,8 +73,14 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             }
             if (!string.IsNullOrEmpty(codeOrBarCode))
             {
-                where += "and (t0.Code=@CodeOrBarCode or t0.BarCode=@CodeOrBarCode) ";
-                param.CodeOrBarCode = codeOrBarCode;
+                //按照换行符拆分
+               var codeOrBarCodeArray= codeOrBarCode.Trim('\n').Split('\n');
+               var codeArray = codeOrBarCodeArray.Where(n => n.Length <= 10).ToArray();
+               var barCodeArray = codeOrBarCodeArray.Where(n => n.Length >= 10).ToArray();
+
+               where += "and (t0.Code in @codeArray or t0.BarCode in @barCodeArray) ";
+               param.codeArray = codeArray;
+               param.barCodeArray = barCodeArray;
             }
             if (!string.IsNullOrEmpty(categoryId))
             {
@@ -94,11 +100,12 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             if (string.IsNullOrEmpty(where)) {
                 return new List<SupplierProductDto>();
             }
-            string sql = @"select t0.Id as ProductId,t0.Name,t0.Code,t0.BarCode,t0.Specification,t1.Name as CategoryName,t2.Name as BrandName, t4.Name as SupplierName ,t3.Price,t3.Status
+            string sql = @"select t0.Id as ProductId,t0.Name,t0.Code,t0.BarCode,t0.Specification,t1.FullName as CategoryName,t2.Name as BrandName, t4.Name as SupplierName ,t3.Price,t3.Status,t5.NickName
 from product t0 inner join category t1 on t0.CategoryId = t1.Id
 inner join brand t2 on t0.BrandId = t2.Id 
 right join supplierproduct t3 on t3.ProductId = t0.Id
 inner join supplier t4 on t3.SupplierId= t4.Id 
+inner join account t5 on t5.Id = t3.UpdatedBy
 where 1=1 {0} ORDER BY t0.Id desc ";
             //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<ProductSku>(where, param);
            // sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
@@ -107,16 +114,14 @@ where 1=1 {0} ORDER BY t0.Id desc ";
            // page.Total = this._query.Count<Supplier>(where, param);
             return rows;
 
-//            SELECT ProductId
-//MAX(CASE SupplierId WHEN 1 THEN price ELSE 0 END ) Price1,
-//MAX(CASE SupplierId WHEN 3 THEN price ELSE 0 END ) Price2 
-//FROM supplierproduct  
-//GROUP BY ProductId
-
         }
 
         public IEnumerable<ProductPriceCompare> QuerySupplierProductCompare(int supplierId1,int supplierId2,string productIds)
         {
+            if (supplierId2==0) {
+                return QuerySupplierProductCompare(supplierId1, productIds);
+            }
+
             dynamic param = new ExpandoObject();
             string where = "";
             if (!string.IsNullOrEmpty(productIds))
@@ -127,15 +132,43 @@ where 1=1 {0} ORDER BY t0.Id desc ";
             param.SupplierId1 = supplierId1;
             param.SupplierId2 = supplierId2;
 
-            // 比较商品，多的放右边进行左链接
-            // 比较那个供应商的商品多
-            // _query.Count<SupplierProduct>(n=>n.SupplierId==)
+            //string countSql1 = "select count(*) from supplierproduct where SupplierId = @SupplierId";
+            //string countSql2 = "select count(*) from supplierproduct where SupplierId = @SupplierId";
+            //var result1= _query.Context.ExecuteScalar<int>(countSql1, new { SupplierId = supplierId1 });
+            //var result2 = _query.Context.ExecuteScalar<int>(countSql2, new { SupplierId = supplierId2 });
+            //if (result2 > result1)
+            //{
+            //    param.SupplierId1 = supplierId2;
+            //    param.SupplierId2 = supplierId1;
+            //}
+
             string sql = @"select p.Id as ProductId, p.code,p.`Name`,s1.Id as Id1,s1.SupplierId as SupplierId1 ,
 S1.Price as Price1,s1.Status as Status1,s1.CompareStatus as CompareStatus1,S2.Id as Id2,IFNULL(S2.SupplierId,0) as SupplierId2,IFNULL(S2.Price,0) as Price2,
 IFNULL(s2.Status,0) as Status2 ,IFNULL(s2.CompareStatus,0) as CompareStatus2
 from(select * from supplierproduct where SupplierId = @SupplierId1 ) s1
 LEFT JOIN(select * from supplierproduct where SupplierId = @SupplierId2 ) s2
 on s1.ProductId = s2.ProductId
+left join product p on p.Id = s1.ProductId
+{0} order by p.Id ";
+            sql = string.Format(sql, where);
+            var rows = this._query.FindAll<ProductPriceCompare>(sql, param);
+            return rows;
+
+        }
+        private IEnumerable<ProductPriceCompare> QuerySupplierProductCompare(int supplierId1, string productIds)
+        {
+            dynamic param = new ExpandoObject();
+            string where = "";
+            if (!string.IsNullOrEmpty(productIds))
+            {
+                where += "where p.Id in @ProductIds ";
+                param.ProductIds = productIds.Split(',').ToIntArray();
+            }
+            param.SupplierId1 = supplierId1;
+
+            string sql = @"select p.Id as ProductId, p.code,p.`Name`,s1.Id as Id1,s1.SupplierId as SupplierId1 ,
+S1.Price as Price1,s1.Status as Status1,s1.CompareStatus as CompareStatus1
+from(select * from supplierproduct where SupplierId = @SupplierId1 ) s1
 left join product p on p.Id = s1.ProductId
 {0} order by p.Id ";
             sql = string.Format(sql, where);

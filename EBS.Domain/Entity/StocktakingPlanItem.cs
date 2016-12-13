@@ -33,11 +33,11 @@ namespace EBS.Domain.Entity
         /// <summary>
         /// 成本价
         /// </summary>
-        public string CostPrice { get; set; }
+        public decimal CostPrice { get; set; }
         /// <summary>
         /// 售价
         /// </summary>
-        public string SalesPrice  { get; set; }
+        public decimal SalesPrice { get; set; }
  
         /// <summary>
         /// 库存数量

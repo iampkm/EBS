@@ -132,7 +132,6 @@
     <Folder Include="Content\Vue\css\" />
     <Folder Include="Models\" />
     <Folder Include="Views\PosSync\" />
-    <Folder Include="Views\Stocktaking\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\AppConfig.cs" />
@@ -1242,6 +1241,7 @@
     <Content Include="Views\PurchaseContract\CreateContract.cshtml" />
     <Content Include="Views\StocktakingPlan\Summary.cshtml" />
     <Content Include="Views\StocktakingPlan\Detail.cshtml" />
+    <Content Include="Views\Stocktaking\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">

@@ -61,6 +61,8 @@ namespace EBS.Query.DTO
 
         public SupplierProductStatus Status { get; set; }
 
+        public string NickName { get; set; }
+
     }
 
     public class ProductPriceCompare

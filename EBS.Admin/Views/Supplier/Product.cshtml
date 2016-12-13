@@ -35,7 +35,8 @@
                                        v-bind:args="searchArgs" v-bind:data.sync="rows" v-bind:show-pagination="showPage">
                                 <div class="row" style="margin-bottom:10px;" slot="customSearch">
                                     <div class="col-xs-2">
-                                        <input class="form-control" v-model="searchArgs.codeOrBarCode" placeholder="商品编码/条码" debounce="500" />
+                                        <textarea class="form-control" v-model="searchArgs.codeOrBarCode" placeholder="商品编码/条码" debounce="500"></textarea>
+                                        @*<input class="form-control" v-model="searchArgs.codeOrBarCode" placeholder="商品编码/条码" debounce="500" />*@
                                     </div>
                                     <div class="col-xs-2">
                                         <input class="form-control" v-model="searchArgs.name" placeholder="商品名称" debounce="500" />
@@ -83,8 +84,8 @@
                         <div class="table-responsive">
                             <table class="table table-bordered"> 
                                 <caption>                                    
-                                    <a href="/PurchaseContract/CreateContract/{{supplierId1}}" class="btn btn-flat btn-warning">与[{{supplierName1}}]签合同</a>
-                                    <a href="/PurchaseContract/CreateContract/{{supplierId2}}" class="btn btn-flat btn-warning">与[{{supplierName2}}]签合同</a>
+                                    <a href="/PurchaseContract/CreateContract/{{supplierId1}}" class="btn btn-flat btn-primary">与[{{supplierName1}}]签合同</a>
+                                    <a href="/PurchaseContract/CreateContract/{{supplierId2}}" v-show="supplierId2>0" class="btn btn-flat btn-warning">与[{{supplierName2}}]签合同</a>
                                 </caption>                              
                                 <thead>
                                     <tr>
@@ -109,32 +110,49 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="(index,item) in products" style="cursor:pointer">
+                                    <tr v-for="(index,item) in products" >
                                         <td>{{index+1}}</td>
                                         <td>{{item.Code}}</td>
                                         <td>{{item.Name}}</td>
-                                        <td v-bind:class="{'bg-info':item.bgColor1}"> <!--compareStatus==1 未比价，已比价-->
-                                            <button type="button" class="btn btn-sm btn-flat btn-success" title="标记候选" v-show="item.CompareStatus1==1||item.CompareStatus1==4" v-on:click="mark(item.Id1,item.Id2)">
-                                                <span class="glyphicon glyphicon-ok"></span>
-                                            </button> 
-                                            <button type="button" class="btn btn-sm btn-flat btn-danger" title="取消候选" v-show="item.CompareStatus1==2" v-on:click="unMark(item.Id1,item.Id2)">
-                                                <span class="glyphicon glyphicon-remove"></span>
-                                            </button>  
-                                        </td>
-                                        <td v-bind:class="{'text-danger':item.textColor1,'bg-info':item.bgColor1}" >{{item.Price1}}</td>
-                                        <td v-bind:class="{'bg-info':item.bgColor1}">{{item.SupplyStatus1}}</td>
-                                        <td v-bind:class="{'bg-info':item.bgColor1}">{{item.ComparePriceStatus1}}</td>
-                                        <td v-bind:class="{'bg-info':item.bgColor2}">
-                                            <button type="button" class="btn btn-sm btn-flat btn-success" title="标记候选" v-show="item.CompareStatus2==1||item.CompareStatus2==4" v-on:click="mark(item.Id2,item.Id1)">
-                                                <span class="glyphicon glyphicon-ok"></span>
+                                        <td style="cursor:pointer">
+                                            <!--compareStatus==1 未比价，已比价-->
+                                            <button type="button" class="btn btn-sm btn-flat btn-default" title="标记候选" v-show="item.CompareStatus1==1||item.CompareStatus1==4" v-on:click="mark(item.Id1,item.Id2)">
+                                                <i class="fa fa-thumbs-o-up">候选</i>
                                             </button>
-                                            <button type="button" class="btn btn-sm btn-flat btn-danger" title="取消候选"  v-show="item.CompareStatus2==2" v-on:click="unMark(item.Id2,item.Id1)">
-                                                <span class="glyphicon glyphicon-remove"></span>
-                                            </button>  
+                                            <button type="button" class="btn btn-sm btn-flat btn-default" title="取消候选" v-show="item.CompareStatus1==2" v-on:click="unMark(item.Id1,item.Id2)">
+                                                <i class="fa fa-thumbs-o-down">取消</i>
+                                            </button>
                                         </td>
-                                        <td v-bind:class="{'text-danger':item.textColor2,'bg-info':item.bgColor2}">{{item.Price2}}</td>
-                                        <td v-bind:class="{'bg-info':item.bgColor2}">{{item.SupplyStatus2}}</td>
-                                        <td v-bind:class="{'bg-info':item.bgColor2}">{{item.ComparePriceStatus2}}</td>
+                                        <td v-bind:class="{'text-danger':item.textColor1,'bg-success':item.bgColor1}">{{item.Price1}}</td>
+                                        <td v-bind:class="{'bg-success':item.bgColor1}">{{item.SupplyStatus1}}</td>
+                                        <td v-bind:class="{'bg-success':item.bgColor1}">
+                                            <div class="btn btn-sm btn-success btn-flat" v-show="item.CompareStatus1==2">
+                                                <span class="glyphicon glyphicon-ok"></span>
+                                            </div>  
+                                            <div class="btn btn-sm btn-danger btn-flat" v-show="item.CompareStatus1==3">
+                                                <span class="glyphicon glyphicon-remove bg-red"></span>
+                                            </div> 
+                                            {{item.ComparePriceStatus1}}
+                                        </td>
+                                        <td style="cursor:pointer">
+                                            <button type="button" class="btn btn-sm btn-flat btn-default" title="标记候选" v-show="item.CompareStatus2==1||item.CompareStatus2==4" v-on:click="mark(item.Id2,item.Id1)">
+                                                <i class="fa fa-thumbs-o-up">候选</i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-flat btn-default" title="取消候选" v-show="item.CompareStatus2==2" v-on:click="unMark(item.Id2,item.Id1)">
+                                                <i class="fa fa-thumbs-o-down">取消</i>
+                                            </button>
+                                        </td>
+                                        <td v-bind:class="{'text-danger':item.textColor2,'bg-success':item.bgColor2}">{{item.Price2}}</td>
+                                        <td v-bind:class="{'bg-success':item.bgColor2}">{{item.SupplyStatus2}}</td>
+                                        <td v-bind:class="{'bg-success':item.bgColor2}">
+                                            <div class="btn btn-sm btn-success btn-flat" v-show="item.CompareStatus2==2">
+                                                <span class="glyphicon glyphicon-ok"></span>
+                                            </div>
+                                            <div class="btn btn-sm btn-danger btn-flat" v-show="item.CompareStatus2==3">
+                                                <span class="glyphicon glyphicon-remove bg-red"></span>
+                                            </div> 
+                                            {{item.ComparePriceStatus2}}
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -193,14 +211,16 @@
                 data: {
                     gridColumns: [
                         { name: 'Name', localName: '商品名', style: "<a href='/Product/Edit/{id}'>{column}</a>", width: '200' },
-                        { name: 'Code', localName: '编码' },
+                        { name: 'Code', localName: '编码',width:'100' },
                         { name: 'BarCode', localName: '条码' },
-                        { name: 'CategoryName', localName: '品类' },
-                        { name: 'BrandName', localName: '品牌' },
-                        { name: 'Specification', localName: '规格' },
-                        { name: 'SupplierName', localName: '供应商' },
-                        { name: 'Price', localName: '供价' },
-                        { name: 'SupplyStatus', localName: '状态' }
+                        { name: 'CategoryName', localName: '品类',width:'300' },
+                        { name: 'BrandName', localName: '品牌',width:'100' },
+                        { name: 'Specification', localName: '规格',width:'100' },
+                        { name: 'SupplierName', localName: '供应商',width:'200' },
+                        { name: 'Price', localName: '供价',width:'80'  },
+                        { name: 'SupplyStatus', localName: '状态',width:'80'  },
+                        { name: 'NickName', localName: '创建人',width:'100' },
+
                     ],
                     url: "/Supplier/LoadSupplierProducts",
                     searchArgs: { name: '',codeOrBarCode:'',categoryId:'',brandId:0, supplierIds: '',},
@@ -243,9 +263,9 @@
                     },
                     comparePrice:function(){
                         var _self = this;
-                        if(this.supplierId1==0||this.supplierId2==0)
+                        if(this.supplierId1==0)
                         {
-                            bootbox.alert("请选择两个比价供应商");return;
+                            bootbox.alert("请至少选择一个供应商");return;
                         }
                         var idArray =new Array();
                         this.rows.forEach(function (item, index) {
@@ -315,7 +335,7 @@
                         this.selectBrand.modal = true;
                     },
                     clearBrand: function () {
-                        this.model.BrandId = 0;
+                        this.searchArgs.BrandId = 0;
                         this.selectBrand.name = "";
                     },
                     getBrand: function () {
@@ -323,7 +343,7 @@
                             return item.checked;
                         });
                         if (selecteds) {
-                            this.model.BrandId = selecteds[0].Id;
+                            this.searchArgs.BrandId = selecteds[0].Id;
                             this.selectBrand.name = selecteds[0].Name;
                             this.selectBrand.modal = false;
                         }
@@ -332,7 +352,7 @@
                         this.selectSupplier.modal = true;
                     },
                     clearSupplier: function () {
-                        this.searchArgs.supplierId = 0;
+                        this.searchArgs.supplierIds = '';
                         this.selectSupplier.name = "";
                     },
                     getSupplier: function () {
@@ -350,11 +370,14 @@
                             this.searchArgs.supplierIds = idArray.join();
                             this.selectSupplier.name = nameArray.join();
                             this.selectSupplier.modal = false;
-                            if(idArray.length>=2)
+                            if(idArray.length>=1)
                             {
                                 this.supplierId1 =idArray[0];
-                                this.supplierId2 =idArray[1];
-                                this.supplierName1 =nameArray[0];
+                                this.supplierName1 =nameArray[0];                                                          
+                            }
+                            if(idArray.length>=2)
+                            {
+                                this.supplierId2 =idArray[1];    
                                 this.supplierName2 =nameArray[1];
                             }
                            
