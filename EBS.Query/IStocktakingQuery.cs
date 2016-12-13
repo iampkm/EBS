@@ -4,18 +4,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using EBS.Domain.Entity;
 namespace EBS.Query
 {
    public interface IStocktakingQuery
     {
-       IEnumerable<StocktakingPlanDto> GetPageList(Pager page, SearchStocktakingPlan condition);
+       IEnumerable<StocktakingListDto> GetPageList(Pager page, SearchStocktaking condition);
 
-       IEnumerable<StocktakingSummaryDto> GetSummaryData(Pager page, SearchStocktakingPlan condition);
+       StocktakingPlan GetRunningPlan(int storeId);
 
-       IEnumerable<StocktakingPlanItemDto> GetDetails(int planId, int? from, int? to, bool showDifference);
-       Dictionary<int, string> GetStocktakingPlanStatus();
-
+       
        
     }
 }

@@ -60,12 +60,15 @@
     <Compile Include="DTO\PurchaseContractItemDto.cs" />
     <Compile Include="DTO\SearchAdjustContractPrice.cs" />
     <Compile Include="DTO\SearchAdjustSalePrice.cs" />
+    <Compile Include="DTO\SearchStocktaking.cs" />
     <Compile Include="DTO\SearchStoreInventory.cs" />
     <Compile Include="DTO\SearchStoreInventoryBatch.cs" />
     <Compile Include="DTO\SearchStoreInventoryHistory.cs" />
     <Compile Include="DTO\SearchStorePurchaseOrder.cs" />
     <Compile Include="DTO\SearchSupplierContract.cs" />
     <Compile Include="DTO\ShelfTreeNode.cs" />
+    <Compile Include="DTO\StocktakingDto.cs" />
+    <Compile Include="DTO\StocktakingListDto.cs" />
     <Compile Include="DTO\StocktakingPlanDto.cs" />
     <Compile Include="DTO\StocktakingPlanItemDto.cs" />
     <Compile Include="DTO\StocktakingSummaryDto.cs" />
@@ -94,6 +97,7 @@
     <Compile Include="IPurchaseContractQuery.cs" />
     <Compile Include="IRoleQuery.cs" />
     <Compile Include="IShelfQuery.cs" />
+    <Compile Include="IStocktakingPlanQuery.cs" />
     <Compile Include="IStocktakingQuery.cs" />
     <Compile Include="IStoreInventoryQuery.cs" />
     <Compile Include="IStorePurchaseOrderQuery.cs" />

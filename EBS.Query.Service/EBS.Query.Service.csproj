@@ -56,6 +56,7 @@
     <Compile Include="PurchaseContractQueryService.cs" />
     <Compile Include="RoleQueryService.cs" />
     <Compile Include="ShelfQueryService.cs" />
+    <Compile Include="StocktakingPlanQueryService.cs" />
     <Compile Include="StocktakingQueryService.cs" />
     <Compile Include="StoreInventoryQueryService.cs" />
     <Compile Include="StorePurchaseOrderQueryService.cs" />

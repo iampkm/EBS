@@ -47,7 +47,7 @@ namespace EBS.Domain.Entity
         /// <summary>
         /// 部门ID
         /// </summary>
-        public int DepartmentID { get; set; }
+        public int StoreId { get; set; }
         /// <summary>
         /// 备注
         /// </summary>

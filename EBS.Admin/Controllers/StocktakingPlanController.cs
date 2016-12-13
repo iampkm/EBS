@@ -19,14 +19,14 @@ namespace EBS.Admin.Controllers
     {
         IQuery _query;
         IContextService _context;
-        IStocktakingQuery _stocktakingQuery;
+        IStocktakingPlanQuery _stocktakingPlanQuery;
         IStocktakingPlanFacade _stocktakingPlanFacade;
 
-        public StocktakingPlanController(IContextService contextService, IQuery query,IStocktakingQuery stocktakingQuery,IStocktakingPlanFacade stocktakingPlanFacade)
+        public StocktakingPlanController(IContextService contextService, IQuery query, IStocktakingPlanQuery stocktakingPlanQuery, IStocktakingPlanFacade stocktakingPlanFacade)
         {
             this._query = query;
             this._context = contextService;
-            this._stocktakingQuery = stocktakingQuery;
+            this._stocktakingPlanQuery = stocktakingPlanQuery;
             _stocktakingPlanFacade = stocktakingPlanFacade;
 
         }
@@ -34,13 +34,13 @@ namespace EBS.Admin.Controllers
         public ActionResult Index()
         {
             ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
-            ViewBag.Status = _stocktakingQuery.GetStocktakingPlanStatus();
+            ViewBag.Status = _stocktakingPlanQuery.GetStocktakingPlanStatus();
             return View();
         }
 
         public JsonResult LoadData(Pager page, SearchStocktakingPlan condition)
         {
-            var rows = _stocktakingQuery.GetPageList(page, condition);
+            var rows = _stocktakingPlanQuery.GetPageList(page, condition);
 
             return Json(new { success = true, data = rows, total = page.Total });
         }
@@ -56,13 +56,13 @@ namespace EBS.Admin.Controllers
         public ActionResult Summary()
         {
             ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
-            ViewBag.Status = _stocktakingQuery.GetStocktakingPlanStatus();
+            ViewBag.Status = _stocktakingPlanQuery.GetStocktakingPlanStatus();
             return View();
         }
 
         public JsonResult LoadSummaryData(Pager page, SearchStocktakingPlan condition)
         {
-            var rows = _stocktakingQuery.GetSummaryData(page, condition);
+            var rows = _stocktakingPlanQuery.GetSummaryData(page, condition);
 
             return Json(new { success = true, data = rows, total = page.Total });
         }
@@ -82,7 +82,7 @@ namespace EBS.Admin.Controllers
         /// <returns></returns>
         public JsonResult LoadDetail(int planId, int? from, int? to, bool showDifference)
         {
-            var rows = _stocktakingQuery.GetDetails(planId, from,to,showDifference).ToList();
+            var rows = _stocktakingPlanQuery.GetDetails(planId, from,to,showDifference).ToList();
 
             return Json(new { success = true, data = rows, total = rows.Count });
         }
