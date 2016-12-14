@@ -68,6 +68,7 @@
     <Compile Include="DTO\SearchSupplierContract.cs" />
     <Compile Include="DTO\ShelfTreeNode.cs" />
     <Compile Include="DTO\StocktakingDto.cs" />
+    <Compile Include="DTO\StocktakingItemDto.cs" />
     <Compile Include="DTO\StocktakingListDto.cs" />
     <Compile Include="DTO\StocktakingPlanDto.cs" />
     <Compile Include="DTO\StocktakingPlanItemDto.cs" />

@@ -13,6 +13,7 @@ namespace EBS.Query
         IEnumerable<StocktakingSummaryDto> GetSummaryData(Pager page, SearchStocktakingPlan condition);
 
         IEnumerable<StocktakingPlanItemDto> GetDetails(int planId, int? from, int? to, bool showDifference);
+
         Dictionary<int, string> GetStocktakingPlanStatus();
     }
 }

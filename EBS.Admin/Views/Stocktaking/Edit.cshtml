@@ -5,16 +5,21 @@
 @section styles{
     <link href="~/Content/zTree.min.css" rel="stylesheet" />
     <style>
-        .ztree li span { font-size: 14px;}
-        .dataRow div {margin-bottom: 0px;}
+        .ztree li span {
+            font-size: 14px;
+        }
+
+        .dataRow div {
+            margin-bottom: 0px;
+        }
     </style>
 }
 <!-- demo root element -->
 <div id="app" class="box box-primary">
     <div class="box-header with-border">
         <ol class="breadcrumb" style="padding:0px;margin:1px;">
-            <li><a href="/Stocktaking/Index"><i class="fa fa-dashboard"></i>盘点单</a></li>
-            <li class="active"><a href="/Stocktaking/Create">新增盘点单</a></li>
+            <li><a href="/Stocktaking/AuditIndex"><i class="fa fa-dashboard"></i>盘点修正单审核</a></li>
+            <li class="active"><a href="/Stocktaking/Edit/{{model.id}}">审核盘点修正单</a></li>
         </ol>
     </div>
     <!-- /.box-header -->
@@ -40,16 +45,10 @@
                         </span>
                     </div>
                 </div>
-                <div class="form-group col-sm-2 col-xs-3">
-                    <div class="input-group">
-                        <span class="input-group-addon">货架码</span>
-                        <input type="text" class="form-control" v-model="model.shelfCode" v-on:keyup.enter="queryShelfProduct()" placeholder="输入回车/扫码" />
-                    </div>
-                </div>
             </div>
             <div class="row">
                 <div class="col-xs-4 col-sm-4"></div>
-                <div class="col-xs-4 col-sm-4"><h3 class="text-center text-success" style="border-bottom:2px solid;padding-bottom:1px;"><b>盘点单</b></h3></div>
+                <div class="col-xs-4 col-sm-4"><h3 class="text-center text-success" style="border-bottom:2px solid;padding-bottom:1px;"><b>盘点修正单</b></h3></div>
                 <div class="col-xs-4 col-sm-4"></div>
             </div>
             <div class="row">
@@ -80,14 +79,18 @@
                                 <tr>
                                     <th style="width:90px;"></th>
                                     <th style="width:50px;">序号</th>
-                                    <th style="width:150px;">货架码</th>
                                     <th style="width:150px;">商品编码</th>
                                     <th>条码</th>
                                     <th>品名</th>
                                     <th>规格</th>
                                     <th>单位</th>
                                     <th>售价</th>
-                                    <th style="width:200px;">盘点数</th>
+                                    <th>库存</th>
+                                    <th>盘点数</th>
+                                    <th style="width:200px;">调整数</th>
+                                    <th>差数</th>
+                                    <th>差价</th>
+                                    <th>差错原因</th>
                                 </tr>
                             </thead>
                             <tbody id="tbody">
@@ -97,7 +100,6 @@
                                         <button type="button" class="btn btn-flat  btn-sm" v-show="index>0" title="删除行" v-on:click="removeRow(index)"><span class="fa fa-trash"></span></button>
                                     </td>
                                     <td class="text-center">{{index+1}}</td>
-                                    <td class="text-center">{{item.ShelfCode}}</td>
                                     <td>
                                         <input type="text" class="form-control productCode" v-model="item.ProductCode" v-on:keyup.enter="inputProduct(item.ProductCode,index)" placeholder="录入编码或扫码" />
                                     </td>
@@ -105,12 +107,17 @@
                                     <td>{{item.ProductName}}</td>
                                     <td>{{item.Specification}}</td>
                                     <td>{{item.Unit}}</td>
-                                    <td>￥{{item.SalePrice}}</td>
+                                    <td>{{item.SalePrice}}</td>
+                                    <th>{{item.Quantity}}</th>
+                                    <th>{{item.CountQuantity}}</th>
                                     <td>
                                         <input type="text" class="form-control quantity" v-model="item.countQuantity" v-on:keyup.enter="inputNext" />
                                     </td>
+                                    <td>{{item.Quantity-item.CountQuantity}}</td>
+                                    <td>{{item.SalePrice*(item.Quantity-item.CountQuantity)}}</td>
+                                    <td><input type="text" class="form-control reason" v-model="item.corectReason" /></td>
                                 </tr>
-                            </tbody>                            
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -131,7 +138,7 @@
 @{Html.RenderPartial("VueTableTemplate");}
 @section scripts{
     <script src="~/Content/Vue/vuetable/vuetable.js"></script>
-<script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
+    <script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
     <script>
         $("doucument").ready(function () {
             var demo = new Vue({
@@ -151,13 +158,13 @@
                         items: '',
                         stocktakingPlanId:0,
                     },
-                    products: [{ ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', SalePrice: 0, CountQuantity: 0 }],
+                    products: [{ ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', SalePrice: 0,Quantity:0, CountQuantity: 0,CorectReason:'' }],
                     totalQuantity: 0,
                     inputProducts: '',
                     selectStore: {
                         modal: false,
                         name: '@ViewBag.StoreName',
-                        view:@ViewBag.View,                    
+                        view:@ViewBag.View,
                     }
                 },
                 methods: {
@@ -181,43 +188,11 @@
                         data = "[" + data + "]";
                         _self.model.items = data;
                         var v_data = _self.model;
-                        $.post("/Stocktaking/Create", v_data, function (result) {
+                        $.post("/Stocktaking/Correct", v_data, function (result) {
                             if (result.success) {
                                 bootbox.alert("保存成功！", function () {
-                                    window.location.href = "/Stocktaking/Create";
+                                    window.location.href = "/Stocktaking/Correct";
                                 });
-                            }
-                            else {
-                                bootbox.alert(result.error);
-                            }
-                        }, "json");
-                    },
-                    queryShelfProduct: function () {
-                        var _self = this;
-                        var _shelfCode = _self.model.shelfCode;                        
-                        if (_shelfCode == "") { return; }
-                        if (_self.model.storeId == 0) { bootbox.alert("请选择门店"); return; }
-                        var data = {
-                            shelfCode: _shelfCode,
-                            storeId: _self.model.storeId
-                        }
-                        $.post("/Stocktaking/QueryShelfProduct", data, function (result) {
-                            if (result.success) {
-                                _self.products = [];
-                                result.data.forEach(function (item) {
-                                    _self.products.push(item);
-                                });
-                                if(_self.model.stocktakingPlanId==0)
-                                {
-                                    _self.model.stocktakingPlanId = result.data.Id;
-                                }
-                                _self.model.shelfCode = "";
-                                //设置焦点,延迟500，等待vue.js 渲染完毕
-                                setTimeout(function () {
-                                    var selector = "tr:eq(0)";
-                                    var row = $("#tbody").find(selector);
-                                    row.find("input.quantity").focus().select();
-                                }, 300);
                             }
                             else {
                                 bootbox.alert(result.error);
@@ -225,7 +200,7 @@
                         }, "json");
                     },
                     addRow: function (event) {
-                        this.products.push({ ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', SalePrice: 0, CountQuantity: 0  });
+                        this.products.push({ ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', SalePrice: 0,Quantity:0, CountQuantity: 0,CorectReason:'' });
                         //设置焦点
                         var target = event.srcElement || event.target;
                         var row = target.localName == "button" ? $(target).parent().parent() : $(target).parent().parent().parent();
@@ -251,11 +226,10 @@
                         if (_self.model.storeId == 0) { bootbox.alert("请选择门店"); return; }
                         var data = {
                             productCodeOrBarCode: codeOrBarCode,
-                            storeId: _self.model.storeId,
                             planId:_self.model.stocktakingPlanId
                         }
                         //设置焦点
-                        $.get("/Stocktaking/QueryShelfProduct", data, function (result) {
+                        $.get("/Stocktaking/QueryStocktakingItem", data, function (result) {
                             if (result.success) {
                                 _self.products.$set(index, result.data);
                                 if(_self.model.stocktakingPlanId==0)
@@ -293,7 +267,7 @@
                         this.selectStore.name = "";
                     },
                     getStore: function () {
-                        var treeObj = $.fn.zTree.getZTreeObj("ztree"); 
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
                         var selecteds= treeObj.getCheckedNodes(true);
                         if (selecteds) {
                             var idArray = new Array();
@@ -313,7 +287,7 @@
                             {
                                 bootbox.alert("请选择一个门店");
                             }
-                           
+
                         }
                     },
                     print: function () {
@@ -321,18 +295,18 @@
                     },
                     clearItems: function () {
                         if (this.products.length > 0) {
-                            this.products = [{ ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', SalePrice: 0, CountQuantity: 0  }];
+                            this.products = [{ ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', SalePrice: 0,Quantity:0, CountQuantity: 0,CorectReason:'' }];
                         }
                     }
-                }                
+                }
             });
 
             //加载门店tree
-            var zTreeObj;           
+            var zTreeObj;
             var setting = {
                 check: {
                     enable:true
-                },               
+                },
                 async: {
                     enable: true,
                     url: "/Store/LoadStore",
@@ -344,16 +318,24 @@
                         var treeObj = $.fn.zTree.getZTreeObj("ztree");
                         var open = !treeNode.open;
                         treeObj.expandNode(treeNode, open, false, false);
-                        // vue.searchArgs.categoryId =treeNode.id;                      
+                        // vue.searchArgs.categoryId =treeNode.id;
                     }
                 }
-            };           
+            };
             zTreeObj = $.fn.zTree.init($("#ztree"), setting);
 
         });
 
     </script>
 }
+
+
+
+
+
+
+
+
 
 
 

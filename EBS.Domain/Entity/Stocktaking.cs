@@ -15,6 +15,7 @@ namespace EBS.Domain.Entity
         public Stocktaking()
         {
             this.Items = new List<StocktakingItem>();
+            this.CreatedOn = DateTime.Now;
         }
         /// <summary>
         /// 盘点单据号
@@ -33,17 +34,17 @@ namespace EBS.Domain.Entity
         /// </summary>
         public int StocktakingPlanId { get; set; }
         /// <summary>
-        /// 盘点计划编号
+        /// 创建时间
         /// </summary>
-        public DateTime? CreateTime { get; set; }
+        public DateTime CreatedOn { get; set; }
         /// <summary>
         /// 创建人ID
         /// </summary>
-        public int CreateBy { get; set; }
+        public int CreatedBy { get; set; }
         /// <summary>
         /// 创建人
         /// </summary>
-        public string CreateByName { get; set; }
+        public string CreatedByName { get; set; }
         /// <summary>
         /// 部门ID
         /// </summary>

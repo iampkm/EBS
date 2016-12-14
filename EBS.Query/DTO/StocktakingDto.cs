@@ -8,6 +8,6 @@ namespace EBS.Query.DTO
 {
    public class StocktakingDto:Stocktaking
     {
-
+       public string StocktakingDate { get; set; }
     }
 }

@@ -59,6 +59,7 @@
     <Compile Include="DTO\PurchaseContractModel.cs" />
     <Compile Include="DTO\ReceivedGoodsStorePurchaseOrder.cs" />
     <Compile Include="DTO\RoleModel.cs" />
+    <Compile Include="DTO\StocktakingModel.cs" />
     <Compile Include="DTO\StocktakingPlanModel.cs" />
     <Compile Include="DTO\StoreModel.cs" />
     <Compile Include="DTO\SupplierModel.cs" />

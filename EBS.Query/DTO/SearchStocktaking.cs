@@ -19,5 +19,7 @@ namespace EBS.Query.DTO
        public string ShelfCode { get; set; }
 
        public int StoreId { get; set; }
+
+       public int Status { get; set; }
     }
 }

@@ -15,7 +15,7 @@
     <div class="box box-primary">
         <div class="box-header">
             <ol class="breadcrumb" style="padding:0px;margin:1px;">
-                <li><a href="/Stocktaking/Index"><i class="fa fa-dashboard"></i>盘点单管理</a></li>
+                <li><a href="/Stocktaking/AuditIndex"><i class="fa fa-dashboard"></i>盘点单审核</a></li>
             </ol>
         </div>
         <div class="box-body">
@@ -25,10 +25,7 @@
                 <div class="row" style="margin-bottom:10px;" slot="customSearch">
                     <div class="col-xs-3 col-sm-2">
                         <input class="form-control" v-model="searchArgs.code" placeholder="单编号" debounce="500" />
-                    </div>
-                    <div class="col-xs-3 col-sm-2">
-                        <input class="form-control" v-model="searchArgs.shelfCode" placeholder="货架号" debounce="500" />
-                    </div>
+                    </div>                    
                     <div class="col-xs-3 col-sm-2">
                         <input class="form-control" v-model="searchArgs.productCodeOrBarCode" placeholder="商品编码/条码" debounce="500" />
                     </div>
@@ -54,9 +51,8 @@
                     </div>
                     <div class="form-group col-sm-2 col-xs-3">
                         <div class="input-group">
-                            <span class="input-group-addon">单据类型</span>
-                            <select name="brand" class="form-control" v-model="searchArgs.type">
-                                <option value="0">-请选择-</option>
+                            <span class="input-group-addon">状态</span>
+                            <select name="brand" class="form-control" v-model="searchArgs.status">
                                 @foreach (var item in ViewBag.Status)
                                 {
                                     <option value="@item.Key">@item.Value</option>
@@ -66,8 +62,7 @@
                     </div>
                 </div>
                 <span class="input-group-btn" slot="customButtons">
-                    <a class="btn btn-warning btn-flat" href="/Stocktaking/Create">新增盘点单</a>
-                    <a class="btn btn-danger btn-flat" href="/Stocktaking/Correct">新增盘点修正单</a>
+                    <button type="button" class="btn btn-warning btn-flat" v-on:click="submitAudit()">审核</button>
                     <a class="btn btn-success btn-flat" href="/Stocktaking/Help">盘点助手</a>
                 </span>
             </vue-table>
@@ -96,19 +91,16 @@
             el: '#app',
             data: {
                 gridColumns: [
-                { name: 'ProductCode', localName: '编码', width: '80' },
-                { name: 'BarCode', localName: '条码'},
-                { name: 'ProductName', localName: '品名', width: '200'  },
-                { name: 'Specification', localName: '规格' },  
-                { name: 'ShelfCode', localName: '货架号' }, 
-                { name: 'CountQuantity', localName: '盘点数', width: '80'  },
-                { name: 'Code', localName: '单据号' },
-                { name: 'StoreName', localName: '门店' },                              
-                { name: 'CreatedByName', localName: '创建人' },
-                { name: 'Type', localName: '单据类型' },
+                    { name: 'Code', localName: '单据号',style: "<a href='/Stocktaking/Edit/{id}'>{column}</a>", },
+                    { name: 'StoreName', localName: '门店' },
+                    { name: 'CreatedByName', localName: '创建人' },
+                    { name: 'Type', localName: '单据类型' },
+                    { name: 'StocktakingDate', localName: '盘点日期'},
+                    { name: 'CreatedOn', localName: '创建时间', width: '200'  },
+                    { name: 'Status', localName: '状态' }
                 ],
-                url: "/Stocktaking/LoadData",
-                searchArgs: { code: '',shelfCode:'',productCodeOrBarCode:'', stocktakingDate: '', storeId: 0, type: 0,status:2 },
+                url: "/Stocktaking/LoadAuditData",
+                searchArgs: { code: '',shelfCode:'',productCodeOrBarCode:'', stocktakingDate: '', storeId: 0, type: 2 ,status:1},
                 rows: [],
                 selectStore: {
                     modal: false,
@@ -131,7 +123,7 @@
                     v_self = this;
                     bootbox.confirm("您确定提交该记录？", function (result) {
                         if (result) {
-                            $.post("/Stocktaking/StartPlan", { id: selectId }, function (result) {
+                            $.post("/Stocktaking/Audit", { id: selectId }, function (result) {
                                 if (result.success) {
                                     v_self.$refs.vtable.loadData();
                                 }
@@ -201,6 +193,10 @@
         });
     </script>
 }
+
+
+
+
 
 
 
