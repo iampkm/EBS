@@ -73,17 +73,11 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             if (string.IsNullOrEmpty(productCodeOrBarCode)) { throw new Exception("请输入商品编码或条码"); }
             // 有调整价，有先使用最新的调整价；无才使用合同价
             string sql = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.Specification,p.BarCode,p.Unit,p.SpecificationQuantity as ProductSpecificationQuantity, 
- t1.ContractPrice,IFNULL(t2.adjustPrice,t1.ContractPrice) as Price  from
-(select i.productId,i.ContractPrice from purchasecontract c  inner join purchasecontractitem i on c.Id = i.PurchaseContractId 
-where c.SupplierId =@SupplierId and c.storeId=@StoreId and c.StartDate <= @Today and c.EndDate>=@Today and c.`Status`=3 order by c.Id desc ) t1
-left join 
-(
-   select i.productId,i.adjustPrice from
-  ( select c.Id from adjustcontractprice c where c.SupplierId =@SupplierId and c.storeId=@StoreId and c.StartDate <= @Today and c.EndDate>=@Today order by c.Id desc limit 1 ) a 
-   inner join  adjustcontractpriceitem i on a.Id = i.adjustcontractpriceId 
-) t2 on t1.productId = t2.productId
-left join product p on p.Id = t1.productId
-where p.BarCode=@ProductCodeOrBarCode or p.`Code`=@ProductCodeOrBarCode LIMIT 1";            
+ i.ContractPrice
+ from purchasecontract c inner join purchasecontractitem i on c.Id= i.PurchaseContractId
+inner join product p on p.Id = i.ProductId
+where p.BarCode=@ProductCodeOrBarCode or p.`Code`=@ProductCodeOrBarCode and c.EndDate>@Today and c.`Status` = 3
+and FIND_IN_SET(@StoreId,c.StoreIds)  LIMIT 1";            
             var item = _query.Find<StorePurchaseOrderItemDto>(sql, new { ProductCodeOrBarCode = productCodeOrBarCode, SupplierId = supplierId, StoreId = storeId, Today = DateTime.Now });
             //设置当前件规            
             if (item == null) { throw new Exception("查无商品，请检查供应商合同"); }
@@ -96,20 +90,14 @@ where p.BarCode=@ProductCodeOrBarCode or p.`Code`=@ProductCodeOrBarCode LIMIT 1"
         public IEnumerable<StorePurchaseOrderItemDto> GetPurchaseOrderItemList(string inputProducts, int supplierId, int storeId)
         {
             if (string.IsNullOrEmpty(inputProducts)) throw new Exception("商品明细为空");
-            var dic = GetProductDic(inputProducts);
+            var dic = inputProducts.ToIntDic();
             // 有调整价，有先使用最新的调整价；无才使用合同价
             string sql = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.Specification,p.BarCode,p.Unit,p.SpecificationQuantity as ProductSpecificationQuantity, 
-t1.ContractPrice,IFNULL(t2.adjustPrice,t1.ContractPrice) as Price  from
-(select i.productId,i.ContractPrice from purchasecontract c  inner join purchasecontractitem i on c.Id = i.PurchaseContractId 
-where c.SupplierId =@SupplierId and c.storeId=@StoreId and c.StartDate <= @Today and c.EndDate>=@Today and c.`Status`=3 order by c.Id desc ) t1
-left join 
-(
-   select i.productId,i.adjustPrice from
-  ( select c.Id from adjustcontractprice c where c.SupplierId =@SupplierId and c.storeId=@StoreId and c.StartDate <= @Today and c.EndDate>=@Today order by c.Id desc limit 1 ) a 
-   inner join  adjustcontractpriceitem i on a.Id = i.adjustcontractpriceId 
-) t2 on t1.productId = t2.productId
-left join product p on p.Id = t1.productId
-where  p.`Code` in @ProductCode ";
+ i.ContractPrice
+ from purchasecontract c inner join purchasecontractitem i on c.Id= i.PurchaseContractId
+inner join product p on p.Id = i.ProductId
+where p.`Code` in @ProductCode  and c.EndDate>@Today and c.`Status` = 3
+and FIND_IN_SET(@StoreId,c.StoreIds)";
             var productItems = _query.FindAll<StorePurchaseOrderItemDto>(sql, new { ProductCode = dic.Keys.ToArray(), SupplierId = supplierId, StoreId = storeId, Today = DateTime.Now });
             foreach (var product in productItems)
             {
@@ -118,31 +106,7 @@ where  p.`Code` in @ProductCode ";
             }
             return productItems;
         }
-        private Dictionary<string, int> GetProductDic(string productIds)
-        {
-            Dictionary<string, int> dicProductPrice = new Dictionary<string, int>(1000);
-            string[] productIdArray = productIds.Split('\n');
-            foreach (var item in productIdArray)
-            {
-                if (item.Contains("\t"))
-                {
-                    string[] parentIDAndQuantity = item.Split('\t');
-                    if (!dicProductPrice.ContainsKey(parentIDAndQuantity[0].Trim()))
-                    {
-                        dicProductPrice.Add(parentIDAndQuantity[0].Trim(), int.Parse(parentIDAndQuantity[1]));
-                    }
-                }
-                else
-                {
-                    if (!dicProductPrice.ContainsKey(item.Trim()))
-                    {
-                        dicProductPrice.Add(item.Trim(), 0);
-                    }
-                }
-            }
-
-            return dicProductPrice;
-        }
+       
         public StorePurchaseOrderDto GetById(int id)
         {
            string sql = @"select t0.Id,t0.Code,t0.SupplierId,t0.StoreId,t0.CreatedOn,t0.CreatedByName,t0.ReceivedOn,t0.ReceivedByName,t0.StoragedOn,t0.StoragedByName,

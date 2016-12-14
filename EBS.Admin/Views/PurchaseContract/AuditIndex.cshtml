@@ -111,11 +111,10 @@
                 selectedId: 0,
                 searchQuery: '',
                 gridColumns: [
-                    { name: 'Code', localName: '合同号', style: "<a href='/PurchaseContract/Edit/{id}'>{column}</a>" },
+                    { name: 'Code', localName: '合同号', style: "<a href='/PurchaseContract/Edit/{id}?from=Audit'>{column}</a>" },
                     { name: 'Name', localName: '合同名' },
                     { name: 'Supplier', localName: '供应商', width: '250' },
                     { name: 'Contact', localName: '联系人', width: '80' },
-                    { name: 'StoreName', localName: '门店' },
                     { name: 'StartTime', localName: '开始日期' },
                     { name: 'EndTime', localName: '结束日期' },
                     { name: 'PurchaseContractStatus', localName: '状态', width: '80' }
@@ -130,7 +129,6 @@
                     gridColumns: [
                         { name: 'Code', localName: '编码', width: '100' },
                         { name: 'Name', localName: '供应商名', width: '300' },
-                        { name: 'AreaName', localName: '供货区域', width: '200' },
                         { name: 'SupplierType', localName: '类型', width: '100' },
                     ],
                     url: "/Supplier/LoadData",

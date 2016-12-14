@@ -19,7 +19,7 @@
 <div id="app" class="box box-primary">
     <div class="box-header with-border">
         <ol class="breadcrumb" style="padding:0px;margin:1px;">
-            <li><a href="/PurchaseContract/Index"><i class="fa fa-dashboard"></i>采购合同管理</a></li>
+            <li><a href="/PurchaseContract/@(ViewBag.Audit)Index"><i class="fa fa-dashboard"></i>@ViewBag.PathName</a></li>
             <li class="active"><a href="/PurchaseContract/Edit/{{model.id}}">修改采购合同</a></li>
         </ol>
     </div>
@@ -238,7 +238,6 @@
                         gridColumns: [
                             { name: 'Code', localName: '编码',  width: '100' },
                             { name: 'Name', localName: '供应商名', width: '300' },
-                            { name: 'AreaName', localName: '供货区域', width: '200' },
                             { name: 'SupplierType', localName: '类型', width: '100' },
                         ],
                         url: "/Supplier/LoadData",

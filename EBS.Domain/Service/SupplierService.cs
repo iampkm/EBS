@@ -82,6 +82,7 @@ where c.purchaseContractId = @PurchaseContractId and p.SupplierId = @SupplierId 
            var products= _db.Table.FindAll<SupplierProduct>(sql, new { PurchaseContractId = purchaseContractId, SupplierId = supplierId }).ToList();
             products.ForEach((p) => {
                 p.Status = SupplierProductStatus.Supplying;
+                p.CompareStatus = ComparePriceStatus.HadCompared;
                 p.UpdatedBy = updatedBy;
                 p.UpdatedOn = DateTime.Now;              
             });

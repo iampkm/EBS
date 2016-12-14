@@ -163,7 +163,7 @@ namespace EBS.Admin.Controllers
         {
             var result = _storePurchaseOrderQuery.GetPurchaseOrderItem(productCodeOrBarCode, supplierId, storeId);
             //  查询是否有自主调价
-            var item= _adjustContractPriceQuery.GetAdjustContractPriceItem(productCodeOrBarCode, supplierId, storeId);
+           // var item= _adjustContractPriceQuery.GetAdjustContractPriceItem(productCodeOrBarCode, supplierId, storeId);
              
             return Json(new { success = true, data = result });
         }

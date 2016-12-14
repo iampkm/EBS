@@ -40,7 +40,7 @@ namespace EBS.Query.Service
             }
             if (condition.StoreId > 0)
             {
-                where += "and t0.StoreId in @StoreId ";
+                where += "and FIND_IN_SET(@StoreId,t0.StoreIds) ";
                 param.StoreId = condition.StoreId;
             }
             if (condition.Status > 0)

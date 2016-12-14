@@ -71,7 +71,7 @@ namespace EBS.Admin.Controllers
             _purchaseContractFacade.Create(model);
             return Json(new { success = true });
         }
-        public ActionResult Edit(int id)
+        public ActionResult Edit(int id,string from="")
         {
             var model = _query.Find<PurchaseContract>(id);
             var items = _purchaseContractQuery.GetPurchaseContractItems(id);
@@ -86,7 +86,8 @@ namespace EBS.Admin.Controllers
             //查询处理流程：
             var logs= _query.FindAll<ProcessHistory>(n => n.FormId == id && n.FormType == FormType.PurchaseContract);
             ViewBag.Logs = logs;
-          
+            ViewBag.Audit = from;
+            ViewBag.PathName = string.IsNullOrEmpty(from) ? "采购合同管理" : "审核合同";
             return View(model);
         }
 

@@ -34,7 +34,7 @@ namespace EBS.Application.Facade
             entity.UpdatedBy = entity.CreatedBy;
             _service.ValidateContractCode(entity.Code);
             _service.ValidateContract(entity);
-            _db.Insert(model);
+            _db.Insert(entity);
             _db.SaveChange();
             var reason = "创建合同";
             entity = _db.Table.Find<PurchaseContract>(n => n.Code == entity.Code);
@@ -91,11 +91,10 @@ namespace EBS.Application.Facade
             entity.Audit();
             entity.EditBy(editBy);
             _db.Update(entity);
-            //审核通过后，修改所有商品的供应状态 
-            _db.Update(entity.Items.ToArray());
-            // 修改供应商商品表中的 供货状态
+            //审核通过后，修改所有商品在供应商比较重的供应状态 
            var supplyProducts= _supplierService.EditSupplyStatus(entity.Id, entity.SupplierId, editBy);
             _db.Update(supplyProducts.ToArray());
+            // 记录操作流程 
             var reason = "审核通过";
             _processHistoryService.Track(editBy, editor, (int)entity.Status, entity.Id, FormType.PurchaseContract, reason);
             _db.SaveChange();
