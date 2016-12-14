@@ -3,113 +3,206 @@
     ViewBag.Title = "DashBoard";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<div class="row">
-    <div class="col-lg-3 col-xs-6">
-        <!-- small box -->
-        <div class="small-box bg-aqua">
-            <div class="inner">
-                <h3>150</h3>
+<!-- Site wrapper -->
+<div class="wrapper">
 
-                <p>New Orders</p>
-            </div>
-            <div class="icon">
-                <i class="ion ion-bag"></i>
-            </div>
-            <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
-        </div>
-    </div>
-    <!-- ./col -->
-    <div class="col-lg-3 col-xs-6">
-        <!-- small box -->
-        <div class="small-box bg-green">
-            <div class="inner">
-                <h3>53<sup style="font-size: 20px">%</sup></h3>
+    <header class="main-header" id="navbar">
+        <!-- Logo -->
+        <a href="../../index2.html" class="logo">
+            <!-- mini logo for sidebar mini 50x50 pixels -->
+            <span class="logo-mini"><b>EBS</b></span>
+            <!-- logo for regular state and mobile devices -->
+            <span class="logo-lg"><b>EBS</b> system</span>
+        </a>
+        <!-- Header Navbar: style can be found in header.less -->
+        <nav class="navbar navbar-static-top">
+            <!-- Sidebar toggle button-->
+            <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
 
-                <p>Bounce Rate</p>
+            <div class="navbar-custom-menu">
+                <ul class="nav navbar-nav">
+                    <!-- Messages: style can be found in dropdown.less-->
+                    <li class="dropdown messages-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <i class="fa fa-envelope-o"></i>
+                            <span class="label label-success"></span> <!--4-->
+                        </a>
+                        @*<ul class="dropdown-menu">
+                            <li class="header">You have 4 messages</li>
+                            <li>                               
+                                <ul class="menu">
+                                    <li>
+                                       
+                                        <a href="#">
+                                            <div class="pull-left">                                               
+                                                <img src="/Content/picture/user2-160x160.jpg" class="img-circle" alt="User Image">
+                                            </div>
+                                            <h4>
+                                                Support Team
+                                                <small><i class="fa fa-clock-o"></i> 5 mins</small>
+                                            </h4>
+                                            <p>Why not buy a new awesome theme?</p>
+                                        </a>
+                                    </li>                                   
+                                </ul>
+                            </li>
+                            <li class="footer"><a href="#">See All Messages</a></li>
+                        </ul>*@
+                    </li>
+                    <!-- Notifications: style can be found in dropdown.less -->
+                    <li class="dropdown notifications-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <i class="fa fa-bell-o"></i>
+                            <span class="label label-warning"></span> <!--10-->
+                        </a>
+                        @*<ul class="dropdown-menu">
+                            <li class="header">You have 10 notifications</li>
+                            <li>                               
+                                <ul class="menu">
+                                    <li>
+                                        <a href="#">
+                                            <i class="fa fa-users text-aqua"></i> 5 new members joined today
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="footer"><a href="#">View all</a></li>
+                        </ul>*@
+                    </li>
+                    <!-- Tasks: style can be found in dropdown.less -->
+                    <li class="dropdown tasks-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <i class="fa fa-flag-o"></i>
+                            <span class="label label-danger"></span> <!--9-->
+                        </a>
+                        @*<ul class="dropdown-menu">
+                            <li class="header">You have 9 tasks</li>
+                            <li>                              
+                                <ul class="menu">
+                                    <li>                                     
+                                        <a href="#">
+                                            <h3>
+                                                Design some buttons
+                                                <small class="pull-right">20%</small>
+                                            </h3>
+                                            <div class="progress xs">
+                                                <div class="progress-bar progress-bar-aqua" style="width: 20%" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">
+                                                    <span class="sr-only">20% Complete</span>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>                                  
+                                </ul>
+                            </li>
+                            <li class="footer">
+                                <a href="#">View all tasks</a>
+                            </li>
+                        </ul>*@
+                    </li>
+                    <!-- User Account: style can be found in dropdown.less -->
+                    <li class="dropdown user user-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            @*<img src="/Content/AdminLTE/img/user2-160x160.jpg" class="user-image" alt="User Image">*@
+                            <span class="glyphicon glyphicon-user"></span>
+                            <span class="hidden-xs">@ViewBag.UserName ( @ViewBag.StoreName ) </span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <!-- User image -->
+                            <li class="user-header">
+                                @*<img src="/Content/AdminLTE/img/user2-160x160.jpg" class="img-circle" alt="User Image">*@
+                                <img src="/Content/picture/user2-160x160.jpg" class="img-circle" alt="User Image">
+                                <p>
+                                    @ViewBag.StoreName: @ViewBag.UserName
+                                    <small>@ViewBag.RoleName</small>                                   
+                                </p>
+                            </li>
+                            <!-- Menu Body -->
+                            <li class="user-body">
+                                    <div class="row">
+                                        <div class="col-xs-4 text-center">                                         
+                                        </div>
+                                        <div class="col-xs-4 text-center">                                           
+                                        </div>
+                                        <div class="col-xs-4 text-center">                                          
+                                        </div>
+                                    </div>
+                                </li>
+                            <!-- Menu Footer-->
+                            <li class="user-footer">
+                                <div class="pull-left">
+                                    <a href="javascript:showTab('修改密码','/Account/ChangePassword')" class="btn btn-warning btn-flat">修改密码</a>
+                                </div>
+                                <div class="pull-right">
+                                    <a href="/Account/LogOut" class="btn btn-default btn-flat" target="_top">注 销</a>
+                                </div>
+                            </li>
+                        </ul>
+                    </li>
+                    <!-- Control Sidebar Toggle Button -->
+                    @*<li>
+                            <a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>
+                        </li>*@
+                </ul>
             </div>
-            <div class="icon">
-                <i class="ion ion-stats-bars"></i>
-            </div>
-            <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
-        </div>
-    </div>
-    <!-- ./col -->
-    <div class="col-lg-3 col-xs-6">
-        <!-- small box -->
-        <div class="small-box bg-yellow">
-            <div class="inner">
-                <h3>44</h3>
+        </nav>
+    </header>
 
-                <p>User Registrations</p>
-            </div>
-            <div class="icon">
-                <i class="ion ion-person-add"></i>
-            </div>
-            <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
-        </div>
-    </div>
-    <!-- ./col -->
-    <div class="col-lg-3 col-xs-6">
-        <!-- small box -->
-        <div class="small-box bg-red">
-            <div class="inner">
-                <h3>65</h3>
-
-                <p>Unique Visitors</p>
-            </div>
-            <div class="icon">
-                <i class="ion ion-pie-graph"></i>
-            </div>
-            <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
-        </div>
-    </div>
-    <!-- ./col -->
-</div>
-<!--导航数据-->
-<div class="nav-tabs-custom" style="cursor: move;">
-    <!-- Tabs within a box -->
-    <ul class="nav nav-tabs  ui-sortable-handle">
-        <li class="active"><a href="#revenue-chart" data-toggle="tab">Area</a></li>
-        <li><a href="#sales-chart" data-toggle="tab">Donut</a></li>
-        <li class="pull-right header"><i class="fa fa-inbox"></i> Sales</li>
-    </ul>
-    <div class="tab-content no-padding">
-        <!-- Morris chart - Sales -->
-        <div class="chart tab-pane active" id="revenue-chart" style="position: relative; height: 300px; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);">
-            <svg height="300" version="1.1" width="946" xmlns="http://www.w3.org/2000/svg" style="overflow: hidden; position: relative;"><desc style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Created with Raphaël 2.1.0</desc><defs style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></defs><text x="48.5" y="263" text-anchor="end" font="10px &quot;Arial&quot;" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: end; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: sans-serif;" font-size="12px" font-family="sans-serif" font-weight="normal"><tspan dy="4" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">0</tspan></text><path fill="none" stroke="#aaaaaa" d="M61,263H921" stroke-width="0.5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><text x="48.5" y="203.5" text-anchor="end" font="10px &quot;Arial&quot;" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: end; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: sans-serif;" font-size="12px" font-family="sans-serif" font-weight="normal"><tspan dy="4" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">7,500</tspan></text><path fill="none" stroke="#aaaaaa" d="M61,203.5H921" stroke-width="0.5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><text x="48.5" y="144" text-anchor="end" font="10px &quot;Arial&quot;" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: end; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: sans-serif;" font-size="12px" font-family="sans-serif" font-weight="normal"><tspan dy="4" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">15,000</tspan></text><path fill="none" stroke="#aaaaaa" d="M61,144H921" stroke-width="0.5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><text x="48.5" y="84.5" text-anchor="end" font="10px &quot;Arial&quot;" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: end; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: sans-serif;" font-size="12px" font-family="sans-serif" font-weight="normal"><tspan dy="4" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">22,500</tspan></text><path fill="none" stroke="#aaaaaa" d="M61,84.5H921" stroke-width="0.5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><text x="48.5" y="24.99999999999997" text-anchor="end" font="10px &quot;Arial&quot;" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: end; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: sans-serif;" font-size="12px" font-family="sans-serif" font-weight="normal"><tspan dy="3.9999999999999716" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">30,000</tspan></text><path fill="none" stroke="#aaaaaa" d="M61,24.99999999999997H921" stroke-width="0.5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><text x="921" y="275.5" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: sans-serif;" font-size="12px" font-family="sans-serif" font-weight="normal" transform="matrix(1,0,0,1,0,6)"><tspan dy="4" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">2013-06</tspan></text><text x="824.8639125151883" y="275.5" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: sans-serif;" font-size="12px" font-family="sans-serif" font-weight="normal" transform="matrix(1,0,0,1,0,6)"><tspan dy="4" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">2013-03</tspan></text><text x="730.8177399756986" y="275.5" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: sans-serif;" font-size="12px" font-family="sans-serif" font-weight="normal" transform="matrix(1,0,0,1,0,6)"><tspan dy="4" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">2012-12</tspan></text><text x="635.726609963548" y="275.5" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: sans-serif;" font-size="12px" font-family="sans-serif" font-weight="normal" transform="matrix(1,0,0,1,0,6)"><tspan dy="4" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">2012-09</tspan></text><text x="539.5905224787364" y="275.5" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: sans-serif;" font-size="12px" font-family="sans-serif" font-weight="normal" transform="matrix(1,0,0,1,0,6)"><tspan dy="4" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">2012-06</tspan></text><text x="443.4544349939247" y="275.5" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: sans-serif;" font-size="12px" font-family="sans-serif" font-weight="normal" transform="matrix(1,0,0,1,0,6)"><tspan dy="4" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">2012-03</tspan></text><text x="348.363304981774" y="275.5" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: sans-serif;" font-size="12px" font-family="sans-serif" font-weight="normal" transform="matrix(1,0,0,1,0,6)"><tspan dy="4" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">2011-12</tspan></text><text x="253.27217496962334" y="275.5" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: sans-serif;" font-size="12px" font-family="sans-serif" font-weight="normal" transform="matrix(1,0,0,1,0,6)"><tspan dy="4" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">2011-09</tspan></text><text x="157.13608748481167" y="275.5" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: sans-serif;" font-size="12px" font-family="sans-serif" font-weight="normal" transform="matrix(1,0,0,1,0,6)"><tspan dy="4" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">2011-06</tspan></text><text x="61" y="275.5" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: sans-serif;" font-size="12px" font-family="sans-serif" font-weight="normal" transform="matrix(1,0,0,1,0,6)"><tspan dy="4" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">2011-03</tspan></text><path fill="#74a5c1" stroke="none" d="M61,220.69946666666667C85.03402187120292,221.21513333333334,133.10206561360874,224.298225,157.13608748481167,222.76213333333334C181.1701093560146,221.22604166666667,229.2381530984204,210.69605355191257,253.27217496962334,208.41073333333333C277.044957472661,206.15025355191256,324.5905224787363,206.406575,348.363304981774,204.57893333333334C372.13608748481164,202.75129166666667,419.681652490887,196.3528578324226,443.4544349939247,193.7896C467.4884568651276,191.19817449908925,515.5565006075335,183.85210833333332,539.5905224787364,183.9602C563.6245443499392,184.06829166666665,611.6925880923451,205.69905063752276,635.726609963548,194.65433333333334C659.4993924665856,183.72966730418943,707.0449574726609,102.59602099447513,730.8177399756986,96.08266666666665C754.329283110571,89.64088766114179,801.3523693803158,136.07139615384614,824.8639125151883,142.8338C848.8979343863912,149.74647948717947,896.9659781287971,148.79569999999998,921,150.783L921,263L61,263Z" fill-opacity="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); fill-opacity: 1;"></path><path fill="none" stroke="#3c8dbc" d="M61,220.69946666666667C85.03402187120292,221.21513333333334,133.10206561360874,224.298225,157.13608748481167,222.76213333333334C181.1701093560146,221.22604166666667,229.2381530984204,210.69605355191257,253.27217496962334,208.41073333333333C277.044957472661,206.15025355191256,324.5905224787363,206.406575,348.363304981774,204.57893333333334C372.13608748481164,202.75129166666667,419.681652490887,196.3528578324226,443.4544349939247,193.7896C467.4884568651276,191.19817449908925,515.5565006075335,183.85210833333332,539.5905224787364,183.9602C563.6245443499392,184.06829166666665,611.6925880923451,205.69905063752276,635.726609963548,194.65433333333334C659.4993924665856,183.72966730418943,707.0449574726609,102.59602099447513,730.8177399756986,96.08266666666665C754.329283110571,89.64088766114179,801.3523693803158,136.07139615384614,824.8639125151883,142.8338C848.8979343863912,149.74647948717947,896.9659781287971,148.79569999999998,921,150.783" stroke-width="3" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><circle cx="61" cy="220.69946666666667" r="4" fill="#3c8dbc" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="157.13608748481167" cy="222.76213333333334" r="4" fill="#3c8dbc" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="253.27217496962334" cy="208.41073333333333" r="4" fill="#3c8dbc" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="348.363304981774" cy="204.57893333333334" r="4" fill="#3c8dbc" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="443.4544349939247" cy="193.7896" r="4" fill="#3c8dbc" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="539.5905224787364" cy="183.9602" r="4" fill="#3c8dbc" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="635.726609963548" cy="194.65433333333334" r="4" fill="#3c8dbc" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="730.8177399756986" cy="96.08266666666665" r="4" fill="#3c8dbc" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="824.8639125151883" cy="142.8338" r="4" fill="#3c8dbc" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="921" cy="150.783" r="4" fill="#3c8dbc" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><path fill="#eaf2f5" stroke="none" d="M61,241.84973333333335C85.03402187120292,241.6276,133.10206561360874,243.18848333333332,157.13608748481167,240.9612C181.1701093560146,238.73391666666666,229.2381530984204,225.01758433515482,253.27217496962334,224.03146666666666C277.044957472661,223.05606766848817,324.5905224787363,234.99731666666668,348.363304981774,233.11513333333335C372.13608748481164,231.23295000000002,419.681652490887,210.85082941712204,443.4544349939247,208.974C467.4884568651276,207.07654608378868,515.5565006075335,216.04458333333332,539.5905224787364,218.018C563.6245443499392,219.99141666666668,611.6925880923451,234.13692932604738,635.726609963548,224.76133333333334C659.4993924665856,215.48764599271402,707.0449574726609,149.27111924493553,730.8177399756986,143.42086666666665C754.329283110571,137.63490257826885,801.3523693803158,171.7031782051282,824.8639125151883,178.21646666666666C848.8979343863912,184.87449487179487,896.9659781287971,191.63371666666666,921,196.10613333333333L921,263L61,263Z" fill-opacity="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); fill-opacity: 1;"></path><path fill="none" stroke="#a0d0e0" d="M61,241.84973333333335C85.03402187120292,241.6276,133.10206561360874,243.18848333333332,157.13608748481167,240.9612C181.1701093560146,238.73391666666666,229.2381530984204,225.01758433515482,253.27217496962334,224.03146666666666C277.044957472661,223.05606766848817,324.5905224787363,234.99731666666668,348.363304981774,233.11513333333335C372.13608748481164,231.23295000000002,419.681652490887,210.85082941712204,443.4544349939247,208.974C467.4884568651276,207.07654608378868,515.5565006075335,216.04458333333332,539.5905224787364,218.018C563.6245443499392,219.99141666666668,611.6925880923451,234.13692932604738,635.726609963548,224.76133333333334C659.4993924665856,215.48764599271402,707.0449574726609,149.27111924493553,730.8177399756986,143.42086666666665C754.329283110571,137.63490257826885,801.3523693803158,171.7031782051282,824.8639125151883,178.21646666666666C848.8979343863912,184.87449487179487,896.9659781287971,191.63371666666666,921,196.10613333333333" stroke-width="3" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><circle cx="61" cy="241.84973333333335" r="4" fill="#a0d0e0" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="157.13608748481167" cy="240.9612" r="4" fill="#a0d0e0" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="253.27217496962334" cy="224.03146666666666" r="4" fill="#a0d0e0" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="348.363304981774" cy="233.11513333333335" r="4" fill="#a0d0e0" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="443.4544349939247" cy="208.974" r="4" fill="#a0d0e0" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="539.5905224787364" cy="218.018" r="4" fill="#a0d0e0" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="635.726609963548" cy="224.76133333333334" r="4" fill="#a0d0e0" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="730.8177399756986" cy="143.42086666666665" r="4" fill="#a0d0e0" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="824.8639125151883" cy="178.21646666666666" r="4" fill="#a0d0e0" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="921" cy="196.10613333333333" r="4" fill="#a0d0e0" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle></svg><div class="morris-hover morris-default-style" style="left: 301.863px; top: 137px; display: none;">
-                <div class="morris-hover-row-label">2011 Q4</div><div class="morris-hover-point" style="color: #a0d0e0">
-                    Item 1:
-                    3,767
-                </div><div class="morris-hover-point" style="color: #3c8dbc">
-                    Item 2:
-                    3,597
+    <!-- =============================================== -->
+    <!-- Left side column. contains the sidebar -->
+    <aside class="main-sidebar">
+        <!-- sidebar: style can be found in sidebar.less -->
+        <section class="sidebar">
+            <!-- Sidebar user panel -->
+            <div class="user-panel">
+                <div class="pull-left image">
+                    @*<img src="/Content/AdminLTE/img/user2-160x160.jpg" class="img-circle" alt="User Image">*@
+                    <img src="/Content/picture/user2-160x160.jpg" class="img-circle" alt="User Image">
+                    @*<span class="glyphicon glyphicon-user img-circle" style="max-width:45px;width:100%;height:auto"></span>*@
+                </div>
+                <div class="pull-left info">
+                    <p>欢迎您</p>
+                    <a href="#"><i class="fa fa-circle text-success"></i>@ViewBag.UserName</a>
                 </div>
             </div>
-        </div>
-        <div class="chart tab-pane" id="sales-chart" style="position: relative; height: 300px;"><svg height="300" version="1.1" width="976" xmlns="http://www.w3.org/2000/svg" style="overflow: hidden; position: relative;"><desc style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Created with Raphaël 2.1.0</desc><defs style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></defs><path fill="none" stroke="#3c8dbc" d="M488,243.33333333333331A93.33333333333333,93.33333333333333,0,0,0,576.227755194977,180.44625304313007" stroke-width="2" opacity="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); opacity: 0;"></path><path fill="#3c8dbc" stroke="#ffffff" d="M488,246.33333333333331A96.33333333333333,96.33333333333333,0,0,0,579.0636473262442,181.4248826052307L615.6151459070204,194.03833029452744A135,135,0,0,1,488,285Z" stroke-width="3" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><path fill="none" stroke="#f56954" d="M576.227755194977,180.44625304313007A93.33333333333333,93.33333333333333,0,0,0,404.28484627831415,108.73398312817662" stroke-width="2" opacity="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); opacity: 1;"></path><path fill="#f56954" stroke="#ffffff" d="M579.0636473262442,181.4248826052307A96.33333333333333,96.33333333333333,0,0,0,401.59400205154566,107.40757544301087L362.42726941747117,88.10097469226493A140,140,0,0,1,620.3416327924656,195.6693795646951Z" stroke-width="3" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><path fill="none" stroke="#00a65a" d="M404.28484627831415,108.73398312817662A93.33333333333333,93.33333333333333,0,0,0,487.97067846904883,243.333328727518" stroke-width="2" opacity="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); opacity: 0;"></path><path fill="#00a65a" stroke="#ffffff" d="M401.59400205154566,107.40757544301087A96.33333333333333,96.33333333333333,0,0,0,487.96973599126824,246.3333285794739L487.9575884998742,284.9999933380171A135,135,0,0,1,366.9120097954186,90.31165416754118Z" stroke-width="3" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><text x="488" y="140" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="15px" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: 800; font-stretch: normal; font-size: 15px; line-height: normal; font-family: Arial;" font-weight="800" transform="matrix(1,0,0,1,0,0)"><tspan dy="140" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">In-Store Sales</tspan></text><text x="488" y="160" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="14px" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 14px; line-height: normal; font-family: Arial;" transform="matrix(1,0,0,1,0,0)"><tspan dy="160" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">30</tspan></text></svg></div>
-    </div>
-</div>
+            <ul class="sidebar-menu" id="menu">
+                @Html.Action("MenuTree", "Home")
+            </ul>
+        </section>
+        <!-- /.sidebar -->
+    </aside>
 
-<div class="nav-tabs-custom" style="cursor: move;">
-    <!-- Tabs within a box -->
-    <ul class="nav nav-tabs  ui-sortable-handle">
-        <li class="active"><a href="#revenue-chart" data-toggle="tab">Area</a></li>
-        <li><a href="#sales-chart" data-toggle="tab">Donut</a></li>
-        <li class="pull-right header"><i class="fa fa-inbox"></i> Sales</li>
-    </ul>
-    <div class="tab-content no-padding">
-        <!-- Morris chart - Sales -->
-        <div class="chart tab-pane active" id="revenue-chart" style="position: relative; height: 300px; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);">
-            <svg height="300" version="1.1" width="946" xmlns="http://www.w3.org/2000/svg" style="overflow: hidden; position: relative;"><desc style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Created with Raphaël 2.1.0</desc><defs style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></defs><text x="48.5" y="263" text-anchor="end" font="10px &quot;Arial&quot;" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: end; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: sans-serif;" font-size="12px" font-family="sans-serif" font-weight="normal"><tspan dy="4" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">0</tspan></text><path fill="none" stroke="#aaaaaa" d="M61,263H921" stroke-width="0.5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><text x="48.5" y="203.5" text-anchor="end" font="10px &quot;Arial&quot;" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: end; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: sans-serif;" font-size="12px" font-family="sans-serif" font-weight="normal"><tspan dy="4" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">7,500</tspan></text><path fill="none" stroke="#aaaaaa" d="M61,203.5H921" stroke-width="0.5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><text x="48.5" y="144" text-anchor="end" font="10px &quot;Arial&quot;" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: end; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: sans-serif;" font-size="12px" font-family="sans-serif" font-weight="normal"><tspan dy="4" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">15,000</tspan></text><path fill="none" stroke="#aaaaaa" d="M61,144H921" stroke-width="0.5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><text x="48.5" y="84.5" text-anchor="end" font="10px &quot;Arial&quot;" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: end; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: sans-serif;" font-size="12px" font-family="sans-serif" font-weight="normal"><tspan dy="4" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">22,500</tspan></text><path fill="none" stroke="#aaaaaa" d="M61,84.5H921" stroke-width="0.5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><text x="48.5" y="24.99999999999997" text-anchor="end" font="10px &quot;Arial&quot;" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: end; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: sans-serif;" font-size="12px" font-family="sans-serif" font-weight="normal"><tspan dy="3.9999999999999716" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">30,000</tspan></text><path fill="none" stroke="#aaaaaa" d="M61,24.99999999999997H921" stroke-width="0.5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><text x="921" y="275.5" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: sans-serif;" font-size="12px" font-family="sans-serif" font-weight="normal" transform="matrix(1,0,0,1,0,6)"><tspan dy="4" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">2013-06</tspan></text><text x="824.8639125151883" y="275.5" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: sans-serif;" font-size="12px" font-family="sans-serif" font-weight="normal" transform="matrix(1,0,0,1,0,6)"><tspan dy="4" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">2013-03</tspan></text><text x="730.8177399756986" y="275.5" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: sans-serif;" font-size="12px" font-family="sans-serif" font-weight="normal" transform="matrix(1,0,0,1,0,6)"><tspan dy="4" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">2012-12</tspan></text><text x="635.726609963548" y="275.5" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: sans-serif;" font-size="12px" font-family="sans-serif" font-weight="normal" transform="matrix(1,0,0,1,0,6)"><tspan dy="4" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">2012-09</tspan></text><text x="539.5905224787364" y="275.5" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: sans-serif;" font-size="12px" font-family="sans-serif" font-weight="normal" transform="matrix(1,0,0,1,0,6)"><tspan dy="4" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">2012-06</tspan></text><text x="443.4544349939247" y="275.5" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: sans-serif;" font-size="12px" font-family="sans-serif" font-weight="normal" transform="matrix(1,0,0,1,0,6)"><tspan dy="4" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">2012-03</tspan></text><text x="348.363304981774" y="275.5" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: sans-serif;" font-size="12px" font-family="sans-serif" font-weight="normal" transform="matrix(1,0,0,1,0,6)"><tspan dy="4" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">2011-12</tspan></text><text x="253.27217496962334" y="275.5" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: sans-serif;" font-size="12px" font-family="sans-serif" font-weight="normal" transform="matrix(1,0,0,1,0,6)"><tspan dy="4" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">2011-09</tspan></text><text x="157.13608748481167" y="275.5" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: sans-serif;" font-size="12px" font-family="sans-serif" font-weight="normal" transform="matrix(1,0,0,1,0,6)"><tspan dy="4" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">2011-06</tspan></text><text x="61" y="275.5" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: sans-serif;" font-size="12px" font-family="sans-serif" font-weight="normal" transform="matrix(1,0,0,1,0,6)"><tspan dy="4" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">2011-03</tspan></text><path fill="#74a5c1" stroke="none" d="M61,220.69946666666667C85.03402187120292,221.21513333333334,133.10206561360874,224.298225,157.13608748481167,222.76213333333334C181.1701093560146,221.22604166666667,229.2381530984204,210.69605355191257,253.27217496962334,208.41073333333333C277.044957472661,206.15025355191256,324.5905224787363,206.406575,348.363304981774,204.57893333333334C372.13608748481164,202.75129166666667,419.681652490887,196.3528578324226,443.4544349939247,193.7896C467.4884568651276,191.19817449908925,515.5565006075335,183.85210833333332,539.5905224787364,183.9602C563.6245443499392,184.06829166666665,611.6925880923451,205.69905063752276,635.726609963548,194.65433333333334C659.4993924665856,183.72966730418943,707.0449574726609,102.59602099447513,730.8177399756986,96.08266666666665C754.329283110571,89.64088766114179,801.3523693803158,136.07139615384614,824.8639125151883,142.8338C848.8979343863912,149.74647948717947,896.9659781287971,148.79569999999998,921,150.783L921,263L61,263Z" fill-opacity="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); fill-opacity: 1;"></path><path fill="none" stroke="#3c8dbc" d="M61,220.69946666666667C85.03402187120292,221.21513333333334,133.10206561360874,224.298225,157.13608748481167,222.76213333333334C181.1701093560146,221.22604166666667,229.2381530984204,210.69605355191257,253.27217496962334,208.41073333333333C277.044957472661,206.15025355191256,324.5905224787363,206.406575,348.363304981774,204.57893333333334C372.13608748481164,202.75129166666667,419.681652490887,196.3528578324226,443.4544349939247,193.7896C467.4884568651276,191.19817449908925,515.5565006075335,183.85210833333332,539.5905224787364,183.9602C563.6245443499392,184.06829166666665,611.6925880923451,205.69905063752276,635.726609963548,194.65433333333334C659.4993924665856,183.72966730418943,707.0449574726609,102.59602099447513,730.8177399756986,96.08266666666665C754.329283110571,89.64088766114179,801.3523693803158,136.07139615384614,824.8639125151883,142.8338C848.8979343863912,149.74647948717947,896.9659781287971,148.79569999999998,921,150.783" stroke-width="3" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><circle cx="61" cy="220.69946666666667" r="4" fill="#3c8dbc" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="157.13608748481167" cy="222.76213333333334" r="4" fill="#3c8dbc" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="253.27217496962334" cy="208.41073333333333" r="4" fill="#3c8dbc" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="348.363304981774" cy="204.57893333333334" r="4" fill="#3c8dbc" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="443.4544349939247" cy="193.7896" r="4" fill="#3c8dbc" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="539.5905224787364" cy="183.9602" r="4" fill="#3c8dbc" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="635.726609963548" cy="194.65433333333334" r="4" fill="#3c8dbc" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="730.8177399756986" cy="96.08266666666665" r="4" fill="#3c8dbc" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="824.8639125151883" cy="142.8338" r="4" fill="#3c8dbc" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="921" cy="150.783" r="4" fill="#3c8dbc" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><path fill="#eaf2f5" stroke="none" d="M61,241.84973333333335C85.03402187120292,241.6276,133.10206561360874,243.18848333333332,157.13608748481167,240.9612C181.1701093560146,238.73391666666666,229.2381530984204,225.01758433515482,253.27217496962334,224.03146666666666C277.044957472661,223.05606766848817,324.5905224787363,234.99731666666668,348.363304981774,233.11513333333335C372.13608748481164,231.23295000000002,419.681652490887,210.85082941712204,443.4544349939247,208.974C467.4884568651276,207.07654608378868,515.5565006075335,216.04458333333332,539.5905224787364,218.018C563.6245443499392,219.99141666666668,611.6925880923451,234.13692932604738,635.726609963548,224.76133333333334C659.4993924665856,215.48764599271402,707.0449574726609,149.27111924493553,730.8177399756986,143.42086666666665C754.329283110571,137.63490257826885,801.3523693803158,171.7031782051282,824.8639125151883,178.21646666666666C848.8979343863912,184.87449487179487,896.9659781287971,191.63371666666666,921,196.10613333333333L921,263L61,263Z" fill-opacity="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); fill-opacity: 1;"></path><path fill="none" stroke="#a0d0e0" d="M61,241.84973333333335C85.03402187120292,241.6276,133.10206561360874,243.18848333333332,157.13608748481167,240.9612C181.1701093560146,238.73391666666666,229.2381530984204,225.01758433515482,253.27217496962334,224.03146666666666C277.044957472661,223.05606766848817,324.5905224787363,234.99731666666668,348.363304981774,233.11513333333335C372.13608748481164,231.23295000000002,419.681652490887,210.85082941712204,443.4544349939247,208.974C467.4884568651276,207.07654608378868,515.5565006075335,216.04458333333332,539.5905224787364,218.018C563.6245443499392,219.99141666666668,611.6925880923451,234.13692932604738,635.726609963548,224.76133333333334C659.4993924665856,215.48764599271402,707.0449574726609,149.27111924493553,730.8177399756986,143.42086666666665C754.329283110571,137.63490257826885,801.3523693803158,171.7031782051282,824.8639125151883,178.21646666666666C848.8979343863912,184.87449487179487,896.9659781287971,191.63371666666666,921,196.10613333333333" stroke-width="3" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><circle cx="61" cy="241.84973333333335" r="4" fill="#a0d0e0" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="157.13608748481167" cy="240.9612" r="4" fill="#a0d0e0" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="253.27217496962334" cy="224.03146666666666" r="4" fill="#a0d0e0" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="348.363304981774" cy="233.11513333333335" r="4" fill="#a0d0e0" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="443.4544349939247" cy="208.974" r="4" fill="#a0d0e0" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="539.5905224787364" cy="218.018" r="4" fill="#a0d0e0" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="635.726609963548" cy="224.76133333333334" r="4" fill="#a0d0e0" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="730.8177399756986" cy="143.42086666666665" r="4" fill="#a0d0e0" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="824.8639125151883" cy="178.21646666666666" r="4" fill="#a0d0e0" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle><circle cx="921" cy="196.10613333333333" r="4" fill="#a0d0e0" stroke="#ffffff" stroke-width="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></circle></svg><div class="morris-hover morris-default-style" style="left: 301.863px; top: 137px; display: none;">
-                <div class="morris-hover-row-label">2011 Q4</div><div class="morris-hover-point" style="color: #a0d0e0">
-                    Item 1:
-                    3,767
-                </div><div class="morris-hover-point" style="color: #3c8dbc">
-                    Item 2:
-                    3,597
+    <!-- =============================================== -->
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+        <section class="content" style="padding: 2px;">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div id="main-tab" class="nav-tabs-custom">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li id="main-tab-title-li-0" class="active"><a href="#main-tab-content-0" role="tab" data-toggle="tab">首 页</a></li>
+                        </ul>
+                        <div class="tab-content" style="padding: 1px 0px 0px 0px;">
+                            <div role="tabpanel" class="tab-pane active" id="main-tab-content-0" style="overflow-y:auto">
+                                <!--首页内容区域-->
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="chart tab-pane" id="sales-chart" style="position: relative; height: 300px;"><svg height="300" version="1.1" width="976" xmlns="http://www.w3.org/2000/svg" style="overflow: hidden; position: relative;"><desc style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Created with Raphaël 2.1.0</desc><defs style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></defs><path fill="none" stroke="#3c8dbc" d="M488,243.33333333333331A93.33333333333333,93.33333333333333,0,0,0,576.227755194977,180.44625304313007" stroke-width="2" opacity="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); opacity: 0;"></path><path fill="#3c8dbc" stroke="#ffffff" d="M488,246.33333333333331A96.33333333333333,96.33333333333333,0,0,0,579.0636473262442,181.4248826052307L615.6151459070204,194.03833029452744A135,135,0,0,1,488,285Z" stroke-width="3" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><path fill="none" stroke="#f56954" d="M576.227755194977,180.44625304313007A93.33333333333333,93.33333333333333,0,0,0,404.28484627831415,108.73398312817662" stroke-width="2" opacity="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); opacity: 1;"></path><path fill="#f56954" stroke="#ffffff" d="M579.0636473262442,181.4248826052307A96.33333333333333,96.33333333333333,0,0,0,401.59400205154566,107.40757544301087L362.42726941747117,88.10097469226493A140,140,0,0,1,620.3416327924656,195.6693795646951Z" stroke-width="3" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><path fill="none" stroke="#00a65a" d="M404.28484627831415,108.73398312817662A93.33333333333333,93.33333333333333,0,0,0,487.97067846904883,243.333328727518" stroke-width="2" opacity="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); opacity: 0;"></path><path fill="#00a65a" stroke="#ffffff" d="M401.59400205154566,107.40757544301087A96.33333333333333,96.33333333333333,0,0,0,487.96973599126824,246.3333285794739L487.9575884998742,284.9999933380171A135,135,0,0,1,366.9120097954186,90.31165416754118Z" stroke-width="3" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><text x="488" y="140" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="15px" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: 800; font-stretch: normal; font-size: 15px; line-height: normal; font-family: Arial;" font-weight="800" transform="matrix(1,0,0,1,0,0)"><tspan dy="140" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">In-Store Sales</tspan></text><text x="488" y="160" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="14px" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 14px; line-height: normal; font-family: Arial;" transform="matrix(1,0,0,1,0,0)"><tspan dy="160" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">30</tspan></text></svg></div>
+        </section>
+        <!-- /.content -->
     </div>
+    <!-- /.content-wrapper -->
+
+    <footer class="main-footer  navbar-fixed-bottom">
+        <div class="pull-right hidden-xs">
+            <b>Version</b> 1.0.0
+        </div>
+        <strong>Copyright &copy; 2016 <a href="http://almsaeedstudio.com"></a>.</strong> 备案信息
+    </footer>
 </div>

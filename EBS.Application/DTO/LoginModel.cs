@@ -47,6 +47,10 @@ namespace EBS.Application.DTO
        public string NickName { get; set; }
        public int RoleId { get; set; }
 
+       public string RoleName { get; set; }
+
+       public string StoreName { get; set; }
+
        public int StoreId { get; set; }
         /// <summary>
         /// 逗号分隔门店ID 字符串，为空表示可查看所有

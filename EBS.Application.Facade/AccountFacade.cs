@@ -22,9 +22,17 @@ namespace EBS.Application.Service
         {
             model.Validate();
             var account = _accountService.CheckAccount(model.UserName, model.Password, model.IpAddress);
-            return new AccountInfo() { AccountId = account.Id, UserName = account.UserName,
+            var role = _db.Table.Find<Role>(account.RoleId);
+            var storeName = "总公司";
+            if (account.StoreId > 0)
+            {
+                storeName = _db.Table.Find<Store>(account.StoreId).Name;
+            }
+            return new AccountInfo() { 
+                AccountId = account.Id, UserName = account.UserName,
                 RoleId = account.RoleId ,NickName = account.NickName,
-                StoreId = account.StoreId,
+                StoreId = account.StoreId, RoleName = role.Name,
+                StoreName = storeName,
                 CanViewStores = account.CanViewStores
             };
         }

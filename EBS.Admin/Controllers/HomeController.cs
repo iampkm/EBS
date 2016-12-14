@@ -35,13 +35,12 @@ namespace EBS.Admin.Controllers
 
         public ActionResult DashBoard()
         {
+            ViewBag.UserName = _context.CurrentAccount.NickName;
+            ViewBag.RoleName = _context.CurrentAccount.RoleName;
+            ViewBag.StoreName = _context.CurrentAccount.StoreName;
             return View();
         }
-
-        public string CurrentUser()
-        {
-            return _context.CurrentAccount.NickName;
-        }
+       
 
         private string loadMenu()
         {
