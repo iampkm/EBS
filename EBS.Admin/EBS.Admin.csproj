@@ -1247,6 +1247,8 @@
     <Content Include="Views\Stocktaking\Correct.cshtml" />
     <Content Include="Views\Stocktaking\AuditIndex.cshtml" />
     <Content Include="Views\Stocktaking\Edit.cshtml" />
+    <Content Include="Views\StorePurchaseOrder\RefundIndex.cshtml" />
+    <Content Include="Views\StorePurchaseOrder\Refund.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">

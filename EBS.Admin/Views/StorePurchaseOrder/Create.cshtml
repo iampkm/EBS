@@ -1,11 +1,17 @@
 ﻿@{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
-<style>
-    .dataRow div {
-        margin-bottom: 0px;
-    }
-</style>
+@section styles{
+    <link href="~/Content/zTree.min.css" rel="stylesheet" />
+    <style>
+        .ztree li span {
+            font-size: 14px;
+        }
+        .dataRow div {
+            margin-bottom: 0px;
+        }
+    </style>
+}
 <!-- demo root element -->
 <div id="app" class="box box-primary">
     <div class="box-header with-border">
@@ -27,24 +33,16 @@
                 </div>
             </div>
             <div class="row">
-                <div class="form-group col-sm-2 col-xs-3">
-                    <div class="input-group ">
-                        <input type="hidden" class="form-control" v-model="model.supplierId">
-                        <input type="text" class="form-control" v-model="selectSupplier.name" placeholder="选择供应商" readonly>
-                        <span class="input-group-btn">
-                            <button class="btn btn-flat btn-default" type="button" v-on:click="showSupplier"><i class="fa fa-search"></i></button>
-                        </span>
-                    </div>
-                </div>
-                <div class="form-group col-sm-2 col-xs-3">
+                <div class="col-sm-2 col-xs-3" v-show="selectStore.view">
                     <div class="input-group ">
                         <input type="hidden" class="form-control" v-model="model.storeId">
                         <input type="text" class="form-control" v-model="selectStore.name" placeholder="选择门店" readonly>
                         <span class="input-group-btn">
                             <button class="btn btn-flat btn-default" type="button" v-on:click="showStore"><i class="fa fa-search"></i></button>
+                            @*<button class="btn btn-flat btn-default" type="button" v-on:click="clearStore"><i class="fa fa-eraser"></i></button>*@
                         </span>
                     </div>
-                </div>               
+                </div>              
             </div>
             <div class="row">
                 <div class="col-xs-4 col-sm-4"></div>
@@ -97,7 +95,7 @@
                                     <th>单位</th>
                                     <th>合同进价</th>
                                     <th>进价</th>
-                                    <th>件规</th>
+                                    <th style="width:120px;">件规</th>
                                     <th>订货件数</th>
                                     <th style="width:100px;">订货数量</th>
                                     <th>实收件数</th>
@@ -121,12 +119,12 @@
                                     <td>{{item.ProductName}}</td>
                                     <td>{{item.Specification}}</td>
                                     <td>{{item.Unit}}</td>
-                                    <td>￥{{item.ContractPrice}}</td>
-                                    <td v-bind:class="{'text-danger':item.ContractPrice>item.Price}">￥{{model.isGift?0:item.Price}}</td>
-                                    <td>
-                                        <select v-model="item.SpecificationQuantity">
+                                    <td>{{item.ContractPrice.toFixed(2)}}</td>
+                                    <td v-bind:class="{'text-danger':item.ContractPrice>item.Price}">{{model.isGift?0:item.ContractPrice.toFixed(2)}}</td>
+                                    <td >
+                                        <select class="form-control" v-model="item.SpecificationQuantity">
                                             <option v-for="option in item.SpecificationQuantitys" v-bind:value="option">
-                                                1 * {{ option }}
+                                                1 × {{ option }}
                                             </option>
                                         </select>
                                     </td>
@@ -138,7 +136,7 @@
                                     <td>
                                         {{item.ActualQuantity}}
                                     </td>
-                                    <td>￥{{item.Amount}}</td>
+                                    <td>{{item.Amount.toFixed(2)}}</td>
                                     <td>{{item.ProductionDate}}</td>
                                     <td >
                                        {{item.ShelfLife}}
@@ -161,7 +159,7 @@
                                     <td>{{totalQuantity}}</td>
                                     <td></td>
                                     <td></td>
-                                    <td>￥{{countTotal}}</td>
+                                    <td>{{countTotal.toFixed(2)}}</td>
                                     <td></td>
                                     <td class="dataRow"></td>
                                 </tr>
@@ -192,42 +190,16 @@
             <v-input type="textarea" help="请将excel中商品编号和数量两列粘贴到文本框中" v-bind:value.sync="inputProducts" placeholder="输入商品" required icon></v-input>
         </div>
     </v-modal>
-    <v-modal title="选择供应商" ok-text="确 定" cancel-text="取 消" v-bind:callback="getSupplier" v-bind:show.sync="selectSupplier.modal" v-bind:effect="fade" width="50%">
+    <v-modal title="选择门店" ok-text="确 定" cancel-text="取 消" v-bind:callback="getStore" v-bind:show.sync="selectStore.modal" v-bind:effect="fade" width="60%">
         <div slot="modal-body" class="modal-body">
-            <vue-table v-bind:columns="selectSupplier.gridColumns"
-                       v-bind:url="selectSupplier.url" v-bind:show-toolbar="false"
-                       v-bind:args="selectSupplier.searchArgs" v-bind:data.sync="selectSupplier.rows">
-                <div class="row" style="margin-bottom:10px;" slot="customSearch">
-                    <div class="col-xs-4 col-sm-3">
-                        <input class="form-control" v-model="selectSupplier.searchArgs.code" placeholder="输入供应编码" debounce="300" />
-                    </div>
-                    <div class="col-xs-4 col-sm-3">
-                        <input class="form-control" v-model="selectSupplier.searchArgs.name" placeholder="输入供应商名" debounce="300" />
-                    </div>
-                </div>
-            </vue-table>
-        </div>
-    </v-modal>
-    <v-modal title="选择门店" ok-text="确 定" cancel-text="取 消" v-bind:callback="getStore" v-bind:show.sync="selectStore.modal" v-bind:effect="fade" width="50%">
-        <div slot="modal-body" class="modal-body">
-            <vue-table v-bind:columns="selectStore.gridColumns"
-                       v-bind:url="selectStore.url" v-bind:show-toolbar="false"
-                       v-bind:args="selectStore.searchArgs" v-bind:data.sync="selectStore.rows">
-                <div class="row" style="margin-bottom:10px;" slot="customSearch">
-                    <div class="col-xs-4 col-sm-3">
-                        <input class="form-control" v-model="searchArgs.code" placeholder="门店编码" debounce="500" />
-                    </div>
-                    <div class="col-xs-4 col-sm-3">
-                        <input class="form-control" v-model="selectStore.searchArgs.name" placeholder="门店名" debounce="300" />
-                    </div>
-                </div>
-            </vue-table>
+            <div style="min-height:350px;max-height:500px;overflow:auto;"><ul id="ztree" class="ztree"></ul></div>
         </div>
     </v-modal>
 </div>
 @{Html.RenderPartial("VueTableTemplate");}
 @section scripts{
     <script src="~/Content/Vue/vuetable/vuetable.js"></script>
+<script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
     <script>
         $("doucument").ready(function () {
             var demo = new Vue({
@@ -244,10 +216,11 @@
                     model: {
                         id: 0,
                         code: '',
-                        storeId: 0,
+                        storeId: @ViewBag.StoreId,
                         supplierId: 0,
                         isGift:@ViewBag.IsGift,
-                        items: ''
+                        items: '',
+                        orderType:1,
                     },
                     products: [{
                         ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', ContractPrice: 0, Price: 0,
@@ -258,27 +231,12 @@
                     inputProducts: '',
                     selectSupplier: {
                         modal: false,
-                        name: '',
-                        gridColumns: [
-                            { name: 'Code', localName: '编码', width: '100' },
-                            { name: 'Name', localName: '供应商名', width: '300' },
-                            { name: 'SupplierType', localName: '类型', width: '100' },
-                        ],
-                        url: "/Supplier/LoadData",
-                        searchArgs: { name: '', code: '' },
-                        rows: []
+                        name: ''
                     },
                     selectStore: {
                         modal: false,
-                        name: '',
-                        gridColumns: [
-                            { name: 'Code', localName: '门店编码'},
-                           { name: 'Name', localName: '门店名' },
-                           { name: 'FullName', localName: '区域', width: '200' }
-                        ],
-                        url: "/Store/LoadData",
-                        searchArgs: { name: '' },
-                        rows: []
+                        name: '@ViewBag.StoreName',
+                        view:@ViewBag.View,                    
                     }
                 },
                 methods: {
@@ -289,7 +247,7 @@
                         for (var i = 0; i < _self.products.length; i++) {
                             var item = _self.products[i];
                             if (item.ProductId > 0 && item.Quantity > 0) {
-                                var price = _self.model.isGift?0:item.Price;
+                                var price = _self.model.isGift?0:item.ContractPrice;
                                 data += "{\"ProductId\":" + item.ProductId + ",\"ContractPrice\":" + item.ContractPrice 
                                      + ",\"Price\":" + price + ",\"Quantity\":" + item.Quantity + ",\"SpecificationQuantity\":" + item.SpecificationQuantity +"},";
                             }
@@ -316,20 +274,32 @@
                     importProduct: function () {
                         var inputItems = this.inputProducts;
                         var _self = this;
-                        if (inputItems == "") { return; }
-                        if (_self.model.supplierId == 0) { bootbox.alert("请选择供应商"); return; }
+                        if (inputItems == "") { return; }                      
                         if (_self.model.storeId == 0) { bootbox.alert("请选择门店"); return; }
                         var data = {
                             inputProducts: inputItems,
-                            supplierId: _self.model.supplierId,
                             storeId: _self.model.storeId
                         }
                         $.post("/StorePurchaseOrder/ImportProduct", data, function (result) {
                             if (result.success) {
                                 _self.products = [];
-                                result.data.forEach(function (item) {
+                                for(var i=0;i<result.data.length;i++)
+                                {
+                                    var item = result.data[i];
+                                    if(_self.model.supplierId==0){
+                                        _self.model.supplierId = item.SupplierId;
+                                        _self.selectSupplier.name = item.SupplierName;                                   
+                                    }
+                                    else{
+                                        //同一个单子，供应商应该一致
+                                        if(_self.model.supplierId!=item.SupplierId)
+                                        {
+                                            bootbox.alert("录入的商品供应商不一致");break;
+                                        }
+                                    }
                                     _self.products.push(item);
-                                });
+                                }
+                               
                                 _self.modal = false;
                                 //设置焦点,延迟500，等待vue.js 渲染完毕                              
                                 setTimeout(function () {
@@ -375,17 +345,27 @@
                     inputProduct: function (codeOrBarCode, index) {
                         var _self = this;
                         if (codeOrBarCode == "") { return; }
-                        if (_self.model.supplierId == 0) { bootbox.alert("请选择供应商"); return; }
                         if (_self.model.storeId == 0) { bootbox.alert("请选择门店"); return; }
                         var data = {
                             productCodeOrBarCode: codeOrBarCode,
-                            supplierId: _self.model.supplierId,
                             storeId: _self.model.storeId
                         }
                         //设置焦点
                         $.get("/StorePurchaseOrder/GetPurchaseOrderItem", data, function (result) {
-                            if (result.success) {                               
-                                _self.products.$set(index, result.data);
+                            if (result.success) {                                 
+                                if(_self.model.supplierId==0){
+                                    _self.model.supplierId = result.data.SupplierId;
+                                    _self.selectSupplier.name = result.data.SupplierName;                                   
+                                }
+                                else{
+                                    //同一个单子，供应商应该一致
+                                    if(_self.model.supplierId!=result.data.SupplierId)
+                                    {
+                                        bootbox.alert("录入的商品供应商不一致");return;
+                                    }
+                                }
+                                _self.products.$set(index, result.data); 
+                               
                                 //设置焦点,延迟500，等待vue.js 渲染完毕                              
                                 setTimeout(function () {                                 
                                     var selector = "tr:eq(" + index + ")";
@@ -408,33 +388,37 @@
                         else {
                             this.addRow(event);
                         }
-                    },
-                    showSupplier: function () {
-                        this.selectSupplier.modal = true;
-                    },
-                    getSupplier: function () {
-                        this.clearItems();
-                        var selecteds = this.selectSupplier.rows.filter(function (item) {
-                            return item.checked;
-                        });
-                        if (selecteds) {
-                            this.model.supplierId = selecteds[0].Id;
-                            this.selectSupplier.name = selecteds[0].Name;
-                            this.selectSupplier.modal = false;
-                        }
-                    },
+                    },                    
                     showStore: function () {
                         this.selectStore.modal = true;
                     },
+                    clearStore: function () {
+                        this.model.storeId = 0;
+                        this.selectStore.name = "";
+                    },
                     getStore: function () {
-                        this.clearItems();
-                        var selecteds = this.selectStore.rows.filter(function (item) {
-                            return item.checked;
-                        });                       
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree"); 
+                        var selecteds= treeObj.getCheckedNodes(true);
                         if (selecteds) {
-                            this.model.storeId = selecteds[0].Id;
-                            this.selectStore.name = selecteds[0].Name;
-                            this.selectStore.modal = false;
+                            var idArray = new Array();
+                            var nameArray = new Array();
+                            selecteds.forEach(function(item){
+                                if(item.level==1){
+                                    idArray.push(item.id);
+                                    nameArray.push(item.name);
+                                }
+                            })
+                            if(idArray.length>0){
+                                this.model.storeId = idArray[0];
+                                this.selectStore.name = nameArray[0];
+                                this.selectStore.modal = false;
+                                this.clearItems();
+                            }
+                            else
+                            {
+                                bootbox.alert("请选择一个门店");
+                            }
+                           
                         }
                     },
                     print: function () {
@@ -458,7 +442,7 @@
                         var _self = this;
                         this.products.forEach(function (item) {
                             var qty = parseInt(item.Quantity);
-                            var price = _self.model.isGift?0:item.Price;
+                            var price = _self.model.isGift?0:item.ContractPrice;
                             item.Amount = price * qty;
                             item.Amount =parseFloat(item.Amount.toFixed(2));
                             bookQty += qty;
@@ -471,7 +455,32 @@
                 }
             });
 
+            //加载门店tree
+            var zTreeObj;           
+            var setting = {
+                check: {
+                    enable:true
+                },               
+                async: {
+                    enable: true,
+                    url: "/Store/LoadStore",
+                    //autoParam: ["id", "name"]
+                },
+                callback:{
+                    onClick:function(event, treeId, treeNode){
+                        //点击展开/折叠节点
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                        var open = !treeNode.open;
+                        treeObj.expandNode(treeNode, open, false, false);
+                        // vue.searchArgs.categoryId =treeNode.id;                      
+                    }
+                }
+            };           
+            zTreeObj = $.fn.zTree.init($("#ztree"), setting);
+
         });
+
+       
     </script>
 }
 

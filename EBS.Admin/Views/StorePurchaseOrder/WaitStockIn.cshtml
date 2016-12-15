@@ -116,10 +116,10 @@
                                     <td>{{item.ProductName}}</td>
                                     <td>{{item.Specification}}</td>
                                     <td>{{item.Unit}}</td>
-                                    <td>￥{{item.ContractPrice}}</td>
-                                    <td>￥{{model.isGift?0:item.Price}}</td>
+                                    <td>{{item.ContractPrice.toFixed(2)}}</td>
+                                    <td>{{model.isGift?0:item.Price.toFixed(2)}}</td>
                                     <td>
-                                        1 * {{item.SpecificationQuantity}}
+                                        1 × {{item.SpecificationQuantity}}
                                     </td>
                                     <td>{{item.PackageQuantity}}</td>
                                     <td>
@@ -130,7 +130,7 @@
                                     <td>
                                         <input type="number"  class="form-control quantity" v-model="item.ActualQuantity" v-on:keyup.enter="inputNext($event)" />
                                     </td>
-                                    <td>￥{{item.Amount}}</td>
+                                    <td>{{item.Amount.toFixed(2)}}</td>
                                     <td>
                                         <input type="text" class="form-control datepicker" v-model="item.ProductionDate" readonly>
                                     </td>
@@ -154,7 +154,7 @@
                                     <td>{{totalQuantity}}</td>
                                     <td></td>
                                     <td>{{totalActualQuantity}}</td>
-                                    <td>￥{{countTotal}}</td>
+                                    <td>{{countTotal.toFixed(2)}}</td>
                                     <td></td>
                                     <td class="dataRow"></td>
                                 </tr>
@@ -245,6 +245,8 @@
                         $.post("/StorePurchaseOrder/ReceiveGoods", v_data, function (result) {
                             if (result.success) {
                                 bootbox.alert("保存成功！");
+                                //更改状态
+                                _self.model.status ="待入库";
                             }
                             else {
                                 bootbox.alert(result.error);

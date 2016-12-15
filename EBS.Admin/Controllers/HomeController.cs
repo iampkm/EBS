@@ -37,7 +37,7 @@ namespace EBS.Admin.Controllers
         {
             ViewBag.UserName = _context.CurrentAccount.NickName;
             ViewBag.RoleName = _context.CurrentAccount.RoleName;
-            ViewBag.StoreName = _context.CurrentAccount.StoreName;
+            ViewBag.StoreName = string.IsNullOrEmpty(_context.CurrentAccount.StoreName) ? "总公司" : _context.CurrentAccount.StoreName;
             return View();
         }
        

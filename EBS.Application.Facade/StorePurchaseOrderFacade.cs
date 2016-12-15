@@ -38,11 +38,17 @@ namespace EBS.Application.Facade
             entity = model.MapTo<StorePurchaseOrder>();
             entity.AddItems(model.ConvertJsonToItem());
             entity.Code = _sequenceService.GenerateNewCode(BillIdentity.StorePurchaseOrder);
+            var reason = "创建采购单";
+            if (entity.OrderType == OrderType.Refund)
+            {
+                reason = "创建采购退单";
+                entity.Status = PurchaseOrderStatus.WaitStockOut;
+            }
             _service.Create(entity);
             _db.SaveChange();
-            var reason = "创建采购单";
+           
             entity = _db.Table.Find<StorePurchaseOrder>(n => n.Code == entity.Code);
-            _processHistoryService.Track(model.CreatedBy, model.CreatedByName, (int)entity.Status, entity.Id, FormType.StorePurchaseOrder, reason);
+            _processHistoryService.Track(model.CreatedBy, model.CreatedByName, (int)entity.Status, entity.Id, BillIdentity.StorePurchaseOrder.ToString(), reason);
             _db.SaveChange();
         }
 
@@ -53,7 +59,7 @@ namespace EBS.Application.Facade
             entity.AddItems(model.ConvertJsonToItem());
             _service.UpdateWithItem(entity);
             var reason = "修改采购单";
-            _processHistoryService.Track(model.CreatedBy, model.CreatedByName, (int)entity.Status, entity.Id, FormType.StorePurchaseOrder, reason);
+            _processHistoryService.Track(model.CreatedBy, model.CreatedByName, (int)entity.Status, entity.Id, BillIdentity.StorePurchaseOrder.ToString(), reason);
             _db.SaveChange();
         }
 
@@ -62,7 +68,7 @@ namespace EBS.Application.Facade
             var entity = _db.Table.Find<StorePurchaseOrder>(id);
             entity.Cancel();
             _db.Update(entity);
-            _processHistoryService.Track(editBy, editor, (int)entity.Status, entity.Id, FormType.StorePurchaseOrder, reason);
+            _processHistoryService.Track(editBy, editor, (int)entity.Status, entity.Id, BillIdentity.StorePurchaseOrder.ToString(), reason);
             _db.SaveChange();
         }
 
@@ -72,45 +78,52 @@ namespace EBS.Application.Facade
             var entity = _db.Table.Find<StorePurchaseOrder>(id);
             entity.Submit();
             _db.Update(entity);
-            var reason = "等待收货";
-            _processHistoryService.Track(editBy, editor, (int)entity.Status, entity.Id, FormType.StorePurchaseOrder, reason);
+            var reason = "等待入库";
+            _processHistoryService.Track(editBy, editor, (int)entity.Status, entity.Id, BillIdentity.StorePurchaseOrder.ToString(), reason);
             _db.SaveChange();
 
         }
-
+        /// <summary>
+        /// 收货
+        /// </summary>
+        /// <param name="model"></param>
         public void ReceivedGoods(ReceivedGoodsStorePurchaseOrder model)
         {
             //修改明细数据和生产日期/保质期
             var entity = _db.Table.Find<StorePurchaseOrder>(model.Id);
-            entity.ReceivedGoods();
+           // entity.ReceivedGoods();
             entity = model.MapTo<StorePurchaseOrder>(entity);
             var entityItems = _db.Table.FindAll<StorePurchaseOrderItem>(n => n.StorePurchaseOrderId == model.Id).ToList();
             entity.SetItems(entityItems);
             var reason= entity.UpdateReceivedGoodsItems(model.ConvertJsonToItem());
             _db.Update(entity);
             _db.Update(entity.Items.ToArray());
-            _processHistoryService.Track(model.ReceivedBy, model.ReceivedByName, (int)entity.Status, entity.Id, FormType.StorePurchaseOrder, reason);
+            _processHistoryService.Track(model.ReceivedBy, model.ReceivedByName, (int)entity.Status, entity.Id, BillIdentity.StorePurchaseOrder.ToString(), reason);
             // 添加库存中不存在的商品
             _storeInventoryService.CreateProductNotInInventory(entity);
             _db.SaveChange();
         }
-
+       /// <summary>
+       /// 入库
+       /// </summary>
+       /// <param name="id"></param>
+       /// <param name="editBy"></param>
+       /// <param name="editor"></param>
         public void SaveInventory(int id, int editBy, string editor)
         {
             var entity = _db.Table.Find<StorePurchaseOrder>(id);
             if (entity == null) { throw new Exception("单据不存在"); }
             var entityItems = _db.Table.FindAll<StorePurchaseOrderItem>(n => n.StorePurchaseOrderId == entity.Id).ToList();
             entity.SetItems(entityItems);
-            entity.UpdateStatus(editBy, editor);
+            entity.Finished(editBy, editor);
             _db.Update(entity);
             var reason = "入库";
-           _processHistoryService.Track(entity.StoragedBy, entity.StoragedByName, (int)entity.Status, entity.Id, FormType.StorePurchaseOrder, reason);
+           _processHistoryService.Track(entity.StoragedBy, entity.StoragedByName, (int)entity.Status, entity.Id, BillIdentity.StorePurchaseOrder.ToString(), reason);
             // 写入库存,库存历史纪录
             _storeInventoryService.StockInProducts(entity);
             // 写入库存批次记录
             _storeBatchService.SaveBatch(entity);
             // 写入商品移动平均成本价
-
             _db.SaveChange();
         }
     }

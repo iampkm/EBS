@@ -48,8 +48,12 @@ namespace EBS.Query.Service
                 where += "and t3.ProductId in (select Id from Product where Code=@ProductCodeOrBarCode or BarCode=@ProductCodeOrBarCode) ";
                 param.Code = condition.Code;
             }
-            string sql = @"select t0.Id,t0.Code,t0.SupplierId,t0.CreatedOn,t0.CreatedByName,t0.Status,t1.Code as SupplierCode,t1.Name as SupplierName,t2.Name as StoreName  
-from storepurchaseorder t0 inner join supplier t1 on t0.SupplierId = t1.Id inner join store t2 on t0.StoreId = t2.Id 
+            where += " and t0.OrderType=@OrderType";
+            param.OrderType = condition.OrderType;
+            string sql = @"select t0.Id,t0.Code,t0.SupplierId,t0.CreatedOn,t0.CreatedByName,t0.Status,t1.Code as SupplierCode,t1.Name as SupplierName,t2.Name as StoreName,t3.Quantity,t3.ActualQuantity,t3.Amount  
+from storepurchaseorder t0 inner join supplier t1 on t0.SupplierId = t1.Id inner join store t2 on t0.StoreId = t2.Id
+left join (select i.StorePurchaseOrderId,SUM(i.Quantity) as Quantity,SUM(i.ActualQuantity) as ActualQuantity,SUM(i.Price* i.ActualQuantity ) as Amount 
+from  storepurchaseorderitem i GROUP BY i.StorePurchaseOrderId) t3 on t0.Id = t3.StorePurchaseOrderId 
 where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<Product>(where, param);
             sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
@@ -67,18 +71,18 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
         }
 
 
-        public StorePurchaseOrderItemDto GetPurchaseOrderItem(string productCodeOrBarCode, int supplierId, int storeId)
+        public StorePurchaseOrderItemDto GetPurchaseOrderItem(string productCodeOrBarCode, int storeId)
         {
-            if (supplierId == 0) { throw new Exception("请选择供应商"); }
             if (string.IsNullOrEmpty(productCodeOrBarCode)) { throw new Exception("请输入商品编码或条码"); }
             // 有调整价，有先使用最新的调整价；无才使用合同价
             string sql = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.Specification,p.BarCode,p.Unit,p.SpecificationQuantity as ProductSpecificationQuantity, 
- i.ContractPrice
+ i.ContractPrice,c.SupplierId,s.`Name` as SupplierName
  from purchasecontract c inner join purchasecontractitem i on c.Id= i.PurchaseContractId
 inner join product p on p.Id = i.ProductId
-where p.BarCode=@ProductCodeOrBarCode or p.`Code`=@ProductCodeOrBarCode and c.EndDate>@Today and c.`Status` = 3
+left join supplier s on c.SupplierId = s.Id
+where (p.`Code`=@productCodeOrBarCode or p.BarCode=@productCodeOrBarCode) and c.EndDate>'2016-12-15' and c.`Status` = 3
 and FIND_IN_SET(@StoreId,c.StoreIds)  LIMIT 1";            
-            var item = _query.Find<StorePurchaseOrderItemDto>(sql, new { ProductCodeOrBarCode = productCodeOrBarCode, SupplierId = supplierId, StoreId = storeId, Today = DateTime.Now });
+            var item = _query.Find<StorePurchaseOrderItemDto>(sql, new { ProductCodeOrBarCode = productCodeOrBarCode, StoreId = storeId, Today = DateTime.Now });
             //设置当前件规            
             if (item == null) { throw new Exception("查无商品，请检查供应商合同"); }
             // 查询是否有调整价格
@@ -87,18 +91,20 @@ and FIND_IN_SET(@StoreId,c.StoreIds)  LIMIT 1";
             return item;
 
         }
-        public IEnumerable<StorePurchaseOrderItemDto> GetPurchaseOrderItemList(string inputProducts, int supplierId, int storeId)
+        public IEnumerable<StorePurchaseOrderItemDto> GetPurchaseOrderItemList(string inputProducts, int storeId)
         {
             if (string.IsNullOrEmpty(inputProducts)) throw new Exception("商品明细为空");
             var dic = inputProducts.ToIntDic();
             // 有调整价，有先使用最新的调整价；无才使用合同价
             string sql = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.Specification,p.BarCode,p.Unit,p.SpecificationQuantity as ProductSpecificationQuantity, 
- i.ContractPrice
+ i.ContractPrice,c.SupplierId,s.`Name` as SupplierName
  from purchasecontract c inner join purchasecontractitem i on c.Id= i.PurchaseContractId
 inner join product p on p.Id = i.ProductId
+left join supplier s on c.SupplierId = s.Id
 where p.`Code` in @ProductCode  and c.EndDate>@Today and c.`Status` = 3
 and FIND_IN_SET(@StoreId,c.StoreIds)";
-            var productItems = _query.FindAll<StorePurchaseOrderItemDto>(sql, new { ProductCode = dic.Keys.ToArray(), SupplierId = supplierId, StoreId = storeId, Today = DateTime.Now });
+            var productItems = _query.FindAll<StorePurchaseOrderItemDto>(sql, new { ProductCode = dic.Keys.ToArray(), StoreId = storeId, Today = DateTime.Now });
+            if (!productItems.Any()) { throw new Exception("查无商品，请检查供应商合同"); }
             foreach (var product in productItems)
             {
                 product.Quantity = dic[product.ProductCode];

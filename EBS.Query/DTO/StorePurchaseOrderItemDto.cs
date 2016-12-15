@@ -70,7 +70,9 @@ namespace EBS.Query.DTO
         /// </summary>
         public int Quantity { get; set; }
 
-        public decimal Amount { get; set; }
+        public decimal Amount { get {
+            return Price * ActualQuantity;
+        } }
 
        /// <summary>
        /// 实收件数
@@ -103,5 +105,9 @@ namespace EBS.Query.DTO
            return Quantity == ActualQuantity ? "bg-success" : "bg-danger";
           
        } }
+
+       public int SupplierId { get; set; }
+
+       public string SupplierName { get; set; }
     }
 }

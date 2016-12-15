@@ -23,7 +23,7 @@ namespace EBS.Application.Service
             model.Validate();
             var account = _accountService.CheckAccount(model.UserName, model.Password, model.IpAddress);
             var role = _db.Table.Find<Role>(account.RoleId);
-            var storeName = "总公司";
+            var storeName = "";
             if (account.StoreId > 0)
             {
                 storeName = _db.Table.Find<Store>(account.StoreId).Name;

@@ -13,12 +13,15 @@ namespace EBS.Domain.Entity
         {
             this.CreatedOn = DateTime.Now;
             _items = new List<StorePurchaseOrderItem>();
-            this.Status = PurchaseOrderStatus.Create;
+            this.Status = PurchaseOrderStatus.WaitStockIn;
+            this.OrderType = ValueObject.OrderType.Order;
         }
 
         public string Code { get; set; }
         public int SupplierId { get; set; }
         public string SupplierBill { get; set; }
+
+        public OrderType OrderType { get; set; }
         public int StoreId { get; set; }
         public PurchaseOrderStatus Status { get; set; }
         public bool IsGift { get; set; }
@@ -108,46 +111,52 @@ namespace EBS.Domain.Entity
             }
             return result;
         }
-
+        /// <summary>
+        /// 提交单据
+        /// </summary>
         public void Submit()
         {
-            if (this.Status != PurchaseOrderStatus.Create)
-            {
-                throw new Exception("只能提交初始单据");
-            }
-            this.Status = PurchaseOrderStatus.WaitReceivedGoods;
+            //if (this.Status != PurchaseOrderStatus.Create)
+            //{
+            //    throw new Exception("只能提交初始单据");
+            //}
+            //this.Status = PurchaseOrderStatus.WaitReceivedGoods;
         }
-
+        /// <summary>
+        /// 收货
+        /// </summary>
         public void ReceivedGoods()
         {
-            if (this.Status == PurchaseOrderStatus.WaitingStockIn || this.Status == PurchaseOrderStatus.WaitReceivedGoods)
-            {
-                this.Status = PurchaseOrderStatus.WaitingStockIn;
-            }
-            else {
-                throw new Exception("待收货或待入库状态才能收货");
-            }
-           
+            //if (this.Status == PurchaseOrderStatus.WaitStockIn || this.Status == PurchaseOrderStatus.WaitReceivedGoods)
+            //{
+            //    this.Status = PurchaseOrderStatus.WaitStockIn;
+            //}
+            //else
+            //{
+            //    throw new Exception("待收货或待入库状态才能收货");
+            //}
+
         }
-        public void UpdateStatus(int editBy, string editor)
+               
+        public void Finished(int editBy, string editor)
         {
-            if (this.Status != PurchaseOrderStatus.WaitingStockIn)
+            if (this.Status != PurchaseOrderStatus.WaitStockIn || this.Status == PurchaseOrderStatus.WaitStockOut)
             {
                 throw new Exception("请先收货！");
             }
             this.StoragedBy = editBy;
             this.StoragedByName = editor;
             this.StoragedOn = DateTime.Now;
-            this.Status = PurchaseOrderStatus.HadStockIn;
+            this.Status = PurchaseOrderStatus.Finished;
             this.GenerateBatchNo();
         }
 
 
         public void Cancel()
         {
-            if (this.Status == PurchaseOrderStatus.HadStockIn)
+            if (this.Status == PurchaseOrderStatus.Finished)
             {
-                throw new Exception("已入库单据不能作废");
+                throw new Exception("已完成单据不能作废");
             }
             this.Status = PurchaseOrderStatus.Cancel;
         }

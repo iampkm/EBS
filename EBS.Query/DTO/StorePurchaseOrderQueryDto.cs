@@ -44,5 +44,13 @@ namespace EBS.Query.DTO
         }
 
         public string CreatedByName { get; set; }
+
+        public int Quantity { get; set; }
+
+        public int ActualQuantity { get; set; }
+
+        public decimal Amount { get; set; }
+
+
     }
 }

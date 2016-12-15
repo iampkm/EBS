@@ -32,7 +32,7 @@ namespace EBS.Admin.Controllers
             this._context = contextService;
         }
         public ActionResult Index()
-        {
+        {           
             ViewBag.Status = _purchaseContractQuery.GetPurchaseContractStatus();
             return View();
         }

@@ -17,5 +17,7 @@ namespace EBS.Query.DTO
        public string ProductCodeOrBarCode { get; set; }
 
        public int Status { get; set; }
+
+       public int OrderType { get; set; }
     }
 }

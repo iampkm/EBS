@@ -56,10 +56,10 @@
                         <table class="table table-bordered table-printfontsize">
                             <thead>
                                 <tr>
-                                    <th style="width:50px;">序号</th>
-                                    <th style="width:150px;">商品编码</th>
+                                    <th style="width:40px;">序号</th>
+                                    <th >商品编码</th>
                                     <th>条码</th>
-                                    <th style="width:150px;">品名</th>
+                                    <th >品名</th>
                                     <th>规格</th>
                                     <th>单位</th>
                                     <th>合同进价</th>
@@ -93,14 +93,14 @@
                                         <td>@item.ProductName</td>
                                         <td>@item.Specification</td>
                                         <td>@item.Unit</td>
-                                        <td>￥@item.ContractPrice</td>
-                                        <td>￥@item.Price</td>
-                                        <td>1 * @item.SpecificationQuantity</td>
+                                        <td>@item.ContractPrice.ToString("F2")</td>
+                                        <td>@item.Price.ToString("F2")</td>
+                                        <td>1 × @item.SpecificationQuantity</td>
                                         <td>@item.PackageQuantity</td>
                                         <td>@item.Quantity</td>
                                         <td>@item.ActualPackageQuantity</td>
                                         <td>@item.ActualQuantity</td>
-                                        <td>￥@item.Amount</td>
+                                        <td>@item.Amount.ToString("F2")</td>
                                         <td>@item.ProductionDate</td>
                                         <td>@item.ShelfLife</td>
                                     </tr>
@@ -122,7 +122,7 @@
                                     <td>@totalQuantity</td>
                                     <td></td>
                                     <td>@totalActualQuantity</td>
-                                    <td>￥@countTotal</td>
+                                    <td>@countTotal.ToString("F2")</td>
                                     <td></td>
                                     <td class="dataRow"></td>
                                 </tr>
