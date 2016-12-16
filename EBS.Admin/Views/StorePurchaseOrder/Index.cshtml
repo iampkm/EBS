@@ -69,7 +69,7 @@
                 <span class="input-group-btn" slot="customButtons">
                     <a class="btn btn-warning btn-flat" href="/StorePurchaseOrder/Create">新 增</a>
                     <a class="btn btn-primary btn-flat" href="/StorePurchaseOrder/CreateGift">新增赠品单</a>
-                    <button type="button" class="btn btn-success btn-flat" v-on:click="submitAudit()">提交</button>
+                    <button type="button" class="btn btn-success btn-flat" v-on:click="submitAudit()">收货</button>
                     <button type="button" class="btn btn-danger btn-flat" v-on:click="remove()">作 废</button>
                 </span>
             </vue-table>
@@ -124,7 +124,7 @@
                 removeReason: '',
                 searchQuery: '',
                 gridColumns: [
-                { name: 'Code', localName: '采购单号', style: "<a href='/StorePurchaseOrder/Edit/{id}'>{column}</a>" },
+                { name: 'Code', localName: '采购单号', style: "<a href='/StorePurchaseOrder/Details/{id}'>{column}</a>" },
                 { name: 'StoreName', localName: '门店' },
                 { name: 'Supplier', localName: '供应商', width: '250' },
                 { name: 'Quantity', localName: '订货数' },
@@ -194,19 +194,8 @@
                         return;
                     }
                     var selectId = selectRow[0].Id;
-                    v_self = this;
-                    bootbox.confirm("您确定提交该记录？", function (result) {
-                        if (result) {
-                            $.post("/StorePurchaseOrder/Submit", { id: selectId }, function (result) {
-                                if (result.success) {
-                                    v_self.$refs.vtable.loadData();
-                                }
-                                else {
-                                    bootbox.alert(result.error);
-                                }
-                            }, "json");
-                        }
-                    });
+                    window.location.href="/StorePurchaseOrder/WaitStockIn/"+selectId;
+                    
                 },
                 showSupplier: function () {
                     this.selectSupplier.modal = true;

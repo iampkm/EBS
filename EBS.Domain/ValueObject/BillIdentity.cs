@@ -52,12 +52,12 @@ namespace EBS.Domain.ValueObject
 
 
         // 通用单据  10~49 ， 门店单据50~-99
-        [Description("门店采购订单")]      
+        [Description("采购订单")]      
         /// <summary>
         /// 门店采购订单
         /// </summary>
         StorePurchaseOrder = 51,
-        [Description("门店采购退单订单")]
+        [Description("采购退单")]
         /// <summary>
         /// 门店采购退单订单
         /// </summary>

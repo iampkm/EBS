@@ -1,4 +1,6 @@
-﻿@model EBS.Query.DTO.StorePurchaseOrderDto
+﻿@using EBS.Infrastructure.Extension;
+@using EBS.Domain.ValueObject;
+@model EBS.Query.DTO.StorePurchaseOrderDto
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
@@ -12,15 +14,17 @@
     <div class="box-header with-border">
         <ol class="breadcrumb" style="padding:0px;margin:1px;">
             <li><a href="/StorePurchaseOrder/Index"><i class="fa fa-dashboard"></i>采购单管理</a></li>
-            <li class="active"><a href="/StorePurchaseOrder/Edit/{{model.id}}">收货入库</a></li>
+            <li class="active"><a href="/StorePurchaseOrder/Details/{{model.id}}">采购单明细</a></li>
         </ol>
     </div>
     <form>
         <div class="box-body">
             <div class="row">
                 <div class="form-group col-sm-4 col-xs-6">
+                    <a class="btn btn-warning btn-flat" href="/StorePurchaseOrder/Edit/{{model.id}}" v-show="model.status==1">编辑</a>
+                    <a class="btn btn-success btn-flat" href="/StorePurchaseOrder/WaitStockIn/{{model.id}}" v-show="model.status==1">收货</a>
                     <button type="button" class="btn btn-primary btn-flat" v-on:click="print">打印</button>
-                    <a class="btn btn-default btn-flat" href="/StorePurchaseOrder/Index">取 消</a>
+                    <a class="btn btn-default btn-flat" href="javascript:history.go(-1);">取 消</a>
                     <input type="hidden" v-model="model.id" />
                 </div>
             </div>
@@ -73,10 +77,10 @@
                             <table class="table table-bordered table-printfontsize">
                                 <thead>
                                     <tr>
-                                        <th style="width:50px;">序号</th>
+                                        <th>序号</th>
                                         <th>商品编码</th>
                                         <th>条码</th>
-                                        <th style="width:200px;">品名</th>
+                                        <th>品名</th>
                                         <th>规格</th>
                                         <th>单位</th>
                                         <th>合同进价</th>
@@ -162,7 +166,43 @@
                     </div>
                 </div>
             </div>
-        </div>
+            <br />
+            <div class="row">
+                <div class="col-xs-12 col-sm-12">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <caption>
+                                <h3 class="panel-title">                                   
+                                   收货流程记录
+                                </h3>
+                            </caption>
+                            <thead>
+                                <tr>
+                                    <th style="width:30px"></th>
+                                    <th style="width:80px">处理人</th>
+                                    <th>状态</th>
+                                    <th>处理时间</th>
+                                    <th>备注</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{index = 0;}
+                                @foreach (var item in (IEnumerable<EBS.Domain.Entity.ProcessHistory>)ViewBag.Logs)
+                                {
+                                    index += 1;
+                                    <tr>
+                                        <td>@(index)</td>
+                                        <td>@item.CreatedByName</td>
+                                        <td>@(((PurchaseOrderStatus)item.Status).Description())</td>
+                                        <td>@item.CreatedOn</td>
+                                        <td>@item.Remark</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
     </form>
 </div>
 <br />
@@ -174,7 +214,8 @@
                 el: '#app',
                 data: {
                     model: {
-                        id: @Model.Id
+                        id: @Model.Id,
+                        status:@((int)Model.Status)
                      }
                 },
                 methods: {
@@ -187,3 +228,4 @@
         });
     </script>
 }
+

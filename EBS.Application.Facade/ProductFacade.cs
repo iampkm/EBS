@@ -11,6 +11,7 @@ using EBS.Domain.Service;
 using EBS.Domain.ValueObject;
 using EBS.Application.Facade.Mapping;
 using System.Diagnostics;
+using EBS.Infrastructure.Extension;
 namespace EBS.Application.Facade
 {
     public class ProductFacade : IProductFacade
@@ -53,19 +54,15 @@ namespace EBS.Application.Facade
                 var newCode = _sequenceService.GenerateNewCode(BillIdentity.AdjustSalePrice);
                 var adjustEntity = _adjustSalePriceService.Create(entity, model.SalePrice, newCode, model.UpdatedBy);             
                 _db.Insert(adjustEntity);
-
             }
-            entity = model.MapTo<Product>();
+            if (model.CategoryId != entity.CategoryId)
+            {
+                entity.Code = _productService.GenerateNewCode(entity.CategoryId);
+            }
+            entity = model.MapTo<Product>(entity);
             _db.Update(entity);
             _db.SaveChange();
         }
-
-
-        //public void PublishToggle(string ids, bool isPublish)
-        //{
-        //    _productService.PublishToggle(ids, isPublish);
-        //    _db.SaveChange();
-        //}
 
         public string Import(string productsIpput,int editor)
         {

@@ -131,6 +131,45 @@ where i.storepurchaseorderid= @Id";
             return model;
         }
 
-       
+
+        //退单按照先进先出原则从库存查询
+        public StorePurchaseOrderItemDto GetRefundOrderItem(string productCodeOrBarCode, int storeId)
+        {
+            if (string.IsNullOrEmpty(productCodeOrBarCode)) { throw new Exception("请输入商品编码或条码"); }
+            // 有调整价，有先使用最新的调整价；无才使用合同价
+            string sql = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.Specification,p.BarCode,p.Unit,p.SpecificationQuantity as ProductSpecificationQuantity, 
+ i.Price as ContractPrice,i.SupplierId,s.`Name` as SupplierName,i.ProductionDate,i.ShelfLife,i.BatchNo
+from storeinventorybatch i inner join product p on p.Id = i.ProductId
+left join supplier s on s.Id = i.SupplierId
+where (p.`Code`=@productCodeOrBarCode or p.BarCode=@productCodeOrBarCode) and i.Quantity>0 and StoreId=@StoreId LIMIT 1";
+            var item = _query.Find<StorePurchaseOrderItemDto>(sql, new { ProductCodeOrBarCode = productCodeOrBarCode, StoreId = storeId });
+            //设置当前件规            
+            if (item == null) { throw new Exception("查无商品，请检查供应商合同"); }
+            // 查询是否有调整价格
+
+            item.SetSpecificationQuantity();
+            return item;
+        }
+
+        public IEnumerable<StorePurchaseOrderItemDto> GetRefundOrderItemList(string inputProducts, int storeId)
+        {
+            if (string.IsNullOrEmpty(inputProducts)) throw new Exception("商品明细为空");
+            var dic = inputProducts.ToIntDic();
+            // 有调整价，有先使用最新的调整价；无才使用合同价
+            string sql = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.Specification,p.BarCode,p.Unit,p.SpecificationQuantity as ProductSpecificationQuantity, 
+ i.Price as ContractPrice,i.SupplierId,s.`Name` as SupplierName,i.ProductionDate,i.ShelfLife,i.BatchNo
+from storeinventorybatch i inner join product p on p.Id = i.ProductId
+left join supplier s on s.Id = i.SupplierId
+where p.`Code` in @ProductCode   and i.Quantity>0 and StoreId=@StoreId ";
+            var productItems = _query.FindAll<StorePurchaseOrderItemDto>(sql, new { ProductCode = dic.Keys.ToArray(), StoreId = storeId});
+            if (!productItems.Any()) { throw new Exception("查无商品，请检查供应商合同"); }
+            foreach (var product in productItems)
+            {
+                product.Quantity = dic[product.ProductCode];
+                product.SetSpecificationQuantity();
+            }
+            return productItems;
+        }
+      
     }
 }

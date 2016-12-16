@@ -441,6 +441,9 @@
                         var bookQty = 0;
                         var _self = this;
                         this.products.forEach(function (item) {
+                            if(item.Quantity==undefined||item.Quantity==""||item.Quantity==null){
+                                item.Quantity =0;
+                            }
                             var qty = parseInt(item.Quantity);
                             var price = _self.model.isGift?0:item.ContractPrice;
                             item.Amount = price * qty;

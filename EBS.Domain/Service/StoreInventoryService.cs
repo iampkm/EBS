@@ -51,7 +51,7 @@ namespace EBS.Domain.Service
             _db.Insert(inventoryHistorys.ToArray());
         }
 
-        public void CreateProductNotInInventory(StorePurchaseOrder entity)
+        public IEnumerable<StoreInventory> CheckProductNotInInventory(StorePurchaseOrder entity)
         {
             if (entity == null) { throw new Exception("单据不存在"); }
             if(entity.Items.Count()==0) { throw new Exception("单据明细为空"); }
@@ -60,10 +60,7 @@ namespace EBS.Domain.Service
 left join (select * from storeinventory si where si.StoreId = @StoreId ) s on i.ProductId = s.ProductId 
 where s.Id is null  and i.StorePurchaseOrderId = @StorePurchaseOrderId";
             var items = _db.Table.FindAll<StoreInventory>(sql, new { StoreId = entity.StoreId, StorePurchaseOrderId = entity.Id });
-            if (items.Count() > 0)
-            {
-                _db.Insert<StoreInventory>(items.ToArray());
-            }          
+            return items;     
         }
 
         // 扣减库存 

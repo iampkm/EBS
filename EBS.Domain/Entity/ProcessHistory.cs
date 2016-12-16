@@ -8,6 +8,20 @@ namespace EBS.Domain.Entity
 {
    public class ProcessHistory:BaseEntity
     {
+       public ProcessHistory() {
+           this.CreatedOn = DateTime.Now;
+       }
+
+       public ProcessHistory(int createdBy, string createdByName, int status, int formId, string formType, string remark)
+       {
+           this.CreatedBy = createdBy;
+           this.CreatedByName = createdByName;
+           this.Status = status;
+           this.FormId = formId;
+           this.FormType = formType;
+           this.Remark = remark;
+           this.CreatedOn = DateTime.Now;
+       }
         public int CreatedBy { get; set; }
         public string CreatedByName { get; set; }
         public DateTime CreatedOn { get; set; }
@@ -27,5 +41,12 @@ namespace EBS.Domain.Entity
         /// 操作备注
         /// </summary>
         public string Remark { get; set; }
+
+        public string CreateSql(string tableName,string code)
+        {
+            string sql = @"insert into processhistory (Createdby,CreatedByName,CreatedOn,`Status`,FormId,FormType,Remark)
+select @Createdby,@CreatedByName,@CreatedOn,@Status,Id,@FormType,@Remark from {0} where `Code`='{1}'";
+            return string.Format(sql, tableName, code);
+        }
     }
 }

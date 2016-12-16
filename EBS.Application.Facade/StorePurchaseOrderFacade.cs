@@ -36,20 +36,26 @@ namespace EBS.Application.Facade
         {
             var entity = new StorePurchaseOrder();
             entity = model.MapTo<StorePurchaseOrder>();
-            entity.AddItems(model.ConvertJsonToItem());
-            entity.Code = _sequenceService.GenerateNewCode(BillIdentity.StorePurchaseOrder);
+            entity.AddItems(model.ConvertJsonToItem());          
             var reason = "创建采购单";
+            var billIdentity = BillIdentity.StorePurchaseOrder;
             if (entity.OrderType == OrderType.Refund)
             {
                 reason = "创建采购退单";
                 entity.Status = PurchaseOrderStatus.WaitStockOut;
+                billIdentity = BillIdentity.StorePurchaseBackOrder;
             }
-            _service.Create(entity);
-            _db.SaveChange();
-           
-            entity = _db.Table.Find<StorePurchaseOrder>(n => n.Code == entity.Code);
-            _processHistoryService.Track(model.CreatedBy, model.CreatedByName, (int)entity.Status, entity.Id, BillIdentity.StorePurchaseOrder.ToString(), reason);
-            _db.SaveChange();
+
+            var entitys = _service.SplitOrderItem(entity);
+            foreach (var order in entitys)
+            {
+                entity.Code = _sequenceService.GenerateNewCode(billIdentity);
+                entity.SetItems(order.Items.ToList());
+                _db.Insert(entity);
+                var history = new ProcessHistory(model.CreatedBy, model.CreatedByName, (int)entity.Status, entity.Id, billIdentity.ToString(), reason);
+                _db.Command.AddExecute(history.CreateSql(entity.GetType().Name, entity.Code),history);
+                _db.SaveChange();
+           }
         }
 
         public void Edit(EditStorePurchaseOrder model)
@@ -73,12 +79,12 @@ namespace EBS.Application.Facade
         }
 
 
-        public void Submit(int id, int editBy, string editor)
+        public void FinanceAuditd(int id, int editBy, string editor)
         {
             var entity = _db.Table.Find<StorePurchaseOrder>(id);
-            entity.Submit();
+            entity.FinanceAuditd(editBy,editor);
             _db.Update(entity);
-            var reason = "等待入库";
+            var reason = "财务已审";
             _processHistoryService.Track(editBy, editor, (int)entity.Status, entity.Id, BillIdentity.StorePurchaseOrder.ToString(), reason);
             _db.SaveChange();
 
@@ -91,16 +97,21 @@ namespace EBS.Application.Facade
         {
             //修改明细数据和生产日期/保质期
             var entity = _db.Table.Find<StorePurchaseOrder>(model.Id);
-           // entity.ReceivedGoods();
-            entity = model.MapTo<StorePurchaseOrder>(entity);
+            entity = model.MapTo<StorePurchaseOrder>(entity);            
+            entity.ReceivedGoods(model.ReceivedBy, model.ReceivedByName); 
             var entityItems = _db.Table.FindAll<StorePurchaseOrderItem>(n => n.StorePurchaseOrderId == model.Id).ToList();
             entity.SetItems(entityItems);
-            var reason= entity.UpdateReceivedGoodsItems(model.ConvertJsonToItem());
+            entity.UpdateReceivedGoodsItems(model.ConvertJsonToItem());
             _db.Update(entity);
             _db.Update(entity.Items.ToArray());
+            var reason = "保存本次拣货";
             _processHistoryService.Track(model.ReceivedBy, model.ReceivedByName, (int)entity.Status, entity.Id, BillIdentity.StorePurchaseOrder.ToString(), reason);
             // 添加库存中不存在的商品
-            _storeInventoryService.CreateProductNotInInventory(entity);
+            var notExistsInventorys= _storeInventoryService.CheckProductNotInInventory(entity);
+            if (notExistsInventorys.Count() > 0)
+            {
+                _db.Insert<StoreInventory>(notExistsInventorys.ToArray());
+            }     
             _db.SaveChange();
         }
        /// <summary>

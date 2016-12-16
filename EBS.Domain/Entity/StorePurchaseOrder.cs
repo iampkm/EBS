@@ -13,7 +13,7 @@ namespace EBS.Domain.Entity
         {
             this.CreatedOn = DateTime.Now;
             _items = new List<StorePurchaseOrderItem>();
-            this.Status = PurchaseOrderStatus.WaitStockIn;
+            this.Status = PurchaseOrderStatus.Create;
             this.OrderType = ValueObject.OrderType.Order;
         }
 
@@ -82,75 +82,70 @@ namespace EBS.Domain.Entity
             this._items = items;
         }
 
+        public void ReceivedGoods(int editBy, string editor)
+        {
+            if (this.Status == PurchaseOrderStatus.Create || this.Status == PurchaseOrderStatus.WaitStockIn || this.Status == PurchaseOrderStatus.WaitStockOut)
+            {
+                this.Status = this.OrderType == ValueObject.OrderType.Order ? PurchaseOrderStatus.WaitStockIn : PurchaseOrderStatus.WaitStockOut;
+                this.ReceivedBy = editBy;
+                this.ReceivedByName = editor;
+                this.ReceivedOn = DateTime.Now;
+            }
+            else
+            {
+                throw new Exception("拣货状态异常");
+            }
+        }
+
+        public void Finished(int editBy, string editor)
+        {
+            if (this.Status == PurchaseOrderStatus.WaitStockIn || this.Status == PurchaseOrderStatus.WaitStockOut)
+            {               
+                this.StoragedBy = editBy;
+                this.StoragedByName = editor;
+                this.StoragedOn = DateTime.Now;
+                this.Status = PurchaseOrderStatus.Finished;
+                this.GenerateBatchNo();
+            }
+            else
+            {
+                throw new Exception("请先捡货！");
+            }           
+        }
+
+        public void FinanceAuditd(int editBy, string editor)
+        {
+            if (this.Status == PurchaseOrderStatus.Finished)
+            {
+                this.Status = PurchaseOrderStatus.FinanceAuditd;
+            }
+            else {
+                throw new Exception("单据为结束，不能进行财务审核");
+            }
+        }
+       
         /// <summary>
         /// 更新收货明细中的 ，数量，生成日期，保质期
         /// </summary>
         /// <param name="items"></param>
-        public string UpdateReceivedGoodsItems(List<StorePurchaseOrderItem> items)
+        public void UpdateReceivedGoodsItems(List<StorePurchaseOrderItem> items)
         {
             Dictionary<int, StorePurchaseOrderItem> dic = new Dictionary<int, StorePurchaseOrderItem>();
             items.ForEach(n => dic.Add(n.Id, n));
-            string result = "";
             foreach (var item in this._items)
             {
-                if(dic.ContainsKey(item.Id))
-                {
-                    var diff = dic[item.Id].ActualQuantity - item.ActualQuantity;
+                if (dic.ContainsKey(item.Id))
+                {                   
                     item.ActualQuantity = dic[item.Id].ActualQuantity;
                     if (item.ActualQuantity < 0) { item.ActualQuantity = 0; }
                     if (item.ActualQuantity > item.Quantity) { item.ActualQuantity = item.Quantity; }
                     item.ProductionDate = dic[item.Id].ProductionDate;
                     item.ShelfLife = dic[item.Id].ShelfLife;
                     if (item.ShelfLife < 0) { item.ShelfLife = 0; }
-                    if (diff > 0)
-                    {
-                        result += string.Format("收入{0},{1};", item.ProductId, diff);
-                    }
                 }
-                           
-            }
-            return result;
-        }
-        /// <summary>
-        /// 提交单据
-        /// </summary>
-        public void Submit()
-        {
-            //if (this.Status != PurchaseOrderStatus.Create)
-            //{
-            //    throw new Exception("只能提交初始单据");
-            //}
-            //this.Status = PurchaseOrderStatus.WaitReceivedGoods;
-        }
-        /// <summary>
-        /// 收货
-        /// </summary>
-        public void ReceivedGoods()
-        {
-            //if (this.Status == PurchaseOrderStatus.WaitStockIn || this.Status == PurchaseOrderStatus.WaitReceivedGoods)
-            //{
-            //    this.Status = PurchaseOrderStatus.WaitStockIn;
-            //}
-            //else
-            //{
-            //    throw new Exception("待收货或待入库状态才能收货");
-            //}
 
-        }
-               
-        public void Finished(int editBy, string editor)
-        {
-            if (this.Status != PurchaseOrderStatus.WaitStockIn || this.Status == PurchaseOrderStatus.WaitStockOut)
-            {
-                throw new Exception("请先收货！");
             }
-            this.StoragedBy = editBy;
-            this.StoragedByName = editor;
-            this.StoragedOn = DateTime.Now;
-            this.Status = PurchaseOrderStatus.Finished;
-            this.GenerateBatchNo();
         }
-
 
         public void Cancel()
         {

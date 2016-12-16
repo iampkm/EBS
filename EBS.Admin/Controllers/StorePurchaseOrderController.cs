@@ -77,17 +77,7 @@ namespace EBS.Admin.Controllers
             ViewBag.StoreName = _context.CurrentAccount.StoreName;
             return View("Create");
         }
-
-        public ActionResult Refund()
-        {
-            ViewBag.IsGift = "false";
-            ViewBag.Status = PurchaseOrderStatus.WaitStockOut.Description();
-            ViewBag.CreatedByName = _context.CurrentAccount.NickName;
-            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
-            ViewBag.StoreId = _context.CurrentAccount.StoreId;
-            ViewBag.StoreName = _context.CurrentAccount.StoreName;
-            return View();
-        }
+      
 
 
         [HttpPost]
@@ -97,6 +87,14 @@ namespace EBS.Admin.Controllers
             model.CreatedByName = _context.CurrentAccount.NickName;
             _storePurchaseOrderFacade.Create(model);
             return Json(new { success = true });
+        }
+
+        public ActionResult Details(int id)
+        {
+            var model = _storePurchaseOrderQuery.GetById(id);
+            var logs = _query.FindAll<ProcessHistory>(n => n.FormId == id && n.FormType == FormType.StorePurchaseOrder);
+            ViewBag.Logs = logs;
+            return View(model);
         }
 
         public ActionResult Edit(int id)
@@ -141,7 +139,35 @@ namespace EBS.Admin.Controllers
         /// 待入库
         /// </summary>
         /// <returns></returns>
-        public ActionResult WaitStockIn()
+        public ActionResult WaitStockIn(int id)
+        {
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+            var model = _storePurchaseOrderQuery.GetById(id);
+            model.ReceivedByName = _context.CurrentAccount.NickName;
+            //设置默认实收 = 应收
+            model.Items.ForEach((item) =>
+            {
+
+                item.ActualQuantity = item.ActualQuantity == 0 ? item.Quantity : item.ActualQuantity;
+
+                if (item.SpecificationQuantitys[0] > 1)
+                {
+                    item.PackageQuantity = item.Quantity / item.SpecificationQuantitys[0];
+                    item.ActualPackageQuantity = item.ActualQuantity / item.SpecificationQuantitys[0];
+                }
+
+            });
+            ViewBag.StorePurchaseOrderItems = JsonConvert.SerializeObject(model.Items.ToArray());
+            //查询处理流程：
+            var logs = _query.FindAll<ProcessHistory>(n => n.FormId == id && n.FormType == FormType.StorePurchaseOrder);
+            ViewBag.Logs = logs;
+            return View(model);
+        }
+        /// <summary>
+        /// 待退货
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult WaitStockOut()
         {
             return View();
         }
@@ -188,9 +214,19 @@ namespace EBS.Admin.Controllers
         public JsonResult GetPurchaseOrderItem(string productCodeOrBarCode, int storeId)
         {
             var result = _storePurchaseOrderQuery.GetPurchaseOrderItem(productCodeOrBarCode, storeId);
-            //  查询是否有自主调价
-           // var item= _adjustContractPriceQuery.GetAdjustContractPriceItem(productCodeOrBarCode, supplierId, storeId);
-             
+          
+            return Json(new { success = true, data = result });
+        }
+
+        public JsonResult GetRefundOrderItem(string productCodeOrBarCode, int storeId)
+        {
+            var result = _storePurchaseOrderQuery.GetRefundOrderItem(productCodeOrBarCode, storeId);
+            return Json(new { success = true, data = result });
+        }
+
+        public JsonResult ImportRefundProduct(string inputProducts, int storeId)
+        {
+            var result = _storePurchaseOrderQuery.GetRefundOrderItemList(inputProducts, storeId);
             return Json(new { success = true, data = result });
         }
 
@@ -204,10 +240,14 @@ namespace EBS.Admin.Controllers
             _storePurchaseOrderFacade.Delete(id, _context.CurrentAccount.AccountId, _context.CurrentAccount.NickName, reason);
             return Json(new { success = true });
         }
-
-        public JsonResult Submit(int id)
+        /// <summary>
+        /// 财务审核
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public JsonResult FinanceAuditd(int id)
         {
-            _storePurchaseOrderFacade.Submit(id, _context.CurrentAccount.AccountId, _context.CurrentAccount.NickName);
+            _storePurchaseOrderFacade.FinanceAuditd(id, _context.CurrentAccount.AccountId, _context.CurrentAccount.NickName);
             return Json(new { success = true });
         }
 
@@ -215,6 +255,27 @@ namespace EBS.Admin.Controllers
         {
             var model = _storePurchaseOrderQuery.GetById(id);
             return PartialView("StorePurchaseOrderTemplate",model);
+        }
+
+        public ActionResult Refund()
+        {
+            ViewBag.IsGift = "false";
+            ViewBag.Status = PurchaseOrderStatus.WaitStockOut.Description();
+            ViewBag.CreatedByName = _context.CurrentAccount.NickName;
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+            ViewBag.StoreId = _context.CurrentAccount.StoreId;
+            ViewBag.StoreName = _context.CurrentAccount.StoreName;
+            return View();
+        }
+
+        public ActionResult RefundEdit(int id)
+        {
+            return View();
+        }
+
+        public ActionResult RefundDetail(int id)
+        {
+            return View();
         }
 
     }

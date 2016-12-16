@@ -1,4 +1,6 @@
-﻿@model EBS.Query.DTO.StorePurchaseOrderDto
+﻿@using EBS.Domain.ValueObject;
+@using EBS.Infrastructure.Extension
+@model EBS.Query.DTO.StorePurchaseOrderDto
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
@@ -12,7 +14,7 @@
     <div class="box-header with-border">
         <ol class="breadcrumb" style="padding:0px;margin:1px;">
             <li><a href="/StorePurchaseOrder/Index"><i class="fa fa-dashboard"></i>采购单管理</a></li>
-            <li class="active"><a href="/StorePurchaseOrder/Edit/{{model.id}}">收货入库</a></li>
+            <li class="active"><a href="/StorePurchaseOrder/WaitStockIn/{{model.id}}">收货入库</a></li>
         </ol>
     </div>
     <!-- /.box-header -->
@@ -23,8 +25,6 @@
                 <div class="form-group col-sm-4 col-xs-6">
                     <button type="button" class="btn btn-warning btn-flat" v-on:click="onSubmit">收 货</button>
                     <button type="button" class="btn btn-success btn-flat" v-on:click="saveInventory">入 库</button>
-                    @*<button type="button" class="btn btn-success btn-flat" v-on:click="showModal()">导入商品明细</button>*@
-                    @*<button type="button" class="btn btn-default btn-flat" v-on:click="print">打印</button>*@
                     <a class="btn btn-default btn-flat" href="/StorePurchaseOrder/Index">取 消</a>
                     <input type="hidden" v-model="model.id" />
                     <input type="hidden" class="form-control" v-model="model.supplierId">
@@ -178,6 +178,44 @@
                 </div>
             </div>
         </div>
+        <!--流程-->
+        <br />
+        <div class="row">
+            <div class="col-xs-12 col-sm-12">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <caption>
+                            <h3 class="panel-title">
+                                收货流程记录
+                            </h3>
+                        </caption>
+                        <thead>
+                            <tr>
+                                <th style="width:30px"></th>
+                                <th style="width:80px">处理人</th>
+                                <th>状态</th>
+                                <th>处理时间</th>
+                                <th>备注</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{var index = 0;}
+                            @foreach (var item in (IEnumerable<EBS.Domain.Entity.ProcessHistory>)ViewBag.Logs)
+                            {
+                                index += 1;
+                                <tr>
+                                    <td>@(index)</td>
+                                    <td>@item.CreatedByName</td>
+                                    <td>@(((PurchaseOrderStatus)item.Status).Description())</td>
+                                    <td>@item.CreatedOn</td>
+                                    <td>@item.Remark</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </form>       
 </div>
 @{Html.RenderPartial("VueTableTemplate");}
@@ -227,6 +265,9 @@
                             }
                             if (item.ProductId > 0 && item.Quantity > 0) {
                                 var price = _self.model.isGift?0:item.Price;
+                                if(item.ProductionDate==null){
+                                    item.ProductionDate="";
+                                }
                                 data += "{\"Id\":" + item.Id + ",\"ActualQuantity\":" + item.ActualQuantity + ",\"ProductionDate\":\"" + item.ProductionDate + "\",\"ShelfLife\":" + item.ShelfLife + "},";
                             }
                         }
@@ -246,7 +287,7 @@
                             if (result.success) {
                                 bootbox.alert("保存成功！");
                                 //更改状态
-                                _self.model.status ="待入库";
+                                window.location.href = "/StorePurchaseOrder/WaitStockIn/"+_self.model.id;
                             }
                             else {
                                 bootbox.alert(result.error);

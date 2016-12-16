@@ -10,9 +10,6 @@ namespace EBS.Application
     {
         void Create(ProductModel model);
         void Edit(ProductModel model);
-
-        //void PublishToggle(string ids, bool isPublish);
-
         string Import(string productsIpput, int editor);
     }
 }

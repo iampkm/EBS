@@ -13,7 +13,9 @@ namespace EBS.Query
        Dictionary<int, string> GetStorePurchaseOrderStatus();
        StorePurchaseOrderItemDto GetPurchaseOrderItem(string productCodeOrBarCode,int storeId);
 
+       StorePurchaseOrderItemDto GetRefundOrderItem(string productCodeOrBarCode, int storeId);
         IEnumerable<StorePurchaseOrderItemDto> GetPurchaseOrderItemList(string inputProducts, int storeId);
+        IEnumerable<StorePurchaseOrderItemDto> GetRefundOrderItemList(string inputProducts, int storeId);
         StorePurchaseOrderDto GetById(int id);
     }
 }

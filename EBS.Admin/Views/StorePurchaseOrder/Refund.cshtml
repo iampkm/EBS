@@ -246,7 +246,7 @@
                         var data = "";
                         for (var i = 0; i < _self.products.length; i++) {
                             var item = _self.products[i];
-                            if (item.ProductId > 0 && item.Quantity > 0) {
+                            if (item.ProductId > 0 && item.Quantity < 0) {
                                 var price = _self.model.isGift?0:item.ContractPrice;
                                 data += "{\"ProductId\":" + item.ProductId + ",\"ContractPrice\":" + item.ContractPrice
                                      + ",\"Price\":" + price + ",\"Quantity\":" + item.Quantity + ",\"SpecificationQuantity\":" + item.SpecificationQuantity +"},";
@@ -263,7 +263,7 @@
                         $.post("/StorePurchaseOrder/Create", v_data, function (result) {
                             if (result.success) {
                                 bootbox.alert("保存成功！", function () {
-                                    window.location.href = "/StorePurchaseOrder/Create";
+                                    window.location.href = "/StorePurchaseOrder/Refund";
                                 });
                             }
                             else {
@@ -280,7 +280,7 @@
                             inputProducts: inputItems,
                             storeId: _self.model.storeId
                         }
-                        $.post("/StorePurchaseOrder/ImportProduct", data, function (result) {
+                        $.post("/StorePurchaseOrder/ImportRefundProduct", data, function (result) {
                             if (result.success) {
                                 _self.products = [];
                                 for(var i=0;i<result.data.length;i++)
@@ -351,7 +351,7 @@
                             storeId: _self.model.storeId
                         }
                         //设置焦点
-                        $.get("/StorePurchaseOrder/GetPurchaseOrderItem", data, function (result) {
+                        $.get("/StorePurchaseOrder/GetRefundOrderItem", data, function (result) {
                             if (result.success) {
                                 if(_self.model.supplierId==0){
                                     _self.model.supplierId = result.data.SupplierId;
@@ -440,7 +440,10 @@
                         var total = 0;
                         var bookQty = 0;
                         var _self = this;
-                        this.products.forEach(function (item) {
+                        this.products.forEach(function (item) { 
+                            if(item.Quantity==undefined||item.Quantity==""||item.Quantity==null){
+                                item.Quantity =0;
+                            }
                             var qty = parseInt(item.Quantity);
                             var price = _self.model.isGift?0:item.ContractPrice;
                             item.Amount = price * qty;
