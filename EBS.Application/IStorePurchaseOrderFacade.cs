@@ -14,5 +14,7 @@ namespace EBS.Application
         void FinanceAuditd(int id, int editBy, string editor);
         void ReceivedGoods(ReceivedGoodsStorePurchaseOrder model);
         void SaveInventory(int id, int editBy, string editor);
+
+        void GetOutOfInventory(int id, int editBy, string editor);
     }
 }

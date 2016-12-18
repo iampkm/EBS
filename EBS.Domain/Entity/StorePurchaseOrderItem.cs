@@ -42,9 +42,14 @@ namespace EBS.Domain.Entity
         /// <summary>
         /// 保质期：单位天
         /// </summary>
-        public int ShelfLife {get;set;}       
+        public int ShelfLife {get;set;}   
+        /// <summary>
+        /// 入库批次号
+        /// </summary>
+        public string BatchNo { get; set; }
 
-       
-         
+
+
+
     }
 }

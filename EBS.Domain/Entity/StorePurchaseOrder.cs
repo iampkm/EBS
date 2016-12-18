@@ -25,10 +25,6 @@ namespace EBS.Domain.Entity
         public int StoreId { get; set; }
         public PurchaseOrderStatus Status { get; set; }
         public bool IsGift { get; set; }
-        /// <summary>
-        /// 入库批次
-        /// </summary>
-        public string BatchNo { get; set; }
         public int CreatedBy { get; set; }
         public string CreatedByName { get; set; }
         public DateTime CreatedOn { get; set; }
@@ -105,7 +101,6 @@ namespace EBS.Domain.Entity
                 this.StoragedByName = editor;
                 this.StoragedOn = DateTime.Now;
                 this.Status = PurchaseOrderStatus.Finished;
-                this.GenerateBatchNo();
             }
             else
             {
@@ -154,14 +149,6 @@ namespace EBS.Domain.Entity
                 throw new Exception("已完成单据不能作废");
             }
             this.Status = PurchaseOrderStatus.Cancel;
-        }
-
-        public void GenerateBatchNo()
-        {
-            var date = DateTime.Now;
-            var ts = date - Convert.ToDateTime(date.ToShortDateString());
-            var seconds = Math.Truncate(ts.TotalSeconds).ToString().PadLeft(6, '0');
-           this.BatchNo= string.Format("{0}{1}", date.ToString("yyyyMMdd"),seconds);
         }
 
     }

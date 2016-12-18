@@ -42,8 +42,6 @@ namespace EBS.Application.Facade
             if (entity.OrderType == OrderType.Refund)
             {
                 reason = "创建采购退单";
-                entity.Status = PurchaseOrderStatus.WaitStockOut;
-                billIdentity = BillIdentity.StorePurchaseBackOrder;
             }
 
             var entitys = _service.SplitOrderItem(entity);
@@ -130,12 +128,26 @@ namespace EBS.Application.Facade
             _db.Update(entity);
             var reason = "入库";
            _processHistoryService.Track(entity.StoragedBy, entity.StoragedByName, (int)entity.Status, entity.Id, BillIdentity.StorePurchaseOrder.ToString(), reason);
+            
             // 写入库存,库存历史纪录
             _storeInventoryService.StockInProducts(entity);
-            // 写入库存批次记录
-            _storeBatchService.SaveBatch(entity);
-            // 写入商品移动平均成本价
             _db.SaveChange();
+        }
+
+        public void GetOutOfInventory(int id, int editBy, string editor)
+        {
+            var entity = _db.Table.Find<StorePurchaseOrder>(id);
+            if (entity == null) { throw new Exception("单据不存在"); }
+            var entityItems = _db.Table.FindAll<StorePurchaseOrderItem>(n => n.StorePurchaseOrderId == entity.Id).ToList();
+            entity.SetItems(entityItems);
+            entity.Finished(editBy, editor);
+            _db.Update(entity);
+            var reason = "出库";
+            _processHistoryService.Track(entity.StoragedBy, entity.StoragedByName, (int)entity.Status, entity.Id, BillIdentity.StorePurchaseOrder.ToString(), reason);
+            //扣减库存，并记录库存流水
+            _storeInventoryService.StockOutInventory(entity);
+            _db.SaveChange();
+
         }
     }
 }

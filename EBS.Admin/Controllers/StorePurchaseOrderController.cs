@@ -49,6 +49,13 @@ namespace EBS.Admin.Controllers
             return Json(new { success = true, data = rows, total = page.Total }, JsonRequestBehavior.AllowGet);
         }
 
+        public ActionResult FinanceIndex()
+        {
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+            ViewBag.Status = _storePurchaseOrderQuery.GetStorePurchaseOrderStatus();
+            return View();
+        }
+
         public ActionResult RefundIndex()
         {
             ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
@@ -73,6 +80,7 @@ namespace EBS.Admin.Controllers
             ViewBag.IsGift = "true";
             ViewBag.Status = PurchaseOrderStatus.WaitStockIn.Description();
             ViewBag.CreatedByName = _context.CurrentAccount.NickName;
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
             ViewBag.StoreId = _context.CurrentAccount.StoreId;
             ViewBag.StoreName = _context.CurrentAccount.StoreName;
             return View("Create");
@@ -100,40 +108,12 @@ namespace EBS.Admin.Controllers
         public ActionResult Edit(int id)
         {
             ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
-            var model = _storePurchaseOrderQuery.GetById(id);
-            var page = "Edit";
-            switch (model.Status)
-            {
-                case PurchaseOrderStatus.WaitStockIn:
-                    page = "WaitStockIn";
-                    model.ReceivedByName = _context.CurrentAccount.NickName;
-                    break;
-                case PurchaseOrderStatus.WaitStockOut:
-                case PurchaseOrderStatus.Cancel:
-                    page = "HadStockedIn";
-                    break;
-                default:
-                    page = "Edit";
-                    break;
-            }
-            //设置默认实收 = 应收
-            model.Items.ForEach((item) =>
-            {
-                
-                 item.ActualQuantity = item.ActualQuantity == 0 ? item.Quantity : item.ActualQuantity;                   
-               
-                if (item.SpecificationQuantitys[0] > 1)
-                {
-                    item.PackageQuantity = item.Quantity / item.SpecificationQuantitys[0];
-                    item.ActualPackageQuantity = item.ActualQuantity / item.SpecificationQuantitys[0];
-                }
-               
-            });
+            var model = _storePurchaseOrderQuery.GetById(id);            
             ViewBag.StorePurchaseOrderItems = JsonConvert.SerializeObject(model.Items.ToArray());
             //查询处理流程：
             var logs = _query.FindAll<ProcessHistory>(n => n.FormId == id && n.FormType == FormType.StorePurchaseOrder);
             ViewBag.Logs = logs;
-            return View(page, model);
+            return View(model);
         }
         /// <summary>
         /// 待入库
@@ -163,14 +143,7 @@ namespace EBS.Admin.Controllers
             ViewBag.Logs = logs;
             return View(model);
         }
-        /// <summary>
-        /// 待退货
-        /// </summary>
-        /// <returns></returns>
-        public ActionResult WaitStockOut()
-        {
-            return View();
-        }
+       
         /// <summary>
         /// 收货
         /// </summary>
@@ -270,12 +243,50 @@ namespace EBS.Admin.Controllers
 
         public ActionResult RefundEdit(int id)
         {
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+            var model = _storePurchaseOrderQuery.GetById(id);
+            ViewBag.StorePurchaseOrderItems = JsonConvert.SerializeObject(model.Items.ToArray());
+            //查询处理流程：
+            var logs = _query.FindAll<ProcessHistory>(n => n.FormId == id && n.FormType == BillIdentity.StorePurchaseOrder.ToString());
+            ViewBag.Logs = logs;
             return View();
         }
 
-        public ActionResult RefundDetail(int id)
+        public ActionResult RefundDetails(int id)
         {
-            return View();
+            var model = _storePurchaseOrderQuery.GetById(id);
+            var logs = _query.FindAll<ProcessHistory>(n => n.FormId == id && n.FormType == BillIdentity.StorePurchaseOrder.ToString());
+            ViewBag.Logs = logs;
+            return View(model);
+        }
+
+        /// <summary>
+        /// 待退货
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult WaitStockOut(int id)
+        {
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+            var model = _storePurchaseOrderQuery.GetById(id);
+            model.ReceivedByName = _context.CurrentAccount.NickName;
+            //设置默认实收 = 应收
+            model.Items.ForEach((item) =>
+            {
+
+                item.ActualQuantity = item.ActualQuantity == 0 ? item.Quantity : item.ActualQuantity;
+
+                if (item.SpecificationQuantitys[0] > 1)
+                {
+                    item.PackageQuantity = item.Quantity / item.SpecificationQuantitys[0];
+                    item.ActualPackageQuantity = item.ActualQuantity / item.SpecificationQuantitys[0];
+                }
+
+            });
+            ViewBag.StorePurchaseOrderItems = JsonConvert.SerializeObject(model.Items.ToArray());
+            //查询处理流程：
+            var logs = _query.FindAll<ProcessHistory>(n => n.FormId == id && n.FormType == FormType.StorePurchaseOrder);
+            ViewBag.Logs = logs;
+            return View(model);
         }
 
     }

@@ -11,23 +11,26 @@ namespace EBS.Domain.Service
    public class StoreInventoryBatchService
     {
         IDBContext _db;
+        BillSequenceService _sequenceService;
         public StoreInventoryBatchService(IDBContext dbContext)
         {
             this._db = dbContext;
+            _sequenceService = new BillSequenceService(this._db);
         }
 
-        public void SaveBatch(StorePurchaseOrder entity)
+        public List<StoreInventoryBatch> SaveBatch(StorePurchaseOrder entity)
         {
-            var entityItems = _db.Table.FindAll<StorePurchaseOrderItem>(n => n.StorePurchaseOrderId == entity.Id);
             var inventoryBatchs = new List<StoreInventoryBatch>();
-            foreach (var item in entityItems)
+            string batchNo = _sequenceService.GenerateBatchNo();
+            foreach (var item in entity.Items)
             {
-                //批次                   
+                //批次 
+                item.BatchNo = batchNo;                  
                 var batch = new StoreInventoryBatch(item.ProductId, entity.StoreId, entity.SupplierId, item.ActualQuantity,
-                    item.Price, entity.BatchNo, item.ProductionDate, item.ShelfLife, entity.StoragedBy);
+                    item.Price, item.BatchNo, item.ProductionDate, item.ShelfLife, entity.StoragedBy);
                 inventoryBatchs.Add(batch);               
             }
-            _db.Insert(inventoryBatchs.ToArray());
+            return inventoryBatchs;
         }
     }
 }

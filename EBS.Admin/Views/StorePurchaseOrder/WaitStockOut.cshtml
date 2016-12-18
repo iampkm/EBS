@@ -13,8 +13,8 @@
 <div id="app" class="box box-primary">
     <div class="box-header with-border">
         <ol class="breadcrumb" style="padding:0px;margin:1px;">
-            <li><a href="/StorePurchaseOrder/Index"><i class="fa fa-dashboard"></i>采购单管理</a></li>
-            <li class="active"><a href="/StorePurchaseOrder/WaitStockIn/{{model.id}}">收货入库</a></li>
+            <li><a href="/StorePurchaseOrder/RefundIndex"><i class="fa fa-dashboard"></i>采购单管理</a></li>
+            <li class="active"><a href="/StorePurchaseOrder/WaitStockOut/{{model.id}}">退货出库</a></li>
         </ol>
     </div>
     <!-- /.box-header -->
@@ -23,8 +23,8 @@
         <div class="box-body">
             <div class="row">
                 <div class="form-group col-sm-4 col-xs-6">
-                    <button type="button" class="btn btn-warning btn-flat" v-on:click="onSubmit">收 货</button>
-                    <button type="button" class="btn btn-success btn-flat" v-on:click="saveInventory">入 库</button>
+                    <button type="button" class="btn btn-warning btn-flat" v-on:click="onSubmit">退 货</button>
+                    <button type="button" class="btn btn-success btn-flat" v-on:click="saveInventory">出 库</button>
                     <a class="btn btn-default btn-flat" href="/StorePurchaseOrder/Index">取 消</a>
                     <input type="hidden" v-model="model.id" />
                     <input type="hidden" class="form-control" v-model="model.supplierId">
@@ -32,13 +32,13 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-sm-2 col-xs-3"> 
-                              
-                    <div class="input-group"> 
-                        <input type="text" class="form-control productCode" v-model="inputProductCodeOrBarCode" v-on:keyup.enter="inputProduct()" placeholder="输入商品编码或扫条码" />       
+                <div class="col-sm-2 col-xs-3">
+
+                    <div class="input-group">
+                        <input type="text" class="form-control productCode" v-model="inputProductCodeOrBarCode" v-on:keyup.enter="inputProduct()" placeholder="输入商品编码或扫条码" />
                         <span class="input-group-btn">
                             <button type="button" class="btn btn-warning btn-flat" v-on:click="toggleScan">扫码({{toggleScanText}})</button>
-                        </span> 
+                        </span>
                     </div>
                 </div>
                 <div class="col-sm-2 col-xs-3">
@@ -47,7 +47,7 @@
             </div>
             <div class="row">
                 <div class="col-xs-4 col-sm-4"></div>
-                <div class="col-xs-4 col-sm-4"><h3 class="text-center text-success" style="border-bottom:2px solid;padding-bottom:1px;"><b>采购订单<span v-show="model.isGift">(赠品)</span></b></h3></div>
+                <div class="col-xs-4 col-sm-4"><h3 class="text-center text-danger" style="border-bottom:2px solid;padding-bottom:1px;"><b>采购退单<span v-show="model.isGift">(赠品)</span></b></h3></div>
                 <div class="col-xs-4 col-sm-4"></div>
             </div>
             <div class="row">
@@ -72,7 +72,7 @@
             </div>
             <div class="row">
                 <div class="col-xs-4 col-sm-4">
-                    <span>收货部门：{{model.storeName}}</span>
+                    <span>退货部门：{{model.storeName}}</span>
                 </div>
                 <div class="col-xs-4 col-sm-4 text-center">
                 </div>
@@ -86,7 +86,7 @@
                     <div class="table-responsive">
                         <table class="table table-bordered">
                             <thead>
-                                <tr>                                   
+                                <tr>
                                     <th style="width:50px;">序号</th>
                                     <th style="width:150px;">商品编码</th>
                                     <th>条码</th>
@@ -96,17 +96,17 @@
                                     <th>合同进价</th>
                                     <th>进价</th>
                                     <th>件规</th>
-                                    <th>订货件数</th>
-                                    <th>订货数量</th>
-                                    <th>实收件数</th>
-                                    <th>实收数量</th>
+                                    <th>退货件数</th>
+                                    <th>退货数量</th>
+                                    <th>实退件数</th>
+                                    <th>实退数量</th>
                                     <th>金额</th>
                                     <th>生产日期</th>
                                     <th>保质期</th>
                                 </tr>
                             </thead>
                             <tbody id="tbody">
-                                <tr v-for="(index,item) in products" class="{{item.BgColor}}" >
+                                <tr v-for="(index,item) in products" class="{{item.BgColor}}">
                                     <td class="text-center">{{index+1}}</td>
                                     <td>
                                         {{item.ProductCode}}
@@ -128,7 +128,7 @@
                                     </td>
                                     <td>{{item.ActualPackageQuantity}}</td>
                                     <td>
-                                        <input type="number"  class="form-control quantity" v-model="item.ActualQuantity" v-on:keyup.enter="inputNext($event)" />
+                                        <input type="number" class="form-control quantity" v-model="item.ActualQuantity" v-on:keyup.enter="inputNext($event)" />
                                     </td>
                                     <td>{{item.Amount.toFixed(2)}}</td>
                                     <td>
@@ -140,7 +140,7 @@
                                 </tr>
                             </tbody>
                             <tfoot>
-                                <tr>                                  
+                                <tr>
                                     <td style="width:50px;"></td>
                                     <td>合计：</td>
                                     <td></td>
@@ -171,10 +171,10 @@
                     <span>供应商： </span>
                 </div>
                 <div class="col-xs-3 col-sm-3">
-                    <span>收货人：{{model.receivedByName}}</span>
+                    <span>退货人：{{model.receivedByName}}</span>
                 </div>
                 <div class="col-xs-3 col-sm-3">
-                    <span>入库人：{{model.storagedByName}}</span>
+                    <span>出库人：{{model.storagedByName}}</span>
                 </div>
             </div>
         </div>
@@ -186,7 +186,7 @@
                     <table class="table table-bordered">
                         <caption>
                             <h3 class="panel-title">
-                                收货流程记录
+                                流程记录
                             </h3>
                         </caption>
                         <thead>
@@ -216,7 +216,7 @@
                 </div>
             </div>
         </div>
-    </form>       
+    </form>
 </div>
 @{Html.RenderPartial("VueTableTemplate");}
 @section scripts{
@@ -225,7 +225,7 @@
         $("doucument").ready(function () {
             var demo = new Vue({
                 components: {
-                    'v-input': VueStrap.input  
+                    'v-input': VueStrap.input
                 },
                 el: '#app',
                 data: {
@@ -258,7 +258,7 @@
                         var data = "";
                         for (var i = 0; i < _self.products.length; i++) {
                             var item = _self.products[i];
-                            if(item.Quantity < 0||item.ActualQuantity>item.Quantity)
+                            if(item.Quantity > 0||item.ActualQuantity<item.Quantity)
                             {
                                 bootbox.alert("商品["+item.ProductName+"]实收数不正确");
                                 return;
@@ -293,9 +293,9 @@
                                 bootbox.alert(result.error);
                             }
                         }, "json");
-                    }, 
+                    },
                     saveInventory:function(){
-                        var _self = this; 
+                        var _self = this;
                         bootbox.confirm("您确定提交该记录？", function (result) {
                             if (result) {
                                 $.post("/StorePurchaseOrder/SaveInventory", {id:_self.model.id}, function (result) {
@@ -309,21 +309,21 @@
                                     }
                                 }, "json");
                             }
-                        });                       
+                        });
                     },
                     inputNext: function (event) {
                         var target = event.target;
                         var row = $(target).parent().parent();
                         if (row.next().length > 0) {
                             row.next().find("input.quantity").focus().select();
-                        }                       
+                        }
                     },
                     inputShelfLife:function(){
                         var target = event.target;
                         var row = $(target).parent().parent();
                         if (row.next().length > 0) {
                             row.next().find("input.shelfLife").focus().select();
-                        }                        
+                        }
                     } ,
                     // 扫码
                     inputProduct:function(){
@@ -333,7 +333,7 @@
                             {
                                 item.ActualQuantity= item.ActualQuantity<item.Quantity ? item.ActualQuantity + 1 :item.Quantity ;
                                 _self.inputProductCodeOrBarCode = "";
-                               // item.BgColor = item.ActualQuantity==item.Quantity ?"bg-success":"bg-danger";                            
+                               // item.BgColor = item.ActualQuantity==item.Quantity ?"bg-success":"bg-danger";
                                 return;
                             }
                         })
@@ -341,9 +341,9 @@
                     toggleScan:function(){
                         var _self = this;
                         _self.toggleScanText = _self.toggleScanText=="关"?"开":"关" ;
-                        _self.products.forEach(function (item) {                         
+                        _self.products.forEach(function (item) {
                             item.ActualQuantity = _self.toggleScanText=="关"? item.Quantity : 0 ;
-                           // item.BgColor = item.ActualQuantity==item.Quantity ?"bg-success":"bg-danger";     
+                           // item.BgColor = item.ActualQuantity==item.Quantity ?"bg-success":"bg-danger";
                         })
                     }
                 },
@@ -364,7 +364,7 @@
                             //item.PackageQuantity =item.SpecificationQuantitys[0]==1?0: parseInt(qty / item.SpecificationQuantitys[0]);
                             item.ActualPackageQuantity =item.SpecificationQuantity==1?0: parseInt(qty / item.SpecificationQuantity);
                             //设置颜色
-                            item.BgColor = item.ActualQuantity==item.Quantity ?"bg-success":"bg-danger";                                                 
+                            item.BgColor = item.ActualQuantity==item.Quantity ?"bg-success":"bg-danger";
                         })
                         _self.totalQuantity = bookQty;
                         _self.totalActualQuantity = totalActualQty;
@@ -372,7 +372,7 @@
                     }
                 },
                 watch:{
-                    
+
                 }
 
             });
@@ -389,6 +389,10 @@
         });
     </script>
 }
+
+
+
+
 
 
 

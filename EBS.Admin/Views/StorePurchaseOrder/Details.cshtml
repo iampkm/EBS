@@ -23,6 +23,7 @@
                 <div class="form-group col-sm-4 col-xs-6">
                     <a class="btn btn-warning btn-flat" href="/StorePurchaseOrder/Edit/{{model.id}}" v-show="model.status==1">编辑</a>
                     <a class="btn btn-success btn-flat" href="/StorePurchaseOrder/WaitStockIn/{{model.id}}" v-show="model.status==1">收货</a>
+                    <button type="button" class="btn btn-warning btn-flat" v-on:click="audit" v-show="model.status==4" >财务审核</button>
                     <button type="button" class="btn btn-primary btn-flat" v-on:click="print">打印</button>
                     <a class="btn btn-default btn-flat" href="javascript:history.go(-1);">取 消</a>
                     <input type="hidden" v-model="model.id" />
@@ -173,7 +174,7 @@
                         <table class="table table-bordered">
                             <caption>
                                 <h3 class="panel-title">                                   
-                                   收货流程记录
+                                    流程记录
                                 </h3>
                             </caption>
                             <thead>
@@ -221,6 +222,17 @@
                 methods: {
                     print: function () {
                          $("#printDiv").printArea();
+                    },
+                    audit:function(){
+                        var _self = this;
+                        $.post("/StorePurchaseOrder/FinanceAuditd", { id: _self.model.id }, function (result) {
+                            if (result.success) {
+                                window.history.go(-1);
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
                     }
                 }
             });

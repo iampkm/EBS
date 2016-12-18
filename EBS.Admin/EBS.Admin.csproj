@@ -1250,6 +1250,10 @@
     <Content Include="Views\StorePurchaseOrder\RefundIndex.cshtml" />
     <Content Include="Views\StorePurchaseOrder\Refund.cshtml" />
     <Content Include="Views\StorePurchaseOrder\Details.cshtml" />
+    <Content Include="Views\StorePurchaseOrder\FinanceIndex.cshtml" />
+    <Content Include="Views\StorePurchaseOrder\RefundEdit.cshtml" />
+    <Content Include="Views\StorePurchaseOrder\RefundDetails.cshtml" />
+    <Content Include="Views\StorePurchaseOrder\WaitStockOut.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">

@@ -20,8 +20,8 @@
 <div id="app" class="box box-primary">
     <div class="box-header with-border">
         <ol class="breadcrumb" style="padding:0px;margin:1px;">
-            <li><a href="/StorePurchaseOrder/Index"><i class="fa fa-dashboard"></i>采购单管理</a></li>
-            <li class="active"><a href="/StorePurchaseOrder/Edit/{{model.id}}">修改采购单</a></li>
+            <li><a href="/StorePurchaseOrder/RefundIndex"><i class="fa fa-dashboard"></i>采购退单</a></li>
+            <li class="active"><a href="/StorePurchaseOrder/RefundEdit/{{model.id}}">修改采购退单</a></li>
         </ol>
     </div>
     <!-- /.box-header -->
@@ -37,7 +37,7 @@
                     <input type="hidden" v-model="model.id" />
                 </div>
             </div>
-            <div class="row"> 
+            <div class="row">
                 <div class="col-sm-2 col-xs-3" v-show="selectStore.view">
                     <div class="input-group ">
                         <input type="hidden" class="form-control" v-model="model.storeId">
@@ -101,10 +101,10 @@
                                     <th>合同进价</th>
                                     <th>进价</th>
                                     <th style="width:120px;">件规</th>
-                                    <th>订货件数</th>
-                                    <th style="width:100px;">订货数量</th>
-                                    <th>实收件数</th>
-                                    <th>实收数量</th>
+                                    <th>退货件数</th>
+                                    <th style="width:100px;">退货数量</th>
+                                    <th>实退件数</th>
+                                    <th>实退数量</th>
                                     <th>金额</th>
                                     <th>生产日期</th>
                                     <th>保质期</th>
@@ -181,10 +181,10 @@
                     <span>供应商： </span>
                 </div>
                 <div class="col-xs-3 col-sm-3">
-                    <span>收货人：{{model.receivedByName}}</span>
+                    <span>退货人：{{model.receivedByName}}</span>
                 </div>
                 <div class="col-xs-3 col-sm-3">
-                    <span>入库人：{{model.storagedByName}}</span>
+                    <span>出库人：{{model.storagedByName}}</span>
                 </div>
             </div>
             <!--流程-->
@@ -238,12 +238,12 @@
             <div style="min-height:350px;max-height:500px;overflow:auto;"><ul id="ztree" class="ztree"></ul></div>
         </div>
     </v-modal>
-    <div id="printDiv" ></div>
+    <div id="printDiv"></div>
 </div>
 @{Html.RenderPartial("VueTableTemplate");}
-@section scripts{   
+@section scripts{
     <script src="~/Content/Vue/vuetable/vuetable.js"></script>
-<script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
+    <script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
     <script src="~/Scripts/jquery.PrintArea.js"></script>
     <script>
     $("doucument").ready(function () {
@@ -308,7 +308,7 @@
                     $.post("/StorePurchaseOrder/Edit", v_data, function (result) {
                         if (result.success) {
                             bootbox.alert("保存成功！", function () {
-                                window.location.href = "/StorePurchaseOrder/Index";
+                                window.location.href = "/StorePurchaseOrder/RefundIndex";
                             });
                         }
                         else {
@@ -334,7 +334,7 @@
                                 var item = result.data[i];
                                 if(_self.model.supplierId==0){
                                     _self.model.supplierId = item.SupplierId;
-                                    _self.selectSupplier.name = item.SupplierName;                                   
+                                    _self.selectSupplier.name = item.SupplierName;
                                 }
                                 else{
                                     //同一个单子，供应商应该一致
@@ -407,7 +407,7 @@
                         if (result.success) {
                             if(_self.model.supplierId==0){
                                 _self.model.supplierId = result.data.SupplierId;
-                                _self.selectSupplier.name = result.data.SupplierName;                                   
+                                _self.selectSupplier.name = result.data.SupplierName;
                             }
                             else{
                                 //同一个单子，供应商应该一致
@@ -416,7 +416,7 @@
                                     bootbox.alert("录入的商品供应商不一致");return;
                                 }
                             }
-                            _self.products.$set(index, result.data); 
+                            _self.products.$set(index, result.data);
                             //设置焦点,延迟500，等待vue.js 渲染完毕
                             setTimeout(function () {
                                 var selector = "tr:eq(" + index + ")";
@@ -448,7 +448,7 @@
                     this.selectStore.name = "";
                 },
                 getStore: function () {
-                    var treeObj = $.fn.zTree.getZTreeObj("ztree"); 
+                    var treeObj = $.fn.zTree.getZTreeObj("ztree");
                     var selecteds= treeObj.getCheckedNodes(true);
                     if (selecteds) {
                         var idArray = new Array();
@@ -469,7 +469,7 @@
                         {
                             bootbox.alert("请选择一个门店");
                         }
-                           
+
                     }
                 },
                 print: function () {
@@ -485,7 +485,7 @@
                     {
                         this.products = [{
                             ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', ContractPrice: 0, Price: 0,
-                            PackageQuantity: 0,SpecificationQuantity: 1, SpecificationQuantitys: [1], Quantity: 1, ActualPackageQuantity: 0, ActualQuantity: 0, Amount: 0,
+                            PackageQuantity: 0,SpecificationQuantity: 1, SpecificationQuantitys: [1], Quantity: -1, ActualPackageQuantity: 0, ActualQuantity: 0, Amount: 0,
                             ProductionDate: '', ShelfLife: 0
                         }];
                     }
@@ -512,11 +512,11 @@
         });
 
         //加载门店tree
-        var zTreeObj;           
+        var zTreeObj;
         var setting = {
             check: {
                 enable:true
-            },               
+            },
             async: {
                 enable: true,
                 url: "/Store/LoadStore",
@@ -528,14 +528,16 @@
                     var treeObj = $.fn.zTree.getZTreeObj("ztree");
                     var open = !treeNode.open;
                     treeObj.expandNode(treeNode, open, false, false);
-                    // vue.searchArgs.categoryId =treeNode.id;                      
+                    // vue.searchArgs.categoryId =treeNode.id;
                 }
             }
-        };           
+        };
         zTreeObj = $.fn.zTree.init($("#ztree"), setting);
     });
     </script>
 }
+
+
 
 
 

@@ -19,7 +19,7 @@
     <div class="box box-primary">
         <div class="box-header">
             <ol class="breadcrumb" style="padding:0px;margin:1px;">
-                <li><a href="/StorePurchaseOrder/RefundIndex"><i class="fa fa-dashboard"></i> 采购退单</a></li>
+                <li><a href="/StorePurchaseOrder/FinanceIndex"><i class="fa fa-dashboard"></i> 采购单财务审核</a></li>
             </ol>
         </div>
         <div class="box-body">
@@ -67,8 +67,7 @@
                     </div>
                 </div>
                 <span class="input-group-btn" slot="customButtons">
-                    <a class="btn btn-warning btn-flat" href="/StorePurchaseOrder/Refund">新 增</a>
-                    <button type="button" class="btn btn-danger btn-flat" v-on:click="remove()">作 废</button>
+                    <button type="button" class="btn btn-warning btn-flat" v-on:click="submitAudit()">审核</button>
                 </span>
             </vue-table>
         </div>
@@ -122,18 +121,18 @@
                 removeReason: '',
                 searchQuery: '',
                 gridColumns: [
-                { name: 'Code', localName: '采购单号', style: "<a href='/StorePurchaseOrder/RefundDetails/{id}'>{column}</a>" },
+                { name: 'Code', localName: '采购单号', style: "<a href='/StorePurchaseOrder/Details/{id}'>{column}</a>" },
                 { name: 'StoreName', localName: '门店' },
                 { name: 'Supplier', localName: '供应商', width: '250' },
-                { name: 'Quantity', localName: '退货数' },
-                { name: 'ActualQuantity', localName: '实退数' },
-                { name: 'Amount', localName: '实退金额' },
+                { name: 'Quantity', localName: '订货数' },
+                { name: 'ActualQuantity', localName: '实收数' },
+                { name: 'Amount', localName: '实收金额' },
                 { name: 'PurchaseOrderStatus', localName: '状态', width: '80' },
                 { name: 'CreatedByName', localName: '创建人' },
                 { name: 'CreatedTime', localName: '创建时间' }
                 ],
                 url: "/StorePurchaseOrder/LoadData",
-                searchArgs: { code: '', supplierId: 0, storeId: 0, status: 0 ,productCodeOrBarCode:'',orderType:2},
+                searchArgs: { code: '', supplierId: 0, storeId: 0, status: 4 ,productCodeOrBarCode:'',orderType:0},
                 rows: [],
                 selectSupplier: {
                     modal: false,
@@ -192,19 +191,16 @@
                         return;
                     }
                     var selectId = selectRow[0].Id;
-                    v_self = this;
-                    bootbox.confirm("您确定提交该记录？", function (result) {
-                        if (result) {
-                            $.post("/StorePurchaseOrder/Submit", { id: selectId }, function (result) {
-                                if (result.success) {
-                                    v_self.$refs.vtable.loadData();
-                                }
-                                else {
-                                    bootbox.alert(result.error);
-                                }
-                            }, "json");
+                    var _self = this;
+                    $.post("/StorePurchaseOrder/FinanceAuditd", { id:selectId }, function (result) {
+                        if (result.success) {
+                            v_self.$refs.vtable.loadData();
                         }
-                    });
+                        else {
+                            bootbox.alert(result.error);
+                        }
+                    }, "json");
+
                 },
                 showSupplier: function () {
                     this.selectSupplier.modal = true;

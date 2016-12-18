@@ -34,15 +34,15 @@ namespace EBS.Domain.Service
        }
 
        /// <summary>
-       /// 入库批次号算法
+       /// 入库批次号算法:年月日时分秒+两位随机数
        /// </summary>
        /// <returns></returns>
        public string GenerateBatchNo()
        {
            var date = DateTime.Now;
-           var ts = date - Convert.ToDateTime(date.ToShortDateString());
-           var seconds = Math.Truncate(ts.TotalSeconds).ToString().PadLeft(6, '0');
-           return string.Format("{0}{1}", date.ToString("yyyyMMdd"), seconds);
+            Random rd = new Random(Guid.NewGuid().GetHashCode());
+            var rdNumber = rd.Next(0, 100).ToString();
+           return string.Format("{0}{1}", date.ToString("yyyyMMddHHmmss"), rdNumber);
        }
     }
 }
