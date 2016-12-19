@@ -126,8 +126,12 @@ where t0.Id= @Id  LIMIT 1";
  from storepurchaseorderitem i left join product p on i.productId = p.Id
 where i.storepurchaseorderid= @Id";
             var productItems = _query.FindAll<StorePurchaseOrderItemDto>(sqlitem, new { Id = id }).ToList();
-
+            foreach (var product in productItems)
+            {
+                product.SetSpecificationQuantity();
+            }
             model.Items = productItems;
+            
             return model;
         }
 

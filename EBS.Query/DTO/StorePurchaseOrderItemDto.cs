@@ -99,6 +99,8 @@ namespace EBS.Query.DTO
              
        public void SetSpecificationQuantity() {
           this.SpecificationQuantity= this.SpecificationQuantitys[0];
+            this.ActualPackageQuantity = this.ActualQuantity / this.SpecificationQuantity;
+            this.PackageQuantity = this.Quantity / this.SpecificationQuantity;
        }
 
        public string BgColor { get {

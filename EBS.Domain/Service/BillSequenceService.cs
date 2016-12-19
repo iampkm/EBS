@@ -39,10 +39,16 @@ namespace EBS.Domain.Service
        /// <returns></returns>
        public string GenerateBatchNo()
        {
+            // 每天，门店的采购单顺序号：  日期+01
            var date = DateTime.Now;
             Random rd = new Random(Guid.NewGuid().GetHashCode());
             var rdNumber = rd.Next(0, 100).ToString();
            return string.Format("{0}{1}", date.ToString("yyyyMMddHHmmss"), rdNumber);
        }
+
+        //public string GenerateBatchNo(int storeId)
+        //{
+        //    _db.Table.Context.ExecuteScalar<int>("select count(*) from StorePurchaseOrder where CreatedOn>=")
+        //}
     }
 }

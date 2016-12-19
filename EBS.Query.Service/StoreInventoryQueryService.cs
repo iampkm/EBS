@@ -23,11 +23,11 @@ namespace EBS.Query.Service
         {
             dynamic param = new ExpandoObject();
             string where = "";           
-            if (condition.SupplierId > 0)
-            {
-                where += "and t3.SupplierId=@SupplierId ";
-                param.SupplierId = condition.SupplierId;
-            }
+            //if (condition.SupplierId > 0)
+            //{
+            //    where += "and t3.SupplierId=@SupplierId ";
+            //    param.SupplierId = condition.SupplierId;
+            //}
             if (condition.StoreId > 0)
             {
                 where += "and t0.StoreId=@StoreId ";
@@ -39,11 +39,9 @@ namespace EBS.Query.Service
                 where += "and (t1.Code=@ProductCodeOrBarCode or t1.BarCode=@ProductCodeOrBarCode) ";
                 param.ProductCodeOrBarCode = condition.ProductCodeOrBarCode;
             }
-            string sql = @"select t0.*,t1.`Code` as ProductCode ,t1.`Name` as ProductName,t1.BarCode,t1.Specification,t2.`name` as StoreName,t4.`Name` as SupplierName
+            string sql = @"select t0.*,t1.`Code` as ProductCode ,t1.`Name` as ProductName,t1.BarCode,t1.Specification,t2.`name` as StoreName
 from storeinventory t0 inner join product t1 on t0.productId = t1.Id
 inner join store t2 on t2.Id = t0.StoreId
-left join storeinventorybatch t3 on t0.ProductId = t3.ProductId
-left join supplier t4 on t4.Id = t3.SupplierId 
 where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<Product>(where, param);
             sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);

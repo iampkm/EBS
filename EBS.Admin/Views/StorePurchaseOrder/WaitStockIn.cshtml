@@ -177,46 +177,9 @@
                     <span>入库人：{{model.storagedByName}}</span>
                 </div>
             </div>
-        </div>
-        <!--流程-->
-        <br />
-        <div class="row">
-            <div class="col-xs-12 col-sm-12">
-                <div class="table-responsive">
-                    <table class="table table-bordered">
-                        <caption>
-                            <h3 class="panel-title">
-                                收货流程记录
-                            </h3>
-                        </caption>
-                        <thead>
-                            <tr>
-                                <th style="width:30px"></th>
-                                <th style="width:80px">处理人</th>
-                                <th>状态</th>
-                                <th>处理时间</th>
-                                <th>备注</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @{var index = 0;}
-                            @foreach (var item in (IEnumerable<EBS.Domain.Entity.ProcessHistory>)ViewBag.Logs)
-                            {
-                                index += 1;
-                                <tr>
-                                    <td>@(index)</td>
-                                    <td>@item.CreatedByName</td>
-                                    <td>@(((PurchaseOrderStatus)item.Status).Description())</td>
-                                    <td>@item.CreatedOn</td>
-                                    <td>@item.Remark</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </form>       
+        </div>       
+    </form>
+    <br />       
 </div>
 @{Html.RenderPartial("VueTableTemplate");}
 @section scripts{
@@ -286,8 +249,7 @@
                         $.post("/StorePurchaseOrder/ReceiveGoods", v_data, function (result) {
                             if (result.success) {
                                 bootbox.alert("保存成功！");
-                                //更改状态
-                                window.location.href = "/StorePurchaseOrder/WaitStockIn/"+_self.model.id;
+                                _self.model.status ="待入库";
                             }
                             else {
                                 bootbox.alert(result.error);
@@ -329,7 +291,7 @@
                     inputProduct:function(){
                         var _self = this;
                         this.products.forEach(function (item) {
-                            if(item.ProductCode==_self.inputProductCodeOrBarCode)
+                            if(item.ProductCode==_self.inputProductCodeOrBarCode||item.BarCode==_self.inputProductCodeOrBarCode)
                             {
                                 item.ActualQuantity= item.ActualQuantity<item.Quantity ? item.ActualQuantity + 1 :item.Quantity ;
                                 _self.inputProductCodeOrBarCode = "";

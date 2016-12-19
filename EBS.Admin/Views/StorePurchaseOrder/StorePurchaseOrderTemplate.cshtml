@@ -56,7 +56,7 @@
                         <table class="table table-bordered table-printfontsize">
                             <thead>
                                 <tr>
-                                    <th style="width:40px;">序号</th>
+                                    <th>序号</th>
                                     <th >商品编码</th>
                                     <th>条码</th>
                                     <th >品名</th>
@@ -87,7 +87,7 @@
                                     totalActualQuantity += item.ActualQuantity;
                                     countTotal += item.Price * item.ActualQuantity;
                                     <tr>
-                                        <td class="text-center">@(index+1)</td>
+                                        <td class="text-center">@(index++)</td>
                                         <td>@item.ProductCode</td>
                                         <td>@item.BarCode</td>
                                         <td>@item.ProductName</td>
@@ -109,7 +109,7 @@
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <td style="width:50px;"></td>
+                                    <td></td>
                                     <td>合计：</td>
                                     <td></td>
                                     <td></td>

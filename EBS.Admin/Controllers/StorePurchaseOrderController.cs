@@ -252,10 +252,8 @@ namespace EBS.Admin.Controllers
             ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
             var model = _storePurchaseOrderQuery.GetById(id);
             ViewBag.StorePurchaseOrderItems = JsonConvert.SerializeObject(model.Items.ToArray());
-            //查询处理流程：
-            var logs = _query.FindAll<ProcessHistory>(n => n.FormId == id && n.FormType == BillIdentity.StorePurchaseOrder.ToString());
-            ViewBag.Logs = logs;
-            return View();
+
+            return View(model);
         }
 
         public ActionResult RefundDetails(int id)
@@ -289,10 +287,15 @@ namespace EBS.Admin.Controllers
 
             });
             ViewBag.StorePurchaseOrderItems = JsonConvert.SerializeObject(model.Items.ToArray());
-            //查询处理流程：
-            var logs = _query.FindAll<ProcessHistory>(n => n.FormId == id && n.FormType == FormType.StorePurchaseOrder);
-            ViewBag.Logs = logs;
+
             return View(model);
+        }
+
+        //出库
+        public JsonResult StockOutInventory(int id)
+        {
+            _storePurchaseOrderFacade.GetOutOfInventory(id, _context.CurrentAccount.AccountId, _context.CurrentAccount.NickName);
+            return Json(new { success = true });
         }
 
     }
