@@ -27,7 +27,7 @@ namespace EBS.Domain.Service
                 //批次 
                 item.BatchNo = batchNo;                  
                 var batch = new StoreInventoryBatch(item.ProductId, entity.StoreId, entity.SupplierId, item.ActualQuantity,
-                    item.Price, item.BatchNo, item.ProductionDate, item.ShelfLife, entity.StoragedBy);
+                    item.ContractPrice,item.Price, item.BatchNo, item.ProductionDate, item.ShelfLife, entity.StoragedBy);
                 inventoryBatchs.Add(batch);               
             }
             return inventoryBatchs;

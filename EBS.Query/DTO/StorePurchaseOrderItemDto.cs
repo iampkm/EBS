@@ -109,5 +109,11 @@ namespace EBS.Query.DTO
        public int SupplierId { get; set; }
 
        public string SupplierName { get; set; }
+       /// <summary>
+       /// 库存数量：退单使用
+       /// </summary>
+       public int InventoryQuantity { get; set; }
+
+       public string BatchNo { get; set; }
     }
 }

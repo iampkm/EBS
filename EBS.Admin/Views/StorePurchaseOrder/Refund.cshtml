@@ -95,6 +95,7 @@
                                     <th>单位</th>
                                     <th>合同进价</th>
                                     <th>进价</th>
+                                    <th>库存</th>
                                     <th style="width:120px;">件规</th>
                                     <th>退货件数</th>
                                     <th style="width:100px;">退货数量</th>
@@ -113,14 +114,15 @@
                                     </td>
                                     <td class="text-center">{{index+1}}</td>
                                     <td>
-                                        <input type="text" class="form-control productCode" v-model="item.ProductCode" v-on:keyup.enter="inputProduct(item.ProductCode,index)" placeholder="录入编码或扫码" />
+                                        <input type="text" class="form-control productCode" v-model="item.ProductCode" v-on:keyup.enter="inputProduct(item.ProductCode,index,'')" placeholder="录入编码或扫码" />
                                     </td>
                                     <td>{{item.BarCode}}</td>
                                     <td>{{item.ProductName}}</td>
                                     <td>{{item.Specification}}</td>
                                     <td>{{item.Unit}}</td>
-                                    <td>{{item.ContractPrice.toFixed(2)}}</td>
+                                    <td>{{item.ContractPrice.toFixed(2)}}</td>                                    
                                     <td v-bind:class="{'text-danger':item.ContractPrice>item.Price}">{{model.isGift?0:item.ContractPrice.toFixed(2)}}</td>
+                                    <td>{{item.InventoryQuantity}}</td>
                                     <td>
                                         <select class="form-control" v-model="item.SpecificationQuantity">
                                             <option v-for="option in item.SpecificationQuantitys" v-bind:value="option">
@@ -130,7 +132,7 @@
                                     </td>
                                     <td>{{item.PackageQuantity}}</td>
                                     <td>
-                                        <input type="number" class="form-control quantity" v-model="item.Quantity" v-on:keyup.enter="inputNext($event)" />
+                                        <input type="number" class="form-control quantity" v-model="item.Quantity" v-on:keyup.enter="inputNext($event)" v-on:keyup.right="showBatch(index)" />
                                     </td>
                                     <td>{{item.ActualPackageQuantity}}</td>
                                     <td>
@@ -148,6 +150,7 @@
                                     <td></td>
                                     <td style="width:50px;"></td>
                                     <td>合计：</td>
+                                    <td></td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
@@ -183,6 +186,8 @@
                 </div>
             </div>
         </div>
+        <br />
+        <p class="text-danger">友情提示：退货数量处按 -> 右方向键，可以更换商品批次。</p>
     </form>
     <!-- modal -->
     <v-modal title="导入商品" ok-text="确 定" cancel-text="取 消" v-bind:callback="importProduct" v-bind:show.sync="modal" v-bind:effect="fade" width="300">
@@ -193,6 +198,22 @@
     <v-modal title="选择门店" ok-text="确 定" cancel-text="取 消" v-bind:callback="getStore" v-bind:show.sync="selectStore.modal" v-bind:effect="fade" width="60%">
         <div slot="modal-body" class="modal-body">
             <div style="min-height:350px;max-height:500px;overflow:auto;"><ul id="ztree" class="ztree"></ul></div>
+        </div>
+    </v-modal>
+    <v-modal title="选择商品批次" ok-text="确 定" cancel-text="取 消" v-bind:callback="getBatch" v-bind:show.sync="selectBatch.modal" v-bind:effect="fade" width="60%">
+        <div slot="modal-body" class="modal-body">
+            <vue-table v-bind:columns="selectBatch.gridColumns"
+                       v-bind:url="selectBatch.url" v-bind:show-toolbar="false"
+                       v-bind:args="selectBatch.searchArgs" v-bind:data.sync="selectBatch.rows">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                    @*<div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="selectBatch.searchArgs.code" placeholder="输入供应编码" debounce="300" />
+                    </div>
+                    <div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="selectBatch.searchArgs.name" placeholder="输入供应商名" debounce="300" />
+                    </div>*@
+                </div>
+            </vue-table>
         </div>
     </v-modal>
 </div>
@@ -225,7 +246,7 @@
                     products: [{
                         ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', ContractPrice: 0, Price: 0,
                         PackageQuantity: 0,SpecificationQuantity:1, SpecificationQuantitys: [1], Quantity: -1, ActualPackageQuantity: 0, ActualQuantity: 0, Amount: 0,
-                        ProductionDate: '', ShelfLife: 0
+                        ProductionDate: '', ShelfLife: 0,BatchNo:'',InventoryQuantity:0
                     }],
                     totalQuantity: 0,
                     inputProducts: '',
@@ -237,6 +258,21 @@
                         modal: false,
                         name: '@ViewBag.StoreName',
                         view:@ViewBag.View,
+                    },
+                    selectBatch:{
+                        modal:false,
+                        gridColumns: [
+                           { name: 'ProductCode', localName: '编码', width: '100' },
+                           { name: 'ProductName', localName: '名称', width: '200' },
+                           { name: 'SupplierName', localName: '供应商', width: '200' },
+                           { name: 'Quantity', localName: '库存', width: '100' },
+                           { name: 'ContractPrice', localName: '进价', width: '100' },
+                           { name: 'BatchNo', localName: '批次' },
+                        ],
+                        url: "/StorePurchaseOrder/LoadProductBatchs",
+                        searchArgs: { productCodeOrBarCode: '', storeId: 0 },
+                        rows: [],
+                        index:0
                     }
                 },
                 methods: {
@@ -246,10 +282,12 @@
                         var data = "";
                         for (var i = 0; i < _self.products.length; i++) {
                             var item = _self.products[i];
-                            if (item.ProductId > 0 && item.Quantity < 0) {
+                            //商品存在，商品数量为负，商品退货数绝对值小于库存数
+                            if (item.ProductId > 0 && item.Quantity < 0 && item.InventoryQuantity+item.Quantity>=0) {
                                 var price = _self.model.isGift?0:item.ContractPrice;
                                 data += "{\"ProductId\":" + item.ProductId + ",\"ContractPrice\":" + item.ContractPrice
-                                     + ",\"Price\":" + price + ",\"Quantity\":" + item.Quantity + ",\"SpecificationQuantity\":" + item.SpecificationQuantity +"},";
+                                     + ",\"Price\":" + price + ",\"Quantity\":" + item.Quantity + ",\"SpecificationQuantity\":" + item.SpecificationQuantity 
+                                     + ",\"BatchNo\":\"" + item.BatchNo + "\"},";
                             }
                         }
                         if (data == "") {
@@ -320,7 +358,7 @@
                         this.products.push({
                             ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', ContractPrice: 0, Price: 0,
                             PackageQuantity: 0,SpecificationQuantity:1, SpecificationQuantitys: [1], Quantity: -1, ActualPackageQuantity: 0, ActualQuantity: 0, Amount: 0,
-                            ProductionDate: '', ShelfLife: 0
+                            ProductionDate: '', ShelfLife: 0,BatchNo:'',InventoryQuantity:0
                         });
                         //设置焦点
                         var target = event.srcElement || event.target;
@@ -342,13 +380,14 @@
                     removeRow: function (index) {
                         this.products.splice(index, 1);
                     },
-                    inputProduct: function (codeOrBarCode, index) {
+                    inputProduct: function (codeOrBarCode, index,batch) {
                         var _self = this;
                         if (codeOrBarCode == "") { return; }
                         if (_self.model.storeId == 0) { bootbox.alert("请选择门店"); return; }
                         var data = {
                             productCodeOrBarCode: codeOrBarCode,
-                            storeId: _self.model.storeId
+                            storeId: _self.model.storeId,
+                            batchNo:batch
                         }
                         //设置焦点
                         $.get("/StorePurchaseOrder/GetRefundOrderItem", data, function (result) {
@@ -430,8 +469,30 @@
                             this.products = [{
                                 ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', ContractPrice: 0, Price: 0,
                                 PackageQuantity: 0,SpecificationQuantity: 1, SpecificationQuantitys: [1], Quantity: -1, ActualPackageQuantity: 0, ActualQuantity: 0, Amount: 0,
-                                ProductionDate: '', ShelfLife: 0
+                                ProductionDate: '', ShelfLife: 0,BatchNo:'',InventoryQuantity:0
                             }];
+                        }
+                    },
+                    showBatch:function(index){
+                        this.selectBatch.modal = true;
+                        this.selectBatch.searchArgs.productCodeOrBarCode =  this.products[index].ProductCode;
+                        this.selectBatch.searchArgs.storeId =  this.model.storeId;
+                        this.selectBatch.index = index;
+                    },
+                    getBatch:function(){
+                        var selectRow = this.selectBatch.rows.filter(function (item, index) {
+                            if (item.checked) {
+                                return true;
+                            }
+                        });
+                        if(selectRow)
+                        {
+                            var selectItem = selectRow[0];
+                            this.inputProduct(selectItem.ProductCode, this.selectBatch.index,selectItem.BatchNo);
+                            this.selectBatch.modal = false;
+                        }
+                        else{
+                            bootbox.alert("请选择一个记录");
                         }
                     }
                 },

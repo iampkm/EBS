@@ -67,7 +67,7 @@ namespace EBS.Admin.Controllers
         public ActionResult Create()
         {
             ViewBag.IsGift = "false";
-            ViewBag.Status = PurchaseOrderStatus.WaitStockIn.Description() ;
+            ViewBag.Status = PurchaseOrderStatus.Create.Description();
             ViewBag.CreatedByName = _context.CurrentAccount.NickName;
             ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
             ViewBag.StoreId = _context.CurrentAccount.StoreId;
@@ -78,7 +78,7 @@ namespace EBS.Admin.Controllers
         public ActionResult CreateGift()
         {
             ViewBag.IsGift = "true";
-            ViewBag.Status = PurchaseOrderStatus.WaitStockIn.Description();
+            ViewBag.Status = PurchaseOrderStatus.Create.Description();
             ViewBag.CreatedByName = _context.CurrentAccount.NickName;
             ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
             ViewBag.StoreId = _context.CurrentAccount.StoreId;
@@ -191,9 +191,9 @@ namespace EBS.Admin.Controllers
             return Json(new { success = true, data = result });
         }
 
-        public JsonResult GetRefundOrderItem(string productCodeOrBarCode, int storeId)
+        public JsonResult GetRefundOrderItem(string productCodeOrBarCode, int storeId,string batchNo)
         {
-            var result = _storePurchaseOrderQuery.GetRefundOrderItem(productCodeOrBarCode, storeId);
+            var result = _storePurchaseOrderQuery.GetRefundOrderItem(productCodeOrBarCode, storeId, batchNo);
             return Json(new { success = true, data = result });
         }
 
@@ -233,12 +233,18 @@ namespace EBS.Admin.Controllers
         public ActionResult Refund()
         {
             ViewBag.IsGift = "false";
-            ViewBag.Status = PurchaseOrderStatus.WaitStockOut.Description();
+            ViewBag.Status = PurchaseOrderStatus.Create.Description();
             ViewBag.CreatedByName = _context.CurrentAccount.NickName;
             ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
             ViewBag.StoreId = _context.CurrentAccount.StoreId;
             ViewBag.StoreName = _context.CurrentAccount.StoreName;
             return View();
+        }
+
+        public JsonResult LoadProductBatchs(string productCodeOrBarCode,int storeId)
+        {
+            var rows = _storePurchaseOrderQuery.GetProductBatchs(productCodeOrBarCode, storeId).ToList();
+            return Json(new { success = true, data = rows, total = rows.Count }, JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult RefundEdit(int id)

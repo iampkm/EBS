@@ -10,7 +10,7 @@ namespace EBS.Domain.Entity
     {
         public StoreInventoryBatch() { }
 
-        public StoreInventoryBatch(int productId, int storeId, int supplierId, int quantity, decimal price, string batchNo,
+        public StoreInventoryBatch(int productId, int storeId, int supplierId, int quantity,decimal contractPrice, decimal price, string batchNo,
                    DateTime? productionDate, int shelfLife,  int createdBy)
         {
             this.ProductId = productId;
@@ -23,6 +23,7 @@ namespace EBS.Domain.Entity
             this.ShelfLife = shelfLife;
             this.CreatedBy = createdBy;
             this.CreatedOn = DateTime.Now;
+            this.ContractPrice = contractPrice;
         }
 
         /// <summary>
@@ -50,7 +51,12 @@ namespace EBS.Domain.Entity
         /// </summary>
         public int ShelfLife { get; set; }
         /// <summary>
-        /// 批次价格
+        /// 合同价
+        /// </summary>
+        public decimal ContractPrice { get; set; }
+
+        /// <summary>
+        /// 实际进货价 （赠品价位 0）
         /// </summary>
         public decimal Price { get; set; }
         /// <summary>
