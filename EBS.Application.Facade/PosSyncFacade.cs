@@ -31,7 +31,9 @@ namespace EBS.Application.Facade
             var model = JsonConvert.DeserializeObject<SaleOrder>(body, dateTimeConverter);
             model.Hour = model.CreatedOn.Hour; //设置订单时段
             _db.Insert(model);
-            _storeInventoryService.MinusInventory(model);
+            _db.SaveChange();  // 先保存订单
+            var entity= _db.Table.Find<SaleOrder>(n => n.Code == model.Code);
+            _storeInventoryService.StockOutSaleOrder(entity);
             _db.SaveChange();
         }
 

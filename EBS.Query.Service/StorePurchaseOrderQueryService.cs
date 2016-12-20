@@ -48,8 +48,11 @@ namespace EBS.Query.Service
                 where += "and t3.ProductId in (select Id from Product where Code=@ProductCodeOrBarCode or BarCode=@ProductCodeOrBarCode) ";
                 param.Code = condition.Code;
             }
-            where += " and t0.OrderType=@OrderType";
-            param.OrderType = condition.OrderType;
+            if (condition.OrderType > 0)
+            {
+                where += " and t0.OrderType=@OrderType";
+                param.OrderType = condition.OrderType;
+            }          
             string sql = @"select t0.Id,t0.Code,t0.SupplierId,t0.CreatedOn,t0.CreatedByName,t0.Status,t1.Code as SupplierCode,t1.Name as SupplierName,t2.Name as StoreName,t3.Quantity,t3.ActualQuantity,t3.Amount  
 from storepurchaseorder t0 inner join supplier t1 on t0.SupplierId = t1.Id inner join store t2 on t0.StoreId = t2.Id
 left join (select i.StorePurchaseOrderId,SUM(i.Quantity) as Quantity,SUM(i.ActualQuantity) as ActualQuantity,SUM(i.Price* i.ActualQuantity ) as Amount 
@@ -115,7 +118,7 @@ and FIND_IN_SET(@StoreId,c.StoreIds)";
        
         public StorePurchaseOrderDto GetById(int id)
         {
-           string sql = @"select t0.Id,t0.Code,t0.SupplierId,t0.StoreId,t0.CreatedOn,t0.CreatedByName,t0.ReceivedOn,t0.ReceivedByName,t0.StoragedOn,t0.StoragedByName,
+           string sql = @"select t0.Id,t0.Code,t0.SupplierId,t0.StoreId,t0.CreatedOn,t0.CreatedByName,t0.ReceivedOn,t0.ReceivedByName,t0.StoragedOn,t0.StoragedByName,t0.OrderType,
 t0.IsGift,t0.Status,t1.Code as SupplierCode,t1.Name as SupplierName,t2.Name as StoreName,t0.SupplierBill
 from storepurchaseorder t0 inner
 join supplier t1 on t0.SupplierId = t1.Id inner

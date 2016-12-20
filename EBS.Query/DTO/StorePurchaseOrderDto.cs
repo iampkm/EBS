@@ -53,5 +53,7 @@ namespace EBS.Query.DTO
         public bool IsGift { get; set; }
 
         public List<StorePurchaseOrderItemDto> Items { get; set; }
+
+        public OrderType OrderType { get; set; }
     }
 }

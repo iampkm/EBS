@@ -99,9 +99,13 @@ namespace EBS.Admin.Controllers
 
         public ActionResult Details(int id)
         {
-            var model = _storePurchaseOrderQuery.GetById(id);
+            var model = _storePurchaseOrderQuery.GetById(id);            
             var logs = _query.FindAll<ProcessHistory>(n => n.FormId == id && n.FormType == FormType.StorePurchaseOrder);
             ViewBag.Logs = logs;
+            if (model.OrderType == OrderType.Refund)
+            {
+                return View("RefundDetails",model);
+            }
             return View(model);
         }
 
