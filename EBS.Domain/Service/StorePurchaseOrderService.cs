@@ -66,10 +66,6 @@ namespace EBS.Domain.Service
 
         public void UpdateWithItem(StorePurchaseOrder model)
         {
-            if (_db.Table.Exists<StorePurchaseOrder>(n => n.Code == model.Code && n.Id != model.Id))
-            {
-                throw new Exception("采购单号不能重复!");
-            }
             if (_db.Table.Exists<StorePurchaseOrderItem>(n => n.StorePurchaseOrderId == model.Id))
             {
                 _db.Delete<StorePurchaseOrderItem>(n => n.StorePurchaseOrderId == model.Id);

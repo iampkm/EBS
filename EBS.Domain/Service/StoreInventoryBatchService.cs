@@ -21,7 +21,7 @@ namespace EBS.Domain.Service
         public List<StoreInventoryBatch> SaveBatch(StorePurchaseOrder entity)
         {
             var inventoryBatchs = new List<StoreInventoryBatch>();
-            string batchNo = _sequenceService.GenerateBatchNo();
+            var batchNo = _sequenceService.GenerateBatchNo(entity.StoreId);
             foreach (var item in entity.Items)
             {
                 //批次 

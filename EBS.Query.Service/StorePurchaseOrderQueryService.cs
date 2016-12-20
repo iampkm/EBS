@@ -137,7 +137,7 @@ where i.storepurchaseorderid= @Id";
 
 
         //退单按照先进先出原则从库存查询
-        public StorePurchaseOrderItemDto GetRefundOrderItem(string productCodeOrBarCode, int storeId,string batchNo="")
+        public StorePurchaseOrderItemDto GetRefundOrderItem(string productCodeOrBarCode, int storeId,long batchNo = 0)
         {
             if (string.IsNullOrEmpty(productCodeOrBarCode)) { throw new Exception("请输入商品编码或条码"); }
             // 有调整价，有先使用最新的调整价；无才使用合同价
@@ -148,9 +148,9 @@ left join supplier s on s.Id = i.SupplierId
 left join storeinventory si on si.ProductId = p.Id
 where (p.`Code`=@productCodeOrBarCode or p.BarCode=@productCodeOrBarCode) and i.Quantity>0 and i.StoreId=@StoreId {0} LIMIT 1";
             string whereBatch = "";
-            if (!string.IsNullOrEmpty(batchNo))
+            if (batchNo>0)
             {
-                whereBatch = string.Format(" and i.BatchNo='{0}' ", batchNo);
+                whereBatch = string.Format(" and i.BatchNo={0} ", batchNo);
             }
             sql = string.Format(sql, whereBatch);
             var item = _query.Find<StorePurchaseOrderItemDto>(sql, new { ProductCodeOrBarCode = productCodeOrBarCode, StoreId = storeId });

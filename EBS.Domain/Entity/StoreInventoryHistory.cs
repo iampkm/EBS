@@ -9,7 +9,7 @@ namespace EBS.Domain.Entity
    public class StoreInventoryHistory:BaseEntity
     {
         public StoreInventoryHistory() { }
-        public StoreInventoryHistory(int productId,int storeId,int quantity,int changeQuantity,decimal price,string batchNo,
+        public StoreInventoryHistory(int productId, int storeId, int quantity, int changeQuantity, decimal price, long batchNo,
             int billId, string billCode,BillIdentity billType,int createdBy)
         {
             this.ProductId = productId;
@@ -47,7 +47,7 @@ namespace EBS.Domain.Entity
        /// <summary>
        /// 批次号
        /// </summary>
-         public string BatchNo { get; set; }  
+         public long BatchNo { get; set; }  
        /// <summary>
        /// 单据编号
        /// </summary>

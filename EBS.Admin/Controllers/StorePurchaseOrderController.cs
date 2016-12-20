@@ -191,7 +191,7 @@ namespace EBS.Admin.Controllers
             return Json(new { success = true, data = result });
         }
 
-        public JsonResult GetRefundOrderItem(string productCodeOrBarCode, int storeId,string batchNo)
+        public JsonResult GetRefundOrderItem(string productCodeOrBarCode, int storeId, long batchNo = 0)
         {
             var result = _storePurchaseOrderQuery.GetRefundOrderItem(productCodeOrBarCode, storeId, batchNo);
             return Json(new { success = true, data = result });

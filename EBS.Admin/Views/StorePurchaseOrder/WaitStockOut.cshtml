@@ -263,7 +263,7 @@
                                 $.post("/StorePurchaseOrder/StockOutInventory", {id:_self.model.id}, function (result) {
                                     if (result.success) {
                                         bootbox.alert("保存成功！", function () {
-                                            window.location.href = "/StorePurchaseOrder/Index";
+                                            window.location.href = "/StorePurchaseOrder/RefundIndex";
                                         });
                                     }
                                     else {

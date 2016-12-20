@@ -26,7 +26,7 @@ namespace EBS.Domain.Service
             var entityItems = entity.Items;
             //记录库存批次
             var inventoryBatchs = new List<StoreInventoryBatch>();
-            string batchNo = _sequenceService.GenerateBatchNo();
+            var batchNo = _sequenceService.GenerateBatchNo(entity.StoreId);
             foreach (var item in entityItems)
             {
                 //同一批入库的商品，批次号一样
@@ -122,7 +122,7 @@ namespace EBS.Domain.Service
 
                     //1 如果商品是指定批次，先扣减指定批次，数量不够再按批次顺序扣减
                     var batchProduct = inventoryBatchs.FirstOrDefault(n => n.ProductId == inventory.ProductId && n.BatchNo == purchaseOrderItem.BatchNo);
-                    if (batchProduct != null)
+                    if (batchProduct == null)
                     {
                         throw new Exception("商品批次数据错误");
 
@@ -137,50 +137,51 @@ namespace EBS.Domain.Service
                     else
                     {
                         //数量不足                       
-                        inventoryBatchUpdates.Add(new StoreInventoryBatchUpdate(batchProduct.Id, batchProduct.Quantity));
+                        inventoryBatchUpdates.Add(new StoreInventoryBatchUpdate(batchProduct.Id, -batchProduct.Quantity));
 
                         var history = new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventory.Quantity, -batchProduct.Quantity,
                     purchaseOrderItem.Price, purchaseOrderItem.BatchNo, entity.Id, entity.Code, BillIdentity.StorePurchaseOrder, entity.StoragedBy);
                         inventoryHistorys.Add(history);
-                        // 更新原批次记录数量
-                        inventory.Quantity = inventory.Quantity - batchProduct.Quantity; // 第一次扣减
-                        batchProduct.Quantity = 0;  // 本批次全部扣减完，数量为 0
+                        // 总库存  
+                        inventory.Quantity =inventory.Quantity - batchProduct.Quantity;  // 第一次扣减后总库存
                         //剩余还要扣减数
                         var leftQuantity = Math.Abs(batchProduct.Quantity + purchaseOrderItem.ActualQuantity);
+                        batchProduct.Quantity = batchProduct.Quantity - batchProduct.Quantity;  // 扣减第一个批次
                         //再按批次顺序扣减剩余部分
-                        var productBatchs = inventoryBatchs.Where(n => n.ProductId == inventory.ProductId && n.Quantity > 0).OrderBy(n => n.BatchNo).ToList();
+                        var productBatchs = inventoryBatchs.Where(n => n.ProductId == inventory.ProductId && n.Quantity > 0).OrderBy(n => n.BatchNo);
                         foreach (var batchItem in productBatchs)
                         {
                             if (batchItem.Quantity > leftQuantity)
                             {
-                                inventoryBatchUpdates.Add(new StoreInventoryBatchUpdate(batchProduct.Id, -leftQuantity));
+                                inventoryBatchUpdates.Add(new StoreInventoryBatchUpdate(batchItem.Id, -leftQuantity));
                                 //记录修改历史
-                                inventoryHistorys.Add(new StoreInventoryHistory(inventory.ProductId, entity.StoreId, batchProduct.Quantity, -leftQuantity,
-                                    purchaseOrderItem.Price, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.SaleOrder, entity.CreatedBy));
+                                inventoryHistorys.Add(new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventory.Quantity, -leftQuantity,
+                                    purchaseOrderItem.Price, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.StorePurchaseOrder, entity.CreatedBy));
                                 break;
                             }
                             else
                             {
-                                inventoryBatchUpdates.Add(new StoreInventoryBatchUpdate(batchProduct.Id, -batchItem.Quantity));
-                                // 剩余总库存
-                                inventory.Quantity = inventory.Quantity - batchItem.Quantity;
+                                inventoryBatchUpdates.Add(new StoreInventoryBatchUpdate(batchItem.Id, -batchItem.Quantity));
+                                // 剩余扣减数
+                                inventory.Quantity = inventory.Quantity - batchItem.Quantity;  // 第1+N次扣减后总库存
+                                leftQuantity =leftQuantity -batchItem.Quantity  ;
                                 inventoryHistorys.Add(new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventory.Quantity, -batchItem.Quantity,
-                                                             purchaseOrderItem.Price, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.SaleOrder, entity.CreatedBy));
+                                                             purchaseOrderItem.Price, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.StorePurchaseOrder, entity.CreatedBy));
                             }
                         }
                     }
 
                 }
             }
-            // update storeinventory set quantity =quantity+@addQuantity ,saleQuantity=saleQuantity+@addQuantity where Id=@id and quantity=@oldQuantity
-            _db.Update(inventorys.ToArray());
+
+            _db.Command.AddExecute(UpdateQuantityAndAvgCostPriceSql(), inventoryUpdates.ToArray());
             _db.Command.AddExecute(updateInventoryBatchQuantitySql(), inventoryBatchUpdates.ToArray());
             _db.Insert(inventoryHistorys.ToArray());
         }
 
         private string updateInventoryBatchQuantitySql()
         {
-            string sql = "update StoreInventoryBatch set Quantity=@Quantity+@Quantity where Id=@Id";
+            string sql = "update StoreInventoryBatch set Quantity=Quantity+@Quantity where Id=@Id";
             return sql;
         }
 
@@ -279,7 +280,7 @@ where s.Id is null  and i.StorePurchaseOrderId = @StorePurchaseOrderId";
 
             var inventoryProfit = new List<StoreInventoryBatch>();  //盘盈批次数据
             BillSequenceService idService = new BillSequenceService(this._db);
-            var batchNo = idService.GenerateBatchNo();
+            var batchNo = idService.GenerateBatchNo(model.StoreId);
             foreach (var product in inventorys)
             {
                 if (productQuantityDic.ContainsKey(product.ProductId))

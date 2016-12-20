@@ -36,7 +36,13 @@ namespace EBS.Application.Facade
         public void Edit(SupplierModel model)
         {
             Supplier entity = _db.Table.Find<Supplier>(model.Id);
+            var supplierType = entity.Type;          
             entity = model.MapTo<Supplier>(entity);
+            if (model.Type != (int)supplierType)
+            {
+                //更改了类型，需要重新修改code
+                entity.Code = _service.GenerateNewCode((int)entity.Type);
+            }
             entity.UpdatedBy = model.editedBy;
             entity.UpdatedOn = DateTime.Now;
             _db.Update(entity);

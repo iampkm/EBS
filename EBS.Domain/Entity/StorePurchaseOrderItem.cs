@@ -46,7 +46,7 @@ namespace EBS.Domain.Entity
         /// <summary>
         /// 入库批次号
         /// </summary>
-        public string BatchNo { get; set; }
+        public long BatchNo { get; set; }
 
 
 

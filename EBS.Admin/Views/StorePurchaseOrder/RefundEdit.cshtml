@@ -135,7 +135,7 @@
                                     </td>
                                     <td>{{item.PackageQuantity}}</td>
                                     <td>
-                                        <input type="number" class="form-control quantity" v-model="item.Quantity" v-on:keyup.enter="inputNext($event)" />
+                                        <input type="number" class="form-control quantity" v-model="item.Quantity" v-on:keyup.enter="inputNext($event)" v-on:keyup.right="showBatch(index)" />
                                     </td>
                                     <td>{{item.ActualPackageQuantity}}</td>
                                     <td>
@@ -202,6 +202,22 @@
             <div style="min-height:350px;max-height:500px;overflow:auto;"><ul id="ztree" class="ztree"></ul></div>
         </div>
     </v-modal>
+    <v-modal title="选择商品批次" ok-text="确 定" cancel-text="取 消" v-bind:callback="getBatch" v-bind:show.sync="selectBatch.modal" v-bind:effect="fade" width="60%">
+        <div slot="modal-body" class="modal-body">
+            <vue-table v-bind:columns="selectBatch.gridColumns"
+                       v-bind:url="selectBatch.url" v-bind:show-toolbar="false"
+                       v-bind:args="selectBatch.searchArgs" v-bind:data.sync="selectBatch.rows">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                    @*<div class="col-xs-4 col-sm-3">
+                            <input class="form-control" v-model="selectBatch.searchArgs.code" placeholder="输入供应编码" debounce="300" />
+                        </div>
+                        <div class="col-xs-4 col-sm-3">
+                            <input class="form-control" v-model="selectBatch.searchArgs.name" placeholder="输入供应商名" debounce="300" />
+                        </div>*@
+                </div>
+            </vue-table>
+        </div>
+    </v-modal>
     <div id="printDiv"></div>
 </div>
 @{Html.RenderPartial("VueTableTemplate");}
@@ -245,6 +261,21 @@
                     modal: false,
                     name: '@Model.StoreName',
                     view:@ViewBag.View,
+                },
+                selectBatch:{
+                    modal:false,
+                    gridColumns: [
+                       { name: 'ProductCode', localName: '编码', width: '100' },
+                       { name: 'ProductName', localName: '名称', width: '200' },
+                       { name: 'SupplierName', localName: '供应商', width: '200' },
+                       { name: 'Quantity', localName: '库存', width: '100' },
+                       { name: 'ContractPrice', localName: '进价', width: '100' },
+                       { name: 'BatchNo', localName: '批次' },
+                    ],
+                    url: "/StorePurchaseOrder/LoadProductBatchs",
+                    searchArgs: { productCodeOrBarCode: '', storeId: 0 },
+                    rows: [],
+                    index:0
                 }
 
             },
@@ -255,10 +286,12 @@
                     var data = "";
                     for (var i = 0; i < _self.products.length; i++) {
                         var item = _self.products[i];
-                        if (item.ProductId > 0 && item.Quantity < 0) {
+                        var inputQuantity = parseInt(item.Quantity);
+                        if (item.ProductId > 0 && inputQuantity < 0) {
                             var price = _self.model.isGift?0:item.ContractPrice;
                             data += "{\"ProductId\":" + item.ProductId + ",\"ContractPrice\":" + item.ContractPrice
-                                 + ",\"Price\":" + price + ",\"Quantity\":" + item.Quantity + ",\"SpecificationQuantity\":" + item.SpecificationQuantity +"},";
+                                 + ",\"Price\":" + price + ",\"Quantity\":" + item.Quantity + ",\"SpecificationQuantity\":" + item.SpecificationQuantity 
+                                  + ",\"BatchNo\":" + item.BatchNo + ",\"ProductionDate\":\"" + item.ProductionDate + "\",\"ShelfLife\":" + item.ShelfLife +"},";
                         }
                     }
                     if (data == "") {
@@ -356,18 +389,18 @@
                 removeRow: function (index) {
                     this.products.splice(index, 1);
                 },
-                inputProduct: function (codeOrBarCode, index) {
+                inputProduct: function (codeOrBarCode, index,batch) {
                     var _self = this;
                     if (codeOrBarCode == "") { return; }
                     if (_self.model.supplierId == 0) { bootbox.alert("请选择供应商"); return; }
                     if (_self.model.storeId == 0) { bootbox.alert("请选择门店"); return; }
                     var data = {
                         productCodeOrBarCode: codeOrBarCode,
-                        supplierId: _self.model.supplierId,
-                        storeId: _self.model.storeId
+                        storeId: _self.model.storeId,
+                        batchNo:batch
                     }
                     //设置焦点
-                    $.get("/StorePurchaseOrder/GetPurchaseOrderItem", data, function (result) {
+                    $.get("/StorePurchaseOrder/GetRefundOrderItem", data, function (result) {
                         if (result.success) {
                             if(_self.model.supplierId==0){
                                 _self.model.supplierId = result.data.SupplierId;
@@ -453,6 +486,28 @@
                             ProductionDate: '', ShelfLife: 0
                         }];
                     }
+                },
+                showBatch:function(index){
+                    this.selectBatch.modal = true;
+                    this.selectBatch.searchArgs.productCodeOrBarCode =  this.products[index].ProductCode;
+                    this.selectBatch.searchArgs.storeId =  this.model.storeId;
+                    this.selectBatch.index = index;
+                },
+                getBatch:function(){
+                    var selectRow = this.selectBatch.rows.filter(function (item, index) {
+                        if (item.checked) {
+                            return true;
+                        }
+                    });
+                    if(selectRow)
+                    {
+                        var selectItem = selectRow[0];
+                        this.inputProduct(selectItem.ProductCode, this.selectBatch.index,selectItem.BatchNo);
+                        this.selectBatch.modal = false;
+                    }
+                    else{
+                        bootbox.alert("请选择一个记录");
+                    }
                 }
             },
             computed: {
@@ -461,6 +516,9 @@
                     var bookQty = 0;
                     var _self = this;
                     this.products.forEach(function (item) {
+                        if(item.Quantity==undefined||item.Quantity==""||item.Quantity==null){
+                            item.Quantity =0;
+                        }
                         var qty = parseInt(item.Quantity);
                         var price = _self.model.isGift?0:item.ContractPrice;
                         item.Amount = price * qty;

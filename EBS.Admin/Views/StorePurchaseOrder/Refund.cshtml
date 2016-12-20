@@ -114,7 +114,7 @@
                                     </td>
                                     <td class="text-center">{{index+1}}</td>
                                     <td>
-                                        <input type="text" class="form-control productCode" v-model="item.ProductCode" v-on:keyup.enter="inputProduct(item.ProductCode,index,'')" placeholder="录入编码或扫码" />
+                                        <input type="text" class="form-control productCode" v-model="item.ProductCode" v-on:keyup.enter="inputProduct(item.ProductCode,index,0)" placeholder="录入编码或扫码" />
                                     </td>
                                     <td>{{item.BarCode}}</td>
                                     <td>{{item.ProductName}}</td>
@@ -246,7 +246,7 @@
                     products: [{
                         ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', ContractPrice: 0, Price: 0,
                         PackageQuantity: 0,SpecificationQuantity:1, SpecificationQuantitys: [1], Quantity: -1, ActualPackageQuantity: 0, ActualQuantity: 0, Amount: 0,
-                        ProductionDate: '', ShelfLife: 0,BatchNo:'',InventoryQuantity:0
+                        ProductionDate: '', ShelfLife: 0,BatchNo:0,InventoryQuantity:0
                     }],
                     totalQuantity: 0,
                     inputProducts: '',
@@ -283,15 +283,16 @@
                         for (var i = 0; i < _self.products.length; i++) {
                             var item = _self.products[i];
                             //商品存在，商品数量为负，商品退货数绝对值小于库存数
-                            if (item.ProductId > 0 && item.Quantity < 0 && item.InventoryQuantity+item.Quantity>=0) {
+                            var inputQuantity = parseInt(item.Quantity);
+                            if (item.ProductId > 0 && inputQuantity < 0 && item.InventoryQuantity+inputQuantity>=0) {
                                 var price = _self.model.isGift?0:item.ContractPrice;
                                 data += "{\"ProductId\":" + item.ProductId + ",\"ContractPrice\":" + item.ContractPrice
                                      + ",\"Price\":" + price + ",\"Quantity\":" + item.Quantity + ",\"SpecificationQuantity\":" + item.SpecificationQuantity 
-                                     + ",\"BatchNo\":\"" + item.BatchNo + "\"},";
+                                     + ",\"BatchNo\":" + item.BatchNo + ",\"ProductionDate\":\"" + item.ProductionDate + "\",\"ShelfLife\":" + item.ShelfLife + "},";
                             }
                         }
                         if (data == "") {
-                            bootbox.alert("请导入商品");
+                            bootbox.alert("请导入商品或商品数量不为负");
                             return;
                         }
                         data = data.substring(0, data.length - 1);
@@ -301,7 +302,7 @@
                         $.post("/StorePurchaseOrder/Create", v_data, function (result) {
                             if (result.success) {
                                 bootbox.alert("保存成功！", function () {
-                                    window.location.href = "/StorePurchaseOrder/Refund";
+                                    window.location.href = "/StorePurchaseOrder/RefundIndex";
                                 });
                             }
                             else {
@@ -358,7 +359,7 @@
                         this.products.push({
                             ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', ContractPrice: 0, Price: 0,
                             PackageQuantity: 0,SpecificationQuantity:1, SpecificationQuantitys: [1], Quantity: -1, ActualPackageQuantity: 0, ActualQuantity: 0, Amount: 0,
-                            ProductionDate: '', ShelfLife: 0,BatchNo:'',InventoryQuantity:0
+                            ProductionDate: '', ShelfLife: 0,BatchNo:0,InventoryQuantity:0
                         });
                         //设置焦点
                         var target = event.srcElement || event.target;
@@ -469,7 +470,7 @@
                             this.products = [{
                                 ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', ContractPrice: 0, Price: 0,
                                 PackageQuantity: 0,SpecificationQuantity: 1, SpecificationQuantitys: [1], Quantity: -1, ActualPackageQuantity: 0, ActualQuantity: 0, Amount: 0,
-                                ProductionDate: '', ShelfLife: 0,BatchNo:'',InventoryQuantity:0
+                                ProductionDate: '', ShelfLife: 0,BatchNo:0,InventoryQuantity:0
                             }];
                         }
                     },
