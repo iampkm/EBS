@@ -8,5 +8,9 @@ namespace EBS.Query.SyncObject
 {
     public class VipProductSync
     {
+        public int Id { get; set; }
+
+        public int ProductId { get; set; }
+        public decimal SalePrice { get; set; }
     }
 }

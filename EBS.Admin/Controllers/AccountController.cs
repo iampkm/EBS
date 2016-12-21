@@ -22,8 +22,10 @@ namespace EBS.Admin.Controllers
         private readonly IAccountFacade _accountFacade;
         private IAccountQuery _accountQuery;
         private IQuery _query;
-        public AccountController(IAuthenticationService authenticationService, IQuery query, IAccountFacade accountFacade, IAccountQuery accountQuery)
+        IContextService _context;
+        public AccountController(IContextService contextService, IAuthenticationService authenticationService, IQuery query, IAccountFacade accountFacade, IAccountQuery accountQuery)
         {
+            this._context = contextService;
             this._authenticationService = authenticationService;
             this._query = query;
             this._accountFacade = accountFacade;
@@ -68,7 +70,8 @@ namespace EBS.Admin.Controllers
         [Permission]
         public ActionResult Create()
         {
-            //加载权限资源          
+            //加载权限资源  
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
             ViewBag.Roles = _query.FindAll<Role>();
             return View();
         }
@@ -85,6 +88,8 @@ namespace EBS.Admin.Controllers
             ViewBag.Roles = _query.FindAll<Role>();
             ViewBag.StoreName = "";
             ViewBag.CanViewStores = "";
+            //加载权限资源  
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
             if (model.StoreId > 0)
             {
                 ViewBag.StoreName = _query.Find<Store>(model.StoreId).Name;

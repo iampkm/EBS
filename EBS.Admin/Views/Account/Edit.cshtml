@@ -2,6 +2,14 @@
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
+@section styles{
+    <link href="~/Content/zTree.min.css" rel="stylesheet" />
+    <style>
+        .ztree li span {
+            font-size: 14px;
+        }
+    </style>
+}
 <!-- demo root element -->
 <div id="app" class="box box-primary">
     <div class="box-header with-border">
@@ -37,7 +45,7 @@
                             }
                         </select>
                     </div>
-                    <div class="form-group col-sm-2 col-xs-3">
+                    <div class="form-group col-sm-2 col-xs-3" v-show="selectStore.view">
                         <label for="inputPassword3" class="control-label">门店：</label>
                         <div class="input-group ">
                             <input type="hidden" class="form-control" v-model="model.storeId">
@@ -50,7 +58,7 @@
                     </div>  
                 </div>
                 <div class="row">
-                    <div class="form-group col-sm-4 col-xs-6">
+                    <div class="form-group col-sm-4 col-xs-6" v-show="selectStore.view">
                         <label for="inputPassword4" class="control-label">门店权限：</label>
                         <div class="input-group">
                             <input type="hidden" class="form-control" v-model="model.canViewStores">
@@ -61,20 +69,7 @@
                             </span>
                         </div>
                     </div>
-                </div>
-                <v-modal title="选择门店权限" ok-text="确 定" cancel-text="取 消" v-bind:callback="getViewStore" v-bind:show.sync="selectViewStore.modal" v-bind:effect="fade" width="50%">
-                    <div slot="modal-body" class="modal-body">
-                        <vue-table v-bind:columns="selectViewStore.gridColumns"
-                                   v-bind:url="selectViewStore.url" v-bind:show-toolbar="false"
-                                   v-bind:args="selectViewStore.searchArgs" v-bind:data.sync="selectViewStore.rows">
-                            <div class="row" style="margin-bottom:10px;" slot="customSearch">
-                                <div class="col-xs-4 col-sm-3">
-                                    <input class="form-control" v-model="selectViewStore.searchArgs.name" placeholder="输入门店名" debounce="300" />
-                                </div>
-                            </div>
-                        </vue-table>
-                    </div>
-                </v-modal>
+                </div>                
             </v-form>
         </div>
         <div class="box-footer">
@@ -86,23 +81,19 @@
             </div>
         </div>
     </form> 
-    <v-modal title="选择门店" ok-text="确 定" cancel-text="取 消" v-bind:callback="getStore" v-bind:show.sync="selectStore.modal" v-bind:effect="fade" width="50%">
+    <v-modal title="选择门店" ok-text="确 定" cancel-text="取 消" v-bind:callback="getStore" v-bind:show.sync="selectStore.modal" v-bind:effect="fade" width="60%">
         <div slot="modal-body" class="modal-body">
-            <vue-table v-bind:columns="selectStore.gridColumns"
-                       v-bind:url="selectStore.url" v-bind:show-toolbar="false"
-                       v-bind:args="selectStore.searchArgs" v-bind:data.sync="selectStore.rows">
-                <div class="row" style="margin-bottom:10px;" slot="customSearch">
-                    <div class="col-xs-4 col-sm-3">
-                        <input class="form-control" v-model="selectStore.searchArgs.name" placeholder="输入门店名" debounce="300" />
-                    </div>
-                </div>
-            </vue-table>
+            <div style="min-height:350px;max-height:500px;overflow:auto;"><ul id="ztree" class="ztree"></ul></div>
         </div>
     </v-modal>
+    <v-modal title="选择门店权限" ok-text="确 定" cancel-text="取 消" v-bind:callback="getViewStore" v-bind:show.sync="selectViewStore.modal" v-bind:effect="fade" width="60%">
+        <div slot="modal-body" class="modal-body">
+            <div style="min-height:350px;max-height:500px;overflow:auto;"><ul id="ztree2" class="ztree"></ul></div>
+        </div>
+    </v-modal>    
 </div>
-@{Html.RenderPartial("VueTableTemplate");}
 @section scripts{
-    <script src="~/Content/Vue/vuetable/vuetable.js"></script>
+<script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
     <script>
         $("doucument").ready(function () {
             var demo = new Vue({
@@ -119,32 +110,18 @@
                         userName: '@Model.UserName',
                         nickName: '@Model.NickName',
                         roleId: @Model.RoleId,
-                        storeId: 0,
+                        storeId: @Model.StoreId,
                         canViewStores:'@Model.CanViewStores'
                     },
                     selectStore: {
                         modal: false,
                         name: '@ViewBag.StoreName',
-                        gridColumns: [
-                           { name: 'Name', localName: '门店名' },
-                            { name: 'Contact', localName: '联系人' },
-                            { name: 'Address', localName: '地址' }
-                        ],
-                        url: "/Store/LoadData",
-                        searchArgs: { name: '' },
-                        rows: []
+                        view:@ViewBag.View,
                     },
                     selectViewStore: {
                         modal: false,
                         name: '@ViewBag.CanViewStores',
-                        gridColumns: [
-                           { name: 'Name', localName: '门店名' },
-                            { name: 'Contact', localName: '联系人' },
-                            { name: 'Address', localName: '地址' }
-                        ],
-                        url: "/Store/LoadData",
-                        searchArgs: { name: '' },
-                        rows: []
+                        view:@ViewBag.View,
                     }
                 },
                 methods: {
@@ -171,17 +148,28 @@
                         this.selectStore.name = "";
                     },
                     getStore: function () {
-                        var selecteds = this.selectStore.rows.filter(function (item) {
-                            return item.checked;
-                        });
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree"); 
+                        var selecteds= treeObj.getCheckedNodes(true);
                         if (selecteds) {
-                            this.model.storeId = selecteds[0].Id;
-                            this.selectStore.name = selecteds[0].Name;
-                            this.selectStore.modal = false;
-                            // 默认权限为当前门店权限
-                            this.selectViewStore.name = selecteds[0].Name;
-                            this.model.canViewStores = selecteds[0].Id;
-                        }                        
+                            var idArray = new Array();
+                            var nameArray = new Array();
+                            selecteds.forEach(function(item){
+                                if(item.level==1){
+                                    idArray.push(item.id);
+                                    nameArray.push(item.name);
+                                }
+                            })
+                            if(idArray.length>0){
+                                this.model.storeId = idArray[0];
+                                this.selectStore.name = nameArray[0];
+                                this.selectStore.modal = false;
+                            }
+                            else
+                            {
+                                bootbox.alert("请选择一个门店");
+                            }
+                           
+                        }
                     },
                     showViewStore: function () {
                         this.selectViewStore.modal = true;
@@ -191,24 +179,55 @@
                         this.selectViewStore.name = "";
                     },
                     getViewStore: function () {
-                        var _self = this;
-                        var ids = new Array();
-                        var names = new Array();
-                        _self.selectViewStore.rows.forEach(function (item) {
-                            if (item.checked)
-                            {
-                                ids.push(item.Id);
-                                names.push(item.Name);
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree2"); 
+                        var selecteds= treeObj.getCheckedNodes(true);
+                        if (selecteds) {
+                            var idArray = new Array();
+                            var nameArray = new Array();
+                            selecteds.forEach(function(item){
+                                if(item.level==1){
+                                    idArray.push(item.id);
+                                    nameArray.push(item.name);
+                                }
+                            })
+                            if(idArray.length>0){
+                                this.model.canViewStores =idArray.join(',');
+                                this.selectViewStore.name = nameArray.join(',');
+                                this.selectViewStore.modal = false;
                             }
-                        })
-                        if (ids) {
-                            this.model.canViewStores = ids.join(',');
-                            this.selectViewStore.name = names.join(',');
-                            this.selectViewStore.modal = false;
+                            else
+                            {
+                                bootbox.alert("请选择一个门店");
+                            }
+                           
                         }
                     }
                 }
             });
+
+            //加载门店tree
+            var zTreeObj;           
+            var setting = {
+                check: {
+                    enable:true
+                },               
+                async: {
+                    enable: true,
+                    url: "/Store/LoadStore",
+                    //autoParam: ["id", "name"]
+                },
+                callback:{
+                    onClick:function(event, treeId, treeNode){
+                        //点击展开/折叠节点
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                        var open = !treeNode.open;
+                        treeObj.expandNode(treeNode, open, false, false);
+                        // vue.searchArgs.categoryId =treeNode.id;                      
+                    }
+                }
+            };           
+            zTreeObj = $.fn.zTree.init($("#ztree"), setting);
+            $.fn.zTree.init($("#ztree2"), setting);
 
         });
 

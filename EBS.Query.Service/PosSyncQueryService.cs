@@ -34,7 +34,7 @@ namespace EBS.Query.Service
 
         public IEnumerable<StoreSync> QueryStoreSync(Pager page)
         {
-            string sql = @"Select Id,Code,Name from Store LIMIT {0},{1}";
+            string sql = @"Select Id,Code,Name,LicenseCode from Store LIMIT {0},{1}";
             sql = string.Format(sql, (page.PageIndex - 1) * page.PageSize, page.PageSize);
             var rows = this._query.FindAll<StoreSync>(sql, null);
             page.Total = this._query.Count<Store>();
@@ -43,14 +43,14 @@ namespace EBS.Query.Service
 
         public IEnumerable<StoreSync> QueryStoreSync(int[] Ids)
         {
-            string sql = @"Select Id,Code,Name from Store where Id in @Id";
+            string sql = @"Select Id,Code,Name,LicenseCode from Store where Id in @Id";
             var rows = this._query.FindAll<StoreSync>(sql, new { Id = Ids });
             return rows;
         }
 
         public IEnumerable<VipCardSync> QueryVipCardSync(Pager page)
         {
-            string sql = @"SELECT Id,Code,Discount FROM VipCard; LIMIT {0},{1}";
+            string sql = @"SELECT Id,Code,Discount FROM VipCard LIMIT {0},{1}";
             sql = string.Format(sql, (page.PageIndex - 1) * page.PageSize, page.PageSize);
             var rows = this._query.FindAll<VipCardSync>(sql, null);
             page.Total = this._query.Count<VipCard>();
@@ -64,7 +64,11 @@ namespace EBS.Query.Service
 
         public IEnumerable<VipProductSync> QueryVipProductSync(Pager page)
         {
-            throw new NotImplementedException();
+            string sql = @"SELECT Id,ProductId,SalePrice FROM VipCard LIMIT {0},{1}";
+            sql = string.Format(sql, (page.PageIndex - 1) * page.PageSize, page.PageSize);
+            var rows = this._query.FindAll<VipProductSync>(sql, null);
+            page.Total = this._query.Count<VipProduct>();
+            return rows;
         }
 
         public IEnumerable<VipProductSync> QueryVipProductSync(int[] Ids)
