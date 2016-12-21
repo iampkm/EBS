@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-
+using EBS.Query;
+using EBS.Infrastructure;
+using Dapper.DBContext;
+using EBS.Domain.Entity;
 namespace EBS.Admin.Services
 {
-     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = true, AllowMultiple = true)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = true, AllowMultiple = true)]
     public class PermissionAttribute : AuthorizeAttribute
     {
 
@@ -48,8 +51,8 @@ namespace EBS.Admin.Services
                 throw new ArgumentNullException("httpContext");
 
             if (!httpContext.User.Identity.IsAuthenticated)
-                return false;           
-             
+                return false;
+
             return true;
         }
 
@@ -63,16 +66,42 @@ namespace EBS.Admin.Services
             // if admin return true
 
             // if did not setting requestUrl   return true
-           // filterContext.Result = new HttpUnauthorizedResult();
+            // filterContext.Result = new HttpUnauthorizedResult();
             // if setting request url, but current user not has this url ,return false
             //if(string.Equals(requestURL,"",StringComparison.OrdinalIgnoreCase))
             //{
             //    filterContext.Result = new RedirectResult("/Home/Index");
             //    return;
             //}
-           
+            //var menuQuery = AppContext.Current.Resolve<IMenuQuery>();
+            //var contextService = AppContext.Current.Resolve<IContextService>();
+            //var query = AppContext.Current.Resolve<IQuery>();
+            //var roleMenus = menuQuery.LoadMenu(contextService.CurrentAccount.RoleId).ToList();
+            //if (!roleMenus.Any())
+            //{
+            //    //没有设置权限，可以访问所有
+            //    return;
+            //}
+            //var allMenus = query.FindAll<Menu>();
+            //var routeDate = filterContext.RouteData;
+            //string controllerName = routeDate.Values["controller"].ToString();
+            //string actionName = routeDate.Values["action"].ToString();
+            //string requestURL = string.Format("/{0}/{1}", controllerName, actionName);
+            //// 检查了 设置了权限，必须拥有该权限才能访问
+            //if (query.Exists<Menu>(n => string.Equals(n.Url, requestURL, StringComparison.InvariantCultureIgnoreCase)))
+            //{
+            //    if (roleMenus.Exists(n => string.Equals(n.Url, requestURL, StringComparison.InvariantCultureIgnoreCase)))
+            //    {
+            //        // 可以访问
+            //    }
+            //    else
+            //    {
+            //        //拒绝访问
+            //    }
+            //}
+
             base.OnAuthorization(filterContext);
-                 
+
         }
     }
 }

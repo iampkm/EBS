@@ -9,6 +9,7 @@ namespace EBS.Domain.Entity
 {
     public class Menu : BaseEntity
     {
+        public Menu() { }
         public Menu(string name, string url, string icon,int parentId = 0, int displayOrder = 0,MenuUrlType urlType = MenuUrlType.MenuLink,int id = 0)
         {   
             this.Name = name;

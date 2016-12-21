@@ -33,7 +33,10 @@ namespace EBS.Application.Facade
             _service.Update(entity);
             // 权限
             entity.AssignMenus(model.MenuIds);
-            _db.Delete<RoleMenu>(n => n.RoleId == model.Id);
+            if (_db.Table.Exists<RoleMenu>(n => n.RoleId == model.Id))
+            {
+                _db.Delete<RoleMenu>(n => n.RoleId == model.Id);
+            }           
             _db.Insert<RoleMenu>(entity.Items.ToArray());
             _db.SaveChange();
         }

@@ -9,6 +9,7 @@ using Dapper.DBContext;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json;
 using EBS.Domain.Service;
+using EBS.Domain.ValueObject;
 namespace EBS.Application.Facade
 {
    public class PosSyncFacade:IPosSyncFacade
@@ -33,7 +34,14 @@ namespace EBS.Application.Facade
             _db.Insert(model);
             _db.SaveChange();  // 先保存订单
             var entity= _db.Table.Find<SaleOrder>(n => n.Code == model.Code);
-            _storeInventoryService.StockOutSaleOrder(entity);
+            if (entity.OrderType == (int)OrderType.Order)
+            {
+                _storeInventoryService.StockOutSaleOrder(entity);
+            }
+            else {
+                _storeInventoryService.StockInRefundOrder(entity);
+            }
+           
             _db.SaveChange();
         }
 
@@ -54,6 +62,10 @@ namespace EBS.Application.Facade
         {
             var dateTimeConverter = new IsoDateTimeConverter { DateTimeFormat = "yyyy-MM-dd HH:mm:ss" };
             var model = JsonConvert.DeserializeObject<WorkSchedule>(body, dateTimeConverter);
+            if (_db.Table.Exists<WorkSchedule>(n => n.Code == model.Code))
+            {
+                throw new Exception(string.Format("{0}班次{1}已存在",model.StoreId,model.Code));
+            }
             _db.Insert(model);
             _db.SaveChange();
         }

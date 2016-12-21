@@ -9,6 +9,7 @@ using EBS.Admin.Services;
 using Dapper.DBContext;
 using EBS.Domain.Entity;
 using System.Text;
+using EBS.Query;
 namespace EBS.Admin.Controllers
 {
     [Permission]
@@ -16,10 +17,12 @@ namespace EBS.Admin.Controllers
     {
         IQuery _query;
         IContextService _context;
-        public HomeController(IContextService context,IQuery query)
+        IMenuQuery _menuQuery;
+        public HomeController(IContextService context,IQuery query,IMenuQuery menuQuery)
         {
             this._query = query;
             _context = context;
+            _menuQuery = menuQuery;
         }
         public ActionResult Index()
         {
@@ -46,9 +49,13 @@ namespace EBS.Admin.Controllers
         {
             // load menu,加载当前用户的
             //  
-            var menus = _query.FindAll<Menu>(m => m.UrlType == Domain.ValueObject.MenuUrlType.MenuLink);
-            StringBuilder builder = new StringBuilder();
-            
+            var menus = _menuQuery.LoadMenu(_context.CurrentAccount.RoleId).Where(n => n.UrlType == Domain.ValueObject.MenuUrlType.MenuLink);
+            if (!menus.Any()) {
+                //没有分配菜单，加载所有
+                menus = _query.FindAll<Menu>(m => m.UrlType == Domain.ValueObject.MenuUrlType.MenuLink); 
+            }
+           // var menus = _query.FindAll<Menu>(m => m.UrlType == Domain.ValueObject.MenuUrlType.MenuLink);
+            StringBuilder builder = new StringBuilder();            
 
             foreach (var topMenu in menus.Where(m => m.ParentId == 0))
             {

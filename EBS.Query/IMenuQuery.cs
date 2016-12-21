@@ -12,7 +12,8 @@ namespace EBS.Query
         IEnumerable<Menu> GetList(Pager page, string name);
 
         IList<Menu> LoadMenuTree();
+        IList<Menu> LoadMenuTree(int roleId);
 
-
+        IEnumerable<Menu> LoadMenu(int roleId);
     }
 }

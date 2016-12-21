@@ -54,6 +54,20 @@ namespace EBS.Query.Service
             }
             return tree;
         }
+        public IList<Menu> LoadMenuTree(int roleId)
+        {
+            // 根据当前角色对应权限菜单
+            IEnumerable<Menu> rows = LoadMenu(roleId);
+            // 转化为树形结构
+            List<Menu> oneMenus = rows.Where(n => n.ParentId == 0).OrderBy(n => n.DisplayOrder).ToList();
+            List<Menu> tree = new List<Menu>();
+            foreach (var item in oneMenus)
+            {
+                tree.Add(item);
+                LoadChildren(tree, item, rows);
+            }
+            return tree;
+        }
 
         private void LoadChildren(List<Menu> tree, Menu parent, IEnumerable<Menu> data)
         {
@@ -63,6 +77,15 @@ namespace EBS.Query.Service
                 tree.Add(child);
                 LoadChildren(tree, child, data);
             }
+        }
+
+
+        public IEnumerable<Menu> LoadMenu(int roleId)
+        {
+            string sql = @"select m.* from menu m inner JOIN rolemenu r on m.Id =  r.MenuId
+where r.RoleId = @RoleId";
+            var rows= _query.FindAll<Menu>(sql, new { RoleId = roleId });
+            return rows;
         }
     }
 }

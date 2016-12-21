@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2016-12-09 14:11:29                          */
+/* Created on:     2016-12-21 09:35:25                          */
 /*==============================================================*/
 
 
@@ -123,6 +123,10 @@ drop table if exists VipCard;
 drop table if exists VipProduct;
 
 drop table if exists Warehouse;
+
+drop index idx_workschedule_code on WorkSchedule;
+
+drop table if exists WorkSchedule;
 
 /*==============================================================*/
 /* Table: Account                                               */
@@ -516,7 +520,7 @@ create table PurchaseContract
    Id                   int not null auto_increment comment '编号',
    Code                 nvarchar(50) comment '合同号',
    Name                 nvarchar(50) comment '合同名称',
-   StoreId              int comment '门店Id',
+   StoreIds             varchar(300) comment '供应门店，多个都好分割',
    SupplierId           int comment '供应商Id',
    Contact              nvarchar(32) comment '联系人',
    StartDate            datetime comment '开始日期',
@@ -548,6 +552,7 @@ create table PurchaseContractItem
    PurchaseContractId   int comment '采购合同编号',
    ProductId            int comment '商品skuid',
    ContractPrice        decimal(8,2) comment '合同价',
+   Status               int comment '供货状态',
    primary key (Id)
 );
 
@@ -659,7 +664,7 @@ alter table SaleOrder comment '销售订单';
 /*==============================================================*/
 create table SaleOrderItem
 (
-   Id                   int not null,
+   Id                   int not null auto_increment,
    SaleOrderId          int comment '销售编码',
    ProductId            int comment '商品Id',
    ProductCode          nvarchar(20) comment '商品编码',
@@ -727,7 +732,7 @@ create table Stocktaking
    ShelfCode            nvarchar(20) comment '货架码',
    CreatedBy            int comment '创建人',
    CreatedByName        nvarchar(50) comment '创建人名',
-   CreateOn             datetime comment '创建时间',
+   CreatedOn            datetime comment '创建时间',
    Status               int comment '状态（待审，已审）',
    StoreId              int comment '门店',
    Note                 nvarchar(1000) comment '备注',
@@ -768,7 +773,7 @@ create table StocktakingPlan
    Code                 nvarchar(20) comment '盘点代码',
    CreatedBy            int comment '创建人',
    CreatedByName        nvarchar(50) comment '创建人名',
-   CreateOn             datetime comment '创建时间',
+   CreatedOn            datetime comment '创建时间',
    UpdatedBy            int comment '更新人',
    UpdatedByName        nvarchar(50) comment '更新人名',
    UpdatedOn            datetime comment '更新时间',
@@ -864,10 +869,11 @@ create table StoreInventoryBatch
    Quantity             int comment '实际库存数',
    ProductionDate       datetime comment '生产日期',
    ShelfLife            int comment '保质期',
-   Price                decimal(8,2) comment '进价',
+   ContractPrice        decimal(8,2) comment '合同价',
+   Price                decimal(8,2) comment '实际入库进价',
    CreatedOn            datetime comment '创建时间',
    CreatedBy            int comment '创建人',
-   BatchNo              nvarchar(20) comment '批次号',
+   BatchNo              bigint comment '批次号',
    primary key (Id)
 );
 
@@ -888,7 +894,7 @@ create table StoreInventoryHistory
    BillId               int comment '单据系统码',
    BillCode             varchar(20) comment '单据编码',
    BillType             int comment '单据类型',
-   BatchNo              nvarchar(20) comment '批次号',
+   BatchNo              bigint comment '批次号',
    Price                decimal(8,2) comment '进价',
    primary key (Id)
 );
@@ -917,7 +923,6 @@ create table StorePurchaseOrder
    StoragedOn           datetime comment '入库日期',
    Status               int comment '状态',
    IsGift               bool comment '是否赠品',
-   BatchNo              nvarchar(20) comment '批次号',
    primary key (Id)
 );
 
@@ -946,6 +951,7 @@ create table StorePurchaseOrderItem
    ActualQuantity       int comment '实际数量',
    ProductionDate       datetime comment '生产日期',
    ShelfLife            int comment '保质期',
+   BatchNo              bigint comment '批次号',
    primary key (Id)
 );
 
@@ -957,16 +963,17 @@ alter table StorePurchaseOrderItem comment '门店采购订单明细';
 create table Supplier
 (
    Id                   int not null auto_increment comment '编号',
-   Code                 nvarchar(20) comment '合同号',
+   Code                 nvarchar(20) comment '供应商编码',
    Name                 nvarchar(100) comment '供应商名',
    Type                 int comment '供应商类别',
    ShortName            nvarchar(50) comment '简称',
-   Contact              nvarchar(50) comment '联系人',
-   Phone                nvarchar(50) comment '联系电话',
-   QQ                   nvarchar(30),
+   Contact              nvarchar(300) comment '联系人',
+   Phone                nvarchar(300) comment '联系电话',
+   QQ                   nvarchar(300),
    Address              nvarchar(100),
    Bank                 nvarchar(50) comment '开户行',
    BankAccount          nvarchar(50) comment '开户行账号',
+   BankAccountName      varchar(50) comment '开户名',
    TaxNo                nvarchar(50) comment '税号',
    LicenseNo            nvarchar(50) comment '执照号',
    CreatedOn            datetime comment '创建时间',
@@ -995,6 +1002,10 @@ create table SupplierProduct
    SupplierId           int comment '供应商Id',
    ProductId            int comment '商品',
    Price                decimal(8,2) comment '价格',
+   Status               int comment '供货状态',
+   CompareStatus        int comment '比价状态',
+   UpdatedOn            datetime comment '修改时间',
+   UpdatedBy            int comment '修改人',
    primary key (Id)
 );
 
@@ -1075,4 +1086,33 @@ create table Warehouse
 );
 
 alter table Warehouse comment '仓库';
+
+/*==============================================================*/
+/* Table: WorkSchedule                                          */
+/*==============================================================*/
+create table WorkSchedule
+(
+   Id                   int not null auto_increment,
+   Code                 nvarchar(50) comment '代码',
+   StoreId              int comment '门店',
+   PosId                int comment 'Pos机Id',
+   CashAmount           decimal(8,2) comment '收现金额',
+   StartDate            datetime comment '开始时间',
+   EndDate              datetime comment '结束时间',
+   CreatedBy            int comment '创建人',
+   CreatedByName        varchar(50) comment '创建人名',
+   EndBy                int comment '交班人',
+   EndByName            varchar(50) comment '交班人名',
+   primary key (Id)
+);
+
+alter table WorkSchedule comment '班次记录表';
+
+/*==============================================================*/
+/* Index: idx_workschedule_code                                 */
+/*==============================================================*/
+create unique index idx_workschedule_code on WorkSchedule
+(
+   Code
+);
 

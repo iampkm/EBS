@@ -11,7 +11,7 @@ namespace EBS.Domain.Entity
         public WorkSchedule()
         {
             this.StartDate = DateTime.Now;
-            Code = Guid.NewGuid().ToString().Replace("-", "");
+           // Code = Guid.NewGuid().ToString().Replace("-", "");
         }
         public string Code { get; private set; }
         public int StoreId { get; set; }
