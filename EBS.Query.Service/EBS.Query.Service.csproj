@@ -54,6 +54,7 @@
     <Compile Include="ProductQueryService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PurchaseContractQueryService.cs" />
+    <Compile Include="ReportQueryService.cs" />
     <Compile Include="RoleQueryService.cs" />
     <Compile Include="ShelfQueryService.cs" />
     <Compile Include="StocktakingPlanQueryService.cs" />

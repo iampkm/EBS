@@ -85,13 +85,14 @@
                                         <th>规格</th>
                                         <th>单位</th>
                                         <th>合同进价</th>
-                                        <th>进价</th>
+                                        <th>实际进价</th>
                                         <th>件规</th>
                                         <th>订货件数</th>
                                         <th>订货数量</th>
+                                        <th>订货金额</th>
                                         <th>实收件数</th>
                                         <th>实收数量</th>
-                                        <th>金额</th>
+                                        <th>实收金额</th>
                                         <th>生产日期</th>
                                         <th>保质期</th>
                                     </tr>
@@ -101,6 +102,7 @@
                                         var totalQuantity = 0;
                                         var totalActualQuantity = 0;
                                         decimal countTotal = 0;
+                                        decimal total = 0;
                                         var index = 1;
                                     }
                                     @foreach (var item in Model.Items)
@@ -108,6 +110,7 @@
                                         totalQuantity += item.Quantity;
                                         totalActualQuantity += item.ActualQuantity;
                                         countTotal += item.Price * item.ActualQuantity;
+                                        total+= item.Price * item.Quantity;
                                         <tr>
                                             <td class="text-center">@(index++)</td>
                                             <td>@item.ProductCode</td>
@@ -120,6 +123,7 @@
                                             <td>1 × @item.SpecificationQuantity</td>
                                             <td>@item.PackageQuantity</td>
                                             <td>@item.Quantity</td>
+                                            <td>@((item.Price * item.Quantity).ToString("F2"))</td>
                                             <td>@item.ActualPackageQuantity</td>
                                             <td>@item.ActualQuantity</td>
                                             <td>@(item.Amount.ToString("F2"))</td>
@@ -141,6 +145,7 @@
                                         <td></td>
                                         <td></td>
                                         <td>@totalQuantity</td>
+                                        <td>@total.ToString("F2")</td>
                                         <td></td>
                                         <td>@totalActualQuantity</td>
                                         <td>@countTotal.ToString("F2")</td>

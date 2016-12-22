@@ -149,6 +149,7 @@
     <Compile Include="Controllers\PosSyncController.cs" />
     <Compile Include="Controllers\ProductController.cs" />
     <Compile Include="Controllers\PurchaseContractController.cs" />
+    <Compile Include="Controllers\ReportController.cs" />
     <Compile Include="Controllers\RoleController.cs" />
     <Compile Include="Controllers\ShelfController.cs" />
     <Compile Include="Controllers\StocktakingController.cs" />
@@ -1254,6 +1255,9 @@
     <Content Include="Views\StorePurchaseOrder\RefundEdit.cshtml" />
     <Content Include="Views\StorePurchaseOrder\RefundDetails.cshtml" />
     <Content Include="Views\StorePurchaseOrder\WaitStockOut.cshtml" />
+    <Content Include="Views\Report\SaleOrderItems.cshtml" />
+    <Content Include="Views\Report\SaleSummary.cshtml" />
+    <Content Include="Views\Report\SaleCheck.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">
