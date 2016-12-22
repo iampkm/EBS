@@ -5,10 +5,10 @@ namespace EBS.Domain.Entity
 {
    public class SaleOrder:BaseEntity
     {
-        List<SaleOrderItem> _items;
+
         public SaleOrder()
         {
-            this._items = new List<SaleOrderItem>();
+            this.Items = new List<SaleOrderItem>();
             this.CreatedOn = DateTime.Now;
             this.UpdatedOn = DateTime.Now;
             this.Status = SaleOrderStatus.Create;
@@ -66,13 +66,8 @@ namespace EBS.Domain.Entity
 
         public DateTime UpdatedOn { get; set; }
 
-        public virtual IEnumerable<SaleOrderItem> Items
-        {
-            get
-            {
-                return this._items;
-            }
-        }
+        public virtual List<SaleOrderItem> Items   { get; set; }
+
 
         public string GenderateNewCode()
         {
@@ -84,6 +79,8 @@ namespace EBS.Domain.Entity
             var seconds = Math.Truncate(ts.TotalSeconds).ToString().PadLeft(6, '0');  // 5位
             return string.Format("{0}{1}{2}{3}", (int)BillIdentity.SaleOrder, createdBy, orderYear.ToString().PadLeft(3,'0'), seconds);
         }
+
+
 
     }
 }

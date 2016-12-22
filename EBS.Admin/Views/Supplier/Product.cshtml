@@ -64,7 +64,9 @@
                                 </div>
                                 <span class="input-group-btn" slot="customButtons">
                                     <a class="btn btn-warning btn-flat" href="/Supplier/ImportProduct">导入商品</a>
+                                    <button class="btn btn-danger btn-flat" type="button" v-on:click="delete()">删除</button>
                                     <button class="btn btn-success btn-flat" type="button" v-on:click="comparePrice()">比价</button>
+                                    
                                 </span>
                             </vue-table>
                         </div>
@@ -258,9 +260,32 @@
                     },
                 },
                 methods: {
-                    remove: function (index) {
-                        this.products.splice(index,1); 
-                    },
+                    remove: function () {
+                        var v_ids = "";
+                        this.rows.forEach(function (item, index) {
+                            if (item.checked) {
+                                v_ids = item.Id + ",";
+                            }
+                        });
+                        if (v_ids == "") {
+                            bootbox.alert("请选择一条记录");
+                            return;
+                        }
+                        v_ids = v_ids.substring(0, v_ids.length - 1);
+                        v_self = this;
+                        bootbox.confirm("您确定删除该记录？", function (result) {
+                            if (result) {
+                                $.post("/Supplier/removeProduct", { ids: v_ids }, function (result) {
+                                    if (result.success) {
+                                        v_self.$refs.vtable.loadData();
+                                    }
+                                    else {
+                                        bootbox.alert(result.error);
+                                    }
+                                }, "json");
+                            }
+                        });
+                    },                   
                     comparePrice:function(){
                         var _self = this;
                         if(this.supplierId1==0)

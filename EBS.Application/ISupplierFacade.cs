@@ -12,6 +12,8 @@ namespace EBS.Application
        void Edit(SupplierModel model);
         void Delete(string ids);
         void ImportProduct(string supplierProductJson, int updatedBy);
+
+        void removeProduct(string ids);
         /// <summary>
         ///  标记待候选
         /// </summary>

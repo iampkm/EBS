@@ -109,5 +109,16 @@ namespace EBS.Application.Facade
             }           
             _db.SaveChange();
         }
+
+
+        public void removeProduct(string ids)
+        {
+            if (string.IsNullOrEmpty(ids)) {
+                throw new Exception("请选中要删除的商品");
+            }
+            var idArray = ids.Split(',').ToIntArray();
+            _db.Delete<SupplierProduct>(idArray);
+            _db.SaveChange();
+        }
     }
 }

@@ -129,11 +129,6 @@
                             bootbox.alert("请选择区域");
                             return;
                         }
-                        if (nodes[0].id.length / 2 < 3) //选中三级叶子节点
-                        {
-                            bootbox.alert("分类必须选到3级节点");
-                            return;
-                        }
                         // 设置 选中的分类
                         this.model.areaId = nodes[0].id;
                         this.selectArea.areaName = nodes[0].text;

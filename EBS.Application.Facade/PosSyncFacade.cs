@@ -34,6 +34,8 @@ namespace EBS.Application.Facade
             _db.Insert(model);
             _db.SaveChange();  // 先保存订单
             var entity= _db.Table.Find<SaleOrder>(n => n.Code == model.Code);
+            var entityItems = _db.Table.FindAll<SaleOrderItem>(n => n.SaleOrderId == entity.Id).ToList();
+            entity.Items = entityItems;
             if (entity.OrderType == (int)OrderType.Order)
             {
                 _storeInventoryService.StockOutSaleOrder(entity);
@@ -44,29 +46,18 @@ namespace EBS.Application.Facade
            
             _db.SaveChange();
         }
-
-        public void InputCashAmountSync(string body)
-        {
-            var dateTimeConverter = new IsoDateTimeConverter { DateTimeFormat = "yyyy-MM-dd HH:mm:ss" };
-            var model = JsonConvert.DeserializeObject<WorkSchedule>(body, dateTimeConverter);
-            var entity = _db.Table.Find<WorkSchedule>(n => n.Code == model.Code);
-            if (entity == null) {
-                throw new Exception("班次不存在");
-            }
-            entity.CashAmount = model.CashAmount;
-            _db.Update(entity);
-            _db.SaveChange();
-        }
-
+       
         public void WorkScheduleSync(string body)
         {
             var dateTimeConverter = new IsoDateTimeConverter { DateTimeFormat = "yyyy-MM-dd HH:mm:ss" };
             var model = JsonConvert.DeserializeObject<WorkSchedule>(body, dateTimeConverter);
             if (_db.Table.Exists<WorkSchedule>(n => n.Code == model.Code))
             {
-                throw new Exception(string.Format("{0}班次{1}已存在",model.StoreId,model.Code));
+                _db.Update(model);
             }
-            _db.Insert(model);
+            else {
+                _db.Insert(model); 
+            }           
             _db.SaveChange();
         }
     }

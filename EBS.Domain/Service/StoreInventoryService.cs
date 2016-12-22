@@ -239,10 +239,11 @@ where s.Id is null  and i.StorePurchaseOrderId = @StorePurchaseOrderId";
                     {
                         if (batchItem.Quantity > leftQuantity)
                         {
-                            inventoryBatchUpdates.Add(new StoreInventoryBatchUpdate(batchItem.Id, -leftQuantity));
+                            inventoryBatchUpdates.Add(new StoreInventoryBatchUpdate(batchItem.Id, -leftQuantity));                          
                             //记录修改历史
                             inventoryHistorys.Add(new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventory.Quantity, -leftQuantity,
-                                purchaseOrderItem.RealPrice, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.SaleOrder, entity.CreatedBy));
+                                batchItem.Price, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.SaleOrder, entity.CreatedBy));
+                            leftQuantity = 0; //扣完
                             break;
                         }
                         else
@@ -252,7 +253,7 @@ where s.Id is null  and i.StorePurchaseOrderId = @StorePurchaseOrderId";
                             inventory.Quantity = inventory.Quantity - batchItem.Quantity;  // 第1+N次扣减后总库存
                             leftQuantity = leftQuantity - batchItem.Quantity;
                             inventoryHistorys.Add(new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventory.Quantity, -batchItem.Quantity,
-                                                         purchaseOrderItem.RealPrice, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.StorePurchaseOrder, entity.CreatedBy));
+                                                         batchItem.Price, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.SaleOrder, entity.CreatedBy));
                         }
                     }
 
@@ -262,7 +263,7 @@ where s.Id is null  and i.StorePurchaseOrderId = @StorePurchaseOrderId";
                         inventory.Quantity = inventory.Quantity - leftQuantity;  // 第1+N次扣减后总库存
                         var lastItem = productBatchs.LastOrDefault();
                         inventoryHistorys.Add(new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventory.Quantity, -leftQuantity,
-                                                        purchaseOrderItem.RealPrice, lastItem.BatchNo, entity.Id, entity.Code, BillIdentity.StorePurchaseOrder, entity.CreatedBy));
+                                                       lastItem.Price, lastItem.BatchNo, entity.Id, entity.Code, BillIdentity.SaleOrder, entity.CreatedBy));
                     }
 
                 }
@@ -290,7 +291,7 @@ where s.Id is null  and i.StorePurchaseOrderId = @StorePurchaseOrderId";
             foreach (var item in entityItems)
             {
                 // 查询商品合同价
-                var contract = _db.Table.Find<PurchaseContract>("select * from PurchaseContract where FIND_IN_SET(@StoreId,c.StoreIds) and Status=3 and  EndDate>=@Today", new { StoreId = entity.StoreId, Today = DateTime.Now.Date });
+                var contract = _db.Table.Find<PurchaseContract>("select * from PurchaseContract where FIND_IN_SET(@StoreId,StoreIds) and Status=3 and  EndDate>=@Today", new { StoreId = entity.StoreId, Today = DateTime.Now.Date });
                 var contractItem = _db.Table.Find<PurchaseContractItem>("select * from purchasecontractitem where PurchaseContractId=@PurchaseContractId and ProductId=@ProductId", new { PurchaseContractId=contract.Id,ProductId=item.ProductId });
 
                 var batch = new StoreInventoryBatch(item.ProductId, entity.StoreId, contract.SupplierId, Math.Abs(item.Quantity),
@@ -314,11 +315,12 @@ where s.Id is null  and i.StorePurchaseOrderId = @StorePurchaseOrderId";
                 if (productQuantityDic.ContainsKey(inventory.ProductId))
                 {
                     var purchaseOrderItem = productQuantityDic[inventory.ProductId];
+                    var contractPrice = purchaseOrderItem.AvgCostPrice;
                     var inventoryUpdateModel = new StoreInventoryUpdate();
                     var quantity = Math.Abs(purchaseOrderItem.Quantity);
                     inventoryUpdateModel.Id = inventory.Id;
-                    inventoryUpdateModel.Quantity = quantity; //要更新的库存数量 (负数)
-                    inventoryUpdateModel.SaleQuantity = quantity; // 更新可售数量 （负数）
+                    inventoryUpdateModel.Quantity = quantity; //要更新的库存数量 
+                    inventoryUpdateModel.SaleQuantity = quantity; // 更新可售数量 
 
                     // 计算移动加权平均成本
                     int totalQuantity = inventory.Quantity + quantity;
@@ -328,7 +330,7 @@ where s.Id is null  and i.StorePurchaseOrderId = @StorePurchaseOrderId";
 
                     //记录库存流水
                     var history = new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventory.Quantity, -purchaseOrderItem.Quantity,
-                        purchaseOrderItem.RealPrice, batchNo, entity.Id, entity.Code, BillIdentity.SaleOrder, entity.UpdatedBy);
+                        contractPrice, batchNo, entity.Id, entity.Code, BillIdentity.SaleOrder, entity.UpdatedBy);
                     inventoryHistorys.Add(history);
                 }
             }

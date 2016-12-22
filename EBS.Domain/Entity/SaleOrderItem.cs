@@ -24,7 +24,7 @@ namespace EBS.Domain.Entity
         /// <summary>
         /// 销项税率
         /// </summary>
-        public decimal OutRate { get; set; }
+       // public decimal OutRate { get; set; }
         /// <summary>
         /// 平均成本
         /// </summary>

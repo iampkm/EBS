@@ -13,23 +13,20 @@ namespace EBS.Query
    public interface IPosSyncQuery
     {
        IEnumerable<AccountSync> QueryAccountSync(Pager page);
-       IEnumerable<AccountSync> QueryAccountSync(int[] Ids);
        IEnumerable<StoreSync> QueryStoreSync(Pager page);
-       IEnumerable<StoreSync> QueryStoreSync(int[] Ids);
        IEnumerable<VipCardSync> QueryVipCardSync(Pager page);
-       IEnumerable<VipCardSync> QueryVipCardSync(int[] Ids);
        IEnumerable<VipProductSync> QueryVipProductSync(Pager page);
-       IEnumerable<VipProductSync> QueryVipProductSync(int[] Ids);
+
+       IEnumerable<ProductStorePriceSync> QueryProductStorePriceSync(Pager page);
+
+       IEnumerable<ProductAreaPriceSync> QueryProductAreaPriceSync(Pager page);
        /// <summary>
        /// 库存商品数据
        /// </summary>
        /// <param name="page"></param>
        /// <param name="storeId">门店</param>
        /// <returns></returns>
-       IEnumerable<ProductSync> QueryProductSync(Pager page);
-       IEnumerable<ProductSync> QueryProductSync(int[] Ids, int storeId);
-
-       IEnumerable<ChangeDataSync> QueryChangeData(DateTime lastQueryTime);
+       IEnumerable<ProductSync> QueryProductSync(Pager page,int storeId); 
         
     }
 

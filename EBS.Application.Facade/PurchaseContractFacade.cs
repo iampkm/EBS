@@ -91,9 +91,12 @@ namespace EBS.Application.Facade
             entity.Audit();
             entity.EditBy(editBy);
             _db.Update(entity);
-            //审核通过后，修改所有商品在供应商比较重的供应状态 
+            //审核通过后，修改商品明细在比价状态中的比价状态
            var supplyProducts= _supplierService.EditSupplyStatus(entity.Id, entity.SupplierId, editBy);
-            _db.Update(supplyProducts.ToArray());
+           if (supplyProducts.Any())
+           {
+               _db.Update(supplyProducts.ToArray());
+           }           
             // 记录操作流程 
             var reason = "审核通过";
             _processHistoryService.Track(editBy, editor, (int)entity.Status, entity.Id, FormType.PurchaseContract, reason);

@@ -24,14 +24,6 @@ namespace EBS.Query.Service
             page.Total = this._query.Count<Account>();
            return rows;
         }
-
-        public IEnumerable<AccountSync> QueryAccountSync(int[] Ids)
-        {
-            string sql = @"Select Id,UserName,Password,NickName,RoleId,StoreId,Status from Account where Id in @Id";
-            var rows = this._query.FindAll<AccountSync>(sql, new { Id = Ids});
-            return rows;
-        }
-
         public IEnumerable<StoreSync> QueryStoreSync(Pager page)
         {
             string sql = @"Select Id,Code,Name,LicenseCode from Store LIMIT {0},{1}";
@@ -40,14 +32,6 @@ namespace EBS.Query.Service
             page.Total = this._query.Count<Store>();
             return rows;
         }
-
-        public IEnumerable<StoreSync> QueryStoreSync(int[] Ids)
-        {
-            string sql = @"Select Id,Code,Name,LicenseCode from Store where Id in @Id";
-            var rows = this._query.FindAll<StoreSync>(sql, new { Id = Ids });
-            return rows;
-        }
-
         public IEnumerable<VipCardSync> QueryVipCardSync(Pager page)
         {
             string sql = @"SELECT Id,Code,Discount FROM VipCard LIMIT {0},{1}";
@@ -55,11 +39,6 @@ namespace EBS.Query.Service
             var rows = this._query.FindAll<VipCardSync>(sql, null);
             page.Total = this._query.Count<VipCard>();
             return rows;
-        }
-
-        public IEnumerable<VipCardSync> QueryVipCardSync(int[] Ids)
-        {
-            throw new NotImplementedException();
         }
 
         public IEnumerable<VipProductSync> QueryVipProductSync(Pager page)
@@ -71,12 +50,25 @@ namespace EBS.Query.Service
             return rows;
         }
 
-        public IEnumerable<VipProductSync> QueryVipProductSync(int[] Ids)
+        IEnumerable<ProductStorePriceSync> IPosSyncQuery.QueryProductStorePriceSync(Pager page)
         {
-            throw new NotImplementedException();
+            string sql = @"SELECT Id,StoreId,ProductId,SalePrice FROM ProductStorePrice LIMIT {0},{1}";
+            sql = string.Format(sql, (page.PageIndex - 1) * page.PageSize, page.PageSize);
+            var rows = this._query.FindAll<ProductStorePriceSync>(sql, null);
+            page.Total = this._query.Count<ProductStorePrice>();
+            return rows;
         }
 
-        public IEnumerable<ProductSync> QueryProductSync(Pager page)
+        IEnumerable<ProductAreaPriceSync> IPosSyncQuery.QueryProductAreaPriceSync(Pager page)
+        {
+            string sql = @"SELECT Id,AreaId,ProductId,SalePrice FROM ProductAreaPrice LIMIT {0},{1}";
+            sql = string.Format(sql, (page.PageIndex - 1) * page.PageSize, page.PageSize);
+            var rows = this._query.FindAll<ProductAreaPriceSync>(sql, null);
+            page.Total = this._query.Count<ProductAreaPrice>();
+            return rows;
+        }
+
+        public IEnumerable<ProductSync> QueryProductSync(Pager page, int storeId)
         {
 //            string sql = @"SELECT p.Id,p.`Code`,p.`Name`,p.BarCode,p.Specification,p.SalePrice
 //FROM Product p inner join storeInventory i on p.Id = i.ProductId 
@@ -86,26 +78,14 @@ namespace EBS.Query.Service
 //            page.Total = this._query.Count<StoreInventory>();
 //            return rows;
 
-            string sql = @"SELECT p.Id,p.`Code`,p.`Name`,p.BarCode,p.Specification,p.SalePrice
+            string sql = @"SELECT p.Id,p.`Code`,p.`Name`,p.BarCode,p.Specification,p.Unit,p.SalePrice
 FROM Product p LIMIT {0},{1}";
             sql = string.Format(sql, (page.PageIndex - 1) * page.PageSize, page.PageSize);
             var rows = this._query.FindAll<ProductSync>(sql, null);
             page.Total = this._query.Count<Product>();
             return rows;
-        }
+        }       
 
-        public IEnumerable<ProductSync> QueryProductSync(int[] Ids, int storeId)
-        {
-            string sql = @"SELECT p.Id,p.`Code`,p.`Name`,p.BarCode,p.Specification,p.SalePrice
-FROM Product p inner join storeInventory i on p.Id = i.ProductId 
-where i.storeId=@StoreId and p.Id in @Id and ";
-            var rows = this._query.FindAll<ProductSync>(sql, new { Id = Ids, StoreId = storeId });
-            return rows;
-        }
-
-        public IEnumerable<ChangeDataSync> QueryChangeData(DateTime lastQueryTime)
-        {
-            throw new NotImplementedException();
-        }
+        
     }
 }

@@ -41,14 +41,14 @@ namespace EBS.Admin.Controllers
             var rows = _supplierQuery.GetPageList(page, name,code);
 
             return Json(new { success = true, data = rows, total = page.Total }, JsonRequestBehavior.AllowGet);
-        } 
+        }
 
-        //public string LoadChildArea()
-        //{
-        //    var treeNodes = _areaQuery.GetTree();
-        //    var tree = JsonConvert.SerializeObject(treeNodes);
-        //    return tree;
-        //}
+        public string LoadChildArea()
+        {
+            var treeNodes = _areaQuery.GetTree();
+            var tree = JsonConvert.SerializeObject(treeNodes);
+            return tree;
+        }
         public ActionResult Create()
         {
             ViewBag.SupplierTypes = _supplierQuery.GetSupplierType();
@@ -106,6 +106,12 @@ namespace EBS.Admin.Controllers
         {
             LoadCategory();
             return View();
+        }
+
+        public JsonResult removeProduct(string ids)
+        {
+            _supplierFacade.removeProduct(ids);
+            return Json(new { success = true });
         }
 
         public JsonResult LoadSupplierProducts(Pager page, string name,string codeOrBarCode,string categoryId,int brandId,string supplierIds)

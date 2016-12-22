@@ -14,6 +14,7 @@ using EBS.Application.Message;
 using EBS.Application;
 using EBS.Infrastructure.Events;
 using Newtonsoft.Json.Converters;
+using EBS.Infrastructure.Log;
 namespace EBS.Admin.Controllers
 {
     /// <summary>
@@ -23,94 +24,58 @@ namespace EBS.Admin.Controllers
     {
         IPosSyncQuery _posQuery;
         IPosSyncFacade _posFacade;
-        public PosSyncController(IPosSyncQuery query,IPosSyncFacade posFacade)
+        ILogger _log;
+        public PosSyncController(IPosSyncQuery query,IPosSyncFacade posFacade,ILogger log)
         {
             _posQuery = query;
             _posFacade = posFacade;
+            _log = log;
         }
         public string AccountByPage(Pager page)
         {
             var result = _posQuery.QueryAccountSync(page).ToList();
             if (result.Count()==0) { return string.Empty; }
             return JsonConvert.SerializeObject(result);
-        }
-
-        public string Account(string ids)
-        {
-            if (string.IsNullOrEmpty(ids)) return string.Empty;
-            int[] idArray = ids.Split(',').ToIntArray();
-            var result = _posQuery.QueryAccountSync(idArray);
-            if (result.Count() == 0) { return string.Empty; }
-            return JsonConvert.SerializeObject(result);
-        }
+        }       
 
         public string StoreByPage(Pager page)
         {
             var result = _posQuery.QueryStoreSync(page);
             if (result.Count() == 0) { return string.Empty; }
             return JsonConvert.SerializeObject(result);
-        }
-
-        public string Store(string ids)
-        {
-            if (string.IsNullOrEmpty(ids)) return string.Empty;
-            int[] idArray = ids.Split(',').ToIntArray();
-            var result = _posQuery.QueryStoreSync(idArray);
-            if (result.Count() == 0) { return string.Empty; }
-            return JsonConvert.SerializeObject(result);
-        }
+        }       
 
         public string VipCardByPage(Pager page)
         {
             var result = _posQuery.QueryVipCardSync(page);
             if (result.Count() == 0) { return string.Empty; }
             return JsonConvert.SerializeObject(result);
-        }
-
-        public string VipCard(string ids)
-        {
-            if (string.IsNullOrEmpty(ids)) return string.Empty;
-            int[] idArray = ids.Split(',').ToIntArray();
-            var result = _posQuery.QueryVipCardSync(idArray);
-            if (result.Count() == 0) { return string.Empty; }
-            return JsonConvert.SerializeObject(result);
-        }
+        }       
 
         public string VipProductByPage(Pager page)
         {
             var result = _posQuery.QueryVipProductSync(page);
             if (result.Count() == 0) { return string.Empty; }
             return JsonConvert.SerializeObject(result);
-        }
+        }       
 
-        public string VipProduct(string ids)
+        public string ProductByPage(Pager page,int storeId)
         {
-            if (string.IsNullOrEmpty(ids)) return string.Empty;
-            int[] idArray = ids.Split(',').ToIntArray();
-            var result = _posQuery.QueryVipProductSync(idArray);
+            var result = _posQuery.QueryProductSync(page,storeId);
             if (result.Count() == 0) { return string.Empty; }
             return JsonConvert.SerializeObject(result);
         }
 
-        public string ProductByPage(Pager page)
+        public string ProductStorePriceByPage(Pager page)
         {
-            var result = _posQuery.QueryProductSync(page);
+            var result = _posQuery.QueryProductStorePriceSync(page);
             if (result.Count() == 0) { return string.Empty; }
             return JsonConvert.SerializeObject(result);
         }
 
-        public string Product(string ids,int storeId)
+        public string ProductAreaPriceByPage(Pager page)
         {
-            if (string.IsNullOrEmpty(ids)) return string.Empty;
-            int[] idArray = ids.Split(',').ToIntArray();
-            var result = _posQuery.QueryProductSync(idArray,storeId);
-            if (result.Count() == 0) { return string.Empty; }
-            return JsonConvert.SerializeObject(result);
-        }
-
-        public string ChangeData(DateTime lastQueryTime)
-        {
-            var result = _posQuery.QueryChangeData(lastQueryTime);
+            var result = _posQuery.QueryProductAreaPriceSync(page);
             if (result.Count() == 0) { return string.Empty; }
             return JsonConvert.SerializeObject(result);
         }
@@ -118,17 +83,16 @@ namespace EBS.Admin.Controllers
         // 事件消息处理
         public string SaleOrderSync(string body)
         {
+            _log.Info("SaleOrderSync request:body={0}", body);
             _posFacade.SaleOrderSync(body);
-            return "1";
-        }
-        public string InputCashAmountSync(string body)
-        {
-            _posFacade.InputCashAmountSync(body);
+            _log.Info("SaleOrderSync request:success");
             return "1";
         }
         public string WorkScheduleSync(string body)
         {
+            _log.Info("WorkScheduleSync request:body={0}", body);
             _posFacade.WorkScheduleSync(body);
+            _log.Info("SaleOrderSync request:success");
             return "1";
         }
     }

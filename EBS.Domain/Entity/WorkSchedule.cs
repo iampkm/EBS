@@ -13,7 +13,7 @@ namespace EBS.Domain.Entity
             this.StartDate = DateTime.Now;
            // Code = Guid.NewGuid().ToString().Replace("-", "");
         }
-        public string Code { get; private set; }
+        public string Code { get;  set; }
         public int StoreId { get; set; }
 
         public int PosId { get; set; }
