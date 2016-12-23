@@ -33,18 +33,29 @@ namespace EBS.Application.Facade
             model.Hour = model.CreatedOn.Hour; //设置订单时段
             _db.Insert(model);
             _db.SaveChange();  // 先保存订单
-            var entity= _db.Table.Find<SaleOrder>(n => n.Code == model.Code);
-            var entityItems = _db.Table.FindAll<SaleOrderItem>(n => n.SaleOrderId == entity.Id).ToList();
-            entity.Items = entityItems;
-            if (entity.OrderType == (int)OrderType.Order)
-            {
-                _storeInventoryService.StockOutSaleOrder(entity);
+
+            if (model.Status == SaleOrderStatus.Cancel)
+            { 
+                //作废订单只保存，不增减库存
+                return;
             }
-            else {
-                _storeInventoryService.StockInRefundOrder(entity);
+            else if (model.Status == SaleOrderStatus.Paid)
+            {
+                var entity = _db.Table.Find<SaleOrder>(n => n.Code == model.Code);
+                var entityItems = _db.Table.FindAll<SaleOrderItem>(n => n.SaleOrderId == entity.Id).ToList();
+                entity.Items = entityItems;
+                if (entity.OrderType == (int)OrderType.Order)
+                {
+                    _storeInventoryService.StockOutSaleOrder(entity);
+                }
+                else
+                {
+                    _storeInventoryService.StockInRefundOrder(entity);
+                }
+
+                _db.SaveChange();
             }
            
-            _db.SaveChange();
         }
        
         public void WorkScheduleSync(string body)

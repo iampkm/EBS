@@ -47,14 +47,14 @@ namespace EBS.Query.Service
                 string sql = @"Select t0.`Id`,t0.`UserName`,t0.`NickName`,t0.`Status`,t0.`CreatedOn`,t0.`LastUpdateDate`,t0.`LoginErrorCount`,t1.Name as RoleName,t2.Name as StoreName 
 from Account t0 inner join Role t1 on t0.RoleId=t1.Id 
 left join Store t2 on t0.StoreId = t2.Id
-where 1=1 {0} Order By  t0.Id LIMIT {1},{2}";
+where t0.Id>1 {0} Order By  t0.Id LIMIT {1},{2}";
                 sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
                 rows = this._query.FindAll<AccountInfo>(sql,param);
                 page.Total = this._query.Count<Account>(where, param);
             }
             else
             {
-                string sql = "Select t0.`Id`,t0.`UserName`,t0.`NickName`,t0.`Status`,t0.`CreatedOn`,t0.`LastUpdateDate`,t0.`LoginErrorCount`,t1.Name as RoleName  from Account t0 inner join Role t1 on t0.RoleId=t1.Id where 1=1 {0} Order By  t0.Id ";
+                string sql = "Select t0.`Id`,t0.`UserName`,t0.`NickName`,t0.`Status`,t0.`CreatedOn`,t0.`LastUpdateDate`,t0.`LoginErrorCount`,t1.Name as RoleName  from Account t0 inner join Role t1 on t0.RoleId=t1.Id where t0.Id>1 {0} Order By  t0.Id ";
                 sql = string.Format(sql, where);
                 rows = this._query.FindAll<AccountInfo>(sql, param);
                 page.Total = this._query.Count<Account>();

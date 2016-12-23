@@ -72,7 +72,7 @@ namespace EBS.Admin.Controllers
         {
             //加载权限资源  
             ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
-            ViewBag.Roles = _query.FindAll<Role>();
+            ViewBag.Roles = _query.FindAll<Role>(n=>n.Id>1);
             return View();
         }
         [HttpPost]
@@ -85,7 +85,7 @@ namespace EBS.Admin.Controllers
         public ActionResult Edit(int id)
         {
             var model = _query.Find<Account>(id);
-            ViewBag.Roles = _query.FindAll<Role>();
+            ViewBag.Roles = _query.FindAll<Role>(n => n.Id > 1);
             ViewBag.StoreName = "";
             ViewBag.CanViewStores = "";
             //加载权限资源  

@@ -38,7 +38,7 @@ namespace EBS.Query.Service
                 where += "and t0.StoreId=@StoreId ";
                 param.StoreId = condition.StoreId;
             }
-            if (condition.Status > 0)
+            if (condition.Status != 0)
             {
                 where += "and t0.Status=@Status ";
                 param.Status = condition.Status;

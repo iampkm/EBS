@@ -93,8 +93,8 @@
                                         <th>实收件数</th>
                                         <th>实收数量</th>
                                         <th>实收金额</th>
-                                        <th>生产日期</th>
-                                        <th>保质期</th>
+                                        @*<th>生产日期</th>
+                                        <th>保质期</th>*@
                                     </tr>
                                 </thead>
                                 <tbody id="tbody">
@@ -127,14 +127,14 @@
                                             <td>@item.ActualPackageQuantity</td>
                                             <td>@item.ActualQuantity</td>
                                             <td>@(item.Amount.ToString("F2"))</td>
-                                            <td>@item.ProductionDate</td>
-                                            <td>@item.ShelfLife</td>
+                                            @*<td>@item.ProductionDate</td>
+                                            <td>@item.ShelfLife</td>*@
                                         </tr>
                                     }
                                 </tbody>
                                 <tfoot>
                                     <tr>
-                                        <td style="width:50px;"></td>
+                                        <td></td>
                                         <td>合计：</td>
                                         <td></td>
                                         <td></td>
@@ -149,8 +149,8 @@
                                         <td></td>
                                         <td>@totalActualQuantity</td>
                                         <td>@countTotal.ToString("F2")</td>
-                                        <td></td>
-                                        <td class="dataRow"></td>
+                                        @*<td></td>
+                                        <td class="dataRow"></td>*@
                                     </tr>
                                 </tfoot>
                             </table>

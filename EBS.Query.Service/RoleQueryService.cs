@@ -21,7 +21,7 @@ namespace EBS.Query.Service
         {
             IEnumerable<Role> rows;
             dynamic param = new ExpandoObject();
-            string where = "";
+            string where = " and t0.Id>1"; //不加载系统超管角色
             if (!string.IsNullOrEmpty(name))
             {
                 where += "and t0.Name like @Name ";

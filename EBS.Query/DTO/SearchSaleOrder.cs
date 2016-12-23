@@ -8,6 +8,7 @@ namespace EBS.Query.DTO
 {
   public  class SearchSaleOrder
     {
+      public string Code { get; set; }
         /// <summary>
         /// 昵称
         /// </summary>
@@ -19,7 +20,7 @@ namespace EBS.Query.DTO
         /// <summary>
         /// 收银机
         /// </summary>
-        public int PosId { get; set; }
+        public int? PosId { get; set; }
         public int StoreId { get; set; }
         /// <summary>
         /// 班次日期起

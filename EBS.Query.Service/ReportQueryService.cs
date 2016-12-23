@@ -26,50 +26,51 @@ namespace EBS.Query.Service
             string where = "";
             if (!string.IsNullOrEmpty(condition.NickName))
             {
-                where += "and w.CreatedByName like @NickName ";
+                where += " and a.NickName like @NickName ";
                 param.NickName = string.Format("%{0}%", condition.NickName);
             }
-            //if (!string.IsNullOrEmpty(condition.UserName))
-            //{
-            //    where += "and a.UserName=@UserName ";
-            //    param.UserName = condition.UserName;
-            //}
-            if (condition.PosId > 0)
+            if (!string.IsNullOrEmpty(condition.Code))
             {
-                where += "and o.PosId=@PosId ";
-                param.PosId = condition.PosId;
+                where += "and o.Code=@Code ";
+                param.Code = condition.Code;
+            }
+            if (condition.PosId.HasValue)
+            {
+                where += " and o.PosId=@PosId ";
+                param.PosId = condition.PosId.Value;
             }
             if (condition.StoreId > 0)
             {
-                where += "and s.Id=@StoreId ";
+                where += " and s.Id=@StoreId ";
                 param.StoreId = condition.StoreId;
             }
-            if (condition.WrokFrom.HasValue)
+            
+            if(condition.WrokFrom.HasValue )
             {
-                where += "and w.StartDate>=@StartDate";
+                where +=" and w.StartDate >= @StartDate ";
                 param.StartDate = condition.WrokFrom.Value;
             }
-            if (condition.WrokTo.HasValue)
+            if(condition.WrokTo.HasValue)
             {
-                where += "and w.EndDate<=@EndDate";
-                param.EndDate = condition.WrokTo.Value;
+                where += " and w.StartDate < @EndDate ";
+                param.EndDate = condition.WrokTo.Value.AddDays(1);
             }
             if (condition.From.HasValue)
             {
-                where += "and o.UpdatedOn>=@UpdatedOn";
-                param.UpdatedOn = condition.WrokFrom.Value;
+                where += " and o.UpdatedOn>=@From";
+                param.From = condition.From.Value;
             }
             if (condition.To.HasValue)
             {
-                where += "and o.UpdatedOn<=@UpdatedOn";
-                param.UpdatedOn = condition.WrokTo.Value;
+                where += " and o.UpdatedOn<@To";
+                param.To = condition.To.Value.AddDays(1);
             }
 
-            string sql = @"select o.`Code`,o.PosId,o.OrderType,o.`Status`,o.OrderAmount,o.PayAmount,o.OnlinePayAmount,o.PaymentWay,o.PaidDate,o.UpdatedOn
-,w.CreatedByName,s.`Name` as StoreName,w.StartDate,w.EndDate
- from saleorder o inner join saleorderitem i on o.Id = i.SaleOrderId 
-inner join store s on s.Id= o.StoreId 
-left join workschedule w on s.CreatedBy = w.CreatedBy
+            string sql = @"select o.`Code`,o.PosId,o.OrderType,o.`Status`,o.OrderAmount,o.PayAmount,o.OnlinePayAmount,o.PaymentWay,o.PaidDate,o.UpdatedOn,a.NickName,s.Name as StoreName 
+ from saleorder o 
+left join store s on s.Id= o.StoreId 
+left join account a on a.Id = o.CreatedBy
+left join workschedule w on o.WorkScheduleCode = w.Code
 where 1=1 {0}";
             //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<Product>(where, param);
             if (string.IsNullOrEmpty(where))

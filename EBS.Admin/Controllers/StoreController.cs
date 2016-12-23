@@ -46,7 +46,7 @@ namespace EBS.Admin.Controllers
         [HttpPost]
         public JsonResult Create(StoreModel model)
         {
-            model.CreateBy = _context.CurrentAccount.AccountId;
+            model.CreatedBy = _context.CurrentAccount.AccountId;
             model.CreatedOn = DateTime.Now;
             _storeFacade.Create(model);
             return Json(new { success = true });
@@ -61,7 +61,7 @@ namespace EBS.Admin.Controllers
         [HttpPost]
         public JsonResult Edit(StoreModel model)
         {
-            model.CreateBy = _context.CurrentAccount.AccountId;
+            model.CreatedBy = _context.CurrentAccount.AccountId;
             model.CreatedOn = DateTime.Now;
             _storeFacade.Edit(model);
             return Json(new { success = true });

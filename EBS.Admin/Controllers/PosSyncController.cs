@@ -92,7 +92,7 @@ namespace EBS.Admin.Controllers
         {
             _log.Info("WorkScheduleSync request:body={0}", body);
             _posFacade.WorkScheduleSync(body);
-            _log.Info("SaleOrderSync request:success");
+            _log.Info("WorkScheduleSync request:success");
             return "1";
         }
     }

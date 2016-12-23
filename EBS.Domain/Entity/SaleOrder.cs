@@ -43,8 +43,8 @@ namespace EBS.Domain.Entity
         
         /// <summary>
         /// 订单金额 = 实际价格RealAmount * 数量
-        /// </summary>
-        public decimal OrderAmount { get; private set; }
+        /// </summary> 
+        public decimal OrderAmount { get; set; }
         /// <summary>
         /// 现金支付金额
         /// </summary>
@@ -65,6 +65,12 @@ namespace EBS.Domain.Entity
         public int UpdatedBy { get; set; }
 
         public DateTime UpdatedOn { get; set; }
+        /// <summary>
+        /// 班次代码
+        /// </summary>
+        public string WorkScheduleCode { get; set; }
+
+        
 
         public virtual List<SaleOrderItem> Items   { get; set; }
 

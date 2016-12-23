@@ -34,7 +34,7 @@ namespace EBS.Query.Service
                 param.Code = condition.Code;
             }
            
-            if (condition.Status > 0)
+            if (condition.Status != 0)
             {
                 where += "and t0.Status=@Status ";
                 param.Status = condition.Status;
