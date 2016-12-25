@@ -10,5 +10,9 @@ namespace EBS.Query
    public interface IProductQuery
     {
        IEnumerable<ProductDto> GetPageList(Pager page, string name, string codeOrBarCode, string categoryId, int brandId);
+
+        IEnumerable<PriceTagDto> QueryProductPriceTagList(string ids);
+
+        PriceTagDto QueryPriceTag(string productCodeOrBarCode);
     }
 }

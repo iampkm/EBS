@@ -123,7 +123,16 @@ namespace EBS.Application.DTO
        /// </summary>
         public int UpdatedBy { get; set; }
 
-        
+        /// <summary>
+        /// 产地
+        /// </summary>
+        public string MadeIn { get; set; }
+        /// <summary>
+        /// 等级
+        /// </summary>
+        public string Grade { get; set; }
+
+
 
     }
 }

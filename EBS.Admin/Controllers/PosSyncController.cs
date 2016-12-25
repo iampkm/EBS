@@ -88,6 +88,7 @@ namespace EBS.Admin.Controllers
             _log.Info("SaleOrderSync request:success");
             return "1";
         }
+
         public string WorkScheduleSync(string body)
         {
             _log.Info("WorkScheduleSync request:body={0}", body);
@@ -95,5 +96,6 @@ namespace EBS.Admin.Controllers
             _log.Info("WorkScheduleSync request:success");
             return "1";
         }
+
     }
 }

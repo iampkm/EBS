@@ -110,6 +110,14 @@ namespace EBS.Domain.Entity
        /// 单位
        /// </summary>
        public string Unit { get; set; }
+        /// <summary>
+        /// 产地
+        /// </summary>
+        public string MadeIn { get; set; }
+        /// <summary>
+        /// 等级
+        /// </summary>
+        public string Grade { get; set; }
 
     }
 }

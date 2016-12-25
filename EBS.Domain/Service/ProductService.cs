@@ -81,6 +81,8 @@ namespace EBS.Domain.Service
                         BarCode = columns[3],
                         Specification = columns[4],
                         SpecificationQuantity = string.IsNullOrEmpty(columns[5]) ? "1" : columns[5],
+                        MadeIn="详见商品",
+                        Grade ="合格",
                         Unit = columns[6],
                         Length = templength,
                         Width = tempwidth,

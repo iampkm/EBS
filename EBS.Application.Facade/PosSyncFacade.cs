@@ -26,6 +26,7 @@ namespace EBS.Application.Facade
 
         }
 
+
         public void SaleOrderSync(string body)
         {
             var dateTimeConverter = new IsoDateTimeConverter { DateTimeFormat = "yyyy-MM-dd HH:mm:ss" };
@@ -35,7 +36,7 @@ namespace EBS.Application.Facade
             _db.SaveChange();  // 先保存订单
 
             if (model.Status == SaleOrderStatus.Cancel)
-            { 
+            {
                 //作废订单只保存，不增减库存
                 return;
             }
@@ -55,8 +56,9 @@ namespace EBS.Application.Facade
 
                 _db.SaveChange();
             }
-           
         }
+
+
        
         public void WorkScheduleSync(string body)
         {
@@ -71,5 +73,6 @@ namespace EBS.Application.Facade
             }           
             _db.SaveChange();
         }
+
     }
 }

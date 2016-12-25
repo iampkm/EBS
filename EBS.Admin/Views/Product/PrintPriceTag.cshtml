@@ -1,0 +1,30 @@
+﻿@using EBS.Infrastructure.Extension
+@model IEnumerable<EBS.Query.DTO.PriceTagDto>
+<style>
+    .priceTag div {
+        font-size: 12px;
+    }
+</style>
+<div class="priceTag " style="margin-left:30px;" >
+    @foreach (var item in Model)
+    {
+        <div style="font-size:14px;">@item.Name</div>
+        <div style="font-size:9px; ">
+           <span>@item.Specification</span>
+           <span>重庆市</span> @*@item.MadeIn*@
+           <span>合格</span> @*@item.Grade*@
+           <span>@item.Unit</span>
+        </div>
+        <div style="font-size:9px;">
+            <span>@item.Code</span>            
+        </div>       
+        <div><img style="height:25px;" src="@item.BarCode.CreateBarCodeUri("barCode")" />
+            <span style="font-size:30px;margin-left:5px;"><strong>@item.SalePrice</strong></span>
+        </div>
+        <div style="font-size:9px;">@item.BarCode</div>
+        <div style="font-size:9px;">@ViewBag.NickName</div>
+         <!--打印分页 colspan="6"-->
+        <div style="page-break-after :always"></div>
+    }   
+</div>
+

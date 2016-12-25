@@ -8,6 +8,7 @@ using EBS.Query.DTO;
 using EBS.Domain.Entity;
 using Dapper.DBContext;
 using System.Dynamic;
+using EBS.Infrastructure.Extension;
 namespace EBS.Query.Service
 {
    public class ProductQueryService:IProductQuery
@@ -50,6 +51,21 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             var rows = this._query.FindAll<ProductDto>(sql, param);
             page.Total = this._query.Count<Product>(where, param);
            
+            return rows;
+        }
+
+        public PriceTagDto QueryPriceTag(string productCodeOrBarCode)
+        {
+            string sql = "select Id,Name,Code,BarCode,Specification,Unit,/*Grade,MadeIn,*/SalePrice from product where Code = @ProductCodeOrBarCode or BarCode =@ProductCodeOrBarCode";
+            var model = _query.Find<PriceTagDto>(sql, new { ProductCodeOrBarCode = productCodeOrBarCode });
+            return model;
+        }
+
+        public IEnumerable<PriceTagDto> QueryProductPriceTagList(string ids)
+        {
+            var idArray = ids.Split(',').ToIntArray();
+            string sql = "select Id,Name,Code,BarCode,Specification,Unit,/*Grade,MadeIn,*/SalePrice from product where Id in @Ids";
+            var rows = _query.FindAll<PriceTagDto>(sql, new { Ids = idArray });
             return rows;
         }
     }

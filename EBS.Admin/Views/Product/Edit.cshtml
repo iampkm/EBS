@@ -77,59 +77,43 @@
                         </div>
                         <div class="row">
                             <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="条码：" v-bind:value.sync="model.barCode" placeholder="条码" maxlength="100" icon></v-input></div>
+                            <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="产地：" v-bind:value.sync="model.madeIn" placeholder="产地" maxlength="100" icon></v-input></div>
+                            <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="等级：" v-bind:value.sync="model.grade" placeholder="等级" maxlength="100" icon></v-input></div>
+                        </div>
+                        <div class="row">                           
                             <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="规格*：" v-bind:value.sync="model.specification" placeholder="规格" maxlength="100" required icon></v-input></div>
                             <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="件规：" help="多件规用逗号分隔，例如：12,24" v-bind:value.sync="model.specificationQuantity" placeholder="件规，多个逗号分隔" maxlength="100" required icon></v-input></div>
                             <div class="form-group col-sm-2 col-xs-3">
                                 <label class="control-label">单位：</label>
                                 <div class="input-group">
                                     <!-- /btn-group -->
-                                    <input type="text" class="form-control" v-model="model.unit" placeholder="单位">
-                                    @*<div class="input-group-btn">
-                                            <button type="button" class="btn btn-flat btn-warning dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                                选择单位
-                                                <span class="fa fa-caret-down"></span>
-                                            </button>
-                                            <ul class="dropdown-menu">
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('台')">台</a>
-                                               <a href="#" v-on:click.prevent="selectedUnit('座')">座</a>
-                                               <a href="#" v-on:click.prevent="selectedUnit('架')">架</a></li>
-
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('套')">套</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('个')">个</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('只')">只</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('头')">头</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('张')">张</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('件')">件</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('支')">支</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('根')">根</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('条')">条</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('把')">把</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('块')">块</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('卷')">卷</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('片')">片</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('组')">组</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('份')">份</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('双')">双</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('对')">对</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('盘')">盘</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('筒')">筒</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('箱')">箱</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('罐')">罐</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('桶')">桶</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('册')">册</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('本')">本</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('袋')">袋</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('盒')">盒</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('合')">合</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('打')">打</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('包')">包</a></li>
-                                                <li><a href="#" v-on:click.prevent="selectedUnit('粒')">粒</a></li>
-                                            </ul>
-                                        </div>*@
+                                    <input type="text" class="form-control" v-model="model.unit" placeholder="单位">                                    
                                 </div>
                             </div>
                             <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="拆零编码：" v-bind:value.sync="model.subSkuCode" placeholder="拆零编码" maxlength="100" icon></v-input></div>
                             <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="拆零数量：" v-bind:value.sync="model.subSkuQuantity" pattern="^[-+]?\d*$" placeholder="拆零数量" maxlength="100" icon></v-input></div>
+                        </div>                        
+                    </div>
+                    <!-- 扩展信息-->
+                    <div role="tabpanel" class="tab-pane" id="profile">
+                        <div class="row">
+                            <div class="col-xs-4 col-sm-4">
+                                <v-input type="text" label="SEO关键字：" v-bind:value.sync="model.keywords" placeholder="搜索关键字 多个空格分隔" maxlength="200" icon></v-input>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-3 col-sm-3">
+                                <v-input type="text" label="长：" v-bind:value.sync="model.length" pattern="^[-\+]?\d+(\.\d+)?$" placeholder="长 单位：厘米" icon></v-input>
+                            </div>
+                            <div class="col-xs-3 col-sm-3">
+                                <v-input type="text" label="宽：" v-bind:value.sync="model.width" pattern="^[-\+]?\d+(\.\d+)?$" placeholder="宽 单位：厘米" icon></v-input>
+                            </div>
+                            <div class="col-xs-3 col-sm-3">
+                                <v-input type="text" label="高：" v-bind:value.sync="model.height" pattern="^[-\+]?\d+(\.\d+)?$" placeholder="高 单位：厘米" maxlength="100" icon></v-input>
+                            </div>
+                            <div class="col-xs-3 col-sm-3">
+                                <v-input type="text" label="重量：" v-bind:value.sync="model.weight" pattern="^[-\+]?\d+(\.\d+)?$" placeholder="重量 单位：千克" maxlength="100" icon></v-input>
+                            </div>
                         </div>
                         <div class="form-group row">
                             <div class="col-xs-4 col-sm-4">
@@ -160,28 +144,6 @@
                         <div class="row">
                             <div class="form-group col-sm-2 col-xs-3">
                                 <label class="control-label"><input type="checkbox" v-model="model.isGift" />是赠品：</label>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- 扩展信息-->
-                    <div role="tabpanel" class="tab-pane" id="profile">
-                        <div class="row">
-                            <div class="col-xs-4 col-sm-4">
-                                <v-input type="text" label="SEO关键字：" v-bind:value.sync="model.keywords" placeholder="搜索关键字 多个空格分隔" maxlength="200" icon></v-input>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-3 col-sm-3">
-                                <v-input type="text" label="长：" v-bind:value.sync="model.length" pattern="^[-\+]?\d+(\.\d+)?$" placeholder="长 单位：厘米" icon></v-input>
-                            </div>
-                            <div class="col-xs-3 col-sm-3">
-                                <v-input type="text" label="宽：" v-bind:value.sync="model.width" pattern="^[-\+]?\d+(\.\d+)?$" placeholder="宽 单位：厘米" icon></v-input>
-                            </div>
-                            <div class="col-xs-3 col-sm-3">
-                                <v-input type="text" label="高：" v-bind:value.sync="model.height" pattern="^[-\+]?\d+(\.\d+)?$" placeholder="高 单位：厘米" maxlength="100" icon></v-input>
-                            </div>
-                            <div class="col-xs-3 col-sm-3">
-                                <v-input type="text" label="重量：" v-bind:value.sync="model.weight" pattern="^[-\+]?\d+(\.\d+)?$" placeholder="重量 单位：千克" maxlength="100" icon></v-input>
                             </div>
                         </div>
                         <div class="row">
@@ -251,7 +213,7 @@
                     code:'@Model.Code',
                     name: '@Model.Name',
                     showName:'@Model.ShowName',
-                    sellingPoint:'@Model.SellingPoint',
+                    sellingPoint:'@Model.SellingPoint',madeIn:'@Model.MadeIn',grade:'@Model.Grade',
                     inputRate:@Model.InputRate,
                     outRate:@Model.OutRate,
                     keywords:'@Model.Keywords',

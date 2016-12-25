@@ -11,6 +11,12 @@ using EBS.Query;
 using EBS.Query.DTO;
 using Newtonsoft.Json;
 using EBS.Admin.Services;
+using EBS.Infrastructure.Log;
+using EBS.Infrastructure.Extension;
+using System.Drawing;
+using ThoughtWorks.QRCode.Codec;
+using System.IO;
+
 namespace EBS.Admin.Controllers
 {
     [Permission]
@@ -21,14 +27,16 @@ namespace EBS.Admin.Controllers
         IProductFacade _productFacade;
         ICategoryQuery _categoryQuery;
         IContextService _context;
+        ILogger _log;
 
-        public ProductController(IContextService context,IQuery query, IProductQuery productQuery, IProductFacade productFacade, ICategoryQuery categoryQuery)
+        public ProductController(IContextService context,IQuery query, IProductQuery productQuery, IProductFacade productFacade, ICategoryQuery categoryQuery,ILogger log)
         {
             this._query = query;
             this._productQuery = productQuery;
             this._productFacade = productFacade;
             this._categoryQuery = categoryQuery;
             this._context = context;
+            _log = log;
         }
         public ActionResult Index()
         {
@@ -99,34 +107,56 @@ namespace EBS.Admin.Controllers
             return Json(new { success = true, data = error });
         }
 
-        #region 商品SKU 规格设计使用，已经作废
-        //public ActionResult Create2() {
-        //    LoadCategory();
-        //    LoadBrand();
-        //    //显示当前品类 规格名
-        //    return View();
-        //}
+        public ActionResult PriceTag()
+        {
+            return View();
+        }
 
-       
-        //// 按照商品规格模式开发使用
-        //public JsonResult LoadProductSpecification(string categoryId)
-        //{
-        //    var specs = _query.FindAll<ProductSpecification>(n => n.CategoryId == categoryId);
-        //    List<ProductAttrbuteValue> list = new List<ProductAttrbuteValue>();
-        //    foreach (var spec in specs)
-        //    {
-        //        var values = _query.FindAll<ProductSpecificationOption>(n => n.ProductSpecificationId == spec.Id);
-        //        list.Add(new ProductAttrbuteValue() { Ppecification = spec, Options = values.ToList() });
-        //    }
+        public ActionResult PrintPriceTag(string ids)
+        {
+            var data = _productQuery.QueryProductPriceTagList(ids);
+            ViewBag.NickName = _context.CurrentAccount.NickName;
+            return PartialView("PrintPriceTag", data);
+        }
 
-        //    return Json(new { success = true, productSpecifications = specs, options = list }, JsonRequestBehavior.AllowGet);
-        //}
+        public JsonResult QueryProduct(string productCodeOrBarCode)
+        {
+            var model = _productQuery.QueryPriceTag(productCodeOrBarCode);
+            if (model == null)
+            {
+                throw new Exception("商品不存在");
+            }
+            return Json(new { success = true, data = model });
+        }
 
-        //public JsonResult LoadProductSpecificationOptions(int id)
-        //{
-        //    var values = _query.FindAll<ProductSpecificationOption>(n => n.ProductSpecificationId == id);
-        //    return Json(new { success = true, productSpecificationOptions = values }, JsonRequestBehavior.AllowGet);
-        //}
-        #endregion
-    }
+            #region 商品SKU 规格设计使用，已经作废
+            //public ActionResult Create2() {
+            //    LoadCategory();
+            //    LoadBrand();
+            //    //显示当前品类 规格名
+            //    return View();
+            //}
+
+
+            //// 按照商品规格模式开发使用
+            //public JsonResult LoadProductSpecification(string categoryId)
+            //{
+            //    var specs = _query.FindAll<ProductSpecification>(n => n.CategoryId == categoryId);
+            //    List<ProductAttrbuteValue> list = new List<ProductAttrbuteValue>();
+            //    foreach (var spec in specs)
+            //    {
+            //        var values = _query.FindAll<ProductSpecificationOption>(n => n.ProductSpecificationId == spec.Id);
+            //        list.Add(new ProductAttrbuteValue() { Ppecification = spec, Options = values.ToList() });
+            //    }
+
+            //    return Json(new { success = true, productSpecifications = specs, options = list }, JsonRequestBehavior.AllowGet);
+            //}
+
+            //public JsonResult LoadProductSpecificationOptions(int id)
+            //{
+            //    var values = _query.FindAll<ProductSpecificationOption>(n => n.ProductSpecificationId == id);
+            //    return Json(new { success = true, productSpecificationOptions = values }, JsonRequestBehavior.AllowGet);
+            //}
+            #endregion
+        }
 }
