@@ -316,10 +316,10 @@
                         var totalActualQty = 0;
                         var _self = this;
                         this.products.forEach(function (item) {
-                            var qty = parseInt(item.ActualQuantity);
+                            var qty = parseInt(item.Quantity);
                             var actualQty = parseInt(item.ActualQuantity);
                             var price = _self.model.isGift?0:item.Price;
-                            item.Amount = price * qty;
+                            item.Amount = price * actualQty;
                             bookQty += qty;
                             total += item.Amount;
                             totalActualQty+= actualQty;

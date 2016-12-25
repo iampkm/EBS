@@ -29,6 +29,7 @@ namespace EBS.Domain.Service
             var batchNo = _sequenceService.GenerateBatchNo(entity.StoreId);
             foreach (var item in entityItems)
             {
+                if (item.ActualQuantity == 0) { continue;  }
                 //同一批入库的商品，批次号一样
                 item.BatchNo = batchNo;
                 var batch = new StoreInventoryBatch(item.ProductId, entity.StoreId, entity.SupplierId, item.ActualQuantity,
@@ -51,6 +52,7 @@ namespace EBS.Domain.Service
                 if (productQuantityDic.ContainsKey(inventory.ProductId))
                 {
                     var purchaseOrderItem = productQuantityDic[inventory.ProductId];
+                    if (purchaseOrderItem.ActualQuantity == 0) { continue; }
                     var inventoryUpdateModel = new StoreInventoryUpdate();
 
                     inventoryUpdateModel.Id = inventory.Id;

@@ -221,12 +221,12 @@
                         var data = "";
                         for (var i = 0; i < _self.products.length; i++) {
                             var item = _self.products[i];
-                            if(item.Quantity < 0||item.ActualQuantity>item.Quantity)
+                            if(item.ActualQuantity < 0||item.ActualQuantity>item.Quantity)
                             {
                                 bootbox.alert("商品["+item.ProductName+"]实收数不正确");
                                 return;
                             }
-                            if (item.ProductId > 0 && item.Quantity > 0) {
+                            if (item.ProductId > 0 && item.ActualQuantity > 0) {
                                 var price = _self.model.isGift?0:item.Price;
                                 if(item.ProductionDate==null){
                                     item.ProductionDate="";
@@ -293,7 +293,8 @@
                         this.products.forEach(function (item) {
                             if(item.ProductCode==_self.inputProductCodeOrBarCode||item.BarCode==_self.inputProductCodeOrBarCode)
                             {
-                                item.ActualQuantity= item.ActualQuantity<item.Quantity ? item.ActualQuantity + 1 :item.Quantity ;
+                                var actualQty = parseInt(item.ActualQuantity);
+                                item.ActualQuantity= actualQty<item.Quantity ? actualQty + 1 :item.Quantity ;
                                 _self.inputProductCodeOrBarCode = "";
                                // item.BgColor = item.ActualQuantity==item.Quantity ?"bg-success":"bg-danger";                            
                                 return;
@@ -316,10 +317,10 @@
                         var totalActualQty = 0;
                         var _self = this;
                         this.products.forEach(function (item) {
-                            var qty = parseInt(item.ActualQuantity);
+                            var qty = parseInt(item.Quantity);
                             var actualQty = parseInt(item.ActualQuantity);
                             var price = _self.model.isGift?0:item.Price;
-                            item.Amount = price * qty;
+                            item.Amount = price * actualQty;
                             bookQty += qty;
                             total += item.Amount;
                             totalActualQty+= actualQty;

@@ -43,7 +43,7 @@ namespace EBS.Query.Service
 
         public IEnumerable<VipProductSync> QueryVipProductSync(Pager page)
         {
-            string sql = @"SELECT Id,ProductId,SalePrice FROM VipCard LIMIT {0},{1}";
+            string sql = @"SELECT Id,ProductId,SalePrice FROM VipProduct LIMIT {0},{1}";
             sql = string.Format(sql, (page.PageIndex - 1) * page.PageSize, page.PageSize);
             var rows = this._query.FindAll<VipProductSync>(sql, null);
             page.Total = this._query.Count<VipProduct>();
