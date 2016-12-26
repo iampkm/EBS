@@ -9,17 +9,18 @@
         margin-bottom: 0px;
     }
 
-    .table-bordered > thead > tr > th,
+    /*.table-bordered > thead > tr > th,
     .table-bordered > tbody > tr > th,
     .table-bordered > tfoot > tr > th,
     .table-bordered > thead > tr > td,
     .table-bordered > tbody > tr > td,
     .table-bordered > tfoot > tr > td {
         border: 1px solid #000;
+        padding:4px;
     }
     .table {
         border:1px solid #000;
-    }
+    }*/
 
 </style>
 <!-- demo root element -->
@@ -91,20 +92,20 @@
                             <table class="table table-bordered table-printfontsize">
                                 <thead>
                                     <tr>
-                                        <th>序号</th>
+                                        <th>No.</th>
                                         <th>商品编码</th>
                                         <th>条码</th>
                                         <th>品名</th>
                                         <th>规格</th>
                                         <th>单位</th>
                                         <th class="hidden-print">合同价</th>
-                                        <th>实进价</th>
+                                        <th>进价</th>
                                         <th class="hidden-print">件规</th>
-                                        <th>订货件数</th>
-                                        <th>订货数量</th>
-                                        <th>订货金额</th>
-                                        <th class="hidden-print">实收件数</th>
-                                        <th>实收数量</th>
+                                        <th>件数</th>
+                                        <th>数量</th>
+                                        <th>金额</th>
+                                        <th class="hidden-print">实收件</th>
+                                        <th>实收数</th>
                                         <th>实收金额</th>
                                         @*<th>生产日期</th>
                     <th>保质期</th>*@
@@ -125,7 +126,7 @@
                                         countTotal += item.Price * item.ActualQuantity;
                                         total += item.Price * item.Quantity;
                                         <tr>
-                                            <td class="text-center">@(index++)</td>
+                                            <td>@(index++)</td>
                                             <td>@item.ProductCode</td>
                                             <td>@item.BarCode</td>
                                             <td>@item.ProductName</td>
