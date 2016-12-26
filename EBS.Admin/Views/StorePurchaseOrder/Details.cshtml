@@ -8,6 +8,19 @@
     .dataRow div {
         margin-bottom: 0px;
     }
+
+    .table-bordered > thead > tr > th,
+    .table-bordered > tbody > tr > th,
+    .table-bordered > tfoot > tr > th,
+    .table-bordered > thead > tr > td,
+    .table-bordered > tbody > tr > td,
+    .table-bordered > tfoot > tr > td {
+        border: 1px solid #000;
+    }
+    .table {
+        border:1px solid #000;
+    }
+
 </style>
 <!-- demo root element -->
 <div id="app" class="box box-primary">
@@ -23,22 +36,22 @@
                 <div class="form-group col-sm-4 col-xs-6">
                     <a class="btn btn-warning btn-flat" href="/StorePurchaseOrder/Edit/{{model.id}}" v-show="model.status==1">编辑</a>
                     <a class="btn btn-success btn-flat" href="/StorePurchaseOrder/WaitStockIn/{{model.id}}" v-show="model.status==1||model.status==2">收货</a>
-                    <button type="button" class="btn btn-warning btn-flat" v-on:click="audit" v-show="model.status==4" >财务审核</button>
+                    <button type="button" class="btn btn-warning btn-flat" v-on:click="audit" v-show="model.status==4">财务审核</button>
                     <button type="button" class="btn btn-primary btn-flat" v-on:click="print">打印</button>
                     <a class="btn btn-default btn-flat" href="javascript:history.go(-1);">取 消</a>
                     <input type="hidden" v-model="model.id" />
                 </div>
             </div>
-            <div id="printDiv">
+            <div id="printDiv" class="table-printfontsize">
                 <div class="row">
                     <div class="col-xs-4 col-sm-4"></div>
                     <div class="col-xs-4 col-sm-4">
-                        <h4 class="text-center text-success" style="border-bottom:2px solid;padding-bottom:1px;">
+                        <h5 class="text-center text-success" style="border-bottom:2px solid;padding-bottom:1px;">
                             <b>
                                 采购订单 @if (Model.IsGift)
                                 {<span>(赠品)</span>}
                             </b>
-                        </h4>
+                        </h5>
                     </div>
                     <div class="col-xs-4 col-sm-4"></div>
                 </div>
@@ -84,17 +97,17 @@
                                         <th>品名</th>
                                         <th>规格</th>
                                         <th>单位</th>
-                                        <th>合同进价</th>
-                                        <th>实际进价</th>
-                                        <th>件规</th>
+                                        <th class="hidden-print">合同价</th>
+                                        <th>实进价</th>
+                                        <th class="hidden-print">件规</th>
                                         <th>订货件数</th>
                                         <th>订货数量</th>
                                         <th>订货金额</th>
-                                        <th>实收件数</th>
+                                        <th class="hidden-print">实收件数</th>
                                         <th>实收数量</th>
                                         <th>实收金额</th>
                                         @*<th>生产日期</th>
-                                        <th>保质期</th>*@
+                    <th>保质期</th>*@
                                     </tr>
                                 </thead>
                                 <tbody id="tbody">
@@ -110,7 +123,7 @@
                                         totalQuantity += item.Quantity;
                                         totalActualQuantity += item.ActualQuantity;
                                         countTotal += item.Price * item.ActualQuantity;
-                                        total+= item.Price * item.Quantity;
+                                        total += item.Price * item.Quantity;
                                         <tr>
                                             <td class="text-center">@(index++)</td>
                                             <td>@item.ProductCode</td>
@@ -118,17 +131,17 @@
                                             <td>@item.ProductName</td>
                                             <td>@item.Specification</td>
                                             <td>@item.Unit</td>
-                                            <td>@item.ContractPrice.ToString("F2")</td>
+                                            <td class="hidden-print">@item.ContractPrice.ToString("F2")</td>
                                             <td>@item.Price.ToString("F2")</td>
-                                            <td>@item.SpecificationQuantity</td>
+                                            <td class="hidden-print">@item.SpecificationQuantity</td>
                                             <td>@item.PackageQuantity</td>
                                             <td>@item.Quantity</td>
                                             <td>@((item.Price * item.Quantity).ToString("F2"))</td>
-                                            <td>@item.ActualPackageQuantity</td>
+                                            <td class="hidden-print">@item.ActualPackageQuantity</td>
                                             <td>@item.ActualQuantity</td>
                                             <td>@(item.Amount.ToString("F2"))</td>
                                             @*<td>@item.ProductionDate</td>
-                                            <td>@item.ShelfLife</td>*@
+                        <td>@item.ShelfLife</td>*@
                                         </tr>
                                     }
                                 </tbody>
@@ -140,17 +153,17 @@
                                         <td></td>
                                         <td></td>
                                         <td></td>
-                                        <td></td>
-                                        <td></td>
+                                        <td class="hidden-print"></td>
+                                        <td class="hidden-print"></td>
                                         <td></td>
                                         <td></td>
                                         <td>@totalQuantity</td>
                                         <td>@total.ToString("F2")</td>
-                                        <td></td>
+                                        <td class="hidden-print"></td>
                                         <td>@totalActualQuantity</td>
                                         <td>@countTotal.ToString("F2")</td>
                                         @*<td></td>
-                                        <td class="dataRow"></td>*@
+                    <td class="dataRow"></td>*@
                                     </tr>
                                 </tfoot>
                             </table>
@@ -178,7 +191,7 @@
                     <div class="table-responsive">
                         <table class="table table-bordered">
                             <caption>
-                                <h3 class="panel-title">                                   
+                                <h3 class="panel-title">
                                     流程记录
                                 </h3>
                             </caption>
@@ -226,7 +239,7 @@
                 },
                 methods: {
                     print: function () {
-                         $("#printDiv").printArea();
+                         $("#printDiv").printArea();                       
                     },
                     audit:function(){
                         var _self = this;
