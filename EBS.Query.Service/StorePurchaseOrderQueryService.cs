@@ -74,7 +74,7 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
         }
 
 
-        public StorePurchaseOrderItemDto GetPurchaseOrderItem(string productCodeOrBarCode, int storeId)
+        public StorePurchaseOrderItemDto GetPurchaseOrderItem(string productCodeOrBarCode, int storeId, int supplierId)
         {
             if (string.IsNullOrEmpty(productCodeOrBarCode)) { throw new Exception("请输入商品编码或条码"); }
             // 有调整价，有先使用最新的调整价；无才使用合同价
@@ -83,8 +83,16 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
  from purchasecontract c inner join purchasecontractitem i on c.Id= i.PurchaseContractId
 inner join product p on p.Id = i.ProductId
 left join supplier s on c.SupplierId = s.Id
-where (p.`Code`=@productCodeOrBarCode or p.BarCode=@productCodeOrBarCode) and c.EndDate>@Today and c.`Status` = 3
-and FIND_IN_SET(@StoreId,c.StoreIds)  LIMIT 1";            
+where (p.`Code`=@productCodeOrBarCode or p.BarCode=@productCodeOrBarCode) and c.EndDate>@Today and c.`Status` = 3 {0} 
+and FIND_IN_SET(@StoreId,c.StoreIds)  LIMIT 1";
+            if (supplierId > 0)
+            {
+                var supplierWhere = "and c.supplierId="+supplierId;
+                sql = string.Format(sql, supplierWhere);
+            }
+            else {
+                sql = string.Format(sql, "");
+            }
             var item = _query.Find<StorePurchaseOrderItemDto>(sql, new { ProductCodeOrBarCode = productCodeOrBarCode, StoreId = storeId, Today = DateTime.Now });
             //设置当前件规            
             if (item == null) { throw new Exception("查无商品，请检查供应商合同"); }

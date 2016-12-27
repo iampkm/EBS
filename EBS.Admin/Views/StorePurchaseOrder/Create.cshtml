@@ -33,6 +33,15 @@
                 </div>
             </div>
             <div class="row">
+                <div class="form-group col-sm-2 col-xs-3">
+                    <div class="input-group ">
+                        <input type="hidden" class="form-control" v-model="model.supplierId">
+                        <input type="text" class="form-control" v-model="selectSupplier.name" placeholder="选择供应商" readonly>
+                        <span class="input-group-btn">
+                            <button class="btn btn-flat btn-default" type="button" v-on:click="showSupplier"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </div>
                 <div class="col-sm-2 col-xs-3" v-show="selectStore.view">
                     <div class="input-group ">
                         <input type="hidden" class="form-control" v-model="model.storeId">
@@ -195,6 +204,22 @@
             <div style="min-height:350px;max-height:500px;overflow:auto;"><ul id="ztree" class="ztree"></ul></div>
         </div>
     </v-modal>
+    <v-modal title="选择供应商" ok-text="确 定" cancel-text="取 消" v-bind:callback="getSupplier" v-bind:show.sync="selectSupplier.modal" v-bind:effect="fade" width="50%">
+        <div slot="modal-body" class="modal-body">
+            <vue-table v-bind:columns="selectSupplier.gridColumns"
+                       v-bind:url="selectSupplier.url" v-bind:show-toolbar="false"
+                       v-bind:args="selectSupplier.searchArgs" v-bind:data.sync="selectSupplier.rows">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                    <div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="selectSupplier.searchArgs.code" placeholder="输入供应编码" debounce="300" />
+                    </div>
+                    <div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="selectSupplier.searchArgs.name" placeholder="输入供应商名" debounce="300" />
+                    </div>
+                </div>
+            </vue-table>
+        </div>
+    </v-modal>
 </div>
 @{Html.RenderPartial("VueTableTemplate");}
 @section scripts{
@@ -231,7 +256,15 @@
                     inputProducts: '',
                     selectSupplier: {
                         modal: false,
-                        name: ''
+                        name: '',
+                        gridColumns: [
+                            { name: 'Code', localName: '编码', width: '100' },
+                            { name: 'Name', localName: '供应商名', width: '300' },
+                            { name: 'SupplierType', localName: '类型', width: '100' },
+                        ],
+                        url: "/Supplier/LoadData",
+                        searchArgs: { name: '', code: '' },
+                        rows: []
                     },
                     selectStore: {
                         modal: false,
@@ -348,7 +381,8 @@
                         if (_self.model.storeId == 0) { bootbox.alert("请选择门店"); return; }
                         var data = {
                             productCodeOrBarCode: codeOrBarCode,
-                            storeId: _self.model.storeId
+                            storeId: _self.model.storeId,
+                            supplierId:_self.model.supplierId
                         }
                         //设置焦点
                         $.get("/StorePurchaseOrder/GetPurchaseOrderItem", data, function (result) {
@@ -421,8 +455,22 @@
                            
                         }
                     },
-                    print: function () {
+                    showSupplier: function () {
+                        this.selectSupplier.modal = true;
+                    },
+                    getSupplier: function () {
+                        this.clearItems();
+                        var selecteds = this.selectSupplier.rows.filter(function (item) {
+                            return item.checked;
+                        });
+                        if (selecteds) {
+                            this.model.supplierId = selecteds[0].Id;
+                            this.selectSupplier.name = selecteds[0].Name;
+                            this.selectSupplier.modal = false;
 
+                            //清空选择项
+                            this.clearItems();
+                        }
                     },
                     clearItems:function(){
                         if(this.products.length>0)

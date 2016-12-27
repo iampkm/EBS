@@ -61,7 +61,7 @@ namespace EBS.Domain.ValueObject
         /// <summary>
         /// 门店采购退单订单
         /// </summary>
-        StorePurchaseBackOrder = 52,
+        StorePurchaseRefundOrder = 52,
         [Description("门店盘点计划")]
         StoreStocktakingPlan = 53,
         [Description("盘点单")]

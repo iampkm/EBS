@@ -110,7 +110,7 @@ namespace EBS.Domain.Service
                 {
                     var purchaseOrderItem = productQuantityDic[inventory.ProductId];
                     // 先检查总库存是否够扣减
-                    if (inventory.Quantity < Math.Abs(purchaseOrderItem.ActualQuantity))
+                    if (inventory.Quantity < purchaseOrderItem.ActualQuantity)
                     {
                         var product = _db.Table.Find<Product>(inventory.ProductId);
                         throw new Exception(string.Format("{0}库存不足！", product.Code));
@@ -118,8 +118,8 @@ namespace EBS.Domain.Service
                     // 扣减总库存
                     var inventoryUpdateModel = new StoreInventoryUpdate();
                     inventoryUpdateModel.Id = inventory.Id;
-                    inventoryUpdateModel.Quantity = purchaseOrderItem.ActualQuantity; //要更新的库存数量  为负数
-                    inventoryUpdateModel.SaleQuantity = purchaseOrderItem.ActualQuantity; // 更新可售数量 为负数
+                    inventoryUpdateModel.Quantity = -purchaseOrderItem.ActualQuantity; 
+                    inventoryUpdateModel.SaleQuantity = -purchaseOrderItem.ActualQuantity; 
                     // 退货不重新算移动平均成本 ，保持不变                  
                     inventoryUpdateModel.AvgCostPrice = inventory.AvgCostPrice;
                     inventoryUpdates.Add(inventoryUpdateModel);
@@ -133,11 +133,11 @@ namespace EBS.Domain.Service
                         throw new Exception("商品批次数据错误");
 
                     }
-                    if (batchProduct.Quantity > Math.Abs(purchaseOrderItem.ActualQuantity))
+                    if (batchProduct.Quantity > purchaseOrderItem.ActualQuantity)
                     {
-                        inventoryBatchUpdates.Add(new StoreInventoryBatchUpdate(batchProduct.Id, purchaseOrderItem.ActualQuantity));
-                        var history = new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventory.Quantity, purchaseOrderItem.ActualQuantity,
-                    purchaseOrderItem.Price, purchaseOrderItem.BatchNo, entity.Id, entity.Code, BillIdentity.StorePurchaseOrder, entity.StoragedBy);
+                        inventoryBatchUpdates.Add(new StoreInventoryBatchUpdate(batchProduct.Id, -purchaseOrderItem.ActualQuantity));
+                        var history = new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventory.Quantity, -purchaseOrderItem.ActualQuantity,
+                    purchaseOrderItem.Price, purchaseOrderItem.BatchNo, entity.Id, entity.Code, BillIdentity.StorePurchaseRefundOrder, entity.StoragedBy);
                         inventoryHistorys.Add(history);
                     }
                     else
@@ -146,13 +146,13 @@ namespace EBS.Domain.Service
                         inventoryBatchUpdates.Add(new StoreInventoryBatchUpdate(batchProduct.Id, -batchProduct.Quantity));
 
                         var history = new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventory.Quantity, -batchProduct.Quantity,
-                    purchaseOrderItem.Price, purchaseOrderItem.BatchNo, entity.Id, entity.Code, BillIdentity.StorePurchaseOrder, entity.StoragedBy);
+                    purchaseOrderItem.Price, purchaseOrderItem.BatchNo, entity.Id, entity.Code, BillIdentity.StorePurchaseRefundOrder, entity.StoragedBy);
                         inventoryHistorys.Add(history);
                         // 总库存  
                         inventory.Quantity =inventory.Quantity - batchProduct.Quantity;  // 第一次扣减后总库存
                         //剩余还要扣减数
-                        var leftQuantity = Math.Abs(batchProduct.Quantity + purchaseOrderItem.ActualQuantity);
-                        batchProduct.Quantity = batchProduct.Quantity - batchProduct.Quantity;  // 扣减第一个批次
+                        var leftQuantity = purchaseOrderItem.ActualQuantity - batchProduct.Quantity ;
+                        batchProduct.Quantity = batchProduct.Quantity - batchProduct.Quantity;  // 扣减第一个批次为 0
                         //再按批次顺序扣减剩余部分
                         var productBatchs = inventoryBatchs.Where(n => n.ProductId == inventory.ProductId && n.Quantity > 0).OrderBy(n => n.BatchNo);
                         foreach (var batchItem in productBatchs)
@@ -162,7 +162,7 @@ namespace EBS.Domain.Service
                                 inventoryBatchUpdates.Add(new StoreInventoryBatchUpdate(batchItem.Id, -leftQuantity));
                                 //记录修改历史
                                 inventoryHistorys.Add(new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventory.Quantity, -leftQuantity,
-                                    purchaseOrderItem.Price, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.StorePurchaseOrder, entity.CreatedBy));
+                                    purchaseOrderItem.Price, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.StorePurchaseRefundOrder, entity.CreatedBy));
                                 break;
                             }
                             else
@@ -172,7 +172,7 @@ namespace EBS.Domain.Service
                                 inventory.Quantity = inventory.Quantity - batchItem.Quantity;  // 第1+N次扣减后总库存
                                 leftQuantity =leftQuantity -batchItem.Quantity  ;
                                 inventoryHistorys.Add(new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventory.Quantity, -batchItem.Quantity,
-                                                             purchaseOrderItem.Price, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.StorePurchaseOrder, entity.CreatedBy));
+                                                             purchaseOrderItem.Price, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.StorePurchaseRefundOrder, entity.CreatedBy));
                             }
                         }
                     }

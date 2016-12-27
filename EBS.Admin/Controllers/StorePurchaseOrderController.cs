@@ -188,9 +188,9 @@ namespace EBS.Admin.Controllers
             return Json(new { success = true });
         }
 
-        public JsonResult GetPurchaseOrderItem(string productCodeOrBarCode, int storeId)
+        public JsonResult GetPurchaseOrderItem(string productCodeOrBarCode, int storeId,int supplierId)
         {
-            var result = _storePurchaseOrderQuery.GetPurchaseOrderItem(productCodeOrBarCode, storeId);
+            var result = _storePurchaseOrderQuery.GetPurchaseOrderItem(productCodeOrBarCode, storeId, supplierId);
           
             return Json(new { success = true, data = result });
         }
@@ -263,7 +263,7 @@ namespace EBS.Admin.Controllers
         public ActionResult RefundDetails(int id)
         {
             var model = _storePurchaseOrderQuery.GetById(id);
-            var logs = _query.FindAll<ProcessHistory>(n => n.FormId == id && n.FormType == BillIdentity.StorePurchaseOrder.ToString());
+            var logs = _query.FindAll<ProcessHistory>(n => n.FormId == id && n.FormType == BillIdentity.StorePurchaseRefundOrder.ToString());
             ViewBag.Logs = logs;
             return View(model);
         }

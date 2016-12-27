@@ -42,6 +42,7 @@ namespace EBS.Application.Facade
             if (entity.OrderType == OrderType.Refund)
             {
                 reason = "创建采购退单";
+                billIdentity = BillIdentity.StorePurchaseRefundOrder;
             }
 
             var entitys = _service.SplitOrderItem(entity);
@@ -63,7 +64,13 @@ namespace EBS.Application.Facade
             entity.AddItems(model.ConvertJsonToItem());
             _service.UpdateWithItem(entity);
             var reason = "修改采购单";
-            _processHistoryService.Track(model.CreatedBy, model.CreatedByName, (int)entity.Status, entity.Id, BillIdentity.StorePurchaseOrder.ToString(), reason);
+            var billIdentity = BillIdentity.StorePurchaseOrder;
+            if (entity.OrderType == OrderType.Refund)
+            {
+                reason = "修改采购退单";
+                billIdentity = BillIdentity.StorePurchaseRefundOrder;
+            }
+            _processHistoryService.Track(model.CreatedBy, model.CreatedByName, (int)entity.Status, entity.Id, billIdentity.ToString(), reason);
             _db.SaveChange();
         }
 
@@ -72,7 +79,12 @@ namespace EBS.Application.Facade
             var entity = _db.Table.Find<StorePurchaseOrder>(id);
             entity.Cancel();
             _db.Update(entity);
-            _processHistoryService.Track(editBy, editor, (int)entity.Status, entity.Id, BillIdentity.StorePurchaseOrder.ToString(), reason);
+            var billIdentity = BillIdentity.StorePurchaseOrder;
+            if (entity.OrderType == OrderType.Refund)
+            {
+                billIdentity = BillIdentity.StorePurchaseRefundOrder;
+            }
+            _processHistoryService.Track(editBy, editor, (int)entity.Status, entity.Id, billIdentity.ToString(), reason);
             _db.SaveChange();
         }
 
@@ -83,7 +95,12 @@ namespace EBS.Application.Facade
             entity.FinanceAuditd(editBy,editor);
             _db.Update(entity);
             var reason = "财务已审";
-            _processHistoryService.Track(editBy, editor, (int)entity.Status, entity.Id, BillIdentity.StorePurchaseOrder.ToString(), reason);
+            var billIdentity = BillIdentity.StorePurchaseOrder;
+            if (entity.OrderType == OrderType.Refund)
+            {
+                billIdentity = BillIdentity.StorePurchaseRefundOrder;
+            }
+            _processHistoryService.Track(editBy, editor, (int)entity.Status, entity.Id, billIdentity.ToString(), reason);
             _db.SaveChange();
 
         }
@@ -102,8 +119,14 @@ namespace EBS.Application.Facade
             entity.UpdateReceivedGoodsItems(model.ConvertJsonToItem());
             _db.Update(entity);
             _db.Update(entity.Items.ToArray());
-            var reason = "保存本次拣货";
-            _processHistoryService.Track(model.ReceivedBy, model.ReceivedByName, (int)entity.Status, entity.Id, BillIdentity.StorePurchaseOrder.ToString(), reason);
+            var reason = "保存本次收货";
+            var billIdentity = BillIdentity.StorePurchaseOrder;
+            if (entity.OrderType == OrderType.Refund)
+            {
+                reason = "保存本次退货";
+                billIdentity = BillIdentity.StorePurchaseRefundOrder;
+            }
+            _processHistoryService.Track(model.ReceivedBy, model.ReceivedByName, (int)entity.Status, entity.Id, billIdentity.ToString(), reason);
             // 添加库存中不存在的商品
             var notExistsInventorys= _storeInventoryService.CheckProductNotInInventory(entity);
             if (notExistsInventorys.Count() > 0)
@@ -143,7 +166,7 @@ namespace EBS.Application.Facade
             entity.Finished(editBy, editor);
             _db.Update(entity);
             var reason = "出库";
-            _processHistoryService.Track(entity.StoragedBy, entity.StoragedByName, (int)entity.Status, entity.Id, BillIdentity.StorePurchaseOrder.ToString(), reason);
+            _processHistoryService.Track(entity.StoragedBy, entity.StoragedByName, (int)entity.Status, entity.Id, BillIdentity.StorePurchaseRefundOrder.ToString(), reason);
             //扣减库存，并记录库存流水
             _storeInventoryService.StockOutInventory(entity);
             _db.SaveChange();

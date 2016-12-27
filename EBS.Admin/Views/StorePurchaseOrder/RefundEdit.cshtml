@@ -56,19 +56,10 @@
             </div>
             <div class="row">
                 <div class="col-xs-4 col-sm-4">
-                    <span>单据号：{{model.code}}</span>
-                </div>
-                <div class="col-xs-4 col-sm-4 text-center">
-                </div>
-                <div class="col-xs-4 col-sm-4">
-                    <span class="text-danger">单据状态：{{model.status}}</span>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-4 col-sm-4">
                     <span>供应商：{{model.supplierName}}</span>
                 </div>
-                <div class="col-xs-4 col-sm-4 text-center">
+                <div class="col-xs-4 col-sm-4 ">
+                    <span>单据号：{{model.code}}</span>
                 </div>
                 <div class="col-xs-4 col-sm-4 ">
                     <span>供应商单号：{{model.supplierBill}}</span>
@@ -79,6 +70,7 @@
                     <span>收货部门：{{selectStore.name}}</span>
                 </div>
                 <div class="col-xs-4 col-sm-4 text-center">
+                    <span class="text-danger">单据状态：{{model.status}}</span>
                 </div>
                 <div class="col-xs-4 col-sm-4">
                     <span>制单日期：{{model.createdOn}}</span>
@@ -287,7 +279,10 @@
                     for (var i = 0; i < _self.products.length; i++) {
                         var item = _self.products[i];
                         var inputQuantity = parseInt(item.Quantity);
-                        if (item.ProductId > 0 && inputQuantity < 0) {
+                        if (item.ProductId > 0 && inputQuantity > 0) {
+                            if(item.ProductionDate==null){
+                                item.ProductionDate="";
+                            }
                             var price = _self.model.isGift?0:item.ContractPrice;
                             data += "{\"ProductId\":" + item.ProductId + ",\"ContractPrice\":" + item.ContractPrice
                                  + ",\"Price\":" + price + ",\"Quantity\":" + item.Quantity + ",\"SpecificationQuantity\":" + item.SpecificationQuantity 
@@ -366,7 +361,7 @@
                     }
                     this.products.push({
                         ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', ContractPrice: 0, Price: 0,
-                        PackageQuantity: 0, SpecificationQuantity: 1,SpecificationQuantitys: [1], Quantity: -1, ActualPackageQuantity: 0, ActualQuantity: 0, Amount: 0,
+                        PackageQuantity: 0, SpecificationQuantity: 1,SpecificationQuantitys: [1], Quantity: 1, ActualPackageQuantity: 0, ActualQuantity: 0, Amount: 0,
                         ProductionDate: '', ShelfLife: 0
                     });
                     //设置焦点
@@ -482,7 +477,7 @@
                     {
                         this.products = [{
                             ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', ContractPrice: 0, Price: 0,
-                            PackageQuantity: 0,SpecificationQuantity: 1, SpecificationQuantitys: [1], Quantity: -1, ActualPackageQuantity: 0, ActualQuantity: 0, Amount: 0,
+                            PackageQuantity: 0,SpecificationQuantity: 1, SpecificationQuantitys: [1], Quantity: 1, ActualPackageQuantity: 0, ActualQuantity: 0, Amount: 0,
                             ProductionDate: '', ShelfLife: 0
                         }];
                     }
