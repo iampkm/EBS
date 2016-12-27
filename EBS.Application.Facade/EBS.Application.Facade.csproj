@@ -72,6 +72,7 @@
     <Compile Include="StoreFacade.cs" />
     <Compile Include="StorePurchaseOrderFacade.cs" />
     <Compile Include="SupplierFacade.cs" />
+    <Compile Include="TransferOrderFacade.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application\EBS.Application.csproj">

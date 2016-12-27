@@ -83,7 +83,7 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
  from purchasecontract c inner join purchasecontractitem i on c.Id= i.PurchaseContractId
 inner join product p on p.Id = i.ProductId
 left join supplier s on c.SupplierId = s.Id
-where (p.`Code`=@productCodeOrBarCode or p.BarCode=@productCodeOrBarCode) and c.EndDate>'2016-12-15' and c.`Status` = 3
+where (p.`Code`=@productCodeOrBarCode or p.BarCode=@productCodeOrBarCode) and c.EndDate>@Today and c.`Status` = 3
 and FIND_IN_SET(@StoreId,c.StoreIds)  LIMIT 1";            
             var item = _query.Find<StorePurchaseOrderItemDto>(sql, new { ProductCodeOrBarCode = productCodeOrBarCode, StoreId = storeId, Today = DateTime.Now });
             //设置当前件规            

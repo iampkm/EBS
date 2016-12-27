@@ -81,8 +81,8 @@ namespace EBS.Admin.Controllers
             var stores = _query.Find<Store>(model.StoreIds.Split(',').ToIntArray()).Select(n=>n.Name).ToArray();
             ViewBag.StoreName =string.Join(",",stores) ;
             //创建和待审可编辑
-            var editable = model.Status == PurchaseContractStatus.Create || model.Status == PurchaseContractStatus.WaitingAudit;
-            ViewBag.Editable = editable ? "true" : "false";
+            //var editable = model.Status == PurchaseContractStatus.Create || model.Status == PurchaseContractStatus.WaitingAudit;
+            //ViewBag.Editable = editable ? "true" : "false";
             //查询处理流程：
             var logs= _query.FindAll<ProcessHistory>(n => n.FormId == id && n.FormType == FormType.PurchaseContract);
             ViewBag.Logs = logs;

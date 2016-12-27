@@ -19,6 +19,10 @@ namespace EBS.Domain.Service
             _sequenceService = new BillSequenceService(this._db);
         }
 
+        /// <summary>
+        /// 采购入库
+        /// </summary>
+        /// <param name="entity"></param>
         public void StockInProducts(StorePurchaseOrder entity)
         {
             if (entity == null) { throw new Exception("单据不存在"); }
@@ -37,7 +41,7 @@ namespace EBS.Domain.Service
                 inventoryBatchs.Add(batch);
             }
             _db.Insert(inventoryBatchs.ToArray());
-
+            _db.Update(entity.Items.ToArray());  // 更新批次
             // 更新总库存
             Dictionary<int, StorePurchaseOrderItem> productQuantityDic = new Dictionary<int, StorePurchaseOrderItem>();
             entityItems.ToList().ForEach(item => productQuantityDic.Add(item.ProductId, item));
@@ -82,7 +86,7 @@ namespace EBS.Domain.Service
             string sql = " update storeinventory set quantity =quantity+@Quantity ,saleQuantity=saleQuantity+@SaleQuantity,AvgCostPrice=@AvgCostPrice where Id=@Id";
             return sql;
         }
-
+        
         /// <summary>
         /// 采购出库。 采购退单，数量为负
         /// </summary>
@@ -343,6 +347,17 @@ where s.Id is null  and i.StorePurchaseOrderId = @StorePurchaseOrderId";
             _db.Update(entity.Items.ToArray());  // 更新订单成本
         }
 
+
+        /// <summary>
+        /// 门店库存调拨 
+        /// </summary>
+        /// <param name="entity">调拨单</param>
+        public void TransaferInventory(TransferOrder entity)
+        { 
+            // 减门店库存 
+
+            // 加门店库存
+        }
 
         // 扣减库存 
         public void MinusInventory(SaleOrder entity)

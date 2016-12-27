@@ -33,7 +33,7 @@ namespace EBS.Application.Facade
             entity.AddPurchaseContractItem(model.ConvertJsonToPurchaseContractItem());
             entity.UpdatedBy = entity.CreatedBy;
             _service.ValidateContractCode(entity.Code);
-            _service.ValidateContract(entity);
+           // _service.ValidateContract(entity);
             _db.Insert(entity);
             _db.SaveChange();
             var reason = "创建合同";
@@ -53,7 +53,7 @@ namespace EBS.Application.Facade
             entity.AddPurchaseContractItem(model.ConvertJsonToPurchaseContractItem());
             entity.UpdatedOn = DateTime.Now;
             
-            _service.ValidateContract(entity);
+          //  _service.ValidateContract(entity);
             _db.Update(entity);
             _db.Delete<PurchaseContractItem>(n => n.PurchaseContractId == model.Id);
             _db.Insert<PurchaseContractItem>(entity.Items.ToArray());           

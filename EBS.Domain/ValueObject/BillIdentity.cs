@@ -57,7 +57,7 @@ namespace EBS.Domain.ValueObject
         /// 门店采购订单
         /// </summary>
         StorePurchaseOrder = 51,
-        [Description("采购退单")]
+        [Description("采购单")]
         /// <summary>
         /// 门店采购退单订单
         /// </summary>
@@ -68,6 +68,9 @@ namespace EBS.Domain.ValueObject
         StoreStocktaking = 54,
         [Description("盘点修正单")]
         StoreStocktakingEdit = 55,
+
+        [Description("调拨单")]
+        TransferOrder = 60,
         
        
         

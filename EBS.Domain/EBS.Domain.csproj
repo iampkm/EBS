@@ -106,6 +106,7 @@
     <Compile Include="Service\StoreInventoryService.cs" />
     <Compile Include="Service\StorePurchaseOrderService.cs" />
     <Compile Include="Service\StoreInventoryBatchService.cs" />
+    <Compile Include="Service\TransferOrderService.cs" />
     <Compile Include="ValueObject\AdjustContractPriceStatus.cs" />
     <Compile Include="ValueObject\AdjustSalePriceStatus.cs" />
     <Compile Include="ValueObject\OrderType.cs" />
