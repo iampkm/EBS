@@ -47,16 +47,16 @@
                 <div class="row">
                     <div class="col-xs-4 col-sm-4"></div>
                     <div class="col-xs-4 col-sm-4">
-                        <h5 class="text-center text-success" style="border-bottom:2px solid;padding-bottom:1px;">
+                        <h4 class="text-center text-success" style="border-bottom:2px solid;padding-bottom:1px;">
                             <b>
                                 采购订单 @if (Model.IsGift)
                                 {<span>(赠品)</span>}
                             </b>
-                        </h5>
+                        </h4>
                     </div>
                     <div class="col-xs-4 col-sm-4"></div>
                 </div>
-                <div class="row">
+                @*<div class="row">
                     <div class="col-xs-4 col-sm-4">
                         <span>单据号：@Model.Code</span>
                     </div>
@@ -65,12 +65,13 @@
                     <div class="col-xs-4 col-sm-4">
                         <span class="text-danger">单据状态：@Model.PurchaseOrderStatus</span>
                     </div>
-                </div>
+                </div>*@
                 <div class="row">
                     <div class="col-xs-4 col-sm-4">
                         <span>供应商：@Model.SupplierName</span>
                     </div>
-                    <div class="col-xs-4 col-sm-4 text-center">
+                    <div class="col-xs-4 col-sm-4 ">
+                        单据号：@Model.Code
                     </div>
                     <div class="col-xs-4 col-sm-4 ">
                         <span>供应商单号：@Model.SupplierBill</span>
@@ -80,7 +81,8 @@
                     <div class="col-xs-4 col-sm-4">
                         <span>收货部门：@Model.StoreName</span>
                     </div>
-                    <div class="col-xs-4 col-sm-4 text-center">
+                    <div class="col-xs-4 col-sm-4 ">
+                        <span class="text-danger">单据状态：@Model.PurchaseOrderStatus</span>
                     </div>
                     <div class="col-xs-4 col-sm-4">
                         <span>制单日期：@Model.CreatedOn</span>
@@ -92,7 +94,7 @@
                             <table class="table table-bordered table-printfontsize">
                                 <thead>
                                     <tr>
-                                        <th>No.</th>
+                                        <th></th>
                                         <th>商品编码</th>
                                         <th>条码</th>
                                         <th>品名</th>
@@ -132,8 +134,8 @@
                                             <td>@item.ProductName</td>
                                             <td>@item.Specification</td>
                                             <td>@item.Unit</td>
-                                            <td class="hidden-print">@item.ContractPrice.ToString("F2")</td>
-                                            <td>@item.Price.ToString("F2")</td>
+                                            <td class="hidden-print">@item.ContractPrice.ToString("F4")</td>
+                                            <td>@item.Price.ToString("F4")</td>
                                             <td class="hidden-print">@item.SpecificationQuantity</td>
                                             <td>@item.PackageQuantity</td>
                                             <td>@item.Quantity</td>
@@ -169,7 +171,7 @@
                                 </tfoot>
                             </table>
                         </div>
-                    </div>
+                    </div>                   
                 </div>
                 <div class="row">
                     <div class="col-xs-3 col-sm-3">

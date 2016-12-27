@@ -125,7 +125,7 @@
                                                 <i class="fa fa-thumbs-o-down">取消</i>
                                             </button>
                                         </td>
-                                        <td v-bind:class="{'text-danger':item.textColor1,'bg-success':item.bgColor1}">{{item.Price1}}</td>
+                                        <td v-bind:class="{'text-danger':item.textColor1,'bg-success':item.bgColor1}">{{item.Price1.toFixed(4)}}</td>
                                         <td v-bind:class="{'bg-success':item.bgColor1}">{{item.SupplyStatus1}}</td>
                                         <td v-bind:class="{'bg-success':item.bgColor1}">
                                             <div class="btn btn-sm btn-success btn-flat" v-show="item.CompareStatus1==2">
@@ -144,7 +144,7 @@
                                                 <i class="fa fa-thumbs-o-down">取消</i>
                                             </button>
                                         </td>
-                                        <td v-bind:class="{'text-danger':item.textColor2,'bg-success':item.bgColor2}">{{item.Price2}}</td>
+                                        <td v-bind:class="{'text-danger':item.textColor2,'bg-success':item.bgColor2}">{{item.Price2.toFixed(4)}}</td>
                                         <td v-bind:class="{'bg-success':item.bgColor2}">{{item.SupplyStatus2}}</td>
                                         <td v-bind:class="{'bg-success':item.bgColor2}">
                                             <div class="btn btn-sm btn-success btn-flat" v-show="item.CompareStatus2==2">

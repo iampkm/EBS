@@ -119,8 +119,8 @@
                                     <td>{{item.ProductName}}</td>
                                     <td>{{item.Specification}}</td>
                                     <td>{{item.Unit}}</td>
-                                    <td>{{item.ContractPrice.toFixed(2)}}</td>
-                                    <td v-bind:class="{'text-danger':item.ContractPrice>item.Price}">{{model.isGift?0:item.ContractPrice.toFixed(2)}}</td>
+                                    <td>{{item.ContractPrice.toFixed(4)}}</td>
+                                    <td v-bind:class="{'text-danger':item.ContractPrice>item.Price}">{{model.isGift?0:item.ContractPrice.toFixed(4)}}</td>
                                     <td >
                                         <select class="form-control" v-model="item.SpecificationQuantity">
                                             <option v-for="option in item.SpecificationQuantitys" v-bind:value="option">

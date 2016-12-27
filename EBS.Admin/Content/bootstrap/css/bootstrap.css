@@ -254,10 +254,13 @@ th {
   .table td,
   .table th {
     background-color: #fff !important;
+    font-size: 10px;
+    font-family: 'ËÎÌו',Tahoma, Helvetica, Arial, sans-serif;
+    padding:4px;
   }
   .table-bordered th,
   .table-bordered td {
-    border: 1px solid #ddd !important;
+    border: 1px solid #000 !important;    
   }
 }
 @font-face {
