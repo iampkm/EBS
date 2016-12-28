@@ -64,7 +64,7 @@ namespace EBS.Domain.Service
                     inventoryUpdateModel.SaleQuantity = purchaseOrderItem.ActualQuantity; // 更新可售数量
                     // 计算移动加权平均成本
                     int totalQuantity = inventory.Quantity + purchaseOrderItem.ActualQuantity;
-                    inventoryUpdateModel.AvgCostPrice = Math.Round((inventory.AvgCostPrice * inventory.Quantity + purchaseOrderItem.Price * purchaseOrderItem.ActualQuantity) / totalQuantity, 2);
+                    inventoryUpdateModel.AvgCostPrice = Math.Round((inventory.AvgCostPrice * inventory.Quantity + purchaseOrderItem.Price * purchaseOrderItem.ActualQuantity) / totalQuantity, 4);
                     inventoryUpdates.Add(inventoryUpdateModel);
                     //记录库存流水
                     var history = new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventory.Quantity, purchaseOrderItem.ActualQuantity,
@@ -330,7 +330,7 @@ where s.Id is null  and i.StorePurchaseOrderId = @StorePurchaseOrderId";
 
                     // 计算移动加权平均成本
                     int totalQuantity = inventory.Quantity + quantity;
-                    inventoryUpdateModel.AvgCostPrice = Math.Round((inventory.AvgCostPrice * inventory.Quantity + purchaseOrderItem.AvgCostPrice * quantity) / totalQuantity, 2);
+                    inventoryUpdateModel.AvgCostPrice = Math.Round((inventory.AvgCostPrice * inventory.Quantity + purchaseOrderItem.AvgCostPrice * quantity) / totalQuantity, 4);
                     inventoryUpdates.Add(inventoryUpdateModel);
 
 
@@ -349,15 +349,164 @@ where s.Id is null  and i.StorePurchaseOrderId = @StorePurchaseOrderId";
 
 
         /// <summary>
-        /// 门店库存调拨 
+        /// 门店库存调拨出 
         /// </summary>
         /// <param name="entity">调拨单</param>
-        public void TransaferInventory(TransferOrder entity)
-        { 
-            // 减门店库存 
+        public void TransaferOutInventory(TransferOrder entity)
+        {
+            if (entity == null) { throw new Exception("单据不存在"); }
+            if (entity.Items.Count() == 0) { throw new Exception("单据明细为空"); }
+            var entityItems = entity.Items;
+            Dictionary<int, TransferOrderItem> productQuantityDic = new Dictionary<int, TransferOrderItem>();
+            entityItems.ToList().ForEach(item => productQuantityDic.Add(item.ProductId, item));
+            var productIdArray = productQuantityDic.Keys.ToArray();
+            var inventorys = _db.Table.FindAll<StoreInventory>("select * from storeinventory where productId in @ProductIds and StoreId=@StoreId", new { ProductIds = productIdArray, StoreId = entity.FromStoreId });
+            var inventoryBatchs = _db.Table.FindAll<StoreInventoryBatch>("select * from storeinventorybatch where  storeId=@StoreId and productId in @ProductIds and Quantity>0", new { StoreId = entity.FromStoreId, ProductIds = productIdArray });
+            var inventoryHistorys = new List<StoreInventoryHistory>();
+            var inventoryUpdates = new List<StoreInventoryUpdate>();  // 库存更新
+            var inventoryBatchUpdates = new List<StoreInventoryBatchUpdate>(); //批次更新
+            foreach (var inventory in inventorys)
+            {
+                if (productQuantityDic.ContainsKey(inventory.ProductId))
+                {
+                    var purchaseOrderItem = productQuantityDic[inventory.ProductId];
+                    // 先检查总库存是否够扣减
+                    if (inventory.Quantity < purchaseOrderItem.Quantity)
+                    {
+                        var product = _db.Table.Find<Product>(inventory.ProductId);
+                        throw new Exception(string.Format("{0}库存不足！", product.Code));
+                    }
+                    // 扣减总库存
+                    var inventoryUpdateModel = new StoreInventoryUpdate();
+                    inventoryUpdateModel.Id = inventory.Id;
+                    inventoryUpdateModel.Quantity = -purchaseOrderItem.Quantity;
+                    inventoryUpdateModel.SaleQuantity = -purchaseOrderItem.Quantity;
+                    // 退货不重新算移动平均成本 ，保持不变                  
+                    inventoryUpdateModel.AvgCostPrice = inventory.AvgCostPrice;
+                    inventoryUpdates.Add(inventoryUpdateModel);
 
-            // 加门店库存
+                    // 扣减库存批次
+
+                    //1 如果商品是指定批次，先扣减指定批次，数量不够再按批次顺序扣减
+                    var batchProduct = inventoryBatchs.FirstOrDefault(n => n.ProductId == inventory.ProductId && n.BatchNo == purchaseOrderItem.BatchNo);
+                    if (batchProduct == null)
+                    {
+                        throw new Exception("商品批次数据错误");
+
+                    }
+                    if (batchProduct.Quantity > purchaseOrderItem.Quantity)
+                    {
+                        inventoryBatchUpdates.Add(new StoreInventoryBatchUpdate(batchProduct.Id, -purchaseOrderItem.Quantity));
+                        var history = new StoreInventoryHistory(inventory.ProductId, entity.FromStoreId, inventory.Quantity, -purchaseOrderItem.Quantity,
+                    purchaseOrderItem.Price, purchaseOrderItem.BatchNo, entity.Id, entity.Code, BillIdentity.TransferOrder, entity.UpdatedBy);
+                        inventoryHistorys.Add(history);
+                    }
+                    else
+                    {
+                        //数量不足                       
+                        inventoryBatchUpdates.Add(new StoreInventoryBatchUpdate(batchProduct.Id, -batchProduct.Quantity));
+
+                        var history = new StoreInventoryHistory(inventory.ProductId, entity.FromStoreId, inventory.Quantity, -batchProduct.Quantity,
+                    purchaseOrderItem.Price, purchaseOrderItem.BatchNo, entity.Id, entity.Code, BillIdentity.TransferOrder, entity.UpdatedBy);
+                        inventoryHistorys.Add(history);
+                        // 总库存  
+                        inventory.Quantity = inventory.Quantity - batchProduct.Quantity;  // 第一次扣减后总库存
+                        //剩余还要扣减数
+                        var leftQuantity = purchaseOrderItem.Quantity - batchProduct.Quantity;
+                        batchProduct.Quantity = batchProduct.Quantity - batchProduct.Quantity;  // 扣减第一个批次为 0
+                        //再按批次顺序扣减剩余部分
+                        var productBatchs = inventoryBatchs.Where(n => n.ProductId == inventory.ProductId && n.Quantity > 0).OrderBy(n => n.BatchNo);
+                        foreach (var batchItem in productBatchs)
+                        {
+                            if (batchItem.Quantity > leftQuantity)
+                            {
+                                inventoryBatchUpdates.Add(new StoreInventoryBatchUpdate(batchItem.Id, -leftQuantity));
+                                //记录修改历史
+                                inventoryHistorys.Add(new StoreInventoryHistory(inventory.ProductId, entity.FromStoreId, inventory.Quantity, -leftQuantity,
+                                    purchaseOrderItem.Price, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.TransferOrder, entity.UpdatedBy));
+                                break;
+                            }
+                            else
+                            {
+                                inventoryBatchUpdates.Add(new StoreInventoryBatchUpdate(batchItem.Id, -batchItem.Quantity));
+                                // 剩余扣减数
+                                inventory.Quantity = inventory.Quantity - batchItem.Quantity;  // 第1+N次扣减后总库存
+                                leftQuantity = leftQuantity - batchItem.Quantity;
+                                inventoryHistorys.Add(new StoreInventoryHistory(inventory.ProductId, entity.FromStoreId, inventory.Quantity, -batchItem.Quantity,
+                                                             purchaseOrderItem.Price, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.TransferOrder, entity.UpdatedBy));
+                            }
+                        }
+                    }
+
+                }
+            }
+
+            _db.Command.AddExecute(UpdateQuantityAndAvgCostPriceSql(), inventoryUpdates.ToArray());
+            _db.Command.AddExecute(updateInventoryBatchQuantitySql(), inventoryBatchUpdates.ToArray());
+            _db.Insert(inventoryHistorys.ToArray());
+
         }
+
+       /// <summary>
+       /// 门店库存调拨入
+       /// </summary>
+       /// <param name="entity"></param>
+        public void TransaferInInventory(TransferOrder entity)
+        {
+            if (entity == null) { throw new Exception("单据不存在"); }
+            if (entity.Items.Count() == 0) { throw new Exception("单据明细为空"); }
+            var entityItems = entity.Items;
+            //记录库存批次
+            var inventoryBatchs = new List<StoreInventoryBatch>();
+            var batchNo = _sequenceService.GenerateBatchNo(entity.ToStoreId);
+            foreach (var item in entityItems)
+            {
+                if (item.Quantity == 0) { continue; }
+                //同一批入库的商品，批次号一样
+                item.BatchNo = batchNo;
+                var batch = new StoreInventoryBatch(item.ProductId, entity.ToStoreId, item.SupplierId, item.Quantity,
+                    item.ContractPrice, item.Price, item.BatchNo, item.ProductionDate, item.ShelfLife, entity.UpdatedBy);
+                inventoryBatchs.Add(batch);
+            }
+            _db.Insert(inventoryBatchs.ToArray());
+            _db.Update(entity.Items.ToArray());  // 更新批次
+            // 更新总库存
+            Dictionary<int, TransferOrderItem> productQuantityDic = new Dictionary<int, TransferOrderItem>();
+            entityItems.ToList().ForEach(item => productQuantityDic.Add(item.ProductId, item));
+
+            var productIdArray = productQuantityDic.Keys.ToArray();
+            var inventorys = _db.Table.FindAll<StoreInventory>("select * from storeinventory where productId in @ProductIds and StoreId=@StoreId", new { ProductIds = productIdArray, StoreId = entity.ToStoreId });
+            var inventoryUpdates = new List<StoreInventoryUpdate>();
+            var inventoryHistorys = new List<StoreInventoryHistory>();
+
+            foreach (var inventory in inventorys)
+            {
+                if (productQuantityDic.ContainsKey(inventory.ProductId))
+                {
+                    var purchaseOrderItem = productQuantityDic[inventory.ProductId];
+                    if (purchaseOrderItem.Quantity == 0) { continue; }
+                    var inventoryUpdateModel = new StoreInventoryUpdate();
+
+                    inventoryUpdateModel.Id = inventory.Id;
+                    inventoryUpdateModel.Quantity = purchaseOrderItem.Quantity; //要更新的库存数量
+                    inventoryUpdateModel.SaleQuantity = purchaseOrderItem.Quantity; // 更新可售数量
+                    // 计算移动加权平均成本
+                    int totalQuantity = inventory.Quantity + purchaseOrderItem.Quantity;
+                    inventoryUpdateModel.AvgCostPrice = Math.Round((inventory.AvgCostPrice * inventory.Quantity + purchaseOrderItem.Price * purchaseOrderItem.Quantity) / totalQuantity, 4);
+                    inventoryUpdates.Add(inventoryUpdateModel);
+                    //记录库存流水
+                    var history = new StoreInventoryHistory(inventory.ProductId, entity.ToStoreId, inventory.Quantity, purchaseOrderItem.Quantity,
+                        purchaseOrderItem.Price, purchaseOrderItem.BatchNo, entity.Id, entity.Code, BillIdentity.StorePurchaseOrder, entity.UpdatedBy);
+                    inventoryHistorys.Add(history);
+                }
+            }
+            // update storeinventory set quantity =quantity+@addQuantity ,saleQuantity=saleQuantity+@addQuantity where Id=@id and quantity=@oldQuantity
+            var updateInventorySql = UpdateQuantityAndAvgCostPriceSql();
+            _db.Command.AddExecute(updateInventorySql, inventoryUpdates.ToArray());
+            _db.Insert(inventoryHistorys.ToArray());
+        }
+
+       
 
         // 扣减库存 
         public void MinusInventory(SaleOrder entity)

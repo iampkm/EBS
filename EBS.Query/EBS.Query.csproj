@@ -89,6 +89,7 @@
     <Compile Include="DTO\StoreTreeNode.cs" />
     <Compile Include="DTO\SupplierDto.cs" />
     <Compile Include="DTO\SupplierProductDto.cs" />
+    <Compile Include="DTO\TransaferOrderItemDto.cs" />
     <Compile Include="DTO\TransferOrderDto.cs" />
     <Compile Include="IAccountQuery.cs" />
     <Compile Include="IAdjustContractPriceQuery.cs" />

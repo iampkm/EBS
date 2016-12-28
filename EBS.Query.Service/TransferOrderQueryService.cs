@@ -45,5 +45,38 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
 
             return rows;
         }
+
+
+        public List<TransaferOrderItemDto> QueryProductBatch(string productCodeOrBarCode, int storeId)
+        {
+            string sql = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.Specification,p.BarCode,p.Unit,p.SpecificationQuantity as ProductSpecificationQuantity, 
+ b.ContractPrice,b.Price,b.SupplierId,b.BatchNo ,s.`Name` as SupplierName,b.Quantity AS BatchQuantity,i.Quantity as InventoryQuantity
+from storeinventorybatch b left join  product p on p.Id = b.ProductId
+left join storeinventory i on i.ProductId = b.ProductId
+left join supplier s on b.SupplierId = s.Id
+where (p.`Code`=@productCodeOrBarCode or p.BarCode=@productCodeOrBarCode)  and  b.Quantity>0   and b.StoreId = @StoreId
+ORDER BY b.Id ";
+            var rows = this._query.FindAll<TransaferOrderItemDto>(sql, new { ProductCodeOrBarCode = productCodeOrBarCode, StoreId = storeId }).ToList();
+            rows.ForEach(item => item.SetSpecificationQuantity());
+            return rows;
+        }
+
+        public TransaferOrderItemDto QueryProduct(string productCodeOrBarCode, int storeId)
+        {
+            string sql = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.Specification,p.BarCode,p.Unit,p.SpecificationQuantity as ProductSpecificationQuantity, 
+ b.ContractPrice,b.Price,b.SupplierId,b.BatchNo ,s.`Name` as SupplierName,b.Quantity AS BatchQuantity,i.Quantity as InventoryQuantity
+from storeinventorybatch b left join  product p on p.Id = b.ProductId
+left join storeinventory i on i.ProductId = b.ProductId
+left join supplier s on b.SupplierId = s.Id
+where (p.`Code`=@productCodeOrBarCode or p.BarCode=@productCodeOrBarCode)  and  b.Quantity>0   and b.StoreId = @StoreId
+ORDER BY b.Id Limit 1";
+            var model = this._query.Find<TransaferOrderItemDto>(sql, new { ProductCodeOrBarCode = productCodeOrBarCode, StoreId = storeId });
+            if (model == null)
+            {
+                throw new Exception("商品不存在");
+            }
+            model.SetSpecificationQuantity();
+            return model;
+        }
     }
 }

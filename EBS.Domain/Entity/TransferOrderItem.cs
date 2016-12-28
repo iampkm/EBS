@@ -10,10 +10,27 @@ namespace EBS.Domain.Entity
     {
         public int TransferOrderId { get; set; }
         public int ProductId { get; set; }
+
+        public int SupplierId { get; set; }
+
+        /// <summary>
+        /// 生产日期
+        /// </summary>
+        public DateTime? ProductionDate { get; set; }
+
+        /// <summary>
+        /// 保质期：单位天
+        /// </summary>
+        public int ShelfLife { get; set; }
         /// <summary>
         /// 数量
         /// </summary>
         public int Quantity { get; set; }
+        /// <summary>
+        /// 合同价
+        /// </summary>
+        public decimal ContractPrice { get; set; }
+
        /// <summary>
        /// 库存成本
        /// </summary>

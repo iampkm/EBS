@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2016-12-21 09:35:25                          */
+/* Created on:     2016-12-28 16:50:56                          */
 /*==============================================================*/
 
 
@@ -114,6 +114,8 @@ drop table if exists Supplier;
 
 drop table if exists SupplierProduct;
 
+drop index idx_transaferOrder_code on TransferOrder;
+
 drop table if exists TransferOrder;
 
 drop table if exists TransferOrderItem;
@@ -209,8 +211,8 @@ create table AdjustContractPriceItem
    Id                   int not null auto_increment comment '编号',
    AdjustContractPriceId int comment '调价单编码',
    ProductId            int comment '商品编号',
-   ContractPrice        decimal(8,2) comment '合同价',
-   AdjustPrice          decimal(8,2) comment '调整价',
+   ContractPrice        decimal(8,4) comment '合同价',
+   AdjustPrice          decimal(8,4) comment '调整价',
    primary key (Id)
 );
 
@@ -432,6 +434,8 @@ create table Product
    CreatedBy            int comment '创建人',
    UpdatedOn            datetime comment '修改时间',
    UpdatedBy            int comment '修改人',
+   MadeIn               varchar(200) comment '产地',
+   Grade                varchar(50) comment '等级',
    primary key (Id)
 );
 
@@ -551,7 +555,7 @@ create table PurchaseContractItem
    Id                   int not null auto_increment comment '编号',
    PurchaseContractId   int comment '采购合同编号',
    ProductId            int comment '商品skuid',
-   ContractPrice        decimal(8,2) comment '合同价',
+   ContractPrice        decimal(8,4) comment '合同价',
    Status               int comment '供货状态',
    primary key (Id)
 );
@@ -654,6 +658,7 @@ create table SaleOrder
    CreatedBy            int comment '创建人',
    UpdatedOn            datetime comment '修改时间',
    UpdatedBy            int comment '修改人',
+   WorkScheduleCode     varchar(32) comment '班次代码',
    primary key (Id)
 );
 
@@ -672,7 +677,7 @@ create table SaleOrderItem
    AvgCostPrice         decimal(8,2) comment '平均成本价',
    SalePrice            decimal(8,2) comment '销售价',
    RealPrice            decimal(8,2) comment '实际售价',
-   Quanttiy             int comment '数量',
+   Quantity             int comment '数量',
    primary key (Id)
 );
 
@@ -752,7 +757,7 @@ create table StocktakingItem
    ProductName          nvarchar(300) comment '商品名',
    BarCode              nvarchar(50) comment '条码',
    Specification        nvarchar(100) comment '规格',
-   CostPrice            decimal(8,2) comment '调拨成本价',
+   CostPrice            decimal(8,4) comment '调拨成本价',
    SalesPrice           decimal(8,2) comment '销售价',
    Quantity             int comment '盘点锁定库存数',
    CountQuantity        int comment '盘点数量',
@@ -798,7 +803,7 @@ create table StocktakingPlanItem
    ProductName          nvarchar(300) comment '商品名',
    BarCode              nvarchar(50) comment '条码',
    Specification        nvarchar(100) comment '规格',
-   CostPrice            decimal(8,2) comment '调拨成本价',
+   CostPrice            decimal(8,4) comment '调拨成本价',
    SalePrice            decimal(8,2) comment '销售价',
    Quantity             int comment '库存数量',
    CountQuantity        int comment '盘点数量',
@@ -849,7 +854,7 @@ create table StoreInventory
    SaleQuantity         int comment '销售库存',
    OrderQuantity        int comment '订购库存',
    Quantity             int comment '实际库存数',
-   AvgCostPrice         decimal(8,2) comment '平均成本价',
+   AvgCostPrice         decimal(8,4) comment '平均成本价',
    WarnQuantity         int comment '警告库存',
    IsQuit               bool comment '是否退出',
    primary key (Id)
@@ -869,8 +874,8 @@ create table StoreInventoryBatch
    Quantity             int comment '实际库存数',
    ProductionDate       datetime comment '生产日期',
    ShelfLife            int comment '保质期',
-   ContractPrice        decimal(8,2) comment '合同价',
-   Price                decimal(8,2) comment '实际入库进价',
+   ContractPrice        decimal(8,4) comment '合同价',
+   Price                decimal(8,4) comment '实际入库进价',
    CreatedOn            datetime comment '创建时间',
    CreatedBy            int comment '创建人',
    BatchNo              bigint comment '批次号',
@@ -895,7 +900,7 @@ create table StoreInventoryHistory
    BillCode             varchar(20) comment '单据编码',
    BillType             int comment '单据类型',
    BatchNo              bigint comment '批次号',
-   Price                decimal(8,2) comment '进价',
+   Price                decimal(8,4) comment '进价',
    primary key (Id)
 );
 
@@ -944,8 +949,8 @@ create table StorePurchaseOrderItem
    Id                   int not null auto_increment comment '编号',
    StorePurchaseOrderId int comment '门店采购订单编号',
    ProductId            int comment '商品skuid',
-   ContractPrice        decimal(8,2) comment '合同价',
-   Price                decimal(8,2) comment '进价',
+   ContractPrice        decimal(8,4) comment '合同价',
+   Price                decimal(8,4) comment '进价',
    SpecificationQuantity int comment '件规',
    Quantity             int comment '数量',
    ActualQuantity       int comment '实际数量',
@@ -1001,7 +1006,7 @@ create table SupplierProduct
    Id                   int not null auto_increment comment '编号',
    SupplierId           int comment '供应商Id',
    ProductId            int comment '商品',
-   Price                decimal(8,2) comment '价格',
+   Price                decimal(8,4) comment '价格',
    Status               int comment '供货状态',
    CompareStatus        int comment '比价状态',
    UpdatedOn            datetime comment '修改时间',
@@ -1035,14 +1040,28 @@ create table TransferOrder
 alter table TransferOrder comment '调拨单';
 
 /*==============================================================*/
+/* Index: idx_transaferOrder_code                               */
+/*==============================================================*/
+create unique index idx_transaferOrder_code on TransferOrder
+(
+   Code
+);
+
+/*==============================================================*/
 /* Table: TransferOrderItem                                     */
 /*==============================================================*/
 create table TransferOrderItem
 (
-   Id                   int not null comment '编号',
+   Id                   int not null auto_increment comment '编号',
    TransferOrderId      int comment '调拨单ID',
+   SupplierId           int comment '供应商Id',
    ProductId            int comment 'SKU编码',
    Quantity             int comment '数量',
+   ContractPrice        decimal(8,4) comment '合同价',
+   Price                decimal(8,4) comment '成本价',
+   BatchNo              bigint comment '批次',
+   ProductionDate       datetime comment '生产日期',
+   ShelfLife            int comment '保质期',
    primary key (Id)
 );
 

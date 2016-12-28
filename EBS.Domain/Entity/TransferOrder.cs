@@ -27,10 +27,38 @@ namespace EBS.Domain.Entity
         public string Code { get; set; }
         public DateTime CreatedOn { get; set; }
         public int CreatedBy { get; set; }
+
+        public string CreatedByName { get; set; }
         public DateTime UpdatedOn { get; set; }
         public int UpdatedBy { get; set; }
+
+        public string UpdatedByName { get; set; }
         public TransferOrderStatus Status { get; set; }
 
         public virtual List<TransferOrderItem> Items { get; set; }
+
+        public void Audit(int editBy,string editByName)
+        {
+            if (this.Status != TransferOrderStatus.WaitAudit)
+            {
+                throw new Exception("必须是待审调拨单");
+            }
+            this.Status = TransferOrderStatus.Audited;
+            this.UpdatedBy = editBy;
+            this.UpdatedByName = editByName;
+            this.UpdatedOn = DateTime.Now;
+        }
+
+        public void Cancel(int editBy,string editByName)
+        {
+            if (this.Status == TransferOrderStatus.Audited)
+            {
+                throw new Exception("已审调拨单不能作废");
+            }
+            this.Status = TransferOrderStatus.Cancel;
+            this.UpdatedBy = editBy;
+            this.UpdatedByName = editByName;
+            this.UpdatedOn = DateTime.Now;
+        }
     }
 }

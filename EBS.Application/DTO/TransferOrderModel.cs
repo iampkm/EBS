@@ -15,7 +15,7 @@ namespace EBS.Application.DTO
         public string ToStoreName { get; set; }
         public string Code { get; set; }
 
-        public int Status { get; set; }
+        public string StatusName { get; set; }
 
         public int EditBy { get; set; }
 
@@ -24,6 +24,6 @@ namespace EBS.Application.DTO
        /// <summary>
        /// 明细 json 串
        /// </summary>
-        public string Items { get; set; }
+        public string ItemsJson { get; set; }
     }
 }

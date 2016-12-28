@@ -85,14 +85,11 @@ inner join product p on p.Id = i.ProductId
 left join supplier s on c.SupplierId = s.Id
 where (p.`Code`=@productCodeOrBarCode or p.BarCode=@productCodeOrBarCode) and c.EndDate>@Today and c.`Status` = 3 {0} 
 and FIND_IN_SET(@StoreId,c.StoreIds)  LIMIT 1";
-            if (supplierId > 0)
-            {
-                var supplierWhere = "and c.supplierId="+supplierId;
-                sql = string.Format(sql, supplierWhere);
+            var supplierWhere = "";
+            if (supplierId > 0)            {
+                supplierWhere = "and c.supplierId="+supplierId;               
             }
-            else {
-                sql = string.Format(sql, "");
-            }
+            sql = string.Format(sql, supplierWhere);
             var item = _query.Find<StorePurchaseOrderItemDto>(sql, new { ProductCodeOrBarCode = productCodeOrBarCode, StoreId = storeId, Today = DateTime.Now });
             //设置当前件规            
             if (item == null) { throw new Exception("查无商品，请检查供应商合同"); }

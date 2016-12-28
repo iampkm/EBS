@@ -9,5 +9,8 @@ namespace EBS.Query
    public interface ITransferOrderQuery
     {
        IEnumerable<TransferOrderDto> GetPageList(Pager page, SearchTransferOrder condition);
+
+       TransaferOrderItemDto QueryProduct(string productCodeOrBarCode, int storeId);
+       List<TransaferOrderItemDto> QueryProductBatch(string productCodeOrBarCode, int storeId);
     }
 }
