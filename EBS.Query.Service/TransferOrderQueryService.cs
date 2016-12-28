@@ -25,21 +25,25 @@ namespace EBS.Query.Service
             string where = "";
             if (!string.IsNullOrEmpty(condition.Code))
             {
-                where += "and t0.Code=@Code ";
+                where += "and o.Code=@Code ";
                 param.Code = condition.Code;
             }            
             if (condition.Status != 0)
             {
-                where += "and t0.Status=@Status ";
+                where += "and o.Status=@Status ";
                 param.Status = condition.Status;
-            }                
-            string sql = @"select t0.Id,t0.Code,t0.SupplierId,t0.CreatedOn,t0.CreatedByName,t0.Status,t1.Code as SupplierCode,t1.Name as SupplierName,t2.Name as StoreName,t3.Quantity,t3.ActualQuantity,t3.Amount  
-from storepurchaseorder t0 inner join supplier t1 on t0.SupplierId = t1.Id inner join store t2 on t0.StoreId = t2.Id
-left join (select i.StorePurchaseOrderId,SUM(i.Quantity) as Quantity,SUM(i.ActualQuantity) as ActualQuantity,SUM(i.Price* i.ActualQuantity ) as Amount 
-from  storepurchaseorderitem i GROUP BY i.StorePurchaseOrderId) t3 on t0.Id = t3.StorePurchaseOrderId 
-where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
+            }
+            //if (string.IsNullOrEmpty(where))
+            //{
+            //    return new List<TransferOrderDto>();
+            //}             
+            string sql = @"select o.Id,o.Code,o.FromStoreName,o.ToStoreName,o.Status,o.CreatedByName,o.UpdatedByName,o.CreatedOn, t.TotalQuantity,t.TotalAmount
+from transferorder o left join 
+(select i.TransferOrderId,sum(i.Quantity) as TotalQuantity ,sum(i.price* i.Quantity) as TotalAmount 
+from transferorderitem i GROUP BY i.transferorderId ) t on o.Id = t.TransferOrderId
+where 1=1 {0} ORDER BY o.Id desc ";
             //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<Product>(where, param);
-            sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
+            sql = string.Format(sql, where);
             var rows = this._query.FindAll<TransferOrderDto>(sql, param);
            // page.Total = this._query.Count<TransferOrder>(where, param);
 
@@ -50,9 +54,8 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
         public List<TransaferOrderItemDto> QueryProductBatch(string productCodeOrBarCode, int storeId)
         {
             string sql = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.Specification,p.BarCode,p.Unit,p.SpecificationQuantity as ProductSpecificationQuantity, 
- b.ContractPrice,b.Price,b.SupplierId,b.BatchNo ,s.`Name` as SupplierName,b.Quantity AS BatchQuantity,i.Quantity as InventoryQuantity
+ b.ContractPrice,b.Price,b.SupplierId,b.BatchNo ,s.`Name` as SupplierName,b.Quantity AS InventoryQuantity
 from storeinventorybatch b left join  product p on p.Id = b.ProductId
-left join storeinventory i on i.ProductId = b.ProductId
 left join supplier s on b.SupplierId = s.Id
 where (p.`Code`=@productCodeOrBarCode or p.BarCode=@productCodeOrBarCode)  and  b.Quantity>0   and b.StoreId = @StoreId
 ORDER BY b.Id ";
@@ -64,9 +67,8 @@ ORDER BY b.Id ";
         public TransaferOrderItemDto QueryProduct(string productCodeOrBarCode, int storeId)
         {
             string sql = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.Specification,p.BarCode,p.Unit,p.SpecificationQuantity as ProductSpecificationQuantity, 
- b.ContractPrice,b.Price,b.SupplierId,b.BatchNo ,s.`Name` as SupplierName,b.Quantity AS BatchQuantity,i.Quantity as InventoryQuantity
+ b.ContractPrice,b.Price,b.SupplierId,b.BatchNo ,s.`Name` as SupplierName,b.Quantity AS InventoryQuantity
 from storeinventorybatch b left join  product p on p.Id = b.ProductId
-left join storeinventory i on i.ProductId = b.ProductId
 left join supplier s on b.SupplierId = s.Id
 where (p.`Code`=@productCodeOrBarCode or p.BarCode=@productCodeOrBarCode)  and  b.Quantity>0   and b.StoreId = @StoreId
 ORDER BY b.Id Limit 1";
@@ -77,6 +79,24 @@ ORDER BY b.Id Limit 1";
             }
             model.SetSpecificationQuantity();
             return model;
+        }
+
+        public TransferOrderDto GetById(int id)
+        {
+            string sql = "select * from transferorder where Id=@Id";
+           var model=  _query.Find<TransferOrderDto>(sql, new { Id = id });
+            if (model == null)
+            {
+                throw new Exception("单据不存在");
+            }
+            string sqlItem = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.Specification,p.BarCode,p.Unit,p.SpecificationQuantity as ProductSpecificationQuantity, 
+ i.ContractPrice,i.Price,i.Quantity,i.BatchNo
+from transferorderitem i left join  product p on p.Id = i.ProductId
+where i.TransferOrderId=@TransferOrderId";
+            var items = _query.FindAll<TransaferOrderItemDto>(sqlItem, new { TransferOrderId = model.Id }).ToList();
+            model.Items = items;
+            return model;
+
         }
     }
 }

@@ -1267,6 +1267,9 @@
     <Content Include="Views\Product\PrintPriceTag.cshtml" />
     <Content Include="Views\TransferOrder\Create.cshtml" />
     <Content Include="Views\TransferOrder\TransaferOrderTemplate.cshtml" />
+    <Content Include="Views\TransferOrder\AuditIndex.cshtml" />
+    <Content Include="Views\TransferOrder\Detail.cshtml" />
+    <Content Include="Views\TransferOrder\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">

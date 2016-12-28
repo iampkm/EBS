@@ -1,0 +1,96 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<!-- demo root element -->
+<div id="app">
+    <div class="box box-primary">
+        <div class="box-header">
+            <ol class="breadcrumb" style="padding:0px;margin:1px;">
+                <li><a href="/TransferOrder/AuditIndex"><i class="fa fa-dashboard"></i>已审调拨单</a></li>
+            </ol>
+        </div>
+        <div class="box-body">
+            <vue-table v-ref:vtable v-bind:columns="gridColumns"
+                       v-bind:url="url"
+                       v-bind:args="searchArgs" v-bind:data.sync="rows">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                    <div class="col-xs-3 col-sm-2">
+                        <input class="form-control" v-model="searchArgs.code" placeholder="调拨单号" debounce="500" />
+                    </div>
+                </div>
+                <span class="input-group-btn" slot="customButtons">
+                    @*<button type="button" class="btn btn-success btn-flat" v-on:click="audit()">审 核</button>*@
+                </span>
+            </vue-table>
+        </div>
+        <!-- /.box-body -->
+    </div>
+    <div class="clearfix"></div>
+</div>
+@{Html.RenderPartial("VueTableTemplate");}
+@section scripts{
+    <script src="~/Content/Vue/vuetable/vuetable.js"></script>
+    <script>
+
+        var vue = new Vue({
+            components: {
+                'v-modal': VueStrap.modal,
+                'v-input': VueStrap.input
+            },
+            el: '#app',
+            data: {
+                modal: false,
+                selectedId: 0,
+                searchQuery: '',
+                gridColumns: [
+                    { name: 'Code', localName: '调拨单号', style: "<a href='/TransferOrder/Detail/{id}'>{column}</a>" },
+                    { name: 'FromStoreName', localName: '调出门店' },
+                    { name: 'ToStoreName', localName: '调入门店' },
+                    { name: 'TotalQuantity', localName: '数量', width: '80' },
+                    { name: 'TotalAmount', localName: '金额' },
+                     { name: 'StatusName', localName: '状态' },
+                    { name: 'CreatedTime', localName: '创建日期' },
+                    { name: 'CreatedByName', localName: '创建人', width: '80' }
+                ],
+                url: "/TransferOrder/LoadData",
+                searchArgs: { code: '',status:2 },
+                rows: [],
+            },
+            methods: {
+                audit: function () {
+                    var selectRow = this.rows.filter(function (item, index) {
+                        if (item.checked) {
+                            return true;
+                        }
+                    });
+                    if (selectRow.length == 0) {
+                        bootbox.alert("请选择一条记录");
+                        return;
+                    }
+                    var selectId = selectRow[0].Id;
+                    v_self = this;
+                    bootbox.confirm("您确定审核该记录？", function (result) {
+                        if (result) {
+                            $.post("/TransferOrder/Audit", { id: selectId }, function (result) {
+                                if (result.success) {
+                                    v_self.$refs.vtable.loadData();
+                                }
+                                else {
+                                    bootbox.alert(result.error);
+                                }
+                            }, "json");
+                        }
+                    });
+                }
+            }
+        })
+
+    </script>
+}
+
+
+
+
+
+

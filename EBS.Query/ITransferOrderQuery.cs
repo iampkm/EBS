@@ -12,5 +12,7 @@ namespace EBS.Query
 
        TransaferOrderItemDto QueryProduct(string productCodeOrBarCode, int storeId);
        List<TransaferOrderItemDto> QueryProductBatch(string productCodeOrBarCode, int storeId);
+
+        TransferOrderDto GetById(int id);
     }
 }

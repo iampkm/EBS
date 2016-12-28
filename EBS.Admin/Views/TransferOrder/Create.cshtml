@@ -25,7 +25,7 @@
         <div class="box-body">
             <div class="row">
                 <div class="form-group col-sm-4 col-xs-6">
-                    <button type="button" class="btn btn-warning btn-flat" v-on:click="onSubmit">保 存</button>
+                    <button type="button" id="btnSave" class="btn btn-warning btn-flat" v-on:click="onSubmit">保 存</button>
                     <button type="button" class="btn btn-primary btn-flat" v-on:click="print">打 印</button>
                     @*<button type="button" class="btn btn-success btn-flat" v-on:click="showModal()">导入商品</button>*@
                     <button type="button" class="btn btn-default btn-flat" v-on:click="clearItems">清 空</button>
@@ -67,7 +67,7 @@
                 <div class="col-xs-4 col-sm-4 text-center">
                 </div>
                 <div class="col-xs-4 col-sm-4 ">
-                    <span>单据号：</span>
+                    <span>单据号：{{model.code}}</span>
                 </div>
             </div>
             <div class="row">
@@ -75,7 +75,7 @@
                     <span>调入门店：{{model.toStoreName}}</span>
                 </div>
                 <div class="col-xs-4 col-sm-4 text-center">
-                    单据状态：@ViewBag.Status
+                    单据状态：{{model.statusName}}
                 </div>
                 <div class="col-xs-4 col-sm-4">
                     <span>制单日期：@DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")</span>
@@ -226,9 +226,11 @@
             </div>
         </div>
     </v-modal>
+    <div id="printDiv"></div>
 </div>
 @section scripts{
     <script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
+<script src="~/Scripts/jquery.PrintArea.js"></script>
     <script>
         $("doucument").ready(function () {
             var demo = new Vue({
@@ -250,6 +252,7 @@
                         toStoreId:0,
                         toStoreName:'',
                         ItemsJson: '',
+                        statusName: ''
                     },
                     products: [{
                         ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', ContractPrice: 0, Price: 0,
@@ -286,6 +289,12 @@
                             //商品存在，商品数量为负，商品退货数绝对值小于库存数
                             var inputQuantity = parseInt(item.Quantity);
                             if (item.ProductId > 0 && inputQuantity > 0) {
+                                if (inputQuantity > item.InventoryQuantity)
+                                {
+                                    bootbox.alert("商品"+item.ProductCode+"调拨数超过库存数");
+                                    return;
+                                }
+
                                 if (item.ProductionDate == null)
                                 {
                                     item.ProductionDate = "";
@@ -307,7 +316,8 @@
                             if (result.success) {
                                 bootbox.alert("保存成功！");
                                 _self.model.code = result.code;
-                                _self.model.status = result.statusName;
+                                _self.model.statusName = result.statusName;
+                                _self.id = result.id;
                             }
                             else {
                                 bootbox.alert(result.error);
@@ -360,6 +370,10 @@
                         this.modal = true;
                     },
                     addRow: function (event) {
+                        if (this.products.length == 10) {
+                            $("#btnSave").focus();
+                            return;
+                        }
                         this.products.push({
                             ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', ContractPrice: 0, Price: 0,
                             PackageQuantity: 0,SpecificationQuantity:1, SpecificationQuantitys: [1], Quantity: 1, Amount: 0,
@@ -490,7 +504,19 @@
                         }
                     },
                     print: function () {
-                        
+                        var data = { id: this.model.id };
+                        var _self = this;
+                        $.get("/TransaferOrder/Print", data, function (result) {
+                            $("#printDiv").html(result);
+                            $("#printTemplate").printArea();
+                            $("#printDiv").html("");
+
+                            // 清空当前记录信息
+                            _self.clearItems();
+                            _self.model.statusName = "";
+                            _self.model.code = "";
+                            _self.model.id = 0;
+                        });
                     },
                     clearItems:function(){
                         if(this.products.length>0)

@@ -34,9 +34,18 @@ namespace EBS.Application.Facade
             TransferOrder entity = model.MapTo<TransferOrder>();
             entity.CreatedBy = model.EditBy;
             entity.CreatedByName = model.EditByName;
-            entity.UpdatedByName = model.EditByName;
             entity.UpdatedBy = model.EditBy;
-            entity.Code = _sequenceService.GenerateNewCode(BillIdentity.TransferOrder);
+            if (string.IsNullOrEmpty(entity.Code))
+            {
+                entity.Code = _sequenceService.GenerateNewCode(BillIdentity.TransferOrder);
+            }
+            else {
+                if (_db.Table.Exists<TransferOrder>(n => n.Code == entity.Code))
+                {
+                    throw new Exception("单据已经存在");
+                }
+            }
+           
             // 明细
             var items = JsonConvert.DeserializeObject<List<TransferOrderItem>>(model.ItemsJson);
             entity.Items = items;
@@ -48,9 +57,18 @@ namespace EBS.Application.Facade
             _db.Command.AddExecute(history.CreateSql(entity.GetType().Name, entity.Code), history);
 
             _db.SaveChange();
-
+            var modelEntity = _db.Table.Find<TransferOrder>(n => n.Code == entity.Code);
+            model.Id = modelEntity.Id;
             model.Code = entity.Code;
             model.StatusName = entity.Status.Description();
+            entity.Id = modelEntity.Id;
+            // 如果调入库存商品不存在，创建商品信息
+            var notExistsProduct = _inventoryService.CheckNotExistsProduct(entity);
+            if (notExistsProduct.Count()>0)
+            {
+                _db.Insert(notExistsProduct.ToArray());
+                _db.SaveChange();
+            }           
 
         }
 

@@ -203,6 +203,18 @@ where s.Id is null  and i.StorePurchaseOrderId = @StorePurchaseOrderId";
             return items;
         }
 
+        public IEnumerable<StoreInventory> CheckNotExistsProduct(TransferOrder entity)
+        {
+            if (entity == null) { throw new Exception("单据不存在"); }
+            if (entity.Items.Count() == 0) { throw new Exception("单据明细为空"); }
+            //查询门店库存中不存在商品
+            string sql = @"select i.ProductId ,o.toStoreId as StoreId from transferorderitem i inner join transferorder o on i.transferorderId = o.Id 
+left join (select * from storeinventory si where si.StoreId = @StoreId ) s on i.ProductId = s.ProductId 
+where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
+            var items = _db.Table.FindAll<StoreInventory>(sql, new { StoreId = entity.ToStoreId, TransferOrderId = entity.Id });
+            return items;
+        }
+
         /// <summary>
         /// 销售单出库
         /// </summary>

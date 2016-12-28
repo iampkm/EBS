@@ -40,6 +40,12 @@ namespace EBS.Admin.Controllers
             return View();
         }
 
+        public ActionResult Detail(int id)
+        {
+            var model = _transaferQuery.GetById(id);
+            return View(model);
+        }
+
         public ActionResult AuditIndex()
         {
             return View();
@@ -58,7 +64,7 @@ namespace EBS.Admin.Controllers
             model.EditBy = _context.CurrentAccount.AccountId;
             model.EditByName = _context.CurrentAccount.NickName;
             _transaferFacade.Create(model);
-            return Json(new { success = true, code=model.Code,statusName = model.StatusName});
+            return Json(new { success = true, code=model.Code,statusName = model.StatusName,id=model.Id});
         }
          [HttpPost]
         public JsonResult Audit(int id)
@@ -87,8 +93,9 @@ namespace EBS.Admin.Controllers
 
          public ActionResult Print(int id)
          {
-             var model = _storePurchaseOrderQuery.GetById(id);
-             return PartialView("TransaferOrderTemplate", model);
-         }
+            var model = _transaferQuery.GetById(id);
+            
+            return PartialView("TransaferOrderTemplate", model);
+        }
 	}
 }

@@ -15,5 +15,7 @@ namespace EBS.Domain.Service
         {
             this._db = dbcontext;
         }
+
+        
     }
 }
