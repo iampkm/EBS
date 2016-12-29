@@ -76,7 +76,9 @@
                             <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="批发价：" v-bind:value.sync="model.wholeSalePrice" pattern="^(([1-9]\d{0,9})|0)(\.\d{1,2})?$" placeholder="批发价" maxlength="100" icon></v-input></div>
                         </div>
                         <div class="row">
-                            <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="条码：" v-bind:value.sync="model.barCode" placeholder="条码" maxlength="100" icon></v-input></div>
+                            <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="条码：" v-bind:value.sync="model.barCode" placeholder="条码" maxlength="100" required icon></v-input>
+                                <button type="button" class="btn btn-flat btn-success" v-on:click="CreateBarCode">自建条码</button>
+                            </div>
                             <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="产地：" v-bind:value.sync="model.madeIn" placeholder="产地" maxlength="100" icon></v-input></div>
                             <div class="form-group col-sm-2 col-xs-3"><v-input type="text" label="等级：" v-bind:value.sync="model.grade" placeholder="等级" maxlength="100" icon></v-input></div>
                         </div>
@@ -295,6 +297,17 @@
                         this.selectBrand.modal = false;
                     }
                 },
+                CreateBarCode:function(){
+                    var _self =this;
+                    $.get("/Product/GenerateBarCode", function (result) {
+                        if (result.success) {
+                            _self.model.barCode = result.data;
+                        }
+                        else {
+                            bootbox.alert(result.error);
+                        }
+                    }, "json");
+                }
             }
         });
         var zTreeObj;

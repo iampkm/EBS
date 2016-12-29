@@ -14,5 +14,7 @@ namespace EBS.Query
         IEnumerable<PriceTagDto> QueryProductPriceTagList(string ids);
 
         PriceTagDto QueryPriceTag(string productCodeOrBarCode);
+
+        string GenerateBarCode();
     }
 }

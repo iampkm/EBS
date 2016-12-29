@@ -11,15 +11,15 @@ using System.Dynamic;
 using EBS.Infrastructure.Extension;
 namespace EBS.Query.Service
 {
-   public class ProductQueryService:IProductQuery
+    public class ProductQueryService : IProductQuery
     {
         IQuery _query;
         public ProductQueryService(IQuery query)
         {
             this._query = query;
         }
-        public IEnumerable<ProductDto> GetPageList(Pager page, string name,string codeOrBarCode,string categoryId,int brandId)
-        {            
+        public IEnumerable<ProductDto> GetPageList(Pager page, string name, string codeOrBarCode, string categoryId, int brandId)
+        {
             dynamic param = new ExpandoObject();
             string where = "";
             if (!string.IsNullOrEmpty(name))
@@ -46,11 +46,11 @@ namespace EBS.Query.Service
 from product t0 inner join category t1 on t0.CategoryId = t1.Id
 inner join brand t2 on t0.BrandId = t2.Id
 where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
-             //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<ProductSku>(where, param);
+            //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<ProductSku>(where, param);
             sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
             var rows = this._query.FindAll<ProductDto>(sql, param);
             page.Total = this._query.Count<Product>(where, param);
-           
+
             return rows;
         }
 
@@ -64,9 +64,29 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
         public IEnumerable<PriceTagDto> QueryProductPriceTagList(string ids)
         {
             var idArray = ids.Split(',').ToIntArray();
-            string sql = "select Id,Name,Code,BarCode,Specification,Unit,/*Grade,MadeIn,*/SalePrice from product where Id in @Ids";
+            string sql = "select Id,Name,Code,BarCode,Specification,Unit,Grade,MadeIn,SalePrice from product where Id in @Ids";
             var rows = _query.FindAll<PriceTagDto>(sql, new { Ids = idArray });
             return rows;
+        }
+
+
+        public string GenerateBarCode()
+        {
+            string sql = "select barCode from Product where BarCode like '88%' and length(barCode) between 6 and 8 order by BarCode desc limit 1";
+            var lastBarCode = _query.Find<string>(sql, null);
+            var barCode = "";
+            if (string.IsNullOrEmpty(lastBarCode))
+            {
+                barCode = "880001";
+            }
+            else
+            {
+                var number= Convert.ToInt64(lastBarCode.Substring(2)) + 1;
+                if (number > 999999) throw new Exception("自建条码已达上限999999");
+                var numberCode = number > 9999 ? number.ToString() : number.ToString().PadLeft(4, '0');
+                barCode = "88" + numberCode.ToString();
+            }
+            return barCode;
         }
     }
 }

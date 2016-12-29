@@ -129,6 +129,14 @@ namespace EBS.Admin.Controllers
             return Json(new { success = true, data = model });
         }
 
+
+        public JsonResult GenerateBarCode()
+        {
+            var barCode= _productQuery.GenerateBarCode();
+            return Json(new { success = true, data = barCode });
+        }
+
+
             #region 商品SKU 规格设计使用，已经作废
             //public ActionResult Create2() {
             //    LoadCategory();

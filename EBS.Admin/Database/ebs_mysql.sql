@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2016-12-28 16:50:56                          */
+/* Created on:     2016-12-29 16:56:06                          */
 /*==============================================================*/
 
 
@@ -41,6 +41,8 @@ drop table if exists Picture;
 drop index idx_ProcessHistory_fromId on ProcessHistory;
 
 drop table if exists ProcessHistory;
+
+drop index idx_product_barcode on Product;
 
 drop index idx_product_code on Product;
 
@@ -447,6 +449,14 @@ alter table Product comment '…Ã∆∑';
 create unique index idx_product_code on Product
 (
    Code
+);
+
+/*==============================================================*/
+/* Index: idx_product_barcode                                   */
+/*==============================================================*/
+create unique index idx_product_barcode on Product
+(
+   BarCode
 );
 
 /*==============================================================*/

@@ -39,6 +39,18 @@ namespace EBS.Domain.Service
             _db.Delete<Product>(arrIds);
         }
 
+        public void ValidateBarCode(string barCode)
+        {
+            if (string.IsNullOrEmpty(barCode))
+            {
+                throw new Exception("条码不能为空");
+            }
+            if (_db.Table.Exists<Product>(n => n.BarCode == barCode))
+            {
+                throw new Exception("条码已存在");
+            }
+        }
+
         //public void PublishToggle(string ids, bool isPublish)
         //{
         //    if (string.IsNullOrEmpty(ids))

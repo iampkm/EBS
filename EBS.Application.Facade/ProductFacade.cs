@@ -32,6 +32,7 @@ namespace EBS.Application.Facade
         public void Create(ProductModel model)
         {
             Product entity = model.MapTo<Product>();
+            _productService.ValidateBarCode(entity.BarCode);
             entity.CreatedBy = model.UpdatedBy;
             entity.Code = _productService.GenerateNewCode(entity.CategoryId);
             _db.Insert(entity);
@@ -48,6 +49,10 @@ namespace EBS.Application.Facade
         public void Edit(ProductModel model)
         {
             var entity = _db.Table.Find<Product>(model.Id);
+            if (!String.Equals(model.BarCode, entity.BarCode, StringComparison.OrdinalIgnoreCase))
+            {
+                _productService.ValidateBarCode(model.BarCode);
+            }
             // 有变价，记录变价
             if (model.SalePrice != entity.SalePrice)
             {
@@ -81,6 +86,11 @@ namespace EBS.Application.Facade
                 if (!_db.Table.Exists<Brand>(n => n.Id == product.BrandId))
                 {
                     errors += string.Format("[{0}] 品牌ID[{1}]错误 <br />", product.Name, product.BrandId);
+                    continue;
+                }
+                if (string.IsNullOrEmpty(product.BarCode) || _db.Table.Exists<Product>(n => n.BarCode == product.BarCode))
+                {
+                    errors += string.Format("[{0}] 条码[{1}]为空或重复 <br />", product.Name, product.BarCode);
                     continue;
                 }
                 product.Code = _productService.GenerateNewCode(product.CategoryId);

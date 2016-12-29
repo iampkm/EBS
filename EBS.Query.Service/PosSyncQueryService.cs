@@ -70,20 +70,20 @@ namespace EBS.Query.Service
 
         public IEnumerable<ProductSync> QueryProductSync(Pager page, int storeId)
         {
-//            string sql = @"SELECT p.Id,p.`Code`,p.`Name`,p.BarCode,p.Specification,p.SalePrice
-//FROM Product p inner join storeInventory i on p.Id = i.ProductId 
-//where i.storeId=@StoreId LIMIT {0},{1}";
-//            sql = string.Format(sql, (page.PageIndex - 1) * page.PageSize, page.PageSize);
-//            var rows = this._query.FindAll<ProductSync>(sql, new { StoreId = storeId});
-//            page.Total = this._query.Count<StoreInventory>();
-//            return rows;
-
             string sql = @"SELECT p.Id,p.`Code`,p.`Name`,p.BarCode,p.Specification,p.Unit,p.SalePrice
-FROM Product p LIMIT {0},{1}";
+FROM Product p inner join storeInventory i on p.Id = i.ProductId  
+where i.storeId=@StoreId LIMIT {0},{1}";
             sql = string.Format(sql, (page.PageIndex - 1) * page.PageSize, page.PageSize);
-            var rows = this._query.FindAll<ProductSync>(sql, null);
-            page.Total = this._query.Count<Product>();
+            var rows = this._query.FindAll<ProductSync>(sql, new { StoreId = storeId });
+            page.Total = this._query.Count<StoreInventory>();
             return rows;
+
+//            string sql = @"SELECT p.Id,p.`Code`,p.`Name`,p.BarCode,p.Specification,p.Unit,p.SalePrice
+//FROM Product p LIMIT {0},{1}";
+//            sql = string.Format(sql, (page.PageIndex - 1) * page.PageSize, page.PageSize);
+//            var rows = this._query.FindAll<ProductSync>(sql, null);
+//            page.Total = this._query.Count<Product>();
+//            return rows;
         }       
 
         
