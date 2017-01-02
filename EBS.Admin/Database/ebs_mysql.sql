@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2016-12-29 16:56:06                          */
+/* Created on:     2016-12-30 16:58:16                          */
 /*==============================================================*/
 
 
@@ -75,6 +75,8 @@ drop table if exists PurchaseOrderItem;
 drop table if exists Role;
 
 drop table if exists RoleMenu;
+
+drop index idx_saleorder_code on SaleOrder;
 
 drop table if exists SaleOrder;
 
@@ -673,6 +675,14 @@ create table SaleOrder
 );
 
 alter table SaleOrder comment 'œ˙ €∂©µ•';
+
+/*==============================================================*/
+/* Index: idx_saleorder_code                                    */
+/*==============================================================*/
+create unique index idx_saleorder_code on SaleOrder
+(
+   Code
+);
 
 /*==============================================================*/
 /* Table: SaleOrderItem                                         */

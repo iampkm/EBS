@@ -10,6 +10,7 @@ using Newtonsoft.Json.Converters;
 using Newtonsoft.Json;
 using EBS.Domain.Service;
 using EBS.Domain.ValueObject;
+using EBS.Infrastructure.Log;
 namespace EBS.Application.Facade
 {
    public class PosSyncFacade:IPosSyncFacade
@@ -17,13 +18,14 @@ namespace EBS.Application.Facade
        IDBContext _db;
         ProductService _productService;
         StoreInventoryService _storeInventoryService;
+        ILogger _log;
         
-        public PosSyncFacade(IDBContext dbContext)
+        public PosSyncFacade(IDBContext dbContext,ILogger log)
         {
             _db = dbContext;
             _productService = new ProductService(_db);
             _storeInventoryService = new StoreInventoryService(_db);
-
+            _log = log;
         }
 
 
@@ -32,8 +34,14 @@ namespace EBS.Application.Facade
             var dateTimeConverter = new IsoDateTimeConverter { DateTimeFormat = "yyyy-MM-dd HH:mm:ss" };
             var model = JsonConvert.DeserializeObject<SaleOrder>(body, dateTimeConverter);
             model.Hour = model.CreatedOn.Hour; //设置订单时段
+
+            if (_db.Table.Exists<SaleOrder>(n => n.Code == model.Code))
+            {
+                _log.Info("订单{0}已存在", model.Code);
+                return;
+            }
             _db.Insert(model);
-            _db.SaveChange();  // 先保存订单
+            _db.SaveChange();  // 先保存订单     
 
             if (model.Status == SaleOrderStatus.Cancel)
             {
@@ -42,6 +50,12 @@ namespace EBS.Application.Facade
             }
             else if (model.Status == SaleOrderStatus.Paid)
             {
+                if (_db.Table.Exists<StoreInventoryHistory>(n => n.BillCode == model.Code))
+                {
+                    _log.Info("库存流水已经记录{0}已存在", model.Code);
+                    return;
+                }
+
                 var entity = _db.Table.Find<SaleOrder>(n => n.Code == model.Code);
                 var entityItems = _db.Table.FindAll<SaleOrderItem>(n => n.SaleOrderId == entity.Id).ToList();
                 entity.Items = entityItems;
