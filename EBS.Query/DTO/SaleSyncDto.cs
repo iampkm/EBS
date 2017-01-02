@@ -8,7 +8,8 @@ namespace EBS.Query.DTO
 {
    public class SaleSyncDto
     {
-        public long SaleDate { get; set; }
+        public string StoreName { get; set; }
+        public string SaleDate { get; set; }
         public int StoreId { get; set; }
         public int PosId { get; set; }
         /// <summary>

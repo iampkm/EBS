@@ -74,12 +74,16 @@ namespace EBS.Admin.Controllers
 
         public ActionResult SaleSync()
         {
+            ViewBag.saleDate = DateTime.Now.ToString("yyyy-MM-dd");
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
             return View();
         }
 
         public JsonResult QuerySaleSync(Pager page, DateTime saleDate)
         {
-            return null;
+            var rows = _reportQuery.QuerySaleSync(page, saleDate);
+
+            return Json(new { success = true, data = rows, total = page.Total });
         }
     }
 }
