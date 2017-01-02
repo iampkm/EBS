@@ -103,8 +103,8 @@ select o.StoreId,o.PosId,date_format(o.CreatedOn,'%Y-%m-%d') as SaleDate,count(*
  from saleorder o where o.`Status` in (-1,3) and o.CreatedOn >= @BeginDate and o.CreatedOn < @EndDate GROUP BY o.StoreId,o.PosId,date_format(o.CreatedOn, '%Y-%m-%d')
 ) t RIGHT JOIN Store s on s.Id = t.StoreId
 LEFT JOIN salesync y on s.Id = y.StoreId
-where t.PosId= y.PosId";
-            var rows = _query.FindAll<SaleSyncDto>(csql, new { BeginDate = saleDate, EndDate = saleDate.Date.AddDays(1) }).ToList();
+where t.PosId= y.PosId and y.SaleDate=@SaleDate";
+            var rows = _query.FindAll<SaleSyncDto>(csql, new { BeginDate = saleDate, EndDate = saleDate.Date.AddDays(1),SaleDate=saleDate.Date.ToString("yyyy-MM-dd") }).ToList();
             return rows;
 
          }
