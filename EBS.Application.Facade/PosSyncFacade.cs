@@ -57,19 +57,41 @@ namespace EBS.Application.Facade
                 _db.SaveChange();
             }
         }
-
-
        
+
         public void WorkScheduleSync(string body)
         {
             var dateTimeConverter = new IsoDateTimeConverter { DateTimeFormat = "yyyy-MM-dd HH:mm:ss" };
             var model = JsonConvert.DeserializeObject<WorkSchedule>(body, dateTimeConverter);
             if (_db.Table.Exists<WorkSchedule>(n => n.Code == model.Code))
             {
-                _db.Update(model);
+                // 分布式系统只能根据code 更新
+                string sql = "update WorkSchedule set cashAmount = @CashAmount,EndDate=@EndDate,EndBy=@EndBy,EndByName=@EndByName where `code` = @Code ";
+                _db.Command.AddExecute(sql, model);
+               // _db.Update(model);
             }
             else {
                 _db.Insert(model); 
+            }           
+            _db.SaveChange();
+        }
+
+        public void UpdateSaleSync(string body)
+        {
+            var dateTimeConverter = new IsoDateTimeConverter { DateTimeFormat = "yyyy-MM-dd HH:mm:ss" };
+            var rows = JsonConvert.DeserializeObject<List<SaleSync>>(body, dateTimeConverter);
+            string sql = "select count(*) from SaleSync where SaleDate=@SaleDate and StoreId=@StoreId and PosId=@PosId";
+            foreach(var model in rows)
+            {
+                int result = _db.Table.Context.ExecuteScalar<int>(sql, new { SaleDate = model.SaleDate, StoreId = model.StoreId, PosId = model.PosId });
+                if (result > 0)
+                {
+                    string usql = "update SaleSync set OrderCount = @OrderCount,OrderTotalAmount=@OrderTotalAmount,ClientUpdatedOn=@ClientUpdatedOn  where  SaleDate=@SaleDate and StoreId=@StoreId and PosId=@PosId";
+                    _db.Command.AddExecute(usql, model);
+                }
+                else {
+                    _db.Insert(model);
+                }
             }           
             _db.SaveChange();
         }

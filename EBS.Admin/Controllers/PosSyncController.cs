@@ -97,5 +97,13 @@ namespace EBS.Admin.Controllers
             return "1";
         }
 
+        public string UpdateSaleSync(string body)
+        {
+            _log.Info("UpdateSaleSync request:body={0}", body);
+            _posFacade.UpdateSaleSync(body);
+            _log.Info("UpdateSaleSync request:success");
+            return "1";
+        }
+
     }
 }

@@ -95,5 +95,42 @@ where 1=1 {0}";
             throw new NotImplementedException();
         }
 
+        public IEnumerable<SaleSyncDto> QuerySaleSync(Pager page, DateTime saleDate)
+        {
+            //客户端数据
+            string csql = "select * from SaleSync where saleDate=@SaleDate";
+            var clientData=  _query.FindAll<SaleSync>(csql, new { SaleDate = saleDate.ToString("yyyy-MM-dd") }).ToList();
+            Dictionary<string, SaleSync> clientDic = new Dictionary<string, SaleSync>();
+            foreach (var item in clientData)
+            {
+                var key = string.Format("{0}{1}{2}", item.SaleDate, item.StoreId, item.PosId);
+                if (!clientDic.ContainsKey(key))
+                {
+                    clientDic.Add(key, item);
+                }
+            }
+            //服务端数据
+            string sql = @"select s.StoreId,s.PosId,date_format(s.CreatedOn,'%Y-%m-%d') as SaleDate,count(*) OrderCount,sum(OrderAmount) OrderTotalAmount
+ from saleorder s where s.`Status` in (-1,3) and s.CreatedOn >= @BeginDate and s.CreatedOn < @EndDate GROUP BY s.StoreId,s.PosId,date_format(s.CreatedOn, '%Y-%m-%d')";
+            var serverData= _query.FindAll<SaleSync>(sql, new { BeginDate = saleDate, EndDate = saleDate.Date.AddDays(1) }).ToList();
+            Dictionary<string, SaleSync> serverDic = new Dictionary<string, SaleSync>();
+            foreach (var item in serverData)
+            {
+                var key = string.Format("{0}{1}{2}", item.SaleDate, item.StoreId, item.PosId);
+                if (!clientDic.ContainsKey(key))
+                {
+                    serverDic.Add(key, item);
+                }
+            }
+            // 合并数据
+            List<SaleSyncDto> rows = new List<SaleSyncDto>();
+            if (clientData.Count == 0 && serverData.Count == 0)
+            {
+                return rows;
+            }
+
+            return null;
+
+         }
     }
 }

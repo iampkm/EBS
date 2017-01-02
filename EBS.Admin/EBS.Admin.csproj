@@ -1270,6 +1270,7 @@
     <Content Include="Views\TransferOrder\AuditIndex.cshtml" />
     <Content Include="Views\TransferOrder\Detail.cshtml" />
     <Content Include="Views\TransferOrder\Index.cshtml" />
+    <Content Include="Views\Report\SaleSync.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">

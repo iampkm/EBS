@@ -14,5 +14,7 @@ namespace EBS.Query
         IEnumerable<SaleSummaryDto> QuerySaleSummary(Pager page, SearchSaleOrder condition);
 
         IEnumerable<SaleCheckDto> QuerySaleCheck(Pager page, SearchSaleOrder condition);
+
+        IEnumerable<SaleSyncDto> QuerySaleSync(Pager page, DateTime saleDate);
     }
 }

@@ -70,5 +70,16 @@ namespace EBS.Admin.Controllers
 
             return Json(new { success = true, data = rows, total = page.Total });
         }
+
+
+        public ActionResult SaleSync()
+        {
+            return View();
+        }
+
+        public JsonResult QuerySaleSync(Pager page, DateTime saleDate)
+        {
+            return null;
+        }
     }
 }

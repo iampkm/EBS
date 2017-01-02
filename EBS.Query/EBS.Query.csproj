@@ -62,6 +62,7 @@
     <Compile Include="DTO\SaleCheckDto.cs" />
     <Compile Include="DTO\SaleOrderDto.cs" />
     <Compile Include="DTO\SaleSummaryDto.cs" />
+    <Compile Include="DTO\SaleSyncDto.cs" />
     <Compile Include="DTO\SearchAdjustContractPrice.cs" />
     <Compile Include="DTO\SearchAdjustSalePrice.cs" />
     <Compile Include="DTO\SearchSaleOrder.cs" />

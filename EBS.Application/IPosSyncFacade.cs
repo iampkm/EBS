@@ -13,5 +13,7 @@ namespace EBS.Application
     {
        void SaleOrderSync(string body);
        void WorkScheduleSync(string body);
+
+        void UpdateSaleSync(string body);
     }
 }
