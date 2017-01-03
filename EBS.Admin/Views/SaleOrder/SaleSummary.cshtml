@@ -19,7 +19,7 @@
     <div class="box box-primary">
         <div class="box-header">
             <ol class="breadcrumb" style="padding:0px;margin:1px;">
-                <li><a href="/Report/SaleSync"><i class="fa fa-dashboard"></i>销售日对账</a></li>
+                <li><a href="/SaleOrder/SaleSummary"><i class="fa fa-dashboard"></i> 营业额核对</a></li>
             </ol>
         </div>
         <div class="box-body">
@@ -27,17 +27,16 @@
                        v-bind:url="url"
                        v-bind:args="searchArgs" v-bind:data.sync="rows" show-pagination="false" show-toolbar="false">
                 <div class="row" style="margin-bottom:10px;" slot="customSearch">
-                    <div class="form-group col-sm-3 col-xs-4">
-                        <div class="input-group date" data-provide="datepicker" data-date-format="yyyy-mm-dd"
-                             data-date-language="zh-CN" data-date-clear-Btn="true" data-date-autoclose="true">
-                            <div class="input-group-addon">
-                                <i class="fa fa-calendar"></i>
-                                <span>日期</span>
-                            </div>
-                            <input type="text" class="form-control" v-model="searchArgs.saleDate" readonly debounce="500">
-                        </div>
-                    </div>   
-                    @*<div class="col-sm-2 col-xs-3" v-show="selectStore.view">
+                    <div class="col-xs-3 col-sm-2">
+                        <input class="form-control" v-model="searchArgs.nickName" placeholder="收银员姓名" debounce="500" />
+                    </div>
+                    <div class="col-xs-3 col-sm-2">
+                        <input class="form-control" v-model="searchArgs.code" placeholder="订单号" debounce="500" />
+                    </div>
+                    <div class="col-xs-3 col-sm-2">
+                        <input class="form-control" v-model="searchArgs.posId" placeholder="收银机" debounce="500" />
+                    </div>
+                    <div class="col-sm-2 col-xs-3" v-show="selectStore.view">
                         <div class="input-group ">
                             <input type="hidden" class="form-control" v-model="searchArgs.storeId">
                             <input type="text" class="form-control" v-model="selectStore.name" placeholder="选择门店" readonly>
@@ -47,13 +46,50 @@
                             </span>
                         </div>
                     </div>
-                    <div class="col-xs-3 col-sm-2">
-                        <input class="form-control" v-model="searchArgs.posId" placeholder="收银机" debounce="500" />
-                    </div>*@                               
+                    <div class="form-group col-sm-2 col-xs-3">
+                        <div class="input-group date" data-provide="datepicker" data-date-format="yyyy-mm-dd"
+                             data-date-language="zh-CN" data-date-clear-Btn="true" data-date-autoclose="true">
+                            <div class="input-group-addon">
+                                <i class="fa fa-calendar"></i>
+                                <span>班次时间从</span>
+                            </div>
+                            <input type="text" class="form-control" v-model="searchArgs.workFrom" readonly debounce="500">
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-2 col-xs-3">
+                        <div class="input-group date " data-provide="datepicker" data-date-format="yyyy-mm-dd"
+                             data-date-language="zh-CN" data-date-clear-Btn="true" data-date-autoclose="true">
+                            <div class="input-group-addon">
+                                <i class="fa fa-calendar"></i>
+                                <span>到</span>
+                            </div>
+                            <input type="text" class="form-control" v-model="searchArgs.wrokTo" readonly debounce="500">
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-2 col-xs-3">
+                        <div class="input-group date" data-provide="datepicker" data-date-format="yyyy-mm-dd"
+                             data-date-language="zh-CN" data-date-clear-Btn="true" data-date-autoclose="true">
+                            <div class="input-group-addon">
+                                <i class="fa fa-calendar"></i>
+                                <span>自然日从</span>
+                            </div>
+                            <input type="text" class="form-control" v-model="searchArgs.from" readonly debounce="500">
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-2 col-xs-3">
+                        <div class="input-group date " data-provide="datepicker" data-date-format="yyyy-mm-dd"
+                             data-date-language="zh-CN" data-date-clear-Btn="true" data-date-autoclose="true">
+                            <div class="input-group-addon">
+                                <i class="fa fa-calendar"></i>
+                                <span>到</span>
+                            </div>
+                            <input type="text" class="form-control" v-model="searchArgs.to" readonly debounce="500">
+                        </div>
+                    </div>
                 </div>
                 @*<span class="input-group-btn" slot="customButtons">
-                        <a class="btn btn-warning btn-flat" href="/Report/Create">新 增</a>
-                        <a class="btn btn-primary btn-flat" href="/Report/CreateGift">新增赠品单</a>
+                        <a class="btn btn-warning btn-flat" href="/SaleOrder/Create">新 增</a>
+                        <a class="btn btn-primary btn-flat" href="/SaleOrder/CreateGift">新增赠品单</a>
                         <button type="button" class="btn btn-success btn-flat" v-on:click="submitAudit()">收货</button>
                         <button type="button" class="btn btn-danger btn-flat" v-on:click="remove()">作 废</button>
                     </span>*@
@@ -87,17 +123,17 @@
                 removeReason: '',
                 searchQuery: '',
                 gridColumns: [
-                    { name: 'SaleDate', localName: '日期' },
+                    { name: 'CreatedByName', localName: '收银员' },
                     { name: 'StoreName', localName: '门店' },
                     { name: 'PosId', localName: '收银机' },
-                    { name: 'OrderCount', localName: '前台订单数', },
-                    { name: 'OrderTotalAmount', localName: '前台汇总金额' },
-                    { name: 'ClientUpdatedOn', localName: '更新时间', width: '200' },                   
-                    { name: 'ServerOrderCount', localName: '后台订单数' },
-                    { name: 'ServerOrderTotalAmount', localName: '后台汇总金额' },
+                    { name: 'StartDate', localName: '班次起',width: '200'  },
+                    { name: 'EndDate', localName: '班次止', width: '200' },
+                    { name: 'TotalAmount', localName: '金额' },
+                     { name: 'TotalOnlineAmount', localName: '在线支付' },
+                    { name: 'PaymentWayName', localName: '付款方式' },
                 ],
-                url: "/Report/QuerySaleSync",
-                searchArgs: { saleDate: '@ViewBag.saleDate'},
+                url: "/SaleOrder/QuerySaleSummary",
+                searchArgs: { code: '', nickName: '', storeId: 0, wrokFrom: '',workTo:'',from:'@ViewBag.today',to:'@ViewBag.today' ,posId:null},
                 rows: [],
                 selectStore: {
                     modal: false,
@@ -123,7 +159,7 @@
                     var v_self = this;
                     var selectId = v_self.selectedId;
                     var remark = v_self.removeReason;
-                    $.post("/Report/Delete", { id: selectId, reason: remark }, function (result) {
+                    $.post("/SaleOrder/Delete", { id: selectId, reason: remark }, function (result) {
                         if (result.success) {
                             v_self.$refs.vtable.loadData();
                             v_self.modal = false;
@@ -144,7 +180,7 @@
                         return;
                     }
                     var selectId = selectRow[0].Id;
-                    window.location.href="/Report/WaitStockIn/"+selectId;
+                    window.location.href="/SaleOrder/WaitStockIn/"+selectId;
 
                 },
                 showStore: function () {
@@ -204,6 +240,10 @@
 
     </script>
 }
+
+
+
+
 
 
 

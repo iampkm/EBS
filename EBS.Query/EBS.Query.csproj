@@ -61,6 +61,7 @@
     <Compile Include="DTO\PurchaseContractItemDto.cs" />
     <Compile Include="DTO\SaleCheckDto.cs" />
     <Compile Include="DTO\SaleOrderDto.cs" />
+    <Compile Include="DTO\SaleOrderItemDto.cs" />
     <Compile Include="DTO\SaleSummaryDto.cs" />
     <Compile Include="DTO\SaleSyncDto.cs" />
     <Compile Include="DTO\SearchAdjustContractPrice.cs" />
@@ -107,6 +108,7 @@
     <Compile Include="IPurchaseContractQuery.cs" />
     <Compile Include="IReportQuery.cs" />
     <Compile Include="IRoleQuery.cs" />
+    <Compile Include="ISaleOrderQuery.cs" />
     <Compile Include="IShelfQuery.cs" />
     <Compile Include="IStocktakingPlanQuery.cs" />
     <Compile Include="IStocktakingQuery.cs" />

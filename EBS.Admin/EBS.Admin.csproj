@@ -1273,6 +1273,9 @@
     <Content Include="Views\TransferOrder\Index.cshtml" />
     <Content Include="Views\Report\SaleSync.cshtml" />
     <Content Include="Views\SaleOrder\Details.cshtml" />
+    <Content Include="Views\SaleOrder\Index.cshtml" />
+    <Content Include="Views\SaleOrder\SaleSummary.cshtml" />
+    <Content Include="Views\SaleOrder\SaleSync.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">

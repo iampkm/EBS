@@ -9,7 +9,8 @@ namespace EBS.Query.DTO
 {
    public class SaleOrderDto
     {
-         public string Code { get; set; }
+        public int Id { get; set; }
+        public string Code { get; set; }
 
          public string StoreName { get; set; }
         public int PosId { get; set; }
@@ -47,5 +48,7 @@ namespace EBS.Query.DTO
         /// 收银员
         /// </summary>
         public string NickName { get; set; }
+
+        public List<SaleOrderItemDto> Items { get; set; }
     }
 }

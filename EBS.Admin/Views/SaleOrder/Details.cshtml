@@ -3,6 +3,7 @@
 @model EBS.Query.DTO.SaleOrderDto
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var codeName = "销售" + Model.OrderTypeName;
 }
 <style>
     .dataRow div {
@@ -13,8 +14,8 @@
 <div id="app" class="box box-primary">
     <div class="box-header with-border">
         <ol class="breadcrumb" style="padding:0px;margin:1px;">
-            <li><a href="/SaleOrder/Index"><i class="fa fa-dashboard"></i>销售单</a></li>
-            <li class="active"><a href="/SaleOrder/Details/{{model.id}}">采购单明细</a></li>
+            <li><a href="/SaleOrder/Index"><i class="fa fa-dashboard"></i>收银流水查询</a></li>
+            <li class="active"><a href="/SaleOrder/Details/{{model.id}}">销售单明细</a></li>
         </ol>
     </div>
     <form>
@@ -22,7 +23,7 @@
             <div class="row">
                 <div class="form-group col-sm-4 col-xs-6">
                     @*<button type="button" class="btn btn-primary btn-flat" v-on:click="print">打印</button>*@
-                    <a class="btn btn-default btn-flat" href="javascript:history.go(-1);">取 消</a>
+                    <a class="btn btn-default btn-flat" href="javascript:history.go(-1);">返 回</a>
                     <input type="hidden" v-model="model.id" />
                 </div>
             </div>
@@ -30,9 +31,9 @@
                 <div class="row">
                     <div class="col-xs-4 col-sm-4"></div>
                     <div class="col-xs-4 col-sm-4">
-                        <h4 class="text-center text-success" style="border-bottom:2px solid;padding-bottom:1px;">
+                        <h4 class="text-center" v-bind:class="{'text-success':model.orderType==1,'text-danger':model.orderType==2}" style="border-bottom:2px solid;padding-bottom:1px;">
                             <b>
-                                销售 @Model.OrderTypeName
+                                @codeName
                             </b>
                         </h4>
                     </div>
@@ -57,7 +58,7 @@
                         <span class="text-danger">单据状态：@Model.StatusName</span>
                     </div>
                     <div class="col-xs-4 col-sm-4">
-                        <span>制单日期：@Model.UpdatedOn</span>
+                        <span>销售日期：@Model.UpdatedOn</span>
                     </div>
                 </div>
                 <div class="row">
@@ -82,17 +83,15 @@
                                 <tbody id="tbody">
                                     @{
                                         var totalQuantity = 0;
-                                        var totalActualQuantity = 0;
-                                        decimal countTotal = 0;
-                                        decimal total = 0;
+                                        decimal totalDiscountAmount = 0;
+                                        decimal totalAmount = 0;
                                         var index = 1;
                                     }
                                     @foreach (var item in Model.Items)
                                     {
                                         totalQuantity += item.Quantity;
-                                        totalActualQuantity += item.ActualQuantity;
-                                        countTotal += item.Price * item.ActualQuantity;
-                                        total += item.Price * item.Quantity;
+                                        totalDiscountAmount += item.DiscountAmount;
+                                        totalAmount += item.Amount;
                                         <tr>
                                             <td>@(index++)</td>
                                             <td>@item.ProductCode</td>
@@ -100,17 +99,11 @@
                                             <td>@item.ProductName</td>
                                             <td>@item.Specification</td>
                                             <td>@item.Unit</td>
-                                            <td class="hidden-print">@item.ContractPrice.ToString("F4")</td>
-                                            <td>@item.Price.ToString("F4")</td>
-                                            <td class="hidden-print">@item.SpecificationQuantity</td>
-                                            <td>@item.PackageQuantity</td>
+                                            <td>@item.SalePrice.ToString("F2")</td>
+                                            <td>@item.RealPrice.ToString("F2")</td>
                                             <td>@item.Quantity</td>
-                                            <td>@((item.Price * item.Quantity).ToString("F2"))</td>
-                                            <td class="hidden-print">@item.ActualPackageQuantity</td>
-                                            <td>@item.ActualQuantity</td>
+                                            <td>@item.DiscountAmount.ToString("F2")</td>
                                             <td>@(item.Amount.ToString("F2"))</td>
-                                            @*<td>@item.ProductionDate</td>
-                                                <td>@item.ShelfLife</td>*@
                                         </tr>
                                     }
                                 </tbody>
@@ -122,75 +115,19 @@
                                         <td></td>
                                         <td></td>
                                         <td></td>
-                                        <td class="hidden-print"></td>
-                                        <td class="hidden-print"></td>
                                         <td></td>
                                         <td></td>
                                         <td>@totalQuantity</td>
-                                        <td>@total.ToString("F2")</td>
-                                        <td class="hidden-print"></td>
-                                        <td>@totalActualQuantity</td>
-                                        <td>@countTotal.ToString("F2")</td>
-                                        @*<td></td>
-                                            <td class="dataRow"></td>*@
+                                        <td>@totalDiscountAmount.ToString("F2")</td>
+                                        <td>@totalAmount.ToString("F2")</td>
                                     </tr>
                                 </tfoot>
                             </table>
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-xs-3 col-sm-3">
-                        <span>制单人：@Model.CreatedByName</span>
-                    </div>
-                    <div class="col-xs-3 col-sm-3">
-                        <span>供应商： </span>
-                    </div>
-                    <div class="col-xs-3 col-sm-3">
-                        <span>收货人：@Model.ReceivedByName</span>
-                    </div>
-                    <div class="col-xs-3 col-sm-3">
-                        <span>入库人：@Model.StoragedByName</span>
-                    </div>
-                </div>
             </div>
             <br />
-            <div class="row">
-                <div class="col-xs-12 col-sm-12">
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <caption>
-                                <h3 class="panel-title">
-                                    流程记录
-                                </h3>
-                            </caption>
-                            <thead>
-                                <tr>
-                                    <th style="width:30px"></th>
-                                    <th style="width:80px">处理人</th>
-                                    <th>状态</th>
-                                    <th>处理时间</th>
-                                    <th>备注</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @{index = 0;}
-                                @foreach (var item in (IEnumerable<EBS.Domain.Entity.ProcessHistory>)ViewBag.Logs)
-                                {
-                                    index += 1;
-                                    <tr>
-                                        <td>@(index)</td>
-                                        <td>@item.CreatedByName</td>
-                                        <td>@(((PurchaseOrderStatus)item.Status).Description())</td>
-                                        <td>@item.CreatedOn</td>
-                                        <td>@item.Remark</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
     </form>
 </div>
 <br />
@@ -203,7 +140,8 @@
                 data: {
                     model: {
                         id: @Model.Id,
-                        status:@((int)Model.Status)
+                        status:@((int)Model.Status),
+                        orderType:@((int)Model.OrderType),
                      }
                 },
                 methods: {

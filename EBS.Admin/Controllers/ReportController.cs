@@ -8,6 +8,7 @@ using EBS.Query.DTO;
 using EBS.Admin.Services;
 namespace EBS.Admin.Controllers
 {
+    [Permission]
     /// <summary>
     /// 报表
     /// </summary>

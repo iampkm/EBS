@@ -66,7 +66,7 @@ namespace EBS.Query.Service
                 param.To = condition.To.Value.AddDays(1);
             }
 
-            string sql = @"select o.`Code`,o.PosId,o.OrderType,o.`Status`,o.OrderAmount,o.PayAmount,o.OnlinePayAmount,o.PaymentWay,o.PaidDate,o.UpdatedOn,a.NickName,s.Name as StoreName 
+            string sql = @"select  o.Id, o.`Code`,o.PosId,o.OrderType,o.`Status`,o.OrderAmount,o.PayAmount,o.OnlinePayAmount,o.PaymentWay,o.PaidDate,o.UpdatedOn,a.NickName,s.Name as StoreName 
  from saleorder o 
 left join store s on s.Id= o.StoreId 
 left join account a on a.Id = o.CreatedBy
