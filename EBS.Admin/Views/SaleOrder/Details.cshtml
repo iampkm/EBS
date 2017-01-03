@@ -1,0 +1,235 @@
+﻿@using EBS.Infrastructure.Extension;
+@using EBS.Domain.ValueObject;
+@model EBS.Query.DTO.SaleOrderDto
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+    .dataRow div {
+        margin-bottom: 0px;
+    }
+</style>
+<!-- demo root element -->
+<div id="app" class="box box-primary">
+    <div class="box-header with-border">
+        <ol class="breadcrumb" style="padding:0px;margin:1px;">
+            <li><a href="/SaleOrder/Index"><i class="fa fa-dashboard"></i>销售单</a></li>
+            <li class="active"><a href="/SaleOrder/Details/{{model.id}}">采购单明细</a></li>
+        </ol>
+    </div>
+    <form>
+        <div class="box-body">
+            <div class="row">
+                <div class="form-group col-sm-4 col-xs-6">
+                    @*<button type="button" class="btn btn-primary btn-flat" v-on:click="print">打印</button>*@
+                    <a class="btn btn-default btn-flat" href="javascript:history.go(-1);">取 消</a>
+                    <input type="hidden" v-model="model.id" />
+                </div>
+            </div>
+            <div id="printDiv" class="table-printfontsize">
+                <div class="row">
+                    <div class="col-xs-4 col-sm-4"></div>
+                    <div class="col-xs-4 col-sm-4">
+                        <h4 class="text-center text-success" style="border-bottom:2px solid;padding-bottom:1px;">
+                            <b>
+                                销售 @Model.OrderTypeName
+                            </b>
+                        </h4>
+                    </div>
+                    <div class="col-xs-4 col-sm-4"></div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-4 col-sm-4">
+                        <span>门店：@Model.StoreName</span>
+                    </div>
+                    <div class="col-xs-4 col-sm-4 ">
+                        单据号：@Model.Code
+                    </div>
+                    <div class="col-xs-4 col-sm-4 ">
+                        <span>支付方式：@Model.PaymentWayName</span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-4 col-sm-4">
+                        <span>收银机：@Model.PosId</span>
+                    </div>
+                    <div class="col-xs-4 col-sm-4 ">
+                        <span class="text-danger">单据状态：@Model.StatusName</span>
+                    </div>
+                    <div class="col-xs-4 col-sm-4">
+                        <span>制单日期：@Model.UpdatedOn</span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 ">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-printfontsize">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>商品编码</th>
+                                        <th>条码</th>
+                                        <th>品名</th>
+                                        <th>规格</th>
+                                        <th>单位</th>
+                                        <th>售价</th>
+                                        <th>优惠价</th>                                        
+                                        <th>数量</th>                                       
+                                        <th>优惠金额</th>
+                                        <th>金额</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody">
+                                    @{
+                                        var totalQuantity = 0;
+                                        var totalActualQuantity = 0;
+                                        decimal countTotal = 0;
+                                        decimal total = 0;
+                                        var index = 1;
+                                    }
+                                    @foreach (var item in Model.Items)
+                                    {
+                                        totalQuantity += item.Quantity;
+                                        totalActualQuantity += item.ActualQuantity;
+                                        countTotal += item.Price * item.ActualQuantity;
+                                        total += item.Price * item.Quantity;
+                                        <tr>
+                                            <td>@(index++)</td>
+                                            <td>@item.ProductCode</td>
+                                            <td>@item.BarCode</td>
+                                            <td>@item.ProductName</td>
+                                            <td>@item.Specification</td>
+                                            <td>@item.Unit</td>
+                                            <td class="hidden-print">@item.ContractPrice.ToString("F4")</td>
+                                            <td>@item.Price.ToString("F4")</td>
+                                            <td class="hidden-print">@item.SpecificationQuantity</td>
+                                            <td>@item.PackageQuantity</td>
+                                            <td>@item.Quantity</td>
+                                            <td>@((item.Price * item.Quantity).ToString("F2"))</td>
+                                            <td class="hidden-print">@item.ActualPackageQuantity</td>
+                                            <td>@item.ActualQuantity</td>
+                                            <td>@(item.Amount.ToString("F2"))</td>
+                                            @*<td>@item.ProductionDate</td>
+                                                <td>@item.ShelfLife</td>*@
+                                        </tr>
+                                    }
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td></td>
+                                        <td>合计：</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td class="hidden-print"></td>
+                                        <td class="hidden-print"></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>@totalQuantity</td>
+                                        <td>@total.ToString("F2")</td>
+                                        <td class="hidden-print"></td>
+                                        <td>@totalActualQuantity</td>
+                                        <td>@countTotal.ToString("F2")</td>
+                                        @*<td></td>
+                                            <td class="dataRow"></td>*@
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-3 col-sm-3">
+                        <span>制单人：@Model.CreatedByName</span>
+                    </div>
+                    <div class="col-xs-3 col-sm-3">
+                        <span>供应商： </span>
+                    </div>
+                    <div class="col-xs-3 col-sm-3">
+                        <span>收货人：@Model.ReceivedByName</span>
+                    </div>
+                    <div class="col-xs-3 col-sm-3">
+                        <span>入库人：@Model.StoragedByName</span>
+                    </div>
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-xs-12 col-sm-12">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <caption>
+                                <h3 class="panel-title">
+                                    流程记录
+                                </h3>
+                            </caption>
+                            <thead>
+                                <tr>
+                                    <th style="width:30px"></th>
+                                    <th style="width:80px">处理人</th>
+                                    <th>状态</th>
+                                    <th>处理时间</th>
+                                    <th>备注</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{index = 0;}
+                                @foreach (var item in (IEnumerable<EBS.Domain.Entity.ProcessHistory>)ViewBag.Logs)
+                                {
+                                    index += 1;
+                                    <tr>
+                                        <td>@(index)</td>
+                                        <td>@item.CreatedByName</td>
+                                        <td>@(((PurchaseOrderStatus)item.Status).Description())</td>
+                                        <td>@item.CreatedOn</td>
+                                        <td>@item.Remark</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+    </form>
+</div>
+<br />
+@section scripts{
+    <script src="~/Scripts/jquery.PrintArea.js"></script>
+    <script>
+        $("doucument").ready(function () {
+            var demo = new Vue({
+                el: '#app',
+                data: {
+                    model: {
+                        id: @Model.Id,
+                        status:@((int)Model.Status)
+                     }
+                },
+                methods: {
+                    print: function () {
+                         $("#printDiv").printArea();
+                    },
+                    audit:function(){
+                        var _self = this;
+                        $.post("/SaleOrder/FinanceAuditd", { id: _self.model.id }, function (result) {
+                            if (result.success) {
+                                bootbox.alert("审核通过");
+                                window.history.go(-1);
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
+                    }
+                }
+            });
+
+        });
+    </script>
+}
+
+
+
+
+

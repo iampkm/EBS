@@ -30,7 +30,7 @@ namespace EBS.Application.Facade
 
 
         public void SaleOrderSync(string body)
-        {
+        {           
             var dateTimeConverter = new IsoDateTimeConverter { DateTimeFormat = "yyyy-MM-dd HH:mm:ss" };
             var model = JsonConvert.DeserializeObject<SaleOrder>(body, dateTimeConverter);
             model.Hour = model.CreatedOn.Hour; //设置订单时段
@@ -38,22 +38,19 @@ namespace EBS.Application.Facade
             if (_db.Table.Exists<SaleOrder>(n => n.Code == model.Code))
             {
                 _log.Info("订单{0}已存在", model.Code);
-                return;
+                throw new Exception(string.Format("订单{0}已存在", model.Code));
             }
             _db.Insert(model);
-            _db.SaveChange();  // 先保存订单     
+            _db.SaveChange();  // 先保存订单 
+            _log.Info("订单{0}保存成功", model.Code);
 
-            if (model.Status == SaleOrderStatus.Cancel)
-            {
-                //作废订单只保存，不增减库存
-                return;
-            }
-            else if (model.Status == SaleOrderStatus.Paid)
+            //已支付部分，扣减库存
+            if (model.Status == SaleOrderStatus.Paid)
             {
                 if (_db.Table.Exists<StoreInventoryHistory>(n => n.BillCode == model.Code))
                 {
                     _log.Info("库存流水已经记录{0}已存在", model.Code);
-                    return;
+                    throw new Exception(string.Format("库存流水已经记录{0}已存在", model.Code));
                 }
 
                 var entity = _db.Table.Find<SaleOrder>(n => n.Code == model.Code);
@@ -69,7 +66,9 @@ namespace EBS.Application.Facade
                 }
 
                 _db.SaveChange();
+                _log.Info("订单{0}库存已增减", model.Code);
             }
+           
         }
        
 
@@ -94,6 +93,7 @@ namespace EBS.Application.Facade
         {
             var dateTimeConverter = new IsoDateTimeConverter { DateTimeFormat = "yyyy-MM-dd HH:mm:ss" };
             var rows = JsonConvert.DeserializeObject<List<SaleSync>>(body, dateTimeConverter);
+            if (rows.Count == 0) throw new Exception("空数据");
             string sql = "select count(*) from SaleSync where SaleDate=@SaleDate and StoreId=@StoreId and PosId=@PosId";
             foreach(var model in rows)
             {

@@ -155,6 +155,7 @@
     <Compile Include="Controllers\PurchaseContractController.cs" />
     <Compile Include="Controllers\ReportController.cs" />
     <Compile Include="Controllers\RoleController.cs" />
+    <Compile Include="Controllers\SaleOrderController.cs" />
     <Compile Include="Controllers\ShelfController.cs" />
     <Compile Include="Controllers\StocktakingController.cs" />
     <Compile Include="Controllers\StocktakingPlanController.cs" />
@@ -1271,6 +1272,7 @@
     <Content Include="Views\TransferOrder\Detail.cshtml" />
     <Content Include="Views\TransferOrder\Index.cshtml" />
     <Content Include="Views\Report\SaleSync.cshtml" />
+    <Content Include="Views\SaleOrder\Details.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">

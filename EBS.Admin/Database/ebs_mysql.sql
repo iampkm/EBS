@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2016-12-30 16:58:16                          */
+/* Created on:     2017-01-03 11:24:00                          */
 /*==============================================================*/
 
 
@@ -81,6 +81,10 @@ drop index idx_saleorder_code on SaleOrder;
 drop table if exists SaleOrder;
 
 drop table if exists SaleOrderItem;
+
+drop index idx_SaleSync on SaleSync;
+
+drop table if exists SaleSync;
 
 drop table if exists Shelf;
 
@@ -699,6 +703,29 @@ create table SaleOrderItem
    RealPrice            decimal(8,2) comment '实际售价',
    Quantity             int comment '数量',
    primary key (Id)
+);
+
+/*==============================================================*/
+/* Table: SaleSync                                              */
+/*==============================================================*/
+create table SaleSync
+(
+   Id                   int not null auto_increment,
+   SaleDate             varchar(20) comment '销售日',
+   StoreId              int comment '门店ID',
+   PosId                int comment '收银机',
+   OrderCount           int comment '订单数',
+   OrderTotalAmount     decimal(8,2) comment '订单总金额',
+   ClientUpdatedOn      datetime comment '上传时间',
+   primary key (Id)
+);
+
+/*==============================================================*/
+/* Index: idx_SaleSync                                          */
+/*==============================================================*/
+create index idx_SaleSync on SaleSync
+(
+   SaleDate
 );
 
 /*==============================================================*/
