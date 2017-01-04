@@ -1,0 +1,136 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+@section styles{
+    <link href="~/Content/zTree.min.css" rel="stylesheet" />
+    <style>
+        .ztree li span {
+            font-size: 14px;
+        }
+
+        .dataRow div {
+            margin-bottom: 0px;
+        }
+    </style>
+}
+<!-- demo root element -->
+<div id="app">
+    <div class="box box-primary">
+        <div class="box-header">
+            <ol class="breadcrumb" style="padding:0px;margin:1px;">
+                <li><a href="/SaleOrder/SaleList"><i class="fa fa-dashboard"></i>班次明细</a></li>
+            </ol>
+        </div>
+        <div class="box-body">
+            <vue-table v-ref:vtable v-bind:columns="gridColumns"
+                       v-bind:url="url"
+                       v-bind:args="searchArgs" v-bind:data.sync="rows" show-pagination="false" show-toolbar="false">
+                @*<span class="input-group-btn" slot="customButtons">
+                        <a class="btn btn-warning btn-flat" href="/SaleOrder/Create">新 增</a>
+                        <a class="btn btn-primary btn-flat" href="/SaleOrder/CreateGift">新增赠品单</a>
+                        <button type="button" class="btn btn-success btn-flat" v-on:click="submitAudit()">收货</button>
+                        <button type="button" class="btn btn-danger btn-flat" v-on:click="remove()">作 废</button>
+                    </span>*@
+            </vue-table>
+        </div>
+        <!-- /.box-body -->
+    </div>
+    <div class="clearfix"></div>
+</div>
+@{Html.RenderPartial("VueTableTemplate");}
+@section scripts{
+    <script src="~/Content/Vue/vuetable/vuetable.js"></script>
+    <script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
+    <script>
+
+        var vue = new Vue({
+            components: {
+                'v-modal': VueStrap.modal,
+                'v-input': VueStrap.input
+            },
+            el: '#app',
+            data: {
+                modal: false,
+                selectedId: 0,
+                removeReason: '',
+                searchQuery: '',
+                gridColumns: [
+                    { name: 'NickName', localName: '收银员' },
+                    { name: 'StoreName', localName: '门店' },
+                    { name: 'PosId', localName: '收银机' },
+                    { name: 'Code', localName: '订单号', style: "<a href='/SaleOrder/Details/{id}'>{column}</a>" },
+                    { name: 'UpdatedOn', localName: '销售日期', width: '200' },
+                    { name: 'OrderAmount', localName: '销售金额' },
+                    { name: 'PaymentWayName', localName: '付款方式' },
+                    { name: 'StatusName', localName: '状态' },
+                    { name: 'OrderTypeName', localName: '订单类型' },
+                ],
+                url: "/SaleOrder/QuerySaleOrder",
+                searchArgs: { workScheduleId: @ViewBag.workScheduleId, status: @ViewBag.status , orderType: @ViewBag.orderType},
+                rows: [],
+            },
+            methods: {
+                remove: function () {
+                    var selectRow = this.rows.filter(function (item, index) {
+                        if (item.checked) {
+                            return true;
+                        }
+                    });
+                    if (selectRow.length == 0) {
+                        bootbox.alert("请选择一条记录");
+                        return;
+                    }
+                    this.selectedId = selectRow[0].Id;
+                    this.modal = true;
+                },
+                callback: function () {
+                    var v_self = this;
+                    var selectId = v_self.selectedId;
+                    var remark = v_self.removeReason;
+                    $.post("/SaleOrder/Delete", { id: selectId, reason: remark }, function (result) {
+                        if (result.success) {
+                            v_self.$refs.vtable.loadData();
+                            v_self.modal = false;
+                        }
+                        else {
+                            bootbox.alert(result.error);
+                        }
+                    }, "json");
+                },
+                submitAudit: function () {
+                    var selectRow = this.rows.filter(function (item, index) {
+                        if (item.checked) {
+                            return true;
+                        }
+                    });
+                    if (selectRow.length == 0) {
+                        bootbox.alert("请选择一条记录");
+                        return;
+                    }
+                    var selectId = selectRow[0].Id;
+                    window.location.href="/SaleOrder/WaitStockIn/"+selectId;
+
+                },               
+            }
+        });
+
+
+    </script>
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

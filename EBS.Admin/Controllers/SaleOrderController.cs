@@ -75,6 +75,8 @@ namespace EBS.Admin.Controllers
         /// <returns></returns>
         public ActionResult SaleCheck()
         {
+            ViewBag.today = DateTime.Now.ToString("yyyy-MM-dd");
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
             return View();
         }
 
@@ -96,6 +98,21 @@ namespace EBS.Admin.Controllers
         public JsonResult QuerySaleSync(Pager page, DateTime saleDate)
         {
             var rows = _saleOrderQuery.QuerySaleSync(page, saleDate);
+
+            return Json(new { success = true, data = rows, total = page.Total });
+        }
+
+        public ActionResult SaleList(int id, int status, int orderType)
+        {
+            ViewBag.workScheduleId = id;
+            ViewBag.status = status;
+            ViewBag.orderType = orderType;
+            return View();
+        }
+
+        public JsonResult QuerySaleOrder(Pager page,int workScheduleId, int status, int orderType)
+        {
+            var rows = _saleOrderQuery.QuerySaleOrder(page,workScheduleId, status, orderType);
 
             return Json(new { success = true, data = rows, total = page.Total });
         }

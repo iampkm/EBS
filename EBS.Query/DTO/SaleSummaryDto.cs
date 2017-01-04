@@ -9,6 +9,7 @@ namespace EBS.Query.DTO
 {
     public class SaleSummaryDto
     {
+        public int Id { get; set; }
         public string CreatedByName { get; set; }
         public string StoreName { get; set; }
         public int PosId { get; set; }

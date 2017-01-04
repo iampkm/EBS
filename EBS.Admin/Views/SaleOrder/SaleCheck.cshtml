@@ -19,7 +19,7 @@
     <div class="box box-primary">
         <div class="box-header">
             <ol class="breadcrumb" style="padding:0px;margin:1px;">
-                <li><a href="/SaleOrder/SaleSummary"><i class="fa fa-dashboard"></i> 营业额核对</a></li>
+                <li><a href="/SaleOrder/SaleCheck"><i class="fa fa-dashboard"></i>收银防损核对</a></li>
             </ol>
         </div>
         <div class="box-body">
@@ -123,16 +123,17 @@
                 removeReason: '',
                 searchQuery: '',
                 gridColumns: [
-                    { name: 'CreatedByName', localName: '收银员', style: "<a href='/SaleOrder/SaleList/{id}?orderType=0&status=3'>{column}</a>" },
+                    { name: 'CreatedByName', localName: '收银员', style: "<a href='/SaleOrder/SaleList/{id}?orderType={OrderType}&status={Status}'>{column}</a>" },
                     { name: 'StoreName', localName: '门店' },
                     { name: 'PosId', localName: '收银机' },
                     { name: 'StartDate', localName: '班次起',width: '200'  },
                     { name: 'EndDate', localName: '班次止', width: '200' },
-                    { name: 'TotalAmount', localName: '金额' },
-                     { name: 'TotalOnlineAmount', localName: '在线支付' },
-                    { name: 'PaymentWayName', localName: '付款方式' },
+                    { name: 'OrderCount', localName: '订单笔数' },
+                    { name: 'TotalAmount', localName: '金额' }, 
+                    { name: 'OrderTypeName', localName: '单据类型' },
+                    { name: 'StatusName', localName: '状态' },                    
                 ],
-                url: "/SaleOrder/QuerySaleSummary",
+                url: "/SaleOrder/QuerySaleCheck",
                 searchArgs: { code: '', nickName: '', storeId: 0, wrokFrom: '',workTo:'',from:'@ViewBag.today',to:'@ViewBag.today' ,posId:null},
                 rows: [],
                 selectStore: {
@@ -240,6 +241,10 @@
 
     </script>
 }
+
+
+
+
 
 
 

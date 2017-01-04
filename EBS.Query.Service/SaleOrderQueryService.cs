@@ -133,7 +133,7 @@ where 1=1 {0}";
             }
             if (!string.IsNullOrEmpty(condition.NickName))
             {
-                where += " and w.NickName like @NickName ";
+                where += " and w.CreatedByName like @NickName ";
                 param.NickName = string.Format("%{0}%", condition.NickName);
             }
             if (condition.WrokFrom.HasValue)
@@ -148,7 +148,7 @@ where 1=1 {0}";
             }
            
 
-            string sql = @"select w.CreatedByName,s.Name as StoreName,w.PosId,w.StartDate,w.EndDate,t.TotalAmount,t.TotalOnlineAmount,t.paymentWay from WorkSchedule w inner join (
+            string sql = @"select w.Id, w.CreatedByName,s.Name as StoreName,w.PosId,w.StartDate,w.EndDate,t.TotalAmount,t.TotalOnlineAmount,t.paymentWay from WorkSchedule w inner join (
 select o.WorkScheduleCode,sum(OrderAmount) as TotalAmount,sum(OnlinePayAmount) as TotalOnlineAmount,paymentWay from  saleorder o 
 where o.Status = 3 {1} group by o.WorkScheduleCode,o.paymentWay
 ) t on t.WorkScheduleCode = w.Code
@@ -169,7 +169,69 @@ where 1=1 {0}";
 
         public IEnumerable<SaleCheckDto> QuerySaleCheck(Pager page, SearchSaleOrder condition)
         {
-            throw new NotImplementedException();
+            dynamic param = new ExpandoObject();
+            string where = "";
+            string owhere = "";
+
+            if (!string.IsNullOrEmpty(condition.Code))
+            {
+                owhere += "and o.Code=@Code ";
+                param.Code = condition.Code;
+            }
+            if (condition.PosId.HasValue)
+            {
+                owhere += " and o.PosId=@PosId ";
+                param.PosId = condition.PosId.Value;
+            }
+            if (condition.StoreId > 0)
+            {
+                owhere += " and o.StoreId=@StoreId ";
+                param.StoreId = condition.StoreId;
+            }
+            if (condition.From.HasValue)
+            {
+                owhere += " and o.UpdatedOn>=@From";
+                param.From = condition.From.Value;
+            }
+            if (condition.To.HasValue)
+            {
+                owhere += " and o.UpdatedOn<@To";
+                param.To = condition.To.Value.AddDays(1);
+            }
+            if (!string.IsNullOrEmpty(condition.NickName))
+            {
+                where += " and w.CreatedByName like @NickName ";
+                param.NickName = string.Format("%{0}%", condition.NickName);
+            }
+            if (condition.WrokFrom.HasValue)
+            {
+                where += " and w.StartDate >= @StartDate ";
+                param.StartDate = condition.WrokFrom.Value;
+            }
+            if (condition.WrokTo.HasValue)
+            {
+                where += " and w.StartDate < @EndDate ";
+                param.EndDate = condition.WrokTo.Value.AddDays(1);
+            }
+
+
+            string sql = @"select w.Id, w.CreatedByName,s.Name as StoreName,w.PosId,w.StartDate,w.EndDate,t.TotalAmount,t.orderCount,t.Status,t.OrderType from WorkSchedule w inner join (
+select o.WorkScheduleCode,sum(OrderAmount) as TotalAmount,count(*) as orderCount,o.Status,o.OrderType from  saleorder o 
+where (o.Status = -1 or o.OrderType =2) {1} group by o.WorkScheduleCode,o.Status,o.OrderType
+) t on t.WorkScheduleCode = w.Code
+inner join Store s on s.Id = w.StoreId
+where 1=1 {0}";
+            //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<Product>(where, param);
+            if (string.IsNullOrEmpty(where) && string.IsNullOrEmpty(owhere))
+            {
+                page.Total = 0;
+                return new List<SaleCheckDto>();
+            }
+            sql = string.Format(sql, where, owhere);
+            var rows = this._query.FindAll<SaleCheckDto>(sql, param) as IEnumerable<SaleCheckDto>;
+            page.Total = rows.Count();
+
+            return rows;
         }
 
         public IEnumerable<SaleSyncDto> QuerySaleSync(Pager page, DateTime saleDate)
@@ -184,6 +246,47 @@ where t.PosId= y.PosId and y.SaleDate=@SaleDate";
             var rows = _query.FindAll<SaleSyncDto>(csql, new { BeginDate = saleDate, EndDate = saleDate.Date.AddDays(1), SaleDate = saleDate.Date.ToString("yyyy-MM-dd") }).ToList();
             return rows;
 
+        }
+
+        public IEnumerable<SaleOrderDto> QuerySaleOrder(Pager page, int wrokScheduleId, int status, int orderType)
+        {
+            dynamic param = new ExpandoObject();
+            string where = "";
+            
+            if (wrokScheduleId!=0)
+            {
+                where += "and w.id=@WrokScheduleId ";
+                param.WrokScheduleId = wrokScheduleId;
+            }
+           
+            if (status!= 0)
+            {
+                where += " and o.status=@Status ";
+                param.Status = status;
+            }
+
+            if (orderType != 0)
+            {
+                where += " and o.orderType=@OrderType ";
+                param.OrderType = orderType;
+            }
+
+            string sql = @"select  o.Id, o.`Code`,o.PosId,o.OrderType,o.`Status`,o.OrderAmount,o.PayAmount,o.OnlinePayAmount,o.PaymentWay,o.PaidDate,o.UpdatedOn,a.NickName,s.Name as StoreName 
+ from saleorder o 
+inner join store s on s.Id= o.StoreId 
+inner join account a on a.Id = o.CreatedBy
+inner join workschedule w on o.WorkScheduleCode = w.Code
+where 1=1 {0}";
+            //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<Product>(where, param);
+            if (string.IsNullOrEmpty(where))
+            {
+                page.Total = 0;
+                return new List<SaleOrderDto>();
+            }
+            sql = string.Format(sql, where);
+            var rows = this._query.FindAll<SaleOrderDto>(sql, param) as IEnumerable<SaleOrderDto>;
+            page.Total = rows.Count();
+            return rows;
         }
     }
 }
