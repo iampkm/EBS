@@ -23,7 +23,7 @@
             sortOrders: sortOrders,
             filterKey: '',
             pageIndex: 1,
-            pageSize: this.pageSizes[0],
+            pageSize: this.pageSizes[4],
             pageNumber: 10,
             pages: 0,
             total: 0, //total records

@@ -135,5 +135,18 @@ namespace EBS.Domain.Entity
             }
             return false;
         }
+
+        public void CheckCanViewStore()
+        {
+            this.CanViewStores = this.CanViewStores ?? "";
+            if (this.StoreId > 0)
+            {
+                var storeIdArray = this.CanViewStores.Split(',');
+                if (!storeIdArray.Contains(this.StoreId.ToString()))
+                {
+                    this.CanViewStores = this.CanViewStores.Length == 0 ? this.StoreId.ToString() : this.CanViewStores + "," + this.StoreId.ToString();
+                }
+            }
+        }
     }
 }

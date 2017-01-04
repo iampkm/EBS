@@ -41,23 +41,24 @@ namespace EBS.Application.Service
         public void Create(CreateAccountModel model)
         {           
             Account entity = new Account(model.UserName, model.Password, model.NickName, model.RoleId,model.StoreId);
+            //检查账户可查看门店权限属性
             entity.CanViewStores = model.CanViewStores;
-            _accountService.Create(entity);
+            entity.CheckCanViewStore();   
+            //加密密码
+            entity.Password = "123456";
+            entity.EncryptionPassword();           
+            entity.UserName= _accountService.GenerateNewAccount();
+                    
+            _db.Insert(entity);
             _db.SaveChange();
         }
 
         public void Edit(EditAccountModel model)
-        {
-            //Account entity = new Account()
-            //{
-            //    Id = model.Id,
-            //    NickName = model.NickName,
-            //    RoleId = model.RoleId
-            //};
+        {            
             Account entity = _db.Table.Find<Account>(model.Id);
-            entity = model.MapTo<Account>(entity);
+            entity = model.MapTo<Account>(entity);            
             entity.LastUpdateDate = DateTime.Now;
-            // _accountService.Update(entity);
+            entity.CheckCanViewStore();
             _db.Update(entity);
             _db.SaveChange();
         }
