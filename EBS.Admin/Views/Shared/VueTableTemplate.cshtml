@@ -100,7 +100,7 @@
                     </thead>
                 </table>
             </div>
-            <div id="tbBody" class="table-fixed-body table-responsive" v-bind:style="{height:height}">
+            <div id="tbBody" class="table-fixed-body table-responsive" style="min-height:300px;max-height:400px" @*v-bind:style="{height:100%}"*@>
                 <table class="table table-bordered table-hover">
                     <tbody>
                         <tr v-for="(index,entry) in data | filterBy filterKey | orderBy sortKey sortOrders[sortKey]" v-on:click="selectRow(index)" style="cursor: pointer">
@@ -114,6 +114,17 @@
                             <td><slot name="customColumn"></slot></td>
                         </tr>
                     </tbody>
+                    <tfoot v-show="showSum">
+                        <tr>
+                            <td colspan="2">合计：</td>
+                            <template v-for="key in columns">
+                                <template v-if="key.visible">
+                                    <td v-bind:style="{width:key.width}">{{{sumColumn(key.name)}}}</td>
+                                </template>
+                            </template>
+                            <td></td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
             <div class="fixed-table-pagination" v-if="showPagination">

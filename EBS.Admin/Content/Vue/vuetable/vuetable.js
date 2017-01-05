@@ -11,7 +11,9 @@
         showToolbar: { type: Boolean, default: true },
         pageSizes: { type: Array, default: [20, 50, 100, 200, 500] },
         id: { type: String, default: "Id" },
-        height: '500px'       
+        height: '500px',
+        showSum: { type: Boolean, default: false },
+        sum: {type:Array,default:[]}
     },
     data: function () {
         var sortOrders = {};
@@ -23,7 +25,7 @@
             sortOrders: sortOrders,
             filterKey: '',
             pageIndex: 1,
-            pageSize: this.pageSizes[4],
+            pageSize: this.pageSizes[3],
             pageNumber: 10,
             pages: 0,
             total: 0, //total records
@@ -76,6 +78,23 @@
                 }
             }
             return columnStyle;
+        },
+        sumColumn:function(columnName)
+        {
+            if (!this.showSum) { return "";}
+            var arr= this.sum.filter(function (col, index) {
+                return columnName == col.name;
+            });
+            if (arr.length == 0)
+            {
+                return "";
+            }
+            //求和   类型判断 typeof()==number
+            var total = 0;
+            this.data.forEach(function (item) {
+                total += item[columnName];
+            })
+            return total.toFixed(arr[0].dot);  // dot 保留小数位数
         },
         changePageSize: function (page) {
             this.pageSize = page;

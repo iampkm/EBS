@@ -26,6 +26,14 @@ namespace EBS.Query.DTO
         /// 库存数量
         /// </summary>
         public int Quantity { get; set; }
+
+        public decimal AvgCostPrice { get; set; }
+
+        public decimal Amount {
+            get {
+                return AvgCostPrice * Quantity;
+            }
+        }
         /// <summary>
         /// 预警数量
         /// </summary>

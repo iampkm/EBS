@@ -13,8 +13,8 @@
         <div class="box-body">
             <vue-table v-ref:vtable v-bind:columns="gridColumns"
                        v-bind:url="url"
-                       v-bind:args="searchArgs" v-bind:data.sync="rows">
-                <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                       v-bind:args="searchArgs" v-bind:data.sync="rows" v-bind:show-sum="true" v-bind:sum="sumColumns">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch" >
                     @*<div class="col-xs-3 col-sm-2">
                             <input class="form-control" v-model="searchArgs.code" placeholder="单编号" debounce="500" />
                         </div>*@
@@ -125,14 +125,16 @@
                 { name: 'StoreName', localName: '门店' },
                 { name: 'ProductCode', localName: '商品编码', style: "<a href='/StoreInventory/Edit/{id}'>{column}</a>" },
                 { name: 'BarCode', localName: '条码' },
-                { name: 'ProductName', localName: '品名' },
+                { name: 'ProductName', localName: '品名', width: '200' },
                 { name: 'Specification', localName: '规格', width: '80' },
-                { name: 'Quantity', localName: '库存数' },
-                { name: 'OrderQuantity', localName: '已订购数' }
+                { name: 'Quantity', localName: '库存数', width: '80' },
+                { name: 'AvgCostPrice', localName: '平均成本', width: '100' },
+                { name: 'Amount', localName: '金额', width: '100' }
                 ],
                 url: "/StoreInventory/LoadData",
                 searchArgs: { supplierId: 0, storeId: 0, productCodeOrBarCode: '' },
                 rows: [],
+                sumColumns: [{name:'Quantity',dot:0},{name:'Amount',dot:4}],
                 selectSupplier: {
                     modal: false,
                     name: '',
