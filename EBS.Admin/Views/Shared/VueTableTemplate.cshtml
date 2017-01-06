@@ -100,7 +100,7 @@
                     </thead>
                 </table>
             </div>
-            <div id="tbBody" class="table-fixed-body table-responsive" style="min-height:300px;max-height:400px" @*v-bind:style="{height:100%}"*@>
+            <div id="tbBody" class="table-fixed-body table-responsive" style="max-height:450px" @*v-bind:style="{height:100%}"*@>
                 <table class="table table-bordered table-hover">
                     <tbody>
                         <tr v-for="(index,entry) in data | filterBy filterKey | orderBy sortKey sortOrders[sortKey]" v-on:click="selectRow(index)" style="cursor: pointer">
@@ -114,17 +114,20 @@
                             <td><slot name="customColumn"></slot></td>
                         </tr>
                     </tbody>
-                    <tfoot v-show="showSum">
-                        <tr>
-                            <td colspan="2">合计：</td>
-                            <template v-for="key in columns">
-                                <template v-if="key.visible">
-                                    <td v-bind:style="{width:key.width}">{{{sumColumn(key.name)}}}</td>
-                                </template>
+                </table>
+            </div>
+            <div v-show="showSum">
+                <table class="table table-bordered table-hover">
+                    <tr>
+                        <td width="{{indexWidth}}"></td>
+                        <td v-if="showCheckbox" width="30px"></td>
+                        <template v-for="key in columns">
+                            <template v-if="key.visible">
+                                <td v-bind:style="{width:key.width}">{{{sumColumn(key)}}}</td>
                             </template>
-                            <td></td>
-                        </tr>
-                    </tfoot>
+                        </template>
+                        <td></td>
+                    </tr>
                 </table>
             </div>
             <div class="fixed-table-pagination" v-if="showPagination">

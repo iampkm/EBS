@@ -13,24 +13,11 @@
         <div class="box-body">
             <vue-table v-ref:vtable v-bind:columns="gridColumns"
                        v-bind:url="url"
-                       v-bind:args="searchArgs" v-bind:data.sync="rows" v-bind:show-sum="true" v-bind:sum="sumColumns">
+                       v-bind:args="searchArgs" v-bind:data.sync="rows" v-bind:show-sum="true">
                 <div class="row" style="margin-bottom:10px;" slot="customSearch" >
-                    @*<div class="col-xs-3 col-sm-2">
-                            <input class="form-control" v-model="searchArgs.code" placeholder="单编号" debounce="500" />
-                        </div>*@
                     <div class="col-xs-3 col-sm-2">
                         <input class="form-control" v-model="searchArgs.productCodeOrBarCode" placeholder="商品编码/条码" debounce="500" />
                     </div>
-                    @*<div class="col-sm-2 col-xs-3">
-                        <div class="input-group ">
-                            <input type="hidden" class="form-control" v-model="searchArgs.supplierId">
-                            <input type="text" class="form-control" v-model="selectSupplier.name" placeholder="选择供应商" readonly>
-                            <span class="input-group-btn">
-                                <button class="btn btn-flat btn-default" type="button" v-on:click="showSupplier"><i class="fa fa-search"></i></button>
-                                <button class="btn btn-flat btn-default" type="button" v-on:click="clearSupplier"><i class="fa fa-eraser"></i></button>
-                            </span>
-                        </div>
-                    </div>*@
                     <div class="col-sm-2 col-xs-3">
                         <div class="input-group ">
                             <input type="hidden" class="form-control" v-model="searchArgs.storeId">
@@ -41,25 +28,7 @@
                             </span>
                         </div>
                     </div>
-                    @*<div class="form-group col-sm-2 col-xs-3">
-                            <div class="input-group">
-                                <span class="input-group-addon">状态</span>
-                                <select name="brand" class="form-control" v-model="searchArgs.status">
-                                    <option value="0">-请选择-</option>
-                                    @foreach (var item in ViewBag.Status)
-                                    {
-                                        <option value="@item.Key">@item.Value</option>
-                                    }
-                                </select>
-                            </div>
-                        </div>*@
                 </div>
-                @*<span class="input-group-btn" slot="customButtons">
-                        <a class="btn btn-warning btn-flat" href="/StoreInventory/Create">新 增</a>
-                        <a class="btn btn-primary btn-flat" href="/StoreInventory/CreateGift">新增赠品单</a>
-                        <button type="button" class="btn btn-success btn-flat" v-on:click="submitAudit()">提交审核</button>
-                        <button type="button" class="btn btn-danger btn-flat" v-on:click="remove()">作 废</button>
-                    </span>*@
             </vue-table>
         </div>
         <!-- /.box-body -->
@@ -70,22 +39,6 @@
         <div slot="modal-body" class="modal-body">
             <input type="hidden" v-model="selectedId" />
             <v-input type="textarea" v-bind:value.sync="removeReason" placeholder="请录入作废理由" required icon></v-input>
-        </div>
-    </v-modal>
-    <v-modal title="选择供应商" ok-text="确 定" cancel-text="取 消" v-bind:callback="getSupplier" v-bind:show.sync="selectSupplier.modal" v-bind:effect="fade" width="60%">
-        <div slot="modal-body" class="modal-body">
-            <vue-table v-bind:columns="selectSupplier.gridColumns"
-                       v-bind:url="selectSupplier.url" v-bind:show-toolbar="false"
-                       v-bind:args="selectSupplier.searchArgs" v-bind:data.sync="selectSupplier.rows">
-                <div class="row" style="margin-bottom:10px;" slot="customSearch">
-                    <div class="col-xs-4 col-sm-3">
-                        <input class="form-control" v-model="selectSupplier.searchArgs.code" placeholder="输入供应编码" debounce="300" />
-                    </div>
-                    <div class="col-xs-4 col-sm-3">
-                        <input class="form-control" v-model="selectSupplier.searchArgs.name" placeholder="输入供应商名" debounce="300" />
-                    </div>
-                </div>
-            </vue-table>
         </div>
     </v-modal>
     <v-modal title="选择门店" ok-text="确 定" cancel-text="取 消" v-bind:callback="getStore" v-bind:show.sync="selectStore.modal" v-bind:effect="fade" width="60%">
@@ -127,27 +80,13 @@
                 { name: 'BarCode', localName: '条码' },
                 { name: 'ProductName', localName: '品名', width: '200' },
                 { name: 'Specification', localName: '规格', width: '80' },
-                { name: 'Quantity', localName: '库存数', width: '80' },
+                { name: 'Quantity', localName: '库存数', width: '80',sum:true },
                 { name: 'AvgCostPrice', localName: '平均成本', width: '100' },
-                { name: 'Amount', localName: '金额', width: '100' }
+                { name: 'Amount', localName: '金额', width: '100',sum:true }
                 ],
                 url: "/StoreInventory/LoadData",
                 searchArgs: { supplierId: 0, storeId: 0, productCodeOrBarCode: '' },
-                rows: [],
-                sumColumns: [{name:'Quantity',dot:0},{name:'Amount',dot:4}],
-                selectSupplier: {
-                    modal: false,
-                    name: '',
-                    gridColumns: [
-                        { name: 'Code', localName: '编码', width: '100' },
-                        { name: 'Name', localName: '供应商名', width: '300' },
-                        { name: 'AreaName', localName: '供货区域', width: '200' },
-                        { name: 'SupplierType', localName: '类型', width: '100' },
-                    ],
-                    url: "/Supplier/LoadData",
-                    searchArgs: { name: '', code: '' },
-                    rows: []
-                },
+                rows: [],             
                 selectStore: {
                     modal: false,
                     name: '',
@@ -213,24 +152,7 @@
                             }, "json");
                         }
                     });
-                },
-                showSupplier: function () {
-                    this.selectSupplier.modal = true;
-                },
-                clearSupplier: function () {
-                    this.searchArgs.supplierId = 0;
-                    this.selectSupplier.name = "";
-                },
-                getSupplier: function () {
-                    var selecteds = this.selectSupplier.rows.filter(function (item) {
-                        return item.checked;
-                    });
-                    if (selecteds) {
-                        this.searchArgs.supplierId = selecteds[0].Id;
-                        this.selectSupplier.name = selecteds[0].Name;
-                        this.selectSupplier.modal = false;
-                    }
-                },
+                },                
                 showStore: function () {
                     this.selectStore.modal = true;
                 },

@@ -40,7 +40,7 @@ namespace EBS.Admin.Controllers
         {
             var rows = _storeInventoryQuery.GetPageList(page, condition);
 
-            return Json(new { success = true, data = rows, total = page.Total });
+            return Json(new { success = true, data = rows, total = page.Total,sum = page.SumColumns });
         }
 
         public ActionResult History()

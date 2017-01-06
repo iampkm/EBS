@@ -8,6 +8,10 @@ namespace EBS.Query.DTO
 {
    public class Pager
     {
+       public Pager()
+       {
+           this.SumColumns = new List<SumColumn>();
+       }
        /// <summary>
        /// 当前页索引
        /// </summary>
@@ -24,5 +28,28 @@ namespace EBS.Query.DTO
        /// 是否分页
        /// </summary>
        public bool IsPaging { get; set; }
+
+       public List<SumColumn> SumColumns { get; set; }
     }
+
+    /// <summary>
+    /// 求和列
+    /// </summary>
+   public class SumColumn
+   {
+       public SumColumn(string column, string value)
+       {
+           this.Column = column;
+           this.Value = value;
+       }
+       /// <summary>
+       /// 求和列名: 列名需要与Vue.js表格　中　的显示列名一致　
+       /// </summary>
+       public string Column { get; set; }
+
+       /// <summary>
+       /// 求和值
+       /// </summary>
+       public string Value { get; set; }
+   }
 }
