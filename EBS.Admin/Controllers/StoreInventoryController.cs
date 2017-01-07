@@ -15,6 +15,7 @@ using EBS.Domain.Entity;
 using EBS.Domain.ValueObject;
 namespace EBS.Admin.Controllers
 {
+    [Permission]
     public class StoreInventoryController : Controller
     {
         IQuery _query;
@@ -32,7 +33,9 @@ namespace EBS.Admin.Controllers
 
         public ActionResult Index()
         {
-           
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+            ViewBag.StoreId = _context.CurrentAccount.StoreId;
+            ViewBag.StoreName = _context.CurrentAccount.StoreName;
             return View();
         }
 

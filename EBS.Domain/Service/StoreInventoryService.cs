@@ -222,10 +222,10 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
         public void StockOutSaleOrder(SaleOrder entity)
         {
             if (entity == null) { throw new Exception("单据不存在"); }
-            if (entity.Items.Count() == 0) { throw new Exception("单据明细为空"); }
+            if (entity.Items.Count == 0) { throw new Exception("单据明细为空"); }
             var entityItems = entity.Items;
             Dictionary<int, SaleOrderItem> productQuantityDic = new Dictionary<int, SaleOrderItem>();
-            entityItems.ToList().ForEach(item => productQuantityDic.Add(item.ProductId, item));
+            entityItems.ForEach(item => productQuantityDic.Add(item.ProductId, item));
             var productIdArray = productQuantityDic.Keys.ToArray();
             var inventorys = _db.Table.FindAll<StoreInventory>("select * from storeinventory where productId in @ProductIds and StoreId=@StoreId", new { ProductIds = productIdArray, StoreId = entity.StoreId });
             var inventoryBatchs = _db.Table.FindAll<StoreInventoryBatch>("select * from storeinventorybatch where  storeId=@StoreId and productId in @ProductIds and Quantity>0", new { StoreId = entity.StoreId, ProductIds = productIdArray });

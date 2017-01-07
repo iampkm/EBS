@@ -25,7 +25,7 @@
             sortOrders: sortOrders,
             filterKey: '',
             pageIndex: 1,
-            pageSize: this.pageSizes[3],
+            pageSize: this.pageSizes[1],
             pageNumber: 10,
             pages: 0,
             total: 0, //total records
@@ -33,7 +33,6 @@
             showLoading: false,
             columnWidth: '150',
             indexWidth: '40',
-            sumData: []  //求和结果数据 {column:'求和列名',value:'值' }
         }
     },
     methods: {
@@ -52,7 +51,7 @@
                         visible: true,
                         width: self.columnWidth + 'px',
                         style: '',
-                        sum: false,
+                        sum: '',
                     }
                 } else {
                     obj = {
@@ -61,7 +60,7 @@
                         visible: (column.visible === undefined) ? true : column.visible,
                         width: (column.width === undefined) ? self.columnWidth + 'px' : column.width + 'px',
                         style: (column.style === undefined) ? '' : column.style,
-                        sum: (column.sum === undefined) ? false : column.sum,
+                        sum: (column.sum === undefined) ? '' : column.sum,
                     }
                 }
                 self.columns.$set(i, obj)
@@ -80,34 +79,6 @@
                 }
             }
             return columnStyle;
-        },
-        sumColumn: function (column) {
-            if (!this.showSum) { return ""; }
-            //var arr= this.sum.filter(function (col, index) {
-            //    return columnName == col.name;
-            //});
-            //if (arr.length == 0)
-            //{
-            //    return "";
-            //}
-            ////求和   类型判断 typeof()==number
-            //var sumTotal = 0;
-            //this.data.forEach(function (item) {
-            //    sumTotal += item[columnName];
-            //})
-            //return sumTotal.toFixed(arr[0].dot);  // dot 保留小数位数 
-            var result = "";
-            if (column.sum) {
-                for (var i = 0; i < this.sumData; i++) {
-                    var item = this.sumData[i];
-                    if (item.Column == column.name) {
-                        result = item.Value;
-                        break;
-                    }
-                }
-            }
-            return result;
-
         },
         changePageSize: function (page) {
             this.pageSize = page;
@@ -136,9 +107,20 @@
                         self.indexWidth = self.data.length < 99 ? 38 : 52;  //设置索引列宽度
                         self.total = result.total;
                         self.setPages();
-                        // 求和列
+                        // 设置列合计值
                         if (result.sum != undefined && self.showSum) {
-                            self.sumData = result.sum;
+                            result.sum.forEach(function(line)
+                            {
+                                self.columns.forEach(function (column,index) {                                   
+                                    if (index == 0) {
+                                        column.sum = "合计："
+                                    }
+                                    if (line.Column == column.name) {
+                                        column.sum = line.Value;
+                                        return;
+                                    }                                    
+                                })                               
+                            })                            
                         }
                     }
                 },
@@ -208,19 +190,11 @@
             $('#btnToExcel').bootstrapExcelExport({ tableSelector: '#tableData' });
         },
         selectRow: function (index) {
-            var item = this.data[index];
-            item.checked = !item.checked;;
-            this.data.$set(index, item);
+             var item = this.data[index];
+            item.checked = !item.checked;
+            this.data.$set(index, item);           
         }
     },
-    //computed: {
-    //    maxPageNumber: function () {
-    //        var number = this.pageNumber;
-    //        var maxPage = this.pages;
-    //        var maxNumber = maxPage < number ? maxPage : number;
-    //        return maxNumber;
-    //    }
-    //},
     watch: {
         args: {
             handler: function () {

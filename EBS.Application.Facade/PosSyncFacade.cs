@@ -34,7 +34,10 @@ namespace EBS.Application.Facade
             var dateTimeConverter = new IsoDateTimeConverter { DateTimeFormat = "yyyy-MM-dd HH:mm:ss" };
             var model = JsonConvert.DeserializeObject<SaleOrder>(body, dateTimeConverter);
             model.Hour = model.CreatedOn.Hour; //设置订单时段
-
+            if (model.Items.Count == 0) {
+                _log.Info("订单{0}明细为空", model.Code);
+                throw new Exception(string.Format("订单{0}明细为空", model.Code));
+            }
             if (_db.Table.Exists<SaleOrder>(n => n.Code == model.Code))
             {
                 _log.Info("订单{0}已存在", model.Code);
