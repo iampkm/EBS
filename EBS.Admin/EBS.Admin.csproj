@@ -1278,6 +1278,9 @@
     <Content Include="Views\SaleOrder\SaleSync.cshtml" />
     <Content Include="Views\SaleOrder\SaleCheck.cshtml" />
     <Content Include="Views\SaleOrder\SaleList.cshtml" />
+    <Content Include="Views\StoreInventory\Product.cshtml" />
+    <Content Include="Views\AdjustContractPrice\AuditIndex.cshtml" />
+    <Content Include="Views\AdjustContractPrice\Audited.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">

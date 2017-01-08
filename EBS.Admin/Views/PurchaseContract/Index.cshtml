@@ -19,7 +19,7 @@
                         <input class="form-control" v-model="searchArgs.code" placeholder="合同编号" debounce="500" />
                     </div>
                     <div class="col-xs-3  col-sm-2">
-                        <input class="form-control" v-model="searchArgs.name" placeholder="输入采购合同名称" debounce="500" />
+                        <input class="form-control" v-model="searchArgs.productCodeOrBarCode" placeholder="商品编码/条码" debounce="500" />
                     </div>
                     <div class="col-sm-2 col-xs-3">                       
                         <div class="input-group ">
@@ -124,14 +124,13 @@
                     { name: 'Code', localName: '合同号', style: "<a href='/PurchaseContract/Edit/{id}'>{column}</a>" },
                     { name: 'Name', localName: '合同名' },
                     { name: 'Supplier', localName: '供应商', width: '250' },
-                    { name: 'Contact', localName: '联系人', width: '80' },
                     { name: 'StartTime', localName: '开始日期' },
                     { name: 'EndTime', localName: '结束日期' },
                     { name: 'PurchaseContractStatus', localName: '状态', width: '80' }
 
                 ],
                 url: "/PurchaseContract/LoadData",
-                searchArgs: { code: '', name: '', supplierId: 0, storeId: 0,status:0 },
+                searchArgs: { code: '', productCodeOrBarCode: '', supplierId: 0, storeId: 0, status: 0 },
                 rows: [],                
                 selectSupplier: {
                     modal: false,

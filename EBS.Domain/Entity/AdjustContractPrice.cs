@@ -14,7 +14,7 @@ namespace EBS.Domain.Entity
             this._items = new List<AdjustContractPriceItem>();
             this.CreatedOn = DateTime.Now;
             this.UpdatedOn = DateTime.Now;
-            this.Status = AdjustContractPriceStatus.Create;
+            this.Status = AdjustContractPriceStatus.WaitingAudit;
         }
 
         /// <summary>
@@ -22,21 +22,14 @@ namespace EBS.Domain.Entity
         /// </summary>
         public string Code { get; set; }
         public int StoreId { get; set; }
-        public int SupplierId { get; set; }
-        /// <summary>
-        /// 开始日期
-        /// </summary>
-        public DateTime StartDate { get; set; }
-        /// <summary>
-        /// 结束
-        /// </summary>
-        public DateTime EndDate { get; set; }
-
+        public int SupplierId { get; set; }  
         public DateTime CreatedOn { get; set; }
         public int CreatedBy { get; set; }
         public DateTime UpdatedOn { get; set; }
         public int UpdatedBy { get; set; }
         public AdjustContractPriceStatus Status { get; set; }
+
+        public string Remark { get; set; }
 
         public virtual IEnumerable<AdjustContractPriceItem> Items
         {
@@ -64,7 +57,7 @@ namespace EBS.Domain.Entity
 
         public void Submit()
         {
-            if (this.Status != AdjustContractPriceStatus.Create)
+            if (this.Status != AdjustContractPriceStatus.WaitingAudit)
             {
                 throw new Exception("只能提交新合同");
             }

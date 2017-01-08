@@ -73,10 +73,10 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
         {
             string sql = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.BarCode,p.Specification,
 p.Unit,ai.SalePrice,ai.AdjustPrice,i.contractPrice 
-from purchasecontract c inner join purchasecontractitem i on c.Id = i.PurchaseContractId
-left join product  p on p.Id = i.ProductId
-left join adjustsalepriceitem ai on  ai.ProductId = p.Id
-where ai.AdjustSalePriceId = @AdjustSalePriceId and c.`Status`=3 order by c.Id";
+from adjustsalepriceitem ai 
+left join product p on  ai.ProductId = p.Id
+left join purchasecontractitem i on i.productId = p.Id
+where ai.AdjustSalePriceId = @AdjustSalePriceId ";
             var result = _query.FindAll<AdjustSalePriceItemDto>(sql, new { AdjustSalePriceId = AdjustSalePriceId });
             return result;
         }
@@ -87,9 +87,8 @@ where ai.AdjustSalePriceId = @AdjustSalePriceId and c.`Status`=3 order by c.Id";
             if (string.IsNullOrEmpty(productCodeOrBarCode)) { throw new Exception("请输入商品编码或条码"); }
             string sql = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.BarCode,p.Specification,
 p.Unit,p.SalePrice,i.contractPrice 
-from purchasecontract c inner join purchasecontractitem i on c.Id = i.PurchaseContractId
-left join product  p on p.Id = i.ProductId
-where (p.BarCode=@ProductCodeOrBarCode or p.`Code`=@ProductCodeOrBarCode ) and c.`Status`=3 order by c.Id DESC LIMIT 1";
+from product  p left join purchasecontractitem i  on p.Id = i.ProductId
+where (p.BarCode=@ProductCodeOrBarCode or p.`Code`=@ProductCodeOrBarCode ) LIMIT 1";
             var item = _query.Find<AdjustSalePriceItemDto>(sql, new { ProductCodeOrBarCode = productCodeOrBarCode });
             //设置当前件规            
             if (item == null) { throw new Exception("查无商品"); }
@@ -99,44 +98,19 @@ where (p.BarCode=@ProductCodeOrBarCode or p.`Code`=@ProductCodeOrBarCode ) and c
         public IEnumerable<AdjustSalePriceItemDto> GetAdjustSalePriceList(string inputProducts)
         {
             if (string.IsNullOrEmpty(inputProducts)) throw new Exception("商品明细为空");
-            var dic = GetProductDic(inputProducts);
+           // var dic = GetProductDic(inputProducts);
+            var dic = inputProducts.ToDecimalDic();
             string sql = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.BarCode,p.Specification,
 p.Unit,p.SalePrice,i.contractPrice 
-from purchasecontract c inner join purchasecontractitem i on c.Id = i.PurchaseContractId
-left join product  p on p.Id = i.ProductId
-where c.`Status` =3 and p.`Code` in @ProductCode order by i.Id DESC";
+from product  p left join purchasecontractitem i  on p.Id = i.ProductId
+where p.`Code` in @ProductCode order by i.Id DESC";
             var productItems = _query.FindAll<AdjustSalePriceItemDto>(sql, new { ProductCode = dic.Keys.ToArray() });
             foreach (var product in productItems)
             {
                 product.AdjustPrice = dic[product.ProductCode];
             }
             return productItems;
-        }
-        private Dictionary<string, decimal> GetProductDic(string productIds)
-        {
-            Dictionary<string, decimal> dicProductPrice = new Dictionary<string, decimal>(1000);
-            string[] productIdArray = productIds.Split('\n');
-            foreach (var item in productIdArray)
-            {
-                if (item.Contains("\t"))
-                {
-                    string[] parentIDAndQuantity = item.Split('\t');
-                    if (!dicProductPrice.ContainsKey(parentIDAndQuantity[0].Trim()))
-                    {
-                        dicProductPrice.Add(parentIDAndQuantity[0].Trim(), decimal.Parse(parentIDAndQuantity[1]));
-                    }
-                }
-                else
-                {
-                    if (!dicProductPrice.ContainsKey(item.Trim()))
-                    {
-                        dicProductPrice.Add(item.Trim(), 0);
-                    }
-                }
-            }
-
-            return dicProductPrice;
-        }
+        }        
 
         public Dictionary<int, string> GetAdjustSalePriceStatus()
         {

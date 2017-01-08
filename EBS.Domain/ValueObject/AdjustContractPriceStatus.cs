@@ -11,11 +11,9 @@ namespace EBS.Domain.ValueObject
     {
         [Description("作废")]
         Cancel = -1,
-        [Description("初始")]
-        Create = 1,
         [Description("待审")]
-        WaitingAudit = 2,
+        WaitingAudit = 1,
         [Description("已审")]
-        Audited = 3
+        Audited = 2
     }
 }

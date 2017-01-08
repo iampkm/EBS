@@ -51,6 +51,7 @@
     <Compile Include="DTO\CacheKeys.cs" />
     <Compile Include="DTO\CategoryTreeNode.cs" />
     <Compile Include="DTO\PriceTagDto.cs" />
+    <Compile Include="DTO\ProductQueryDto.cs" />
     <Compile Include="DTO\PurchaseContractCreateDto.cs" />
     <Compile Include="DTO\MenuInfo.cs" />
     <Compile Include="DTO\Pager.cs" />

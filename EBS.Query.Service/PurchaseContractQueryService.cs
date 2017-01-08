@@ -23,10 +23,11 @@ namespace EBS.Query.Service
         {
             dynamic param = new ExpandoObject();
             string where = "";
-            if (!string.IsNullOrEmpty(condition.Name))
+            if (!string.IsNullOrEmpty(condition.ProductCodeOrBarCode))
             {
-                where += "and t0.Name like @Name ";
-                param.Name = string.Format("%{0}%", condition.Name);
+                where += @"and t0.Id in (select i.purchasecontractId from  purchasecontractitem i 
+left join product p on i.ProductId = p.Id where (p.BarCode=@ProductCodeOrBarCode or p.`Code`=@ProductCodeOrBarCode )) ";
+                param.ProductCodeOrBarCode =  condition.ProductCodeOrBarCode;
             }
             if (!string.IsNullOrEmpty(condition.Code))
             {

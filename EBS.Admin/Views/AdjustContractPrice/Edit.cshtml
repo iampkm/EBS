@@ -2,11 +2,17 @@
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
-<style>
-    .dataRow div {
-        margin-bottom: 0px;
-    }
-</style>
+@section styles{
+    <link href="~/Content/zTree.min.css" rel="stylesheet" />
+    <style>
+        .ztree li span {
+            font-size: 14px;
+        }
+        .dataRow div {
+            margin-bottom: 0px;
+        }
+    </style>
+}
 <!-- demo root element -->
 <div id="app" class="box box-primary">
     <div class="box-header with-border">
@@ -23,9 +29,8 @@
                 <div class="form-group col-sm-4 col-xs-6">
                     <button type="button" class="btn btn-warning btn-flat" v-on:click="onSubmit">保 存</button>
                     <button type="button" class="btn btn-success btn-flat" v-on:click="showModal()">导入商品</button>
-                    <button type="button" class="btn btn-default btn-flat" v-on:click="print">打印</button>
-                    <a class="btn btn-default btn-flat" href="/AdjustContractPrice/Index">取 消</a>
-                    <input type="hidden" v-model="model.id" />
+                    @*<button type="button" class="btn btn-default btn-flat" v-on:click="print">打印</button>*@
+                    <a class="btn btn-default btn-flat" href="javascript:history.back()">取 消</a>
                 </div>
             </div>
             <div class="row">
@@ -38,35 +43,19 @@
                         </span>
                     </div>
                 </div>
-                <div class="form-group col-sm-2 col-xs-3">
+                <div class="col-sm-2 col-xs-3" v-show="selectStore.view">
                     <div class="input-group ">
                         <input type="hidden" class="form-control" v-model="model.storeId">
                         <input type="text" class="form-control" v-model="selectStore.name" placeholder="选择门店" readonly>
                         <span class="input-group-btn">
                             <button class="btn btn-flat btn-default" type="button" v-on:click="showStore"><i class="fa fa-search"></i></button>
+                            @*<button class="btn btn-flat btn-default" type="button" v-on:click="clearStore"><i class="fa fa-eraser"></i></button>*@
                         </span>
                     </div>
-                </div>
-                <div class="form-group col-sm-2 col-xs-3" v-bind:class="checkStartDate">
-                    <div class="input-group date" data-provide="datepicker" data-date-format="yyyy-mm-dd"
-                         data-date-language="zh-CN" data-date-clear-btn="true" data-date-autoclose="true">
-                        <div class="input-group-addon">
-                            <i class="fa fa-calendar"></i>
-                            <span>从</span>
-                        </div>
-                        <input type="text" class="form-control" v-model="model.startDate" placeholder="生效日期起" readonly>
-                    </div>
-                </div>
-                <div class="form-group col-sm-2 col-xs-3" v-bind:class="checkEndDate">
-                    <div class="input-group date " data-provide="datepicker" data-date-format="yyyy-mm-dd"
-                         data-date-language="zh-CN" data-date-clear-btn="true" data-date-autoclose="true">
-                        <div class="input-group-addon">
-                            <i class="fa fa-calendar"></i>
-                            <span>到</span>
-                        </div>
-                        <input type="text" class="form-control" v-model="model.endDate" placeholder="生效日期止" readonly>
-                    </div>
-                </div>
+                </div> 
+                <div class="col-sm-3 col-xs-4">
+                    <v-input type="text" v-bind:value.sync="model.remark" placeholder="请录入调价备注" maxlength="50" required icon></v-input>
+                </div>  
             </div>
             <div class="row">
                 <div class="col-xs-4 col-sm-4"></div>
@@ -75,22 +64,13 @@
             </div>
             <div class="row">
                 <div class="col-xs-4 col-sm-4">
-                    <span>单据号：{{model.code}}</span>
-                </div>
-                <div class="col-xs-4 col-sm-4 text-center">
-                </div>
-                <div class="col-xs-4 col-sm-4 ">
-                    <span v-bind:class="checkStartDate">生效期起：{{model.startDate}}</span>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-4 col-sm-4">
                     <span>门店：{{selectStore.name}}</span>
                 </div>
                 <div class="col-xs-4 col-sm-4 text-center">
+
                 </div>
                 <div class="col-xs-4 col-sm-4 ">
-                    <span v-bind:class="checkEndDate">生效期止：{{model.endDate}}</span>
+                    <span><span>单据号：{{model.code}}</span></span>
                 </div>
             </div>
             <div class="row">
@@ -116,9 +96,8 @@
                                     <th>品名</th>
                                     <th>规格</th>
                                     <th>单位</th>
-                                    <th>原价</th>
-                                    <th style="width:200px;">现价</th>
-                                    <th>合同效期</th>
+                                    <th>合同价</th>
+                                    <th style="width:200px;">调整价</th>  
                                 </tr>
                             </thead>
                             <tbody id="tbody">
@@ -135,30 +114,15 @@
                                     <td>{{item.ProductName}}</td>
                                     <td>{{item.Specification}}</td>
                                     <td>{{item.Unit}}</td>
-                                    <td>￥{{item.ContractPrice}}</td>
+                                    <td>{{item.ContractPrice.toFixed(2)}}</td>
                                     <td>
                                         <div class="input-group">
                                             <span class="input-group-addon">￥</span>
                                             <input type="text" class="form-control quantity" v-model="item.AdjustPrice" v-on:keyup.enter="inputNext" />
                                         </div>
                                     </td>
-                                    <td>{{item.StartTime}}~{{item.EndTime}}</td>
                                 </tr>
                             </tbody>
-                            @*<tfoot>
-                                    <tr>
-                                        <td></td>
-                                        <td style="width:50px;"></td>
-                                        <td>合计：</td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                    </tr>
-                                </tfoot>*@
                         </table>
                     </div>
                 </div>
@@ -167,22 +131,15 @@
                 <div class="col-xs-3 col-sm-3">
                     <span>制单人： @ViewBag.CreatedByName</span>
                 </div>
-                @*<div class="col-xs-3 col-sm-3">
-                        <span>供应商：</span>
-                    </div>
-                    <div class="col-xs-3 col-sm-3">
-                        <span>收货人：</span>
-                    </div>
-                    <div class="col-xs-3 col-sm-3">
-                        <span>入库人：</span>
-                    </div>*@
             </div>
         </div>
     </form>
+    <br />
+    <p class="text-danger">友情提示：已有合同商品，调价会直接修改合同价；没有合同的商品，会直接在最新的合同中追加该商品</p>
     <!-- modal -->
     <v-modal title="导入商品" ok-text="确 定" cancel-text="取 消" v-bind:callback="importProduct" v-bind:show.sync="modal" v-bind:effect="fade" width="300">
         <div slot="modal-body" class="modal-body">
-            <v-input type="textarea" help="请将excel中商品编号和数量两列粘贴到文本框中" v-bind:value.sync="inputProducts" placeholder="输入商品" required icon></v-input>
+            <v-input type="textarea" help="请将excel中商品条码和数量两列粘贴到文本框中" v-bind:value.sync="inputProducts" placeholder="输入商品" required icon></v-input>
         </div>
     </v-modal>
     <v-modal title="选择供应商" ok-text="确 定" cancel-text="取 消" v-bind:callback="getSupplier" v-bind:show.sync="selectSupplier.modal" v-bind:effect="fade" width="50%">
@@ -201,26 +158,16 @@
             </vue-table>
         </div>
     </v-modal>
-    <v-modal title="选择门店" ok-text="确 定" cancel-text="取 消" v-bind:callback="getStore" v-bind:show.sync="selectStore.modal" v-bind:effect="fade" width="50%">
+    <v-modal title="选择门店" ok-text="确 定" cancel-text="取 消" v-bind:callback="getStore" v-bind:show.sync="selectStore.modal" v-bind:effect="fade" width="60%">
         <div slot="modal-body" class="modal-body">
-            <vue-table v-bind:columns="selectStore.gridColumns"
-                       v-bind:url="selectStore.url" v-bind:show-toolbar="false"
-                       v-bind:args="selectStore.searchArgs" v-bind:data.sync="selectStore.rows">
-                <div class="row" style="margin-bottom:10px;" slot="customSearch">
-                    <div class="col-xs-4 col-sm-3">
-                        <input class="form-control" v-model="searchArgs.code" placeholder="门店编码" debounce="500" />
-                    </div>
-                    <div class="col-xs-4 col-sm-3">
-                        <input class="form-control" v-model="selectStore.searchArgs.name" placeholder="门店名" debounce="300" />
-                    </div>
-                </div>
-            </vue-table>
+            <div style="min-height:350px;max-height:500px;overflow:auto;"><ul id="ztree" class="ztree"></ul></div>
         </div>
     </v-modal>
 </div>
 @{Html.RenderPartial("VueTableTemplate");}
 @section scripts{
     <script src="~/Content/Vue/vuetable/vuetable.js"></script>
+<script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
     <script>
         $("doucument").ready(function () {
             var demo = new Vue({
@@ -235,11 +182,10 @@
                     model: {
                         id: @Model.Id ,
                         code: '@Model.Code',
-                        storeId: @Model.StoreId ,                     
-                        supplierId: @Model.SupplierId ,                       
+                        storeId: @Model.StoreId ,
+                        supplierId: @Model.SupplierId ,
                         items: '',
-                        startDate: '@Model.StartDate.ToShortDateString()',
-                        endDate: '@Model.EndDate.ToShortDateString()'
+                        remark:'@Model.Remark',
                     },
                     startDateInvalid: false,
                     endDateInvalid: false,
@@ -252,36 +198,27 @@
                         gridColumns: [
                             { name: 'Code', localName: '编码', width: '100' },
                             { name: 'Name', localName: '供应商名', width: '300' },
-                            { name: 'AreaName', localName: '供货区域', width: '200' },
                             { name: 'SupplierType', localName: '类型', width: '100' },
                         ],
                         url: "/Supplier/LoadData",
                         searchArgs: { name: '', code: '' },
                         rows: []
                     },
-                    selectStore: {
+                     selectStore: {
                         modal: false,
                         name: '@ViewBag.StoreName',
-                        gridColumns: [
-                            { name: 'Code', localName: '门店编码' },
-                           { name: 'Name', localName: '门店名' },
-                           { name: 'FullName', localName: '区域', width: '200' }
-                        ],
-                        url: "/Store/LoadData",
-                        searchArgs: { name: '' },
-                        rows: []
+                        view:@ViewBag.View,
                     }
                 },
                 methods: {
                     onSubmit: function () {
                         //获取选择节点
                         var _self = this;
-                        if (_self.startDateInvalid) { bootbox.alert("生效日期只能在合同效期内"); return; }
-                        if (_self.endDateInvalid) { bootbox.alert("生效日期只能在合同效期内"); return; }
+                        if(_self.model.remark==""){bootbox.alert("请录入调价备注");return ;}
                         var data = "";
                         for (var i = 0; i < _self.products.length; i++) {
                             var item = _self.products[i];
-                            if (item.ProductId > 0 && item.ContractPrice > 0) {
+                            if (item.ProductId > 0 && item.AdjustPrice > 0) {
                                 data += "{\"ProductId\":" + item.ProductId + ",\"AdjustPrice\":" + item.AdjustPrice
                                      + ",\"ContractPrice\":" + item.ContractPrice + "},";
                             }
@@ -359,8 +296,9 @@
                     removeRow: function (index) {
                         this.products.splice(index, 1);
                     },
-                    inputProduct: function (codeOrBarCode, index) {
+                    inputProduct: function (index) {
                         var _self = this;
+                        var codeOrBarCode =_self.products[index].ProductCode;
                         if (codeOrBarCode == "") { return; }
                         if (_self.model.supplierId == 0) { bootbox.alert("请选择供应商"); return; }
                         if (_self.model.storeId == 0) { bootbox.alert("请选择门店"); return; }
@@ -399,12 +337,12 @@
                     showSupplier: function () {
                         this.selectSupplier.modal = true;
                     },
-                    getSupplier: function () {
-                        this.clearItems();
+                    getSupplier: function () {                        
                         var selecteds = this.selectSupplier.rows.filter(function (item) {
                             return item.checked;
                         });
                         if (selecteds) {
+                            this.clearItems();
                             this.model.supplierId = selecteds[0].Id;
                             this.selectSupplier.name = selecteds[0].Name;
                             this.selectSupplier.modal = false;
@@ -413,15 +351,33 @@
                     showStore: function () {
                         this.selectStore.modal = true;
                     },
+                    clearStore: function () {
+                        this.model.storeId = 0;
+                        this.selectStore.name = "";
+                    },
                     getStore: function () {
-                        this.clearItems();
-                        var selecteds = this.selectStore.rows.filter(function (item) {
-                            return item.checked;
-                        });
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                        var selecteds= treeObj.getCheckedNodes(true);
                         if (selecteds) {
-                            this.model.storeId = selecteds[0].Id;
-                            this.selectStore.name = selecteds[0].Name;
-                            this.selectStore.modal = false;
+                            var idArray = new Array();
+                            var nameArray = new Array();
+                            selecteds.forEach(function(item){
+                                if(item.level==1){
+                                    idArray.push(item.id);
+                                    nameArray.push(item.name);
+                                }
+                            })
+                            if(idArray.length>0){
+                                this.model.storeId = idArray[0];
+                                this.selectStore.name = nameArray[0];
+                                this.selectStore.modal = false;
+                                this.clearItems();
+                            }
+                            else
+                            {
+                                bootbox.alert("请选择一个门店");
+                            }
+
                         }
                     },
                     print: function () {
@@ -433,65 +389,33 @@
                         }
                     }
                 },
-                computed: {
-                    checkStartDate: function () {
-                        var _self = this;
-                        var error = false;
-                        if (_self.model.startDate == "") { var error = true; }
-                        var selectStartDate = convertToDate(_self.model.startDate);
-                        if (_self.products.length > 0) {
-                            var item = _self.products[0];
-                            var startDate = convertToDate(item.StartTime);
-                            var endDate = convertToDate(item.EndTime);
-                            if (selectStartDate >= startDate && selectStartDate <= endDate) {
-                                error = false;
-                            }
-                            else {
-                                error = true;
-                            }
-                        }
-                        else {
-                            error = true;
-                        }
-                        _self.startDateInvalid = error;
-                        return {
-                            'text-danger': error,
-                            'has-error': error
-                        }
-                    },
-                    checkEndDate: function () {
-                        var _self = this;
-                        var error = false;
-                        if (_self.model.endDate == "") { var error = true; }
-                        var selectEndDate = convertToDate(_self.model.endDate);
-                        if (_self.products.length > 0) {
-                            var item = _self.products[0];
-                            var startDate = convertToDate(item.StartTime);
-                            var endDate = convertToDate(item.EndTime);
-                            if (selectEndDate >= startDate && selectEndDate <= endDate) {
-                                error = false;
-                            }
-                            else {
-                                error = true;
-                            }
-                        }
-                        else {
-                            error = true;
-                        }
-                        _self.endDateInvalid = error;
-                        return {
-                            'text-danger': error,
-                            'has-error': error
-                        }
-                    }
-                }
+               
             });
 
-        });
+            //加载门店tree
+            var zTreeObj;
+            var setting = {
+                check: {
+                    enable:true
+                },
+                async: {
+                    enable: true,
+                    url: "/Store/LoadStore",
+                    //autoParam: ["id", "name"]
+                },
+                callback:{
+                    onClick:function(event, treeId, treeNode){
+                        //点击展开/折叠节点
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                        var open = !treeNode.open;
+                        treeObj.expandNode(treeNode, open, false, false);
+                        // vue.searchArgs.categoryId =treeNode.id;
+                    }
+                }
+            };
+            zTreeObj = $.fn.zTree.init($("#ztree"), setting);
 
-        function convertToDate(value) {
-            return new Date(value.replace(/\-/g, "\/"));
-        }
+        });
 
     </script>
 }

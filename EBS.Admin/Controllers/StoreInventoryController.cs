@@ -66,5 +66,23 @@ namespace EBS.Admin.Controllers
 
             return Json(new { success = true, data = rows, total = page.Total });
         }
+
+        /// <summary>
+        /// 单品查询
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult Product()
+        {
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+            ViewBag.StoreId = _context.CurrentAccount.StoreId;
+            ViewBag.StoreName = _context.CurrentAccount.StoreName;
+            return View();
+        }
+
+        public JsonResult QueryProduct(string productCodeOrBarCode)
+        {           
+           var rows=  _storeInventoryQuery.QueryProduct(productCodeOrBarCode).ToList();           
+            return Json(new { success = true, data = rows, total = rows.Count });
+        }
     }
 }

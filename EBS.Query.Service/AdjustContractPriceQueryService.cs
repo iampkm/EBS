@@ -26,44 +26,46 @@ namespace EBS.Query.Service
             string where = "";
             if (!string.IsNullOrEmpty(condition.ProductCodeOrBarCode))
             {
-                where += "and (t4.`Code`=@ProductCodeOrBarCode or t4.BarCode=@ProductCodeOrBarCode)";
+                where += "and (p.`Code`=@ProductCodeOrBarCode or p.BarCode=@ProductCodeOrBarCode)";
                 param.ProductCodeOrBarCode = condition.ProductCodeOrBarCode;
             }
             if (!string.IsNullOrEmpty(condition.Code))
             {
-                where += "and t0.Code=@Code ";
+                where += "and a.Code=@Code ";
                 param.Code = condition.Code;
             }
             if (condition.SupplierId > 0)
             {
-                where += "and t0.SupplierId=@SupplierId ";
+                where += "and a.SupplierId=@SupplierId ";
                 param.SupplierId = condition.SupplierId;
             }
             if (condition.StoreId > 0)
             {
-                where += "and t0.StoreId=@StoreId ";
+                where += "and a.StoreId=@StoreId ";
                 param.StoreId = condition.StoreId;
             }
-            if (condition.Status != 0)
+            if (condition.Status !=0)
             {
-                where += "and t0.Status=@Status ";
+                where += "and a.Status=@Status ";
                 param.Status = condition.Status;
             }
-            string sql = @"select t0.Id,t0.`Code`,t0.StartDate,t0.EndDate,t1.`Code` as SupplierCode,t1.`Name` as SupplierName,t2.`Name` as StoreName,t3.ProductId,t4.`Name` as ProductName,t4.`Code` as ProductCode,t4.BarCode,t4.Specification,t4.Unit,t3.AdjustPrice,t3.ContractPrice  from AdjustContractPrice t0 
-left join supplier t1 on t0.SupplierId = t1.Id left join store t2 on t0.StoreId = t2.Id
-inner join AdjustContractPriceItem t3 on t0.Id = t3.AdjustContractPriceId
-inner join product t4 on t3.productid = t4.id
-where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
-            string sqlCount = @"select count(*) from AdjustContractPrice t0 
-left join supplier t1 on t0.SupplierId = t1.Id left join store t2 on t0.StoreId = t2.Id
-inner join AdjustContractPriceItem t3 on t0.Id = t3.AdjustContractPriceId
-inner join product t4 on t3.productid = t4.id
-where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
-            //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<Product>(where, param);
+            string sql = @"select a.*,c.NickName,r.`Name` as StoreName ,s.`Name` as SupplierName,s.`Code` as SupplierCode
+from adjustcontractprice a 
+left join account c on c.Id = a.CreatedBy
+left join Supplier s on s.Id = a.SupplierId
+left join store r on r.Id = a.StoreId
+where 1=1 {0} ORDER BY a.Id desc LIMIT {1},{2}";
+
+            string sqlCount = @"select count(*)
+from adjustcontractprice a 
+left join account c on c.Id = a.CreatedBy
+left join Supplier s on s.Id = a.SupplierId
+left join store r on r.Id = a.StoreId
+where 1=1 {0} ";
             sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
-            sqlCount = string.Format(sqlCount, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
+            sqlCount = string.Format(sqlCount, where);
             var rows = this._query.FindAll<AdjustContractPriceDto>(sql, param);
-            page.Total = this._query.FindScalar<int>(sqlCount, param);
+            page.Total = this._query.Context.ExecuteScalar<int>(sqlCount, param);
 
             return rows;
         }
@@ -71,7 +73,8 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
 
         public IEnumerable<AdjustContractPriceItemDto> GetAdjustContractPriceItems(int AdjustContractPriceId)
         {
-            string sql = @"select pc.ProductId,p.Code as ProductCode,p.`Name` as ProductName,p.BarCode,p.Specification,c.FullName as CategoryName,pc.AdjustPrice,pc.ContractPrice from AdjustContractPriceItem pc inner join  Product p on pc.ProductId=p.Id inner join category c on p.categoryId = c.Id 
+            string sql = @"select pc.ProductId,p.Code as ProductCode,p.`Name` as ProductName,p.BarCode,p.Specification,p.Unit,pc.AdjustPrice,pc.ContractPrice 
+from AdjustContractPriceItem pc left join  Product p on pc.ProductId=p.Id  
             where pc.AdjustContractPriceId = @AdjustContractPriceId";
             var productItems = _query.FindAll<AdjustContractPriceItemDto>(sql, new { AdjustContractPriceId = AdjustContractPriceId });
             return productItems;
@@ -79,12 +82,12 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
 
         public IEnumerable<AdjustContractPriceItemDto> GetItems(int AdjustContractPriceId, int supplierId, int storeId)
         {
-            string sql = @"select pc.ProductId,p.`Code` as ProductCode,p.`Name` as ProductName,p.BarCode,p.Specification,p.Unit, pc.AdjustPrice,pc.ContractPrice ,c.startDate,c.endDate
-from AdjustContractPriceItem pc
-inner join  Product p on pc.ProductId=p.Id 
-left join  purchasecontractitem i on i.ProductId =  pc.ProductId
-left join  purchasecontract c  on c.Id = i.PurchaseContractId 
-where pc.AdjustContractPriceId = @AdjustContractPriceId and c.SupplierId =@SupplierId and c.storeId=@StoreId and c.`Status`=3 and c.StartDate <= @Today and c.EndDate>=@Today order by c.Id DESC";
+            string sql = @"select p.id as ProductId,p.`Name` as ProductName,p.Specification,p.`Code` as ProductCode,p.BarCode,p.Unit,p.Specification ,t.ContractPrice
+from (select c.Id,i.ProductId,i.ContractPrice,i.AdjustPrice from purchasecontract c 
+inner join purchasecontractitem i on c.Id = i.PurchaseContractId
+left join supplier s on s.Id = c.SupplierId 
+where c.`Status` = 3 and c.EndDate>= CURDATE() and s.Id=@SupplierId and FIND_IN_SET(@StoreId,c.StoreIds) and i.AdjustContractPriceId = @AdjustContractPriceId
+) t left join product p on p.Id = t.ProductId ";
             var result = _query.FindAll<AdjustContractPriceItemDto>(sql, new { AdjustContractPriceId = AdjustContractPriceId, SupplierId = supplierId, StoreId = storeId, Today = DateTime.Now });
             return result;
         }
@@ -92,22 +95,22 @@ where pc.AdjustContractPriceId = @AdjustContractPriceId and c.SupplierId =@Suppl
 
         public AdjustContractPriceItemDto GetAdjustContractPriceItem(string productCodeOrBarCode, int supplierId, int storeId)
         {
-            if (supplierId == 0) { throw new Exception("请选择供应商"); }
             if (string.IsNullOrEmpty(productCodeOrBarCode)) { throw new Exception("请输入商品编码或条码"); }
-            string sql = @"select p.id as ProductId,p.`Name` as ProductName,p.Specification,p.`Code` as ProductCode,p.BarCode,p.Unit,p.Specification ,i.ContractPrice ,c.StartDate,C.EndDate 
-from purchasecontract c inner join purchasecontractitem i on c.Id = i.PurchaseContractId 
-left join Product p on p.Id = i.ProductId 
-where (p.BarCode=@ProductCodeOrBarCode or p.`Code`=@ProductCodeOrBarCode ) and c.SupplierId =@SupplierId and c.storeId=@StoreId and c.StartDate <= @Today and c.EndDate>=@Today and c.`Status`=3 order by c.Id DESC LIMIT 1";
-            var item = _query.Find<AdjustContractPriceItemDto>(sql, new { ProductCodeOrBarCode = productCodeOrBarCode, SupplierId = supplierId, StoreId = storeId, Today = DateTime.Now });
-            //设置当前件规            
-            if (item == null) { throw new Exception("查无商品，请检查供应商合同"); }
+            string sql = @"select p.id as ProductId,p.`Name` as ProductName,p.Specification,p.`Code` as ProductCode,p.BarCode,p.Unit,p.Specification ,t.ContractPrice
+from product p left join (select c.Id,i.ProductId,i.ContractPrice from purchasecontract c 
+inner join purchasecontractitem i on c.Id = i.PurchaseContractId
+left join supplier s on s.Id = c.SupplierId 
+where c.`Status` = 3 and c.EndDate>= CURDATE() and s.Id=@SupplierId and FIND_IN_SET(@StoreId,c.StoreIds) 
+) t on p.Id = t.ProductId 
+where (p.BarCode=@ProductCodeOrBarCode or p.`Code`=@ProductCodeOrBarCode )
+ order by t.Id desc LIMIT 1";
+            var item = _query.Find<AdjustContractPriceItemDto>(sql, new { ProductCodeOrBarCode = productCodeOrBarCode, StoreId = storeId, SupplierId = supplierId });
             return item;
-
         }
         public IEnumerable<AdjustContractPriceItemDto>  GetAdjustContractPriceList(string inputProducts, int supplierId, int storeId)
         {
             if (string.IsNullOrEmpty(inputProducts)) throw new Exception("商品明细为空");
-            var dic = GetProductDic(inputProducts);
+            var dic = inputProducts.ToDecimalDic();
             string sql = @"select p.id as ProductId,p.`Name` as ProductName,p.Specification,p.`Code` as ProductCode,p.BarCode,p.Unit,p.Specification ,i.ContractPrice ,c.StartDate,C.EndDate  
 from purchasecontract c inner join purchasecontractitem i on c.Id = i.PurchaseContractId 
 left join Product p on p.Id = i.ProductId 
@@ -119,31 +122,19 @@ where  p.`Code` in @ProductCode  and c.SupplierId = @SupplierId and c.storeId = 
             }
             return productItems;
         }
-        private Dictionary<string, decimal> GetProductDic(string productIds)
-        {
-            Dictionary<string, decimal> dicProductPrice = new Dictionary<string, decimal>(1000);
-            string[] productIdArray = productIds.Split('\n');
-            foreach (var item in productIdArray)
-            {
-                if (item.Contains("\t"))
-                {
-                    string[] parentIDAndQuantity = item.Split('\t');
-                    if (!dicProductPrice.ContainsKey(parentIDAndQuantity[0].Trim()))
-                    {
-                        dicProductPrice.Add(parentIDAndQuantity[0].Trim(), decimal.Parse(parentIDAndQuantity[1]));
-                    }
-                }
-                else
-                {
-                    if (!dicProductPrice.ContainsKey(item.Trim()))
-                    {
-                        dicProductPrice.Add(item.Trim(), 0);
-                    }
-                }
-            }
 
-            return dicProductPrice;
+        public IEnumerable<SupplierDto> QuerySupplier(string productCodeOrBarCode, int storeId)
+        {
+            string sql = @"select s.Id,s.Code,s.Name,s.Type,t.Id as PurchaseContractId,t.code as PurchaseContractCode  from supplier s left join (
+  select c.Id,c.code, c.SupplierId,c.StoreIds , i.ProductId from purchasecontract c inner join purchasecontractitem i on c.Id = i.PurchaseContractId
+where c.`Status` = 3 and c.EndDate > NOW() 
+) t on s.Id = t.SupplierId
+left join product p on p.Id = t.ProductId 
+where (p.BarCode=@ProductCodeOrBarCode or p.`Code`=@ProductCodeOrBarCode ) and FIND_IN_SET(@StoreId,t.StoreIds)
+order by t.Id desc
+";
+            var result = _query.FindAll<SupplierDto>(sql, new { ProductCodeOrBarCode = productCodeOrBarCode, StoreId = storeId });
+            return result;
         }
-       
     }
 }

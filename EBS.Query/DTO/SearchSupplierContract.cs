@@ -9,7 +9,7 @@ namespace EBS.Query.DTO
    public class SearchSupplierContract
     {
        public string Code { get; set; }
-       public string Name { get; set; }
+       public string ProductCodeOrBarCode { get; set; }
        public int SupplierId { get; set; }
        public int StoreId { get; set; }
 

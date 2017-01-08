@@ -8,7 +8,6 @@
         .ztree li span {
             font-size: 14px;
         }
-
         .dataRow div {
             margin-bottom: 0px;
         }
@@ -19,18 +18,18 @@
     <div class="box box-primary">
         <div class="box-header">
             <ol class="breadcrumb" style="padding:0px;margin:1px;">
-                <li><a href="/StoreInventory/Index"><i class="fa fa-dashboard"></i> 库存管理</a></li>
+                <li><a href="/StoreInventory/Product"><i class="fa fa-dashboard"></i>商品资料查询</a></li>
             </ol>
         </div>
         <div class="box-body">
             <vue-table v-ref:vtable v-bind:columns="gridColumns"
                        v-bind:url="url"
-                       v-bind:args="searchArgs" v-bind:data.sync="rows" v-bind:show-sum="true">
-                <div class="row" style="margin-bottom:10px;" slot="customSearch" >
+                       v-bind:args="searchArgs" v-bind:data.sync="rows" v-bind:show-pagination="false" v-bind:show-toolbar="false">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch">
                     <div class="col-xs-3 col-sm-2">
                         <input class="form-control" v-model="searchArgs.productCodeOrBarCode" placeholder="商品编码/条码" debounce="500" />
                     </div>
-                    <div class="col-sm-2 col-xs-3" v-show="selectStore.view">
+                    @*<div class="col-sm-2 col-xs-3" v-show="selectStore.view">
                         <div class="input-group ">
                             <input type="hidden" class="form-control" v-model="model.storeId">
                             <input type="text" class="form-control" v-model="selectStore.name" placeholder="选择门店" readonly>
@@ -39,7 +38,7 @@
                                 <button class="btn btn-flat btn-default" type="button" v-on:click="clearStore"><i class="fa fa-eraser"></i></button>
                             </span>
                         </div>
-                    </div>    
+                    </div>*@
                 </div>
             </vue-table>
         </div>
@@ -56,7 +55,7 @@
 @{Html.RenderPartial("VueTableTemplate");}
 @section scripts{
     <script src="~/Content/Vue/vuetable/vuetable.js"></script>
-<script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
+    <script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
     <script>
 
         var vue = new Vue({
@@ -66,18 +65,24 @@
             },
             el: '#app',
             data: {
+                modal: false,
+                selectedId: 0,
+                removeReason: '',
+                searchQuery: '',
                 gridColumns: [
-                { name: 'StoreName', localName: '门店' },
-                { name: 'ProductCode', localName: '商品编码' },
-                { name: 'BarCode', localName: '条码' },
-                { name: 'ProductName', localName: '品名', width: '200' },
-                { name: 'Specification', localName: '规格', width: '80' },
-                { name: 'Quantity', localName: '库存数', width: '80',sum:'' },
-                { name: 'AvgCostPrice', localName: '平均成本', width: '100' },
-                { name: 'Amount', localName: '金额',sum:'' }
+                    { name: 'StoreName', localName: '门店' },
+                    { name: 'SupplierName', localName: '供应商' },
+                    { name: 'ProductCode', localName: '商品编码' },
+                    { name: 'BarCode', localName: '条码' },
+                    { name: 'ProductName', localName: '品名', width: '200' },
+                    { name: 'Specification', localName: '规格', width: '80' },
+                    { name: 'Unit', localName: '单位', width: '80' },
+                    { name: 'ContractPrice', localName: '进价', width: '80' },
+                    { name: 'SalePrice', localName: '售价', width: '80' },                  
+                    { name: 'Quantity', localName: '库存数', width: '100', },                   
                 ],
-                url: "/StoreInventory/LoadData",
-                searchArgs: { supplierId: 0, storeId: @ViewBag.StoreId, productCodeOrBarCode: '' },
+                url: "/StoreInventory/QueryProduct",
+                searchArgs: { @*storeId: @ViewBag.StoreId,*@ productCodeOrBarCode: '' },
                 rows: [],
                 selectStore: {
                     modal: false,
@@ -146,6 +151,10 @@
 
     </script>
 }
+
+
+
+
 
 
 

@@ -15,22 +15,19 @@ namespace EBS.Domain.Service
         {
             this._db = dbContext;
         }
-
-        public void Create(AdjustContractPrice model)
-        {           
-            if (_db.Table.Exists<AdjustContractPrice>(n => n.Code == model.Code))
+        public void ValidateItems(AdjustContractPrice model)
+        {
+            if (model.Items.Count() == 0)
             {
-                throw new Exception("调价单号已经存在"); 
+                throw new Exception("明细不能为空");
             }
-            _db.Insert(model);           
         }
 
         public void Update(AdjustContractPrice model)
         {
-            if (_db.Table.Exists<AdjustContractPrice>(n => n.Code == model.Code && n.Id != model.Id))
-            {
-                throw new Exception("调价单号不能重复!");
-            }
+
+            ValidateItems(model);
+
             if (_db.Table.Exists<AdjustContractPriceItem>(n => n.AdjustContractPriceId == model.Id))
             {
                 _db.Delete<AdjustContractPriceItem>(n => n.AdjustContractPriceId == model.Id);

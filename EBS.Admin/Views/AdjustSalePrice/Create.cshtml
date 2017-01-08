@@ -85,15 +85,15 @@
                                     <td>{{item.ProductName}}</td>
                                     <td>{{item.Specification}}</td>
                                     <td>{{item.Unit}}</td>
-                                    <td>￥{{item.ContractPrice}}</td>
-                                    <td>￥{{item.SalePrice}}</td>
+                                    <td>{{item.ContractPrice.toFixed(2)}}</td>
+                                    <td>{{item.SalePrice.toFixed(2)}}</td>
                                     <td>
                                         <div class="input-group">
                                             <span class="input-group-addon">￥</span>
                                             <input type="text" class="form-control quantity" v-model="item.AdjustPrice" v-on:keyup.enter="inputNext" />
                                         </div>
                                     </td>
-                                    <td v-bind:class="{'text-danger':item.Profit<=0}">{{item.Profit}}</td>
+                                    <td v-bind:class="{'text-danger':item.Profit<=0}">{{item.Profit.toFixed(2)}}</td>
                                     <td v-bind:class="{'text-danger':item.Profit<=0}">{{item.ProfitMargin}}%</td>
                                 </tr>
                             </tbody>
@@ -109,7 +109,7 @@
                                         <td></td>
                                         <td></td>                                  
                                         <td></td>
-                                        <td>{{profitTotal}}</td>
+                                        <td>{{profitTotal.toFixed(2)}}</td>
                                         <td></td>                                        
                                     </tr>
                                 </tfoot>

@@ -33,5 +33,10 @@ namespace EBS.Query.DTO
 
         public SupplierType Type { get; set; }
 
+        /// <summary>
+        /// 调价单使用 
+        /// </summary>
+        public string PurchaseContractCode { get; set; }
+
     }
 }

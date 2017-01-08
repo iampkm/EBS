@@ -33,14 +33,21 @@ namespace EBS.Admin.Controllers
         }
         public ActionResult Index()
         {
-           // ViewBag.Status = _adjustContractPriceQuery.GetAdjustContractPriceStatus();
+            CurrentStore();
             return View();
         }
 
         public ActionResult AuditIndex()
         {
-           // ViewBag.Status = _adjustContractPriceQuery.GetAdjustContractPriceStatus();
+            // ViewBag.Status = _adjustContractPriceQuery.GetAdjustContractPriceStatus();
+            CurrentStore();
             ViewBag.waitingAudit = (int)AdjustContractPriceStatus.WaitingAudit;
+            return View();
+        }
+
+        public ActionResult Audited()
+        {
+            CurrentStore();
             return View();
         }
 
@@ -53,8 +60,24 @@ namespace EBS.Admin.Controllers
 
         public ActionResult Create()
         {
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+            ViewBag.StoreId = _context.CurrentAccount.StoreId;
+            ViewBag.StoreName = _context.CurrentAccount.StoreName;
             ViewBag.CreatedByName = _context.CurrentAccount.NickName;
             return View();
+        }
+
+        private void CurrentStore()
+        {
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+            ViewBag.StoreId = _context.CurrentAccount.StoreId;
+            ViewBag.StoreName = _context.CurrentAccount.StoreName;
+        }
+
+        public JsonResult QuerySupplier(string productCodeOrBarCode,int storeId)
+        {
+            var rows = _adjustContractPriceQuery.QuerySupplier(productCodeOrBarCode, storeId);
+            return Json(new { success = true, data = rows });
         }
 
         public string LoadChildArea()
@@ -75,7 +98,7 @@ namespace EBS.Admin.Controllers
         public ActionResult Edit(int id)
         {
             var model = _query.Find<AdjustContractPrice>(id);
-            var items = _adjustContractPriceQuery.GetItems(id,model.SupplierId,model.StoreId);
+            var items = _adjustContractPriceQuery.GetAdjustContractPriceItems(id);
 
             ViewBag.AdjustContractPriceItems = JsonConvert.SerializeObject(items.ToArray());
             var supplier = _query.Find<Supplier>(model.SupplierId);
@@ -87,7 +110,8 @@ namespace EBS.Admin.Controllers
             //查询处理流程：
             //var logs= _query.FindAll<ProcessHistory>(n => n.FormId == id && n.FormType == FormType.AdjustContractPrice);
             //ViewBag.Logs = logs;
-          
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+
             return View(model);
         }
 

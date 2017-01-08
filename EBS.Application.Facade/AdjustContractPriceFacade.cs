@@ -15,30 +15,35 @@ namespace EBS.Application.Facade
 {
    public class AdjustContractPriceFacade:IAdjustContractPriceFacade
     {
-       IDBContext _db;
+        IDBContext _db;
         AdjustContractPriceService _service;
         ProcessHistoryService _processHistoryService;
         BillSequenceService _sequenceService;
+        PurchaseContractService _contractService;
         public AdjustContractPriceFacade(IDBContext dbContext)
         {
             _db = dbContext;
             _service = new AdjustContractPriceService(this._db);
             _processHistoryService = new ProcessHistoryService(this._db);
             _sequenceService = new BillSequenceService(this._db);
+            _contractService = new PurchaseContractService(this._db);
         }
         public void Create(AdjustContractPriceModel model)
         {
             var entity = new AdjustContractPrice();
             entity = model.MapTo<AdjustContractPrice>();
             entity.SetItems(model.ConvertJsonToItem());
+            _service.ValidateItems(entity);
             entity.CreatedBy = model.UpdatedBy;
             entity.Code = _sequenceService.GenerateNewCode(BillIdentity.AdjustContractPrice);
-            _service.Create(entity);
-            _db.SaveChange();
+            _db.Insert(entity);
+            // 直接调整合同价,不存在的商品，添加，存在的商品直接修改价格          
             var reason = "创建合同调价单";
-            entity = _db.Table.Find<AdjustContractPrice>(n => n.Code == entity.Code);
-            _processHistoryService.Track(model.UpdatedBy, model.UpdatedByName, (int)entity.Status, entity.Id, BillIdentity.AdjustContractPrice.ToString(), reason);
+            var history = new ProcessHistory(model.UpdatedBy, model.UpdatedByName, (int)entity.Status, entity.Id, BillIdentity.AdjustContractPrice.ToString(), reason);
+            _db.Command.AddExecute(history.CreateSql(entity.GetType().Name, entity.Code), history);
+
             _db.SaveChange();
+
         }
 
         public void Edit(AdjustContractPriceModel model)
@@ -79,9 +84,12 @@ namespace EBS.Application.Facade
         public void Audit(int id, int editBy, string editor)
         {
             var entity = _db.Table.Find<AdjustContractPrice>(id);
+            var entityItems = _db.Table.FindAll<AdjustContractPriceItem>(n => n.AdjustContractPriceId == id).ToList();
+            entity.SetItems(entityItems);
             entity.Audit();
             entity.EditBy(editBy);
             _db.Update(entity);
+            _contractService.AdjustContractPrice(entity);
             var reason = "审核通过";
             _processHistoryService.Track(editBy, editor, (int)entity.Status, entity.Id, BillIdentity.AdjustContractPrice.ToString(), reason);
             _db.SaveChange();

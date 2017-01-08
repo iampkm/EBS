@@ -148,5 +148,20 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             return rows;
         }
 
-}
+        public IEnumerable<ProductQueryDto> QueryProduct(string productCodeOrBarCode)
+        {
+            string sql = @"select i.ProductId, p.`Name` as ProductName,p.`Code` as ProductCode,p.BarCode,p.Specification,p.Unit,p.SalePrice,
+pi.ContractPrice,i.Quantity,s.Name as supplierName,t.`Name` as StoreName
+from product p
+left join storeinventory i on p.Id = i.ProductId
+left join purchasecontractitem pi on pi.productId  = p.Id
+left join purchasecontract c on pi.purchasecontractId = c.Id
+left join supplier s on s.Id = c.SupplierId
+left join store t on t.Id = i.StoreId
+where (p.BarCode=@ProductCodeOrBarCode or p.`Code`=@ProductCodeOrBarCode ) and c.Status =3 and c.EndDate>= CURDATE()";
+            var rows = _query.FindAll<ProductQueryDto>(sql, new { ProductCodeOrBarCode = productCodeOrBarCode });
+            //设置当前件规
+            return rows;
+        }
+    }
 }

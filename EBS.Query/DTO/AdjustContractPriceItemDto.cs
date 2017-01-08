@@ -31,16 +31,5 @@ namespace EBS.Query.DTO
         /// </summary>
         public decimal ContractPrice { get; set; }
 
-        public DateTime StartDate { get; set; }
-
-        public string StartTime {
-            get { return StartDate.ToString("yyyy-MM-dd"); }
-        }
-
-        public DateTime EndDate { get; set; }
-        public string EndTime
-        {
-            get { return EndDate.ToString("yyyy-MM-dd"); }
-        }
     }
 }

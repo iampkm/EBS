@@ -15,15 +15,12 @@ namespace EBS.Application.DTO
         public int SupplierId { get; set; }
         /// <summary>
         /// 
-        /// </summary>
-        public DateTime StartDate { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        public DateTime EndDate { get; set; }
+        /// </summar
         public int UpdatedBy { get; set; }
 
         public string UpdatedByName { get; set; }
+
+        public string Remark { get; set; }
         /// <summary>
         ///  id,price 键值对
         /// </summary>

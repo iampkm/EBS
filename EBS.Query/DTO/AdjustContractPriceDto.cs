@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using EBS.Domain.ValueObject;
+using EBS.Infrastructure.Extension;
 namespace EBS.Query.DTO
 {
     public class AdjustContractPriceDto
@@ -20,43 +21,19 @@ namespace EBS.Query.DTO
                 return string.Format("[{0}]{1}", SupplierCode, SupplierName);
             }
         }
-        public string Contact { get; set; }
-        public string StoreName { get; set; }
-        /// <summary>
-        /// 合同开始日期
-        /// </summary>
-        public DateTime StartDate { get; set; }
-        public string StartTime
-        {
-            get
-            {
-                return StartDate.ToString("yyyy-MM-dd");
-            }
-        }
-        /// <summary>
-        /// 合同开始日期
-        /// </summary>
-        public DateTime EndDate { get; set; }
-        public string EndTime
-        {
-            get
-            {
-                return EndDate.ToString("yyyy-MM-dd");
-            }
-        }
+        public string StoreName { get; set; } 
 
-        public int ProductId { get; set; }
+        public string NickName { get; set; }
 
-        public string ProductName { get; set; }
+        public string CreatedOn { get; set; }
 
-        public string ProductCode { get; set; }
-        public string BarCode { get; set; }
-        public string Specification { get; set; }
+        public string Remark { get; set; }
 
-        public string Unit { get; set; }
+        public AdjustContractPriceStatus Status { get; set; }
 
-        public decimal OldContractPrice { get; set; }
-        public decimal ContractPrice { get; set; }
+        public string StatusName { get {
+                return Status.Description();
+            } }
 
     }
 }
