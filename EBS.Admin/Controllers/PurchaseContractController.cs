@@ -32,7 +32,8 @@ namespace EBS.Admin.Controllers
             this._context = contextService;
         }
         public ActionResult Index()
-        {           
+        {
+            CurrentStore();
             ViewBag.Status = _purchaseContractQuery.GetPurchaseContractStatus();
             return View();
         }
@@ -42,6 +43,13 @@ namespace EBS.Admin.Controllers
             ViewBag.Status = _purchaseContractQuery.GetPurchaseContractStatus();
             ViewBag.waitingAudit = (int)PurchaseContractStatus.WaitingAudit;
             return View();
+        }
+
+        private void CurrentStore()
+        {
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+            ViewBag.StoreId = _context.CurrentAccount.StoreId;
+            ViewBag.StoreName = _context.CurrentAccount.StoreName;
         }
 
         public JsonResult LoadData(Pager page, SearchSupplierContract condition)
@@ -71,7 +79,7 @@ namespace EBS.Admin.Controllers
             _purchaseContractFacade.Create(model);
             return Json(new { success = true });
         }
-        public ActionResult Edit(int id,string from="")
+        public ActionResult Edit(int id)
         {
             var model = _query.Find<PurchaseContract>(id);
             var items = _purchaseContractQuery.GetPurchaseContractItems(id);
@@ -81,13 +89,12 @@ namespace EBS.Admin.Controllers
             var stores = _query.Find<Store>(model.StoreIds.Split(',').ToIntArray()).Select(n=>n.Name).ToArray();
             ViewBag.StoreName =string.Join(",",stores) ;
             //创建和待审可编辑
-            //var editable = model.Status == PurchaseContractStatus.Create || model.Status == PurchaseContractStatus.WaitingAudit;
-            //ViewBag.Editable = editable ? "true" : "false";
+            var editable = model.Status == PurchaseContractStatus.Create || model.Status == PurchaseContractStatus.WaitingAudit;
+            ViewBag.Editable = editable ? "true" : "false";
             //查询处理流程：
             var logs= _query.FindAll<ProcessHistory>(n => n.FormId == id && n.FormType == FormType.PurchaseContract);
             ViewBag.Logs = logs;
-            ViewBag.Audit = from;
-            ViewBag.PathName = string.IsNullOrEmpty(from) ? "采购合同管理" : "审核合同";
+
             return View(model);
         }
 
@@ -98,6 +105,28 @@ namespace EBS.Admin.Controllers
             model.UpdatedByName = _context.CurrentAccount.NickName;
             _purchaseContractFacade.Edit(model);
             return Json(new { success = true });
+        }
+
+        public ActionResult Detail(int id)
+        {
+            var model = _query.Find<PurchaseContract>(id);
+            var items = _purchaseContractQuery.GetPurchaseContractItems(id);
+            ViewBag.PurchaseContractItems = items;
+            var supplier = _query.Find<Supplier>(model.SupplierId);
+            ViewBag.SupplierName = supplier.Name;
+            var stores = _query.Find<Store>(model.StoreIds.Split(',').ToIntArray()).Select(n => n.Name).ToArray();
+            ViewBag.StoreName = string.Join(",", stores);
+            //创建和待审可编辑
+            var editable =model.Status == PurchaseContractStatus.WaitingAudit;
+            ViewBag.CanAudit = editable ? "true" : "false";
+
+            ViewBag.StatusName = model.Status.Description();
+            var account = _query.Find<Account>(model.CreatedBy);
+            ViewBag.CreatedByName = account.NickName;
+            //查询处理流程：
+            var logs = _query.FindAll<ProcessHistory>(n => n.FormId == id && n.FormType == FormType.PurchaseContract);
+            ViewBag.Logs = logs;
+            return View(model);
         }
 
         public JsonResult Delete(int id, string reason)

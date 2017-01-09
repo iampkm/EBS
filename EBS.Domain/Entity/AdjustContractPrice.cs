@@ -64,11 +64,19 @@ namespace EBS.Domain.Entity
             this.Status = AdjustContractPriceStatus.WaitingAudit;
         }
 
+        public void CheckEditStatus()
+        {
+            if (this.Status != AdjustContractPriceStatus.WaitingAudit)
+            {
+                throw new Exception("只能编辑待审合同调价单");
+            }
+        }
+
         public void Audit()
         {
             if (this.Status != AdjustContractPriceStatus.WaitingAudit)
             {
-                throw new Exception("只能审核待审合同");
+                throw new Exception("只能审核待审合同调价单");
             }
             this.Status = AdjustContractPriceStatus.Audited;
         }
@@ -77,7 +85,7 @@ namespace EBS.Domain.Entity
         {
             if (this.Status == AdjustContractPriceStatus.Audited)
             {
-                throw new Exception("已审合同不能作废");
+                throw new Exception("已审合同调价单不能作废");
             }
             this.Status = AdjustContractPriceStatus.Cancel;
         }

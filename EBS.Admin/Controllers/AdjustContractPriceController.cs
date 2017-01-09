@@ -113,7 +113,7 @@ namespace EBS.Admin.Controllers
             ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
 
             return View(model);
-        }
+        }       
 
         [HttpPost]
         public JsonResult Edit(AdjustContractPriceModel model)
@@ -122,6 +122,30 @@ namespace EBS.Admin.Controllers
             model.UpdatedByName = _context.CurrentAccount.NickName;
             _adjustContractPriceFacade.Edit(model);
             return Json(new { success = true });
+        }
+
+        public ActionResult Detail(int id)
+        {
+            var model = _query.Find<AdjustContractPrice>(id);
+            var items = _adjustContractPriceQuery.GetAdjustContractPriceItems(id);
+
+            ViewBag.AdjustContractPriceItems = JsonConvert.SerializeObject(items.ToArray());
+            var supplier = _query.Find<Supplier>(model.SupplierId);
+            ViewBag.SupplierName = supplier.Name;
+            var store = _query.Find<Store>(model.StoreId);
+            ViewBag.StoreName = store.Name;
+            //创建和待审可编辑
+            var editable = model.Status == AdjustContractPriceStatus.WaitingAudit;
+            ViewBag.CanAudit = editable.ToString().ToLower();
+            //查询处理流程：
+            var logs = _query.FindAll<ProcessHistory>(n => n.FormId == id && n.FormType == FormType.AdjustContractPrice);
+            ViewBag.Logs = logs;
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+
+            var account = _query.Find<Account>(model.CreatedBy);
+            ViewBag.CreatedByName = account.NickName;
+            ViewBag.StatusName = model.Status.Description();
+            return View(model);
         }
 
         public JsonResult Delete(int id, string reason)

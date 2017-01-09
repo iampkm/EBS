@@ -1,0 +1,208 @@
+﻿@using EBS.Domain.ValueObject;
+@using EBS.Infrastructure.Extension;
+@model EBS.Domain.Entity.PurchaseContract
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+@section styles{
+    <link href="~/Content/zTree.min.css" rel="stylesheet" />
+    <style>
+        .ztree li span {
+            font-size: 14px;
+        }
+
+        .dataRow div {
+            margin-bottom: 0px;
+        }
+    </style>
+}
+<!-- demo root element -->
+<div id="app" class="box box-primary">
+    <div class="box-header with-border">
+        <ol class="breadcrumb" style="padding:0px;margin:1px;">
+            <li><a href="/PurchaseContract/AuditIndex"><i class="fa fa-dashboard"></i>采购合同审核</a></li>
+            <li class="active"><a href="/PurchaseContract/Detail/{{model.id}}">合同明细</a></li>
+        </ol>
+    </div>
+    <!-- /.box-header -->
+    <!-- form start -->
+    <form >
+        <div class="box-body">
+            <div class="row">
+                <div class="form-group col-sm-4 col-xs-4">
+                    <button type="button" class="btn btn-success btn-flat" v-show="@ViewBag.CanAudit" v-on:click="audit">审 核</button>
+                    <button type="button" class="btn btn-default btn-flat" v-on:click="print">打印</button>
+                    <a class="btn btn-default btn-flat" href="javascript:history.back()">取 消</a>
+                </div>
+            </div>               
+           <div id="printDiv">
+               <div class="row">
+                   <div class="col-xs-4 col-sm-4"></div>
+                   <div class="col-xs-4 col-sm-4"><h3 class="text-center text-success" style="border-bottom:2px solid;padding-bottom:1px;"><b>采购合同</b></h3></div>
+                   <div class="col-xs-4 col-sm-4"></div>
+               </div>
+               <div class="row">
+                   <div class="col-xs-4 col-sm-4">
+                       <span>供应商：@ViewBag.SupplierName</span>
+                   </div>
+                   <div class="col-xs-4 col-sm-4 text-center">
+                       <span>单据状态：@ViewBag.StatusName</span>
+                   </div>
+                   <div class="col-xs-4 col-sm-4">
+                       <span>合同编号：@Model.Code</span>
+                   </div>
+                   <div class="col-xs-12 col-sm-12">
+                       <span>签约门店：@ViewBag.StoreName</span>
+                   </div>
+                   @*<div class="col-xs-4 col-sm-4 text-center">
+
+                   </div>
+                   <div class="col-xs-4 col-sm-4 ">
+                       <span></span>
+                   </div>*@
+               </div>
+              
+               <div class="row">
+                   <div class="col-xs-12 col-sm-12">
+                       <div class="table-responsive">
+                           <table class="table table-bordered">
+                               <thead>
+                                   <tr>
+                                       <th style="width:50px;">序号</th>
+                                       <th style="width:150px;">编码</th>
+                                       <th>条码</th>
+                                       <th>品名</th>
+                                       <th>规格</th>
+                                       <th>单位</th>
+                                       <th style="width:150px;">价格</th>
+                                       @*<th style="width:150px;">状态</th>*@
+                                   </tr>
+                               </thead>
+                               <tbody>
+                                   @{var index = 0;}
+                                   @foreach (var item in (IEnumerable<EBS.Query.DTO.PurchaseContractItemDto>)ViewBag.PurchaseContractItems)
+                                   { 
+                                       <tr >
+                                       <td class="text-center" >@(index+1)</td>
+                                       <td>@item.Code </td>
+                                       <td>@item.BarCode</td>
+                                       <td>@item.Name</td>
+                                       <td>@item.Specification</td>
+                                       <td>@item.Unit</td>
+                                       <td class="dataRow">
+                                          @item.ContractPrice.ToString("F2")                                         
+                                       </td>
+                                       @*<td>@item.StatusName</td>*@
+                                   </tr>  
+                                   }
+                                  
+                               </tbody>
+                           </table>
+                       </div>
+                   </div>
+               </div>
+               <div class="row">
+                   <div class="col-xs-3 col-sm-3">
+                       <span>制单人： @ViewBag.CreatedByName</span>
+                   </div>
+                   <div class="col-xs-3 col-sm-3">
+                       <span>制单日期：@Model.CreatedOn.ToString("yyyy-MM-dd HH:mm:ss")</span>
+                   </div>
+               </div>
+           </div>
+            <br />
+            <div class="row">
+                <div class="col-xs-12 col-sm-12">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <caption>
+                                <h3 class="panel-title">
+                                    流程记录
+                                </h3>
+                            </caption>
+                            <thead>
+                                <tr>
+                                    <th style="width:30px"></th>
+                                    <th style="width:120px">处理人</th>
+                                    <th>状态</th>
+                                    <th>处理时间</th>
+                                    <th>备注</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{index = 0;}
+                                @foreach (var item in (IEnumerable<EBS.Domain.Entity.ProcessHistory>)ViewBag.Logs)
+                                {
+                                    index += 1;
+                                    <tr>
+                                        <td>@(index)</td>
+                                        <td>@item.CreatedByName</td>
+                                        <td>@(((PurchaseContractStatus)item.Status).Description())</td>
+                                        <td>@item.CreatedOn</td>
+                                        <td>@item.Remark</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>        
+    </form>
+    
+    <!-- modal -->       
+</div>
+@section scripts{
+<script src="~/Scripts/jquery.PrintArea.js"></script>
+    <script>
+        $("doucument").ready(function () {
+            var demo = new Vue({
+                components: {
+                    'v-modal': VueStrap.modal,
+                    'v-input': VueStrap.input,
+                },
+                el: '#app',
+                data: {
+                    valid: false,
+                    modal: false,
+                    historyBox:false,
+                    model: {
+                        id: @Model.Id,
+                        code: '@Model.Code',
+                        storeIds: '@Model.StoreIds',
+                        name: '@Model.Name',
+                        supplierId: @Model.SupplierId,
+                        contact: '@Model.Contact',
+                        startDate: '@Model.StartDate.ToString("yyyy-MM-dd")',
+                        endDate: '@Model.EndDate.ToString("yyyy-MM-dd")',
+                        items: ''
+                    },                 
+                },
+                methods: {
+                    print: function () {
+                        $("#printDiv").printArea();
+                    },  
+                    audit:function(){
+                        var _self = this;
+                        $.post("/PurchaseContract/Audit", { id: _self.model.id }, function (result) {
+                            if (result.success) {
+                                window.history.back();
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
+                    }                    
+                }
+            });
+            
+        });
+
+
+
+    </script>
+}
+
+
+
+

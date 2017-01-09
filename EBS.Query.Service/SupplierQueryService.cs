@@ -73,14 +73,14 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             }
             if (!string.IsNullOrEmpty(codeOrBarCode))
             {
-                //按照换行符拆分
+                //这里只提供条码查
                var codeOrBarCodeArray= codeOrBarCode.Trim('\n').Split('\n');
-               var codeArray = codeOrBarCodeArray.Where(n => n.Length <= 10).ToArray();
-               var barCodeArray = codeOrBarCodeArray.Where(n => n.Length >= 10).ToArray();
-
-               where += "and (t0.Code in @codeArray or t0.BarCode in @barCodeArray) ";
-               param.codeArray = codeArray;
-               param.barCodeArray = barCodeArray;
+               //var codeArray = codeOrBarCodeArray.Where(n => n.Length <= 10).ToArray();
+               //var barCodeArray = codeOrBarCodeArray.Where(n => n.Length >= 10).ToArray();
+              // where += "and (t0.Code in @codeArray or t0.BarCode in @barCodeArray) ";
+               where += "and t0.BarCode in @barCodeArray ";
+              // param.codeArray = codeArray;
+               param.barCodeArray = codeOrBarCodeArray;
             }
             if (!string.IsNullOrEmpty(categoryId))
             {

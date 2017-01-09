@@ -60,23 +60,28 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             return rows;
         }
 
-
+        
+        /// <summary>
+        /// 按照商品条码导入
+        /// </summary>
+        /// <param name="productCodePriceInput"></param>
+        /// <returns></returns>
         public IEnumerable<PurchaseContractItemDto> GetPurchaseContractItems(string productCodePriceInput)
         {
             if (string.IsNullOrEmpty(productCodePriceInput)) throw new Exception("商品明细为空");     
             var dic = productCodePriceInput.ToDecimalDic();
-            string sql = "select p.Id as ProductId,p.Code,p.`Name`,p.Specification,c.FullName as CategoryName from Product p inner join category c on p.categoryId = c.Id where p.code in @Codes";
-            var productItems= _query.FindAll<PurchaseContractItemDto>(sql, new { Codes = dic.Keys.ToArray() });
+            string sql = "select p.Id as ProductId,p.Code,p.`Name`,p.Specification,p.Unit,p.BarCode from Product p where p.BarCode in @BarCodes";
+            var productItems= _query.FindAll<PurchaseContractItemDto>(sql, new { BarCodes = dic.Keys.ToArray() });
             foreach (var product in productItems)
             {
-                product.ContractPrice = dic[product.Code];
+                product.ContractPrice = dic[product.BarCode];
             }
             return productItems;
         }
 
         public IEnumerable<PurchaseContractItemDto> GetPurchaseContractItems(int purchaseContractId)
         {
-            string sql = "select pc.ProductId,p.Code,p.`Name`,p.Specification,c.FullName as CategoryName,pc.ContractPrice from PurchaseContractItem pc inner join  Product p on pc.ProductId=p.Id inner join category c on p.categoryId = c.Id where pc.purchaseContractId = @PurchaseContractId";
+            string sql = "select  p.Id as ProductId,p.Code,p.`Name`,p.Specification,p.Unit,p.BarCode ,pc.ContractPrice,pc.Status from PurchaseContractItem pc left join  Product p on pc.ProductId=p.Id  where pc.purchaseContractId = @PurchaseContractId";
             var productItems = _query.FindAll<PurchaseContractItemDto>(sql, new { PurchaseContractId = purchaseContractId });
             return productItems;
         }

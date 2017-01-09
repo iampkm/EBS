@@ -52,7 +52,9 @@ and StartDate<=@Today and EndDate>=@Today";
 c inner join purchasecontractitem i on c.Id = i.PurchaseContractId
 where c.`Status` = 3 and FIND_IN_SET(@StoreId, c.StoreIds) and c.SupplierId=@SupplierId and i.ProductId in @ProductIds order by c.Id desc";
             var productIds = entity.Items.Select(n => n.ProductId).ToArray();
-            var rows = _db.Table.FindAll<PurchaseContractItem>(sql, new { StoreId = entity.StoreId, SupplierId = entity.SupplierId, ProductIds = productIds }).ToList();
+            //已存在的所有要更新合同明细
+            var updateList = _db.Table.FindAll<PurchaseContractItem>(sql, 
+                new { StoreId = entity.StoreId, SupplierId = entity.SupplierId, ProductIds = productIds }).ToList();
             // 该供应商最后一个合同           
             string sqlContract = "select * from purchasecontract c where c.`Status` = 3 and FIND_IN_SET(@StoreId, c.StoreIds) and c.SupplierId=@SupplierId order by c.Id desc  LIMIT 1 ";
             var contract = _db.Table.Find<PurchaseContract>(sqlContract, new { StoreId = entity.StoreId, SupplierId = entity.SupplierId });
@@ -60,30 +62,30 @@ where c.`Status` = 3 and FIND_IN_SET(@StoreId, c.StoreIds) and c.SupplierId=@Sup
             List<PurchaseContractItem> insertList = new List<PurchaseContractItem>();
             foreach (var item in entity.Items)
             {
-                var detail = rows.FirstOrDefault(n => n.ProductId == item.ProductId);
-                if (detail==null)
+                // 更新明细中不存在的，就是需要添加的
+                var model = updateList.FirstOrDefault(n => n.ProductId == item.ProductId);
+                if (model==null)
                 {
-                    // 需要添加
-                    detail = new PurchaseContractItem()
+                    model = new PurchaseContractItem()
                     {
                         PurchaseContractId = contract.Id,
                         ProductId = item.ProductId,
                         ContractPrice = item.AdjustPrice,
                         Status = SupplyStatus.Supplying,
                     };
-                    insertList.Add(detail);
+                    insertList.Add(model);
                 }
                 else {
-                    detail.ContractPrice = item.AdjustPrice;
+                    model.ContractPrice = item.AdjustPrice;
                 }
             }
             if (insertList.Count > 0)
             {
                 _db.Insert<PurchaseContractItem>(insertList.ToArray());
             }
-            if (rows.Count > 0)
+            if (updateList.Count > 0)
             {
-                _db.Update<PurchaseContractItem>(rows.ToArray());
+                _db.Update<PurchaseContractItem>(updateList.ToArray());
             }
         }
     }

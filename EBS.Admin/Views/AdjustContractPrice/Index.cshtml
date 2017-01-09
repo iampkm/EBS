@@ -58,12 +58,19 @@
                 </div>
                 <span class="input-group-btn" slot="customButtons">
                     <a class="btn btn-warning btn-flat" href="/AdjustContractPrice/Create">新 增</a>
+                    <button type="button" class="btn btn-danger btn-flat" v-on:click="remove()">删 除</button>
                 </span>
             </vue-table>
         </div>
         <!-- /.box-body -->
     </div>
     <div class="clearfix"></div>
+    <v-modal title="删除原因" ok-text="确 定" cancel-text="取 消" v-bind:callback="callback" v-bind:show.sync="modal" v-bind:effect="fade" width="300">
+        <div slot="modal-body" class="modal-body">
+            <input type="hidden" v-model="selectedId" />
+            <v-input type="textarea" v-bind:value.sync="removeReason" placeholder="请录入作废理由" required icon></v-input>
+        </div>
+    </v-modal>
     <!-- modal -->
     <v-modal title="选择供应商" ok-text="确 定" cancel-text="取 消" v-bind:callback="getSupplier" v-bind:show.sync="selectSupplier.modal" v-bind:effect="fade" width="60%">
         <div slot="modal-body" class="modal-body">
@@ -237,7 +244,30 @@
                     }
                 },
             }
-        })
+        });
+
+        //加载门店tree
+        var zTreeObj;
+        var setting = {
+            check: {
+                enable:true
+            },
+            async: {
+                enable: true,
+                url: "/Store/LoadStore",
+                //autoParam: ["id", "name"]
+            },
+            callback:{
+                onClick:function(event, treeId, treeNode){
+                    //点击展开/折叠节点
+                    var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                    var open = !treeNode.open;
+                    treeObj.expandNode(treeNode, open, false, false);
+                    // vue.searchArgs.categoryId =treeNode.id;
+                }
+            }
+        };
+        zTreeObj = $.fn.zTree.init($("#ztree"), setting);
 
     </script>
 }

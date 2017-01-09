@@ -78,10 +78,10 @@ namespace EBS.Domain.Entity
 
         public void Cancel()
         {
-            if (this.Status == PurchaseContractStatus.Audited)
-            {
-                throw new Exception("已审合同不能作废");
-            }
+            //if (this.Status == PurchaseContractStatus.Audited)
+            //{
+            //    throw new Exception("已审合同不能作废");
+            //}
             this.Status = PurchaseContractStatus.Cancel;
         }
 

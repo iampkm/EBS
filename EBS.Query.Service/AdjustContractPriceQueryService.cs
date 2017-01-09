@@ -111,14 +111,17 @@ where (p.BarCode=@ProductCodeOrBarCode or p.`Code`=@ProductCodeOrBarCode )
         {
             if (string.IsNullOrEmpty(inputProducts)) throw new Exception("商品明细为空");
             var dic = inputProducts.ToDecimalDic();
-            string sql = @"select p.id as ProductId,p.`Name` as ProductName,p.Specification,p.`Code` as ProductCode,p.BarCode,p.Unit,p.Specification ,i.ContractPrice ,c.StartDate,C.EndDate  
-from purchasecontract c inner join purchasecontractitem i on c.Id = i.PurchaseContractId 
-left join Product p on p.Id = i.ProductId 
-where  p.`Code` in @ProductCode  and c.SupplierId = @SupplierId and c.storeId = @StoreId and c.StartDate <= @Today and c.EndDate >= @Today and c.`Status`= 3 order by c.Id DESC";
-            var productItems = _query.FindAll<AdjustContractPriceItemDto>(sql, new { ProductCode = dic.Keys.ToArray(), SupplierId = supplierId, StoreId = storeId, Today = DateTime.Now });
+            string sql = @"select p.id as ProductId,p.`Name` as ProductName,p.Specification,p.`Code` as ProductCode,p.BarCode,p.Unit,p.Specification ,t.ContractPrice
+from product p left join (select c.Id,i.ProductId,i.ContractPrice from purchasecontract c 
+inner join purchasecontractitem i on c.Id = i.PurchaseContractId
+left join supplier s on s.Id = c.SupplierId 
+where c.`Status` = 3 and c.EndDate>= CURDATE() and s.Id=@SupplierId and FIND_IN_SET(@StoreId,c.StoreIds) 
+) t on p.Id = t.ProductId 
+where  p.BarCode in @BarCodes  order by t.Id desc";
+            var productItems = _query.FindAll<AdjustContractPriceItemDto>(sql, new { BarCodes = dic.Keys.ToArray(), SupplierId = supplierId, StoreId = storeId, Today = DateTime.Now });
             foreach (var product in productItems)
             {
-                product.ContractPrice = dic[product.ProductCode];
+                product.AdjustPrice = dic[product.BarCode];
             }
             return productItems;
         }

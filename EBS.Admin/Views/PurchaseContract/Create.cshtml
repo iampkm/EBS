@@ -28,7 +28,7 @@
                 <div class="row">
                     <div class="form-group col-sm-4 col-xs-4">
                         <button type="button" class="btn btn-warning btn-flat" v-on:click="onSubmit" @*v-bind:disabled="!valid"*@>保 存</button>
-                        <a class="btn btn-default btn-flat" href="/PurchaseContract/Index">取 消</a>
+                        <a class="btn btn-default btn-flat" href="javascript:history.back()">取 消</a>
                     </div>
                 </div>
                 <div class="row">
@@ -67,7 +67,7 @@
                         <label for="inputPassword3" class="control-label">供应商:</label>
                         <div class="input-group ">                           
                             <input type="hidden" class="form-control" v-model="model.supplierId">
-                            <input type="text" class="form-control" v-model="selectSupplier.name" readonly>
+                            <input type="text" class="form-control" v-model="selectSupplier.name" placeholder="选择供应商" readonly>
                             <span class="input-group-btn">
                                 <button class="btn btn-flat btn-default" type="button" v-on:click="showSupplier"><i class="fa fa-search"></i></button>
                             </span>                            
@@ -77,7 +77,7 @@
                         <label for="inputPassword3" class="control-label">门店:</label>
                         <div class="input-group ">
                             <input type="hidden" class="form-control" v-model="model.storeIds">
-                            <input type="text" class="form-control" v-model="selectStore.name" readonly>
+                            <input type="text" class="form-control" v-model="selectStore.name" placeholder="选择门店" readonly>
                             <span class="input-group-btn">
                                 <button class="btn btn-flat btn-default" type="button" v-on:click="showStore"><i class="fa fa-search"></i></button>
                             </span>
@@ -102,9 +102,10 @@
                                         <th style="width:30px;"></th>
                                         <th style="width:50px;"></th>
                                         <th style="width:150px;">编码</th>
-                                        <th>品名</th>
-                                        <th>品类</th>
+                                        <th>条码</th>
+                                        <th>品名</th>                                        
                                         <th>规格</th>
+                                        <th>单位</th>
                                         <th style="width:150px;">价格</th>
                                     </tr>
                                 </thead>
@@ -115,9 +116,10 @@
                                             <button type="button" class="btn btn-flat btn-success" title="删除行" v-on:click="removeRow(index)"><span class="fa fa-trash"></span></button>
                                         </td>
                                         <td>{{item.Code}}</td>
-                                        <td>{{item.Name}}</td>
-                                        <td>{{item.CategoryName}}</td>
+                                        <td>{{item.BarCode}}</td>
+                                        <td>{{item.Name}}</td>                                        
                                         <td>{{item.Specification}}</td>
+                                        <td>{{item.Unit}}</td>
                                         <td class="dataRow">
                                             <input type="text" class="form-control" name="ContractPrice" v-model="item.ContractPrice" v-on:keyup.enter="inputNext($event)" />                                          
                                         </td>
@@ -141,7 +143,7 @@
     <!-- modal -->
     <v-modal title="导入商品" ok-text="确 定" cancel-text="取 消" v-bind:callback="importProduct" v-bind:show.sync="modal" v-bind:effect="fade" width="300">
         <div slot="modal-body" class="modal-body">
-            <v-input type="textarea" help="请将excel中商品编号和价格两列粘贴到文本框中" v-bind:value.sync="inputProducts" placeholder="输入商品" required icon></v-input>
+            <v-input type="textarea" help="请将excel中商品条码和价格两列粘贴到文本框中" v-bind:value.sync="inputProducts" placeholder="输入商品" required icon></v-input>
         </div>
     </v-modal>
     <v-modal title="选择供应商" ok-text="确 定" cancel-text="取 消" v-bind:callback="getSupplier" v-bind:show.sync="selectSupplier.modal" v-bind:effect="fade" width="60%">

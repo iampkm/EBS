@@ -1,0 +1,205 @@
+﻿@using EBS.Domain.ValueObject;
+@using EBS.Infrastructure.Extension;
+@model EBS.Domain.Entity.AdjustContractPrice
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+@section styles{
+    <link href="~/Content/zTree.min.css" rel="stylesheet" />
+    <style>
+        .ztree li span {
+            font-size: 14px;
+        }
+
+        .dataRow div {
+            margin-bottom: 0px;
+        }
+    </style>
+}
+<!-- demo root element -->
+<div id="app" class="box box-primary">
+    <div class="box-header with-border">
+        <ol class="breadcrumb" style="padding:0px;margin:1px;">
+            <li><a href="/AdjustContractPrice/Index"><i class="fa fa-dashboard"></i>合同调价单管理</a></li>
+            <li class="active"><a href="/AdjustContractPrice/Detail/{{model.id}}">合同调价单</a></li>
+        </ol>
+    </div>
+    <!-- /.box-header -->
+    <!-- form start -->
+    <form>
+        <div class="box-body">
+            <div class="row">
+                <div class="form-group col-sm-4 col-xs-6">
+                    <button type="button" class="btn btn-warning btn-flat" v-show="@ViewBag.CanAudit" v-on:click="audit">审 核</button>
+                    <button type="button" class="btn btn-default btn-flat" v-on:click="print">打印</button>
+                    <a class="btn btn-default btn-flat" href="javascript:history.back()">取 消</a>
+                </div>
+            </div>
+            <div id="printDiv">
+                <div class="row">
+                    <div class="col-xs-4 col-sm-4"></div>
+                    <div class="col-xs-4 col-sm-4"><h3 class="text-center text-success" style="border-bottom:2px solid;padding-bottom:1px;"><b>合同调价单</b></h3></div>
+                    <div class="col-xs-4 col-sm-4"></div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-4 col-sm-4">
+                        <span>门店：@ViewBag.StoreName</span>
+                    </div>
+                    <div class="col-xs-4 col-sm-4 text-center">
+                        
+                    </div>
+                    <div class="col-xs-4 col-sm-4 ">
+                        <span><span>单据号：@Model.Code</span></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-4 col-sm-4">
+                        <span>供应商：@ViewBag.SupplierName</span>
+                    </div>
+                    <div class="col-xs-4 col-sm-4 text-center">
+                        <span>单据状态：@ViewBag.StatusName</span>
+                    </div>
+                    <div class="col-xs-4 col-sm-4">
+                        <span>制单日期：@Model.CreatedOn.ToString("yyyy-MM-dd HH:mm:ss")</span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th style="width:50px;">序号</th>
+                                        <th style="width:150px;">商品编码</th>
+                                        <th>条码</th>
+                                        <th>品名</th>
+                                        <th>规格</th>
+                                        <th>单位</th>
+                                        <th>合同价</th>
+                                        <th style="width:200px;">调整价</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody">
+                                    <tr v-for="(index,item) in products">
+                                        <td class="text-center">{{index+1}}</td>
+                                        <td>
+                                            {{item.ProductCode}}
+                                        </td>
+                                        <td>{{item.BarCode}}</td>
+                                        <td>{{item.ProductName}}</td>
+                                        <td>{{item.Specification}}</td>
+                                        <td>{{item.Unit}}</td>
+                                        <td>{{item.ContractPrice.toFixed(2)}}</td>
+                                        <td>
+                                            {{item.AdjustPrice.toFixed(2)}}  
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-3 col-sm-3">
+                        <span>制单人： @ViewBag.CreatedByName</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <br />
+    <div class="row">
+        <div class="col-xs-12 col-sm-12">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <caption>
+                        <h3 class="panel-title">
+                            流程记录
+                        </h3>
+                    </caption>
+                    <thead>
+                        <tr>
+                            <th style="width:30px"></th>
+                            <th style="width:120px">处理人</th>
+                            <th>状态</th>
+                            <th>处理时间</th>
+                            <th>备注</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{var index = 0;}
+                        @foreach (var item in (IEnumerable<EBS.Domain.Entity.ProcessHistory>)ViewBag.Logs)
+                        {
+                            index += 1;
+                            <tr>
+                                <td>@(index)</td>
+                                <td>@item.CreatedByName</td>
+                                <td>@(((AdjustContractPriceStatus)item.Status).Description())</td>
+                                <td>@item.CreatedOn</td>
+                                <td>@item.Remark</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- modal -->
+
+@section scripts{
+    <script src="~/Scripts/jquery.PrintArea.js"></script>
+    <script>
+        $("doucument").ready(function () {
+            var demo = new Vue({
+                components: {
+                    'v-modal': VueStrap.modal,
+                    'v-input': VueStrap.input
+                },
+                el: '#app',
+                data: {
+                    valid: false,
+                    modal: false,
+                    model: {
+                        id: @Model.Id ,
+                        code: '@Model.Code',
+                        storeId: @Model.StoreId ,
+                        supplierId: @Model.SupplierId ,
+                        items: '',
+                        remark:'@Model.Remark',
+                    },
+                    startDateInvalid: false,
+                    endDateInvalid: false,
+                    products: @Html.Raw(ViewBag.AdjustContractPriceItems),
+                    totalQuantity: 0,
+                    inputProducts: '',                    
+                },
+                methods: {                    
+                    print: function () {
+                        $("#printDiv").printArea();
+                    },  
+                    audit:function(){
+                        var _self = this;
+                        $.post("/AdjustContractPrice/Audit", { id: _self.model.id }, function (result) {
+                            if (result.success) {
+                                window.history.back();
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
+                    }
+                },
+
+            });
+
+            
+
+        });
+
+    </script>
+}
+
+
+
+
+

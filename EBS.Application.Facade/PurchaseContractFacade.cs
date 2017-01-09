@@ -49,7 +49,7 @@ namespace EBS.Application.Facade
             {
                 _service.ValidateContractCode(model.Code);
             }
-            entity = model.MapTo<PurchaseContract>();
+            entity = model.MapTo<PurchaseContract>(entity);
             entity.AddPurchaseContractItem(model.ConvertJsonToPurchaseContractItem());
             entity.UpdatedOn = DateTime.Now;
             

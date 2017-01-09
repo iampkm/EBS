@@ -35,7 +35,7 @@
                                        v-bind:args="searchArgs" v-bind:data.sync="rows" v-bind:show-pagination="showPage">
                                 <div class="row" style="margin-bottom:10px;" slot="customSearch">
                                     <div class="col-xs-2">
-                                        <textarea class="form-control" v-model="searchArgs.codeOrBarCode" placeholder="商品编码/条码" debounce="500"></textarea>
+                                        <textarea class="form-control" v-model="searchArgs.codeOrBarCode" placeholder="粘贴excel中多个商品条码" debounce="500"></textarea>
                                         @*<input class="form-control" v-model="searchArgs.codeOrBarCode" placeholder="商品编码/条码" debounce="500" />*@
                                     </div>
                                     <div class="col-xs-2">

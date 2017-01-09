@@ -105,7 +105,7 @@
                 removeReason: '',
                 searchQuery: '',
                 gridColumns: [
-                    { name: 'Code', localName: '调价单号', style: "<a href='/AdjustContractPrice/Edit/{id}'>{column}</a>" },
+                    { name: 'Code', localName: '调价单号', style: "<a href='/AdjustContractPrice/Detail/{id}'>{column}</a>" },
                     { name: 'StoreName', localName: '门店' },
                     { name: 'Supplier', localName: '供应商', width: '250' },
                     { name: 'StatusName', localName: '状态',  width: '100' },
@@ -178,7 +178,9 @@
                         if (result) {
                             $.post("/AdjustContractPrice/Audit", { id: selectId }, function (result) {
                                 if (result.success) {
-                                    v_self.$refs.vtable.loadData();
+                                    bootbox.alert("审核成功！", function () {
+                                        v_self.$refs.vtable.loadData();
+                                    });                                   
                                 }
                                 else {
                                     bootbox.alert(result.error);
@@ -237,7 +239,29 @@
                     }
                 },
             }
-        })
+        });
+        //加载门店tree
+        var zTreeObj;
+        var setting = {
+            check: {
+                enable:true
+            },
+            async: {
+                enable: true,
+                url: "/Store/LoadStore",
+                //autoParam: ["id", "name"]
+            },
+            callback:{
+                onClick:function(event, treeId, treeNode){
+                    //点击展开/折叠节点
+                    var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                    var open = !treeNode.open;
+                    treeObj.expandNode(treeNode, open, false, false);
+                    // vue.searchArgs.categoryId =treeNode.id;
+                }
+            }
+        };
+        zTreeObj = $.fn.zTree.init($("#ztree"), setting);
 
     </script>
 }

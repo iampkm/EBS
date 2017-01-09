@@ -49,6 +49,7 @@ namespace EBS.Application.Facade
         public void Edit(AdjustContractPriceModel model)
         {
             var entity = _db.Table.Find<AdjustContractPrice>(model.Id);
+            entity.CheckEditStatus();
             entity = model.MapTo<AdjustContractPrice>(entity);
             entity.AddItems(model.ConvertJsonToItem());
             entity.UpdatedOn = DateTime.Now;
@@ -61,6 +62,7 @@ namespace EBS.Application.Facade
         public void Delete(int id, int editBy, string editor, string reason)
         {
             var entity = _db.Table.Find<AdjustContractPrice>(id);
+            entity.Remark = reason;
             entity.Cancel();
             entity.EditBy(editBy);
             _db.Update(entity);
@@ -89,7 +91,10 @@ namespace EBS.Application.Facade
             entity.Audit();
             entity.EditBy(editBy);
             _db.Update(entity);
+            //调整合同价
             _contractService.AdjustContractPrice(entity);
+            //供应商商品调价
+            _service.AdjustSupplierProduct(entity);
             var reason = "审核通过";
             _processHistoryService.Track(editBy, editor, (int)entity.Status, entity.Id, BillIdentity.AdjustContractPrice.ToString(), reason);
             _db.SaveChange();
