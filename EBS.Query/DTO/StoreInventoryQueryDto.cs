@@ -34,6 +34,16 @@ namespace EBS.Query.DTO
                 return AvgCostPrice * Quantity;
             }
         }
+
+        public decimal SalePrice { get; set; }
+        public decimal SaleAmount
+        {
+            get
+            {
+                return SalePrice * Quantity;
+            }
+        }
+
         /// <summary>
         /// 预警数量
         /// </summary>

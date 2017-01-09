@@ -49,7 +49,7 @@ left join product p on i.ProductId = p.Id where (p.BarCode=@ProductCodeOrBarCode
                 where += "and t0.Status=@Status ";
                 param.Status = condition.Status;
             }
-            string sql = @"select t0.Id,t0.Name,t0.Code,t0.SupplierId,t0.Contact,t0.StartDate,t0.EndDate,t0.Status,t1.Code as SupplierCode,t1.Name as SupplierName   
+            string sql = @"select t0.Id,t0.Name,t0.Code,t0.SupplierId,t0.Contact,t0.StartDate,t0.EndDate,t0.Status,t0.Remark,t1.Code as SupplierCode,t1.Name as SupplierName   
 from PurchaseContract t0 left join supplier t1 on t0.SupplierId = t1.Id 
 where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<Product>(where, param);

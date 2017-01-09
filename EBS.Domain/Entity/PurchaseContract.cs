@@ -46,6 +46,10 @@ namespace EBS.Domain.Entity
         public DateTime UpdatedOn { get; set; }
         public int UpdatedBy { get; set; }
         public PurchaseContractStatus Status { get; set; }
+        /// <summary>
+        /// 备注
+        /// </summary>
+        public string Remark { get; set; }
 
         public virtual IEnumerable<PurchaseContractItem> Items { get {
             return this._items;

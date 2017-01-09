@@ -137,7 +137,7 @@
     <!-- modal -->
     <v-modal title="导入商品" ok-text="确 定" cancel-text="取 消" v-bind:callback="importProduct" v-bind:show.sync="modal" v-bind:effect="fade" width="300">
         <div slot="modal-body" class="modal-body">
-            <v-input type="textarea" help="请将excel中商品编号和售价两列粘贴到文本框中" v-bind:value.sync="inputProducts" placeholder="输入商品" required icon></v-input>
+            <v-input type="textarea" help="请将excel中商品条码和售价两列粘贴到文本框中" v-bind:value.sync="inputProducts" placeholder="输入商品" required icon></v-input>
         </div>
     </v-modal>
 </div>

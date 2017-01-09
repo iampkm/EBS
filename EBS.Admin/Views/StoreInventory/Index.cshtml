@@ -68,13 +68,15 @@
             data: {
                 gridColumns: [
                 { name: 'StoreName', localName: '门店' },
-                { name: 'ProductCode', localName: '商品编码' },
+                { name: 'ProductCode', localName: '商品编码',width: '100' },
                 { name: 'BarCode', localName: '条码' },
                 { name: 'ProductName', localName: '品名', width: '200' },
                 { name: 'Specification', localName: '规格', width: '80' },
                 { name: 'Quantity', localName: '库存数', width: '80',sum:'' },
                 { name: 'AvgCostPrice', localName: '平均成本', width: '100' },
-                { name: 'Amount', localName: '成本金额',sum:'' }
+                { name: 'Amount', localName: '成本金额',sum:'',width: '120' },
+                { name: 'SalePrice', localName: '售价',width: '100'},
+                { name: 'SaleAmount', localName: '售价金额',sum:'' ,width: '120'},
                 ],
                 url: "/StoreInventory/LoadData",
                 searchArgs: { supplierId: 0, storeId: @ViewBag.StoreId, productCodeOrBarCode: '' },

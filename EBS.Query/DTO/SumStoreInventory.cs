@@ -11,5 +11,7 @@ namespace EBS.Query.DTO
        public int Quantity { get; set; }
 
        public decimal Amount { get; set; }
+
+       public decimal SaleAmount { get; set; }
     }
 }

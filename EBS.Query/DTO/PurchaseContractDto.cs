@@ -53,5 +53,7 @@ namespace EBS.Query.DTO
                 return Status.Description();
             }
         }
+
+        public string Remark { get; set; }
     }
 }

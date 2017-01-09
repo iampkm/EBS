@@ -28,6 +28,7 @@
                 <div class="row">
                     <div class="form-group col-sm-4 col-xs-4">
                         <button type="button" class="btn btn-warning btn-flat" v-on:click="onSubmit" @*v-bind:disabled="!valid"*@>保 存</button>
+                        <button type="button" class="btn btn-success btn-flat" v-on:click="showModal()">导入商品</button>
                         <a class="btn btn-default btn-flat" href="javascript:history.back()">取 消</a>
                     </div>
                 </div>
@@ -83,8 +84,8 @@
                             </span>
                         </div>
                     </div>
-                    <div class="form-group col-sm-2 col-xs-3">
-                        <v-input type="text" label="联系人：" v-bind:value.sync="model.contact" placeholder="联系人" icon></v-input>
+                    <div class="form-group col-sm-4 col-xs-4">
+                        <v-input type="textarea" label="联系人：" v-bind:value.sync="model.remark" rows="3" maxlength ="500" placeholder="备注" icon></v-input>
                     </div>
                 </div>
 
@@ -92,11 +93,6 @@
                     <div class="col-xs-12 col-sm-12">
                         <div class="table-responsive">
                             <table class="table table-bordered">
-                                <caption>
-                                    <h3 class="panel-title">
-                                        <button type="button" class="btn btn-success btn-flat" v-on:click="showModal()">导入商品明细</button>
-                                    </h3>
-                                </caption>
                                 <thead>
                                     <tr>
                                         <th style="width:30px;"></th>
@@ -130,15 +126,7 @@
                     </div>
                 </div>
             @*</v-form>*@       
-        </div>
-        <div class="box-footer">
-            <div class="row">
-                <div class="form-group col-sm-4 col-xs-4">
-                    <button type="submit" class="btn btn-warning btn-flat" v-on:click="onSubmit" @*v-bind:disabled="!valid"*@>保 存</button>
-                    <a class="btn btn-default btn-flat" href="/PurchaseContract/Index">取 消</a>
-                </div>
-            </div>
-        </div>
+        </div>       
     </form>
     <!-- modal -->
     <v-modal title="导入商品" ok-text="确 定" cancel-text="取 消" v-bind:callback="importProduct" v-bind:show.sync="modal" v-bind:effect="fade" width="300">
@@ -194,6 +182,7 @@
                         contact: '',
                         startDate: '',
                         endDate: '',
+                        remark:'',
                         items:''
                     },                   
                     products:[],

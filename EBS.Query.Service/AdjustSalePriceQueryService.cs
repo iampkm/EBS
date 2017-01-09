@@ -103,11 +103,11 @@ where (p.BarCode=@ProductCodeOrBarCode or p.`Code`=@ProductCodeOrBarCode ) LIMIT
             string sql = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.BarCode,p.Specification,
 p.Unit,p.SalePrice,i.contractPrice 
 from product  p left join purchasecontractitem i  on p.Id = i.ProductId
-where p.`Code` in @ProductCode order by i.Id DESC";
-            var productItems = _query.FindAll<AdjustSalePriceItemDto>(sql, new { ProductCode = dic.Keys.ToArray() });
+where p.`BarCode` in @BarCode order by i.Id DESC";
+            var productItems = _query.FindAll<AdjustSalePriceItemDto>(sql, new { BarCode = dic.Keys.ToArray() });
             foreach (var product in productItems)
             {
-                product.AdjustPrice = dic[product.ProductCode];
+                product.AdjustPrice = dic[product.BarCode];
             }
             return productItems;
         }        

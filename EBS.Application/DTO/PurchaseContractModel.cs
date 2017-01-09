@@ -30,7 +30,9 @@ namespace EBS.Application.DTO
        ///  productId,price 
        /// </summary>
         public string Items { get; set; }
-       
+
+        public string Remark { get; set; }
+
     }
 
    public class EditPurchaseContract
@@ -59,5 +61,7 @@ namespace EBS.Application.DTO
        /// </summary>
        public string Items { get; set; }
 
-   }
+        public string Remark { get; set; }
+
+    }
 }

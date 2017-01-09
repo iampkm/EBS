@@ -39,7 +39,7 @@ namespace EBS.Query.Service
                 where += "and (t1.Code=@ProductCodeOrBarCode or t1.BarCode=@ProductCodeOrBarCode) ";
                 param.ProductCodeOrBarCode = condition.ProductCodeOrBarCode;
             }
-            string sql = @"select t0.*,t1.`Code` as ProductCode ,t1.`Name` as ProductName,t1.BarCode,t1.Specification,t2.`name` as StoreName
+            string sql = @"select t0.*,t1.`Code` as ProductCode ,t1.`Name` as ProductName,t1.BarCode,t1.Specification,t1.SalePrice,t2.`name` as StoreName
 from storeinventory t0 inner join product t1 on t0.productId = t1.Id
 inner join store t2 on t2.Id = t0.StoreId
 where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
@@ -53,7 +53,7 @@ where 1=1 {0} ";
             page.Total = this._query.Context.ExecuteScalar<int>(sqlCount, param);
 
             // 查询统计列数据
-            string sqlSum = @"select sum(t0.Quantity) as Quantity,sum(t0.AvgCostPrice*t0.Quantity) as Amount
+            string sqlSum = @"select sum(t0.Quantity) as Quantity,sum(t0.AvgCostPrice*t0.Quantity) as Amount,sum(t1.SalePrice*t0.Quantity) as SaleAmount
 from storeinventory t0 inner join product t1 on t0.productId = t1.Id
 inner join store t2 on t2.Id = t0.StoreId
 where 1=1 {0}";
@@ -61,6 +61,7 @@ where 1=1 {0}";
             var sumStoreInventory= this._query.Find<SumStoreInventory>(sqlSum, param) as SumStoreInventory;             
             page.SumColumns.Add(new SumColumn("Quantity",sumStoreInventory.Quantity.ToString()));
             page.SumColumns.Add(new SumColumn("Amount", sumStoreInventory.Amount.ToString("F4")));
+            page.SumColumns.Add(new SumColumn("SaleAmount", sumStoreInventory.SaleAmount.ToString("F2")));
             return rows;
         }
 
