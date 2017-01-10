@@ -136,6 +136,17 @@ namespace EBS.Admin.Controllers
             return Json(new { success = true, data = barCode });
         }
 
+        public ActionResult PriceCheck()
+        {
+            return View();
+        }
+
+        public JsonResult QueryContractProductNoSalePrice(string productCodeOrBarCode)
+        {
+            var rows = _productQuery.QueryContractProductNoSalePrice(productCodeOrBarCode);
+            return Json(new { success = true, data = rows, total = rows.Count() });
+        }
+
 
             #region 商品SKU 规格设计使用，已经作废
             //public ActionResult Create2() {

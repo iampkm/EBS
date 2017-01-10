@@ -17,6 +17,11 @@ namespace EBS.Query.DTO
         public string StartDate { get; set; }
         public string EndDate { get; set; }
 
+        /// <summary>
+        /// 店员录入收现金额
+        /// </summary>
+        public decimal CashAmount { get; set; }
+
         public decimal TotalAmount { get; set; }
         public decimal TotalOnlineAmount { get; set; }
         public PaymentWay PaymentWay { get; set; }

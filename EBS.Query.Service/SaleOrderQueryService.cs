@@ -148,7 +148,7 @@ where 1=1 {0}";
             }
            
 
-            string sql = @"select w.Id, w.CreatedByName,s.Name as StoreName,w.PosId,w.StartDate,w.EndDate,t.TotalAmount,t.TotalOnlineAmount,t.paymentWay from WorkSchedule w inner join (
+            string sql = @"select w.Id, w.CreatedByName,s.Name as StoreName,w.PosId,w.CashAmount,w.StartDate,w.EndDate,t.TotalAmount,t.TotalOnlineAmount,t.paymentWay from WorkSchedule w inner join (
 select o.WorkScheduleCode,sum(OrderAmount) as TotalAmount,sum(OnlinePayAmount) as TotalOnlineAmount,paymentWay from  saleorder o 
 where o.Status = 3 {1} group by o.WorkScheduleCode,o.paymentWay
 ) t on t.WorkScheduleCode = w.Code
@@ -163,7 +163,18 @@ where 1=1 {0}";
             sql = string.Format(sql, where,owhere);
             var rows = this._query.FindAll<SaleSummaryDto>(sql, param) as IEnumerable<SaleSummaryDto>;
             page.Total = rows.Count();
-
+            //汇总
+            string sqlSum = @"select sum(w.CashAmount) as CashAmount,sum(t.TotalAmount) as TotalAmount,sum(t.TotalOnlineAmount) as TotalOnlineAmount from WorkSchedule w inner join (
+select o.WorkScheduleCode,sum(OrderAmount) as TotalAmount,sum(OnlinePayAmount) as TotalOnlineAmount,paymentWay from  saleorder o 
+where o.Status = 3 {1} group by o.WorkScheduleCode,o.paymentWay
+) t on t.WorkScheduleCode = w.Code
+inner join Store s on s.Id = w.StoreId
+where 1=1 {0}";
+            sqlSum = string.Format(sqlSum, where, owhere);
+            var sum = this._query.Find<SumWorkSchedule>(sqlSum, param) as SumWorkSchedule;
+            page.SumColumns.Add(new SumColumn("CashAmount", sum.CashAmount.ToString("F2")));
+            page.SumColumns.Add(new SumColumn("TotalAmount", sum.TotalAmount.ToString("F2")));
+            page.SumColumns.Add(new SumColumn("TotalOnlineAmount", sum.TotalOnlineAmount.ToString("F2")));
             return rows;
         }
 

@@ -16,5 +16,9 @@ namespace EBS.Query
         PriceTagDto QueryPriceTag(string productCodeOrBarCode);
 
         string GenerateBarCode();
+
+        IEnumerable<ProductCheckDto> QueryContractProductNoSalePrice(string productCodeOrBarCode);
+
+
     }
 }

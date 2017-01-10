@@ -25,7 +25,8 @@
         <div class="box-body">
             <vue-table v-ref:vtable v-bind:columns="gridColumns"
                        v-bind:url="url"
-                       v-bind:args="searchArgs" v-bind:data.sync="rows" show-pagination="false" show-toolbar="false">
+                       v-bind:args="searchArgs" v-bind:data.sync="rows" show-pagination="false" 
+                       show-toolbar="false" v-bind:show-sum="true">
                 <div class="row" style="margin-bottom:10px;" slot="customSearch">
                     <div class="col-xs-3 col-sm-2">
                         <input class="form-control" v-model="searchArgs.nickName" placeholder="收银员姓名" debounce="500" />
@@ -125,11 +126,12 @@
                 gridColumns: [
                     { name: 'CreatedByName', localName: '收银员', style: "<a href='/SaleOrder/SaleList/{id}?orderType=0&status=3'>{column}</a>" },
                     { name: 'StoreName', localName: '门店' },
-                    { name: 'PosId', localName: '收银机' },
+                    { name: 'PosId', localName: '收银机',width: '100' },
                     { name: 'StartDate', localName: '班次起',width: '200'  },
                     { name: 'EndDate', localName: '班次止', width: '200' },
-                    { name: 'TotalAmount', localName: '金额' },
-                     { name: 'TotalOnlineAmount', localName: '在线支付' },
+                    { name: 'CashAmount', localName: '缴款金额',sum:'' },
+                    { name: 'TotalAmount', localName: '应收金额',sum:''  },
+                    { name: 'TotalOnlineAmount', localName: '在线支付',sum:'' },
                     { name: 'PaymentWayName', localName: '付款方式' },
                 ],
                 url: "/SaleOrder/QuerySaleSummary",

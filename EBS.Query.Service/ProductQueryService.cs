@@ -88,5 +88,25 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             }
             return barCode;
         }
+
+        public IEnumerable<ProductCheckDto> QueryContractProductNoSalePrice(string productCodeOrBarCode)
+        {
+            dynamic param = new ExpandoObject();
+            string where = "";
+            string sql = @"select p.Id,p.`Code` as ProductCode,p.BarCode,p.`Name` as ProductName,p.Specification,p.Unit,p.SalePrice from purchasecontract c 
+inner join purchasecontractitem i on c.Id = i.PurchaseContractId
+left join product p on i.ProductId= p.Id
+where c.`Status` =3 and p.SalePrice<=0 ";
+          
+            if (string.IsNullOrEmpty(productCodeOrBarCode))
+            {
+                where += "and (p.Code=@ProductCodeOrBarCode or p.BarCode=@ProductCodeOrBarCode) ";
+                param.ProductCodeOrBarCode = productCodeOrBarCode;
+            }
+            sql = string.Format(sql, where);
+            var rows = this._query.FindAll<ProductCheckDto>(sql, param);
+            return rows;
+
+        }
     }
 }

@@ -1,0 +1,162 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+@section styles{
+    <link href="~/Content/zTree.min.css" rel="stylesheet" />
+    <style>
+        .ztree li span {
+            font-size: 14px;
+        }
+
+        .dataRow div {
+            margin-bottom: 0px;
+        }
+    </style>
+}
+<!-- demo root element -->
+<div id="app">
+    <div class="box box-primary">
+        <div class="box-header">
+            <ol class="breadcrumb" style="padding:0px;margin:1px;">
+                <li><a href="/Product/PriceCheck"><i class="fa fa-dashboard"></i>价格检查</a></li>
+            </ol>
+        </div>
+        <div class="box-body">
+            <vue-table v-ref:vtable v-bind:columns="gridColumns"
+                       v-bind:url="url"
+                       v-bind:args="searchArgs" v-bind:data.sync="rows" v-bind:show-pagination="false" v-bind:show-toolbar="false">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                    <div class="col-xs-3 col-sm-2">
+                        <input class="form-control" v-model="searchArgs.productCodeOrBarCode" placeholder="商品编码/条码" debounce="500" />
+                    </div>
+                    @*<div class="col-sm-2 col-xs-3" v-show="selectStore.view">
+                            <div class="input-group ">
+                                <input type="hidden" class="form-control" v-model="model.storeId">
+                                <input type="text" class="form-control" v-model="selectStore.name" placeholder="选择门店" readonly>
+                                <span class="input-group-btn">
+                                    <button class="btn btn-flat btn-default" type="button" v-on:click="showStore"><i class="fa fa-search"></i></button>
+                                    <button class="btn btn-flat btn-default" type="button" v-on:click="clearStore"><i class="fa fa-eraser"></i></button>
+                                </span>
+                            </div>
+                        </div>*@
+                </div>
+            </vue-table>
+        </div>
+        <!-- /.box-body -->
+    </div>
+    <div class="clearfix"></div>
+    <!-- modal -->
+    <v-modal title="选择门店" ok-text="确 定" cancel-text="取 消" v-bind:callback="getStore" v-bind:show.sync="selectStore.modal" v-bind:effect="fade" width="60%">
+        <div slot="modal-body" class="modal-body">
+            <div style="min-height:350px;max-height:500px;overflow:auto;"><ul id="ztree" class="ztree"></ul></div>
+        </div>
+    </v-modal>
+</div>
+@{Html.RenderPartial("VueTableTemplate");}
+@section scripts{
+    <script src="~/Content/Vue/vuetable/vuetable.js"></script>
+    <script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
+    <script>
+
+        var vue = new Vue({
+            components: {
+                'v-modal': VueStrap.modal,
+                'v-input': VueStrap.input
+            },
+            el: '#app',
+            data: {
+                modal: false,
+                selectedId: 0,
+                removeReason: '',
+                searchQuery: '',
+                gridColumns: [
+                    { name: 'ProductCode', localName: '商品编码' },
+                    { name: 'BarCode', localName: '条码' },
+                    { name: 'ProductName', localName: '品名', width: '200' },
+                    { name: 'Specification', localName: '规格', width: '80' },
+                    { name: 'Unit', localName: '单位', width: '80' },
+                    { name: 'SalePrice', localName: '售价', width: '80' },
+                ],
+                url: "/Product/QueryContractProductNoSalePrice",
+                searchArgs: { @*storeId: @ViewBag.StoreId,*@ productCodeOrBarCode: '' },
+                rows: [],
+                @*selectStore: {
+                    modal: false,
+                    name: '@ViewBag.StoreName',
+                    view:@ViewBag.View,
+                }*@
+            },
+            methods: {
+                showStore: function () {
+                    this.selectStore.modal = true;
+                },
+                clearStore: function () {
+                    this.searchArgs.storeId = 0;
+                    this.selectStore.name = "";
+                },
+                getStore: function () {
+                    var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                    var selecteds= treeObj.getCheckedNodes(true);
+                    if (selecteds) {
+                        var idArray = new Array();
+                        var nameArray = new Array();
+                        selecteds.forEach(function(item){
+                            if(item.level==1){
+                                idArray.push(item.id);
+                                nameArray.push(item.name);
+                            }
+                        })
+                        if(idArray.length>0){
+                            this.searchArgs.storeId = idArray[0];
+                            this.selectStore.name = nameArray[0];
+                            this.selectStore.modal = false;
+                            this.clearItems();
+                        }
+                        else
+                        {
+                            bootbox.alert("请选择一个门店");
+                        }
+
+                    }
+                },
+            }
+        })
+
+        //加载门店tree
+        var zTreeObj;
+        var setting = {
+            check: {
+                enable:true
+            },
+            async: {
+                enable: true,
+                url: "/Store/LoadStore",
+                //autoParam: ["id", "name"]
+            },
+            callback:{
+                onClick:function(event, treeId, treeNode){
+                    //点击展开/折叠节点
+                    var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                    var open = !treeNode.open;
+                    treeObj.expandNode(treeNode, open, false, false);
+                    // vue.searchArgs.categoryId =treeNode.id;
+                }
+            }
+        };
+        zTreeObj = $.fn.zTree.init($("#ztree"), setting);
+
+    </script>
+}
+
+
+
+
+
+
+
+
+
+
+
+
