@@ -16,74 +16,57 @@ namespace EBS.Query.Service
        {
            _query = query;
        }
-        public IEnumerable<AccountSync> QueryAccountSync(Pager page)
+       public IEnumerable<AccountSync> QueryAccountSync(AccessTokenDto token)
         {
-            string sql = @"Select Id,UserName,Password,NickName,RoleId,StoreId,Status from Account LIMIT {0},{1}";
-            sql = string.Format(sql, (page.PageIndex - 1) * page.PageSize, page.PageSize);
+            string sql = @"Select Id,UserName,Password,NickName,RoleId,StoreId,Status from Account";
             var rows = this._query.FindAll<AccountSync>(sql, null);
-            page.Total = this._query.Count<Account>();
            return rows;
         }
-        public IEnumerable<StoreSync> QueryStoreSync(Pager page)
+       public IEnumerable<StoreSync> QueryStoreSync(AccessTokenDto token)
         {
-            string sql = @"Select Id,Code,Name,LicenseCode from Store LIMIT {0},{1}";
-            sql = string.Format(sql, (page.PageIndex - 1) * page.PageSize, page.PageSize);
+            string sql = @"Select Id,Code,Name,LicenseCode from Store ";
             var rows = this._query.FindAll<StoreSync>(sql, null);
-            page.Total = this._query.Count<Store>();
             return rows;
         }
-        public IEnumerable<VipCardSync> QueryVipCardSync(Pager page)
+        public IEnumerable<VipCardSync> QueryVipCardSync(AccessTokenDto token)
         {
-            string sql = @"SELECT Id,Code,Discount FROM VipCard LIMIT {0},{1}";
-            sql = string.Format(sql, (page.PageIndex - 1) * page.PageSize, page.PageSize);
+            string sql = @"SELECT Id,Code,Discount FROM VipCard ";
             var rows = this._query.FindAll<VipCardSync>(sql, null);
-            page.Total = this._query.Count<VipCard>();
             return rows;
         }
 
-        public IEnumerable<VipProductSync> QueryVipProductSync(Pager page)
+        public IEnumerable<VipProductSync> QueryVipProductSync(AccessTokenDto token)
         {
-            string sql = @"SELECT Id,ProductId,SalePrice FROM VipProduct LIMIT {0},{1}";
-            sql = string.Format(sql, (page.PageIndex - 1) * page.PageSize, page.PageSize);
+            string sql = @"SELECT Id,ProductId,SalePrice FROM VipProduct ";
             var rows = this._query.FindAll<VipProductSync>(sql, null);
-            page.Total = this._query.Count<VipProduct>();
             return rows;
         }
 
-        IEnumerable<ProductStorePriceSync> IPosSyncQuery.QueryProductStorePriceSync(Pager page)
+        IEnumerable<ProductStorePriceSync> IPosSyncQuery.QueryProductStorePriceSync(AccessTokenDto token)
         {
-            string sql = @"SELECT Id,StoreId,ProductId,SalePrice FROM ProductStorePrice LIMIT {0},{1}";
-            sql = string.Format(sql, (page.PageIndex - 1) * page.PageSize, page.PageSize);
-            var rows = this._query.FindAll<ProductStorePriceSync>(sql, null);
-            page.Total = this._query.Count<ProductStorePrice>();
+            string sql = @"SELECT Id,StoreId,ProductId,SalePrice FROM ProductStorePrice where StoreId=@StoreId";
+            var rows = this._query.FindAll<ProductStorePriceSync>(sql, new { StoreId=token.StoreId});
             return rows;
         }
 
-        IEnumerable<ProductAreaPriceSync> IPosSyncQuery.QueryProductAreaPriceSync(Pager page)
+        IEnumerable<ProductAreaPriceSync> IPosSyncQuery.QueryProductAreaPriceSync(AccessTokenDto token)
         {
-            string sql = @"SELECT Id,AreaId,ProductId,SalePrice FROM ProductAreaPrice LIMIT {0},{1}";
-            sql = string.Format(sql, (page.PageIndex - 1) * page.PageSize, page.PageSize);
-            var rows = this._query.FindAll<ProductAreaPriceSync>(sql, null);
-            page.Total = this._query.Count<ProductAreaPrice>();
+            string sql = @"SELECT p.Id,p.AreaId,p.ProductId,p.SalePrice FROM ProductAreaPrice p
+left join Store s on p.AreaId = s.AreaId
+where s.Id=@StoreId";
+            var rows = this._query.FindAll<ProductAreaPriceSync>(sql, new { StoreId = token.StoreId });
             return rows;
         }
 
-        public IEnumerable<ProductSync> QueryProductSync(Pager page, int storeId)
+        public IEnumerable<ProductSync> QueryProductSync(AccessTokenDto token)
         {
             string sql = @"SELECT p.Id,p.`Code`,p.`Name`,p.BarCode,p.Specification,p.Unit,p.SalePrice
 FROM Product p inner join storeInventory i on p.Id = i.ProductId  
-where i.storeId=@StoreId LIMIT {0},{1}";
-            sql = string.Format(sql, (page.PageIndex - 1) * page.PageSize, page.PageSize);
-            var rows = this._query.FindAll<ProductSync>(sql, new { StoreId = storeId });
-            page.Total = this._query.Count<StoreInventory>();
+where i.storeId=@StoreId ";
+
+            var rows = this._query.FindAll<ProductSync>(sql, new { StoreId = token.StoreId });
             return rows;
 
-//            string sql = @"SELECT p.Id,p.`Code`,p.`Name`,p.BarCode,p.Specification,p.Unit,p.SalePrice
-//FROM Product p LIMIT {0},{1}";
-//            sql = string.Format(sql, (page.PageIndex - 1) * page.PageSize, page.PageSize);
-//            var rows = this._query.FindAll<ProductSync>(sql, null);
-//            page.Total = this._query.Count<Product>();
-//            return rows;
         }       
 
         

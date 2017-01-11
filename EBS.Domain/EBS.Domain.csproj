@@ -48,6 +48,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entity\AccessToken.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Entity\Account.cs" />
     <Compile Include="Entity\AdjustContractPrice.cs" />
     <Compile Include="Entity\AdjustContractPriceItem.cs" />

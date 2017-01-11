@@ -121,7 +121,10 @@ where  p.BarCode in @BarCodes  order by t.Id desc";
             var productItems = _query.FindAll<AdjustContractPriceItemDto>(sql, new { BarCodes = dic.Keys.ToArray(), SupplierId = supplierId, StoreId = storeId, Today = DateTime.Now });
             foreach (var product in productItems)
             {
-                product.AdjustPrice = dic[product.BarCode];
+                if (dic.ContainsKey(product.BarCode))
+                {
+                    product.AdjustPrice = dic[product.BarCode];
+                }               
             }
             return productItems;
         }

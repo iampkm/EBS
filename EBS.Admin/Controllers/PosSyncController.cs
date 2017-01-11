@@ -31,51 +31,51 @@ namespace EBS.Admin.Controllers
             _posFacade = posFacade;
             _log = log;
         }
-        public string AccountByPage(Pager page)
+        public string AccountByPage(AccessTokenDto token)
         {
-            var result = _posQuery.QueryAccountSync(page).ToList();
+            var result = _posQuery.QueryAccountSync(token).ToList();
             if (result.Count()==0) { return string.Empty; }
             return JsonConvert.SerializeObject(result);
         }       
 
-        public string StoreByPage(Pager page)
+        public string StoreByPage(AccessTokenDto token)
         {
-            var result = _posQuery.QueryStoreSync(page);
+            var result = _posQuery.QueryStoreSync(token);
             if (result.Count() == 0) { return string.Empty; }
             return JsonConvert.SerializeObject(result);
         }       
 
-        public string VipCardByPage(Pager page)
+        public string VipCardByPage(AccessTokenDto token)
         {
-            var result = _posQuery.QueryVipCardSync(page);
+            var result = _posQuery.QueryVipCardSync(token);
             if (result.Count() == 0) { return string.Empty; }
             return JsonConvert.SerializeObject(result);
         }       
 
-        public string VipProductByPage(Pager page)
+        public string VipProductByPage(AccessTokenDto token)
         {
-            var result = _posQuery.QueryVipProductSync(page);
+            var result = _posQuery.QueryVipProductSync(token);
             if (result.Count() == 0) { return string.Empty; }
             return JsonConvert.SerializeObject(result);
         }       
 
-        public string ProductByPage(Pager page,int storeId)
+        public string ProductByPage(AccessTokenDto token,int storeId)
         {
-            var result = _posQuery.QueryProductSync(page,storeId);
+            var result = _posQuery.QueryProductSync(token);
             if (result.Count() == 0) { return string.Empty; }
             return JsonConvert.SerializeObject(result);
         }
 
-        public string ProductStorePriceByPage(Pager page)
+        public string ProductStorePriceByPage(AccessTokenDto token)
         {
-            var result = _posQuery.QueryProductStorePriceSync(page);
+            var result = _posQuery.QueryProductStorePriceSync(token);
             if (result.Count() == 0) { return string.Empty; }
             return JsonConvert.SerializeObject(result);
         }
 
-        public string ProductAreaPriceByPage(Pager page)
+        public string ProductAreaPriceByPage(AccessTokenDto token)
         {
-            var result = _posQuery.QueryProductAreaPriceSync(page);
+            var result = _posQuery.QueryProductAreaPriceSync(token);
             if (result.Count() == 0) { return string.Empty; }
             return JsonConvert.SerializeObject(result);
         }
@@ -103,6 +103,12 @@ namespace EBS.Admin.Controllers
             _posFacade.UpdateSaleSync(body);
             _log.Info("UpdateSaleSync request:success");
             return "1";
+        }
+
+
+        private void Validate(AccessTokenDto token)
+        {
+
         }
 
     }

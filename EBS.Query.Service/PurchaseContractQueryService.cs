@@ -74,7 +74,10 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             var productItems= _query.FindAll<PurchaseContractItemDto>(sql, new { BarCodes = dic.Keys.ToArray() });
             foreach (var product in productItems)
             {
-                product.ContractPrice = dic[product.BarCode];
+                if (dic.ContainsKey(product.BarCode))
+                {
+                    product.ContractPrice = dic[product.BarCode];
+                }               
             }
             return productItems;
         }

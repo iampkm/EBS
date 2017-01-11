@@ -1,8 +1,12 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2017-01-03 11:24:00                          */
+/* Created on:     2017-01-11 17:14:05                          */
 /*==============================================================*/
 
+
+drop index idx_accesstoken_cdkey on AccessToken;
+
+drop table if exists AccessToken;
 
 drop index idx_account_username on Account;
 
@@ -139,6 +143,26 @@ drop index idx_workschedule_code on WorkSchedule;
 drop table if exists WorkSchedule;
 
 /*==============================================================*/
+/* Table: AccessToken                                           */
+/*==============================================================*/
+create table AccessToken
+(
+   Id                   int not null auto_increment,
+   StoreId              int comment '门店ID',
+   PosId                int comment 'pos机Id',
+   CDKey                varchar(50) comment '序列号',
+   primary key (Id)
+);
+
+/*==============================================================*/
+/* Index: idx_accesstoken_cdkey                                 */
+/*==============================================================*/
+create unique index idx_accesstoken_cdkey on AccessToken
+(
+   CDKey
+);
+
+/*==============================================================*/
 /* Table: Account                                               */
 /*==============================================================*/
 create table Account
@@ -190,16 +214,14 @@ create table AdjustContractPrice
 (
    Id                   int not null auto_increment comment '编号',
    Code                 nvarchar(50) comment '调价单号',
-   Name                 nvarchar(50) comment '调价名',
    StoreId              int comment '门店Id',
    SupplierId           int comment '供应商Id',
-   StartDate            datetime comment '开始日期',
-   EndDate              datetime comment '结束日期',
    CreatedOn            datetime comment '创建时间',
    CreatedBy            int comment '创建人',
    UpdatedOn            datetime comment '修改时间',
    UpdatedBy            int comment '修改人',
    Status               int comment '状态',
+   Remark               nvarchar(200) comment '备注',
    primary key (Id)
 );
 
@@ -550,6 +572,7 @@ create table PurchaseContract
    UpdatedOn            datetime comment '修改时间',
    UpdatedBy            int comment '修改人',
    Status               int comment '状态',
+   Remark               varchar(1000) comment '备注',
    primary key (Id)
 );
 

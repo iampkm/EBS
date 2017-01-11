@@ -53,6 +53,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AccessTokenFacade.cs" />
     <Compile Include="AccountFacade.cs" />
     <Compile Include="AdjustContractPriceFacade.cs" />
     <Compile Include="AdjustSalePriceFacade.cs" />
