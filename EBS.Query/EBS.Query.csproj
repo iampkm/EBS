@@ -42,8 +42,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AccessTokenQueryService.cs" />
-    <Compile Include="DTO\AccessTokenDto.cs" />
     <Compile Include="DTO\AccountInfo.cs" />
     <Compile Include="DTO\AdjustContractPriceDto.cs" />
     <Compile Include="DTO\AdjustContractPriceItemDto.cs" />
@@ -99,7 +97,6 @@
     <Compile Include="DTO\SupplierProductDto.cs" />
     <Compile Include="DTO\TransaferOrderItemDto.cs" />
     <Compile Include="DTO\TransferOrderDto.cs" />
-    <Compile Include="IAccessTokenQuery.cs" />
     <Compile Include="IAccountQuery.cs" />
     <Compile Include="IAdjustContractPriceQuery.cs" />
     <Compile Include="IAdjustSalePriceQuery.cs" />

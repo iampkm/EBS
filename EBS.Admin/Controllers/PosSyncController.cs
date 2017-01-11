@@ -36,84 +36,177 @@ namespace EBS.Admin.Controllers
         }
         public string QueryAccount(AccessTokenModel token)
         {
-            _accessTokenFacade.ValidateCDKey(token);
+            try
+            {
+                _accessTokenFacade.ValidateCDKey(token);
 
-            var result = _posQuery.QueryAccountSync().ToList();
-            if (result.Count()==0) { return string.Empty; }
-            return JsonConvert.SerializeObject(result);
+                var result = _posQuery.QueryAccountSync().ToList();
+                if (result.Count() == 0) { return string.Empty; }
+                return JsonConvert.SerializeObject(result);
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex);
+                return "";
+            }
+          
         }
 
         public string QueryStore(AccessTokenModel token)
         {
-            _accessTokenFacade.ValidateCDKey(token);
-            var result = _posQuery.QueryStoreSync();
-            if (result.Count() == 0) { return string.Empty; }
-            return JsonConvert.SerializeObject(result);
+            try
+            {
+                _accessTokenFacade.ValidateCDKey(token);
+                var result = _posQuery.QueryStoreSync();
+                if (result.Count() == 0) { return string.Empty; }
+                return JsonConvert.SerializeObject(result);
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex);
+                return "";
+            }
+           
         }
 
         public string QueryVipCard(AccessTokenModel token)
         {
-            _accessTokenFacade.ValidateCDKey(token);
-            var result = _posQuery.QueryVipCardSync();
-            if (result.Count() == 0) { return string.Empty; }
-            return JsonConvert.SerializeObject(result);
+            try
+            {
+                _accessTokenFacade.ValidateCDKey(token);
+                var result = _posQuery.QueryVipCardSync();
+                if (result.Count() == 0) { return string.Empty; }
+                return JsonConvert.SerializeObject(result);
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex);
+                return "";
+            }
+           
         }
 
         public string QueryVipProduct(AccessTokenModel token)
         {
-            _accessTokenFacade.ValidateCDKey(token);
-            var result = _posQuery.QueryVipProductSync();
-            if (result.Count() == 0) { return string.Empty; }
-            return JsonConvert.SerializeObject(result);
+            try
+            {
+                _accessTokenFacade.ValidateCDKey(token);
+                var result = _posQuery.QueryVipProductSync();
+                if (result.Count() == 0) { return string.Empty; }
+                return JsonConvert.SerializeObject(result);
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex);
+                return "";
+            }
+           
         }
 
         public string QueryProduct(AccessTokenModel token, string productCodeOrBarCode)
         {
-            _accessTokenFacade.ValidateCDKey(token);
-            var result = _posQuery.QueryProductSync(token.StoreId,productCodeOrBarCode);
-            if (result.Count() == 0) { return string.Empty; }
-            return JsonConvert.SerializeObject(result);
+            try
+            {
+                _accessTokenFacade.ValidateCDKey(token);
+                var result = _posQuery.QueryProductSync(token.StoreId, productCodeOrBarCode);
+                if (result.Count() == 0) { return string.Empty; }
+                return JsonConvert.SerializeObject(result);
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex);
+                return "";
+            }
+          
         }
 
         public string QueryProductStorePrice(AccessTokenModel token)
         {
-            _accessTokenFacade.ValidateCDKey(token);
-            var result = _posQuery.QueryProductStorePriceSync(token.StoreId);
-            if (result.Count() == 0) { return string.Empty; }
-            return JsonConvert.SerializeObject(result);
+            try
+            {
+                _accessTokenFacade.ValidateCDKey(token);
+                var result = _posQuery.QueryProductStorePriceSync(token.StoreId);
+                if (result.Count() == 0) { return string.Empty; }
+                return JsonConvert.SerializeObject(result);
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex);
+                return "";
+            }
+          
         }
 
         public string QueryProductAreaPrice(AccessTokenModel token)
         {
-            _accessTokenFacade.ValidateCDKey(token);
-            var result = _posQuery.QueryProductAreaPriceSync(token.StoreId);
-            if (result.Count() == 0) { return string.Empty; }
-            return JsonConvert.SerializeObject(result);
+            try
+            {
+                _accessTokenFacade.ValidateCDKey(token);
+                var result = _posQuery.QueryProductAreaPriceSync(token.StoreId);
+                if (result.Count() == 0) { return string.Empty; }
+                return JsonConvert.SerializeObject(result);
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex);
+                return "";
+            }
+         
         }
 
         // 事件消息处理
         public string SaleOrderSync(AccessTokenModel token,string body)
         {
-            _log.Info("SaleOrderSync request:body={0}", body);
-            _posFacade.SaleOrderSync(body);
-            _log.Info("SaleOrderSync request:success");
-            return "1";
+            try
+            {
+                _log.Info("SaleOrderSync request:body={0}", body);
+                _accessTokenFacade.ValidateCDKey(token);
+                _posFacade.SaleOrderSync(body);
+                _log.Info("SaleOrderSync request:success");
+                return "1";
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex);
+                return "0";
+            }
+           
         }
 
         public string WorkScheduleSync(AccessTokenModel token,string body)
         {
-            _log.Info("WorkScheduleSync request:body={0}", body);
-            _posFacade.WorkScheduleSync(body);
-            _log.Info("WorkScheduleSync request:success");
-            return "1";
+            try
+            {
+                _log.Info("WorkScheduleSync request:body={0}", body);
+                _accessTokenFacade.ValidateCDKey(token);
+                _posFacade.WorkScheduleSync(body);
+                _log.Info("WorkScheduleSync request:success");
+                return "1";
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex);
+                return "0";
+            }
+           
         }
 
         public string UpdateSaleSync(AccessTokenModel token,string body)
         {
-            _log.Info("UpdateSaleSync request:body={0}", body);
-            _posFacade.UpdateSaleSync(body);
-            _log.Info("UpdateSaleSync request:success");
-            return "1";
+            try
+            {
+                _log.Info("UpdateSaleSync request:body={0}", body);
+                _accessTokenFacade.ValidateCDKey(token);
+                _posFacade.UpdateSaleSync(body);
+                _log.Info("UpdateSaleSync request:success");
+                return "1";
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex);
+                return "0";
+            }
+           
         }
 
 
