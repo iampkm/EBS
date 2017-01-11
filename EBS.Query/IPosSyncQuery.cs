@@ -12,21 +12,21 @@ namespace EBS.Query
     /// </summary>
    public interface IPosSyncQuery
     {
-       IEnumerable<AccountSync> QueryAccountSync(AccessTokenDto token);
-       IEnumerable<StoreSync> QueryStoreSync(AccessTokenDto token);
-       IEnumerable<VipCardSync> QueryVipCardSync(AccessTokenDto token);
-       IEnumerable<VipProductSync> QueryVipProductSync(AccessTokenDto token);
+       IEnumerable<AccountSync> QueryAccountSync();
+       IEnumerable<StoreSync> QueryStoreSync();
+       IEnumerable<VipCardSync> QueryVipCardSync();
+       IEnumerable<VipProductSync> QueryVipProductSync();
 
-       IEnumerable<ProductStorePriceSync> QueryProductStorePriceSync(AccessTokenDto token);
+       IEnumerable<ProductStorePriceSync> QueryProductStorePriceSync(int storeId);
 
-       IEnumerable<ProductAreaPriceSync> QueryProductAreaPriceSync(AccessTokenDto token);
+       IEnumerable<ProductAreaPriceSync> QueryProductAreaPriceSync(int storeId);
        /// <summary>
        /// 库存商品数据
        /// </summary>
        /// <param name="page"></param>
        /// <param name="storeId">门店</param>
        /// <returns></returns>
-       IEnumerable<ProductSync> QueryProductSync(AccessTokenDto token); 
+       IEnumerable<ProductSync> QueryProductSync(int storeId,string productCodeOrBarCode); 
         
     }
 

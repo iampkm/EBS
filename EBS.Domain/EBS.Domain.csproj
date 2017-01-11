@@ -93,6 +93,7 @@
     <Compile Include="Entity\WorkSchedule.cs" />
     <Compile Include="Event\SaleOrderSyncEvent.cs" />
     <Compile Include="Event\SaleOrderSyncHander.cs" />
+    <Compile Include="Service\AccessTokenService.cs" />
     <Compile Include="Service\AccountService.cs" />
     <Compile Include="Entity\AccountLoginHistory.cs" />
     <Compile Include="Service\AdjustContractPriceService.cs" />
