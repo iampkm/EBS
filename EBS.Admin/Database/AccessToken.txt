@@ -1,3 +1,4 @@
 ﻿成都东站3店：  posid=301 ,storeid=2,cdkeySource=20170101@a, cdkey =c3089eaeb92880e92e1c1545a2ddf3d6 ; 服务端cdkey =22e5b2cb96acc9631c1be1129cd3ff8d
-成都东站2店：  posid=201 ,storeid=1,cdkeySource=20170111@a, cdkey =4fcea6de65af8a606e399a4aec955c70 ; 服务端cdkey =159faf4db1049c61d34391b268d52cd1
-成都东站5店：  posid=501 ,storeid=2,cdkeySource=20170111@b, cdkey =6d43d931e66bd88038aa384ddde7bdc8 ; 服务端cdkey =bd0f962340cf20a6c6dba4aacb9c3130
+成都东站2店：  posid=201 ,storeid=1,cdkeySource=20170111@a, cdkey =4fcea6de65af8a606e399a4aec955c70 ; 服务端cdkey =f90b9c3735f6f542795a7966bfe6d253
+成都东站5店：  posid=501 ,storeid=6,cdkeySource=20170111@b, cdkey =6d43d931e66bd88038aa384ddde7bdc8 ; 服务端cdkey =126b0948e96b487dd5e05068b7a7bf00
+                     

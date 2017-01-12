@@ -83,14 +83,14 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
  from purchasecontract c inner join purchasecontractitem i on c.Id= i.PurchaseContractId
 inner join product p on p.Id = i.ProductId
 left join supplier s on c.SupplierId = s.Id
-where (p.`Code`=@productCodeOrBarCode or p.BarCode=@productCodeOrBarCode) and c.EndDate>@Today and c.`Status` = 3 {0} 
+where (p.`Code`=@productCodeOrBarCode or p.BarCode=@productCodeOrBarCode) and c.EndDate>@Today and c.`Status` = 3 and c.SupplierId=@SupplierId 
 and FIND_IN_SET(@StoreId,c.StoreIds)  LIMIT 1";
-            var supplierWhere = "";
-            if (supplierId > 0)            {
-                supplierWhere = "and c.supplierId="+supplierId;               
-            }
-            sql = string.Format(sql, supplierWhere);
-            var item = _query.Find<StorePurchaseOrderItemDto>(sql, new { ProductCodeOrBarCode = productCodeOrBarCode, StoreId = storeId, Today = DateTime.Now });
+            //var supplierWhere = "";
+            //if (supplierId > 0)            {
+            //    supplierWhere = "and c.supplierId="+supplierId;               
+            //}
+            //sql = string.Format(sql, supplierWhere);
+            var item = _query.Find<StorePurchaseOrderItemDto>(sql, new { ProductCodeOrBarCode = productCodeOrBarCode, StoreId = storeId,SupplierId=supplierId, Today = DateTime.Now });
             //设置当前件规            
             if (item == null) { throw new Exception("查无商品，请检查供应商合同"); }
             // 查询是否有调整价格
@@ -99,7 +99,7 @@ and FIND_IN_SET(@StoreId,c.StoreIds)  LIMIT 1";
             return item;
 
         }
-        public IEnumerable<StorePurchaseOrderItemDto> GetPurchaseOrderItemList(string inputProducts, int storeId)
+        public IEnumerable<StorePurchaseOrderItemDto> GetPurchaseOrderItemList(string inputProducts, int storeId, int supplierId)
         {
             if (string.IsNullOrEmpty(inputProducts)) throw new Exception("商品明细为空");
             var dic = inputProducts.ToIntDic();
@@ -109,13 +109,16 @@ and FIND_IN_SET(@StoreId,c.StoreIds)  LIMIT 1";
  from purchasecontract c inner join purchasecontractitem i on c.Id= i.PurchaseContractId
 inner join product p on p.Id = i.ProductId
 left join supplier s on c.SupplierId = s.Id
-where p.`Code` in @ProductCode  and c.EndDate>@Today and c.`Status` = 3
+where p.BarCode in @ProductCode  and c.EndDate>@Today and c.`Status` = 3 and c.SupplierId=@SupplierId
 and FIND_IN_SET(@StoreId,c.StoreIds)";
-            var productItems = _query.FindAll<StorePurchaseOrderItemDto>(sql, new { ProductCode = dic.Keys.ToArray(), StoreId = storeId, Today = DateTime.Now });
+            var productItems = _query.FindAll<StorePurchaseOrderItemDto>(sql, new { ProductCode = dic.Keys.ToArray(), StoreId = storeId, SupplierId = supplierId, Today = DateTime.Now });
             if (!productItems.Any()) { throw new Exception("查无商品，请检查供应商合同"); }
             foreach (var product in productItems)
             {
-                product.Quantity = dic[product.ProductCode];
+                if (dic.ContainsKey(product.BarCode))
+                {
+                    product.Quantity = dic[product.BarCode];                    
+                }
                 product.SetSpecificationQuantity();
             }
             return productItems;

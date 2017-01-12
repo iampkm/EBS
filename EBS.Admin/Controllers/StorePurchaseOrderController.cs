@@ -207,9 +207,9 @@ namespace EBS.Admin.Controllers
             return Json(new { success = true, data = result });
         }
 
-        public JsonResult ImportProduct(string inputProducts, int storeId)
+        public JsonResult ImportProduct(string inputProducts, int storeId, int supplierId)
         {
-            var result = _storePurchaseOrderQuery.GetPurchaseOrderItemList(inputProducts,  storeId);
+            var result = _storePurchaseOrderQuery.GetPurchaseOrderItemList(inputProducts,  storeId, supplierId);
             return Json(new { success = true, data = result });
         }
         public JsonResult Delete(int id, string reason)

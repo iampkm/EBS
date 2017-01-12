@@ -309,9 +309,11 @@
                         var _self = this;
                         if (inputItems == "") { return; }                      
                         if (_self.model.storeId == 0) { bootbox.alert("请选择门店"); return; }
+                        if(_self.model.supplierId==0)  { bootbox.alert("请选择供应商"); return; }
                         var data = {
                             inputProducts: inputItems,
-                            storeId: _self.model.storeId
+                            storeId: _self.model.storeId,
+                            supplierId:_self.model.supplierId
                         }
                         $.post("/StorePurchaseOrder/ImportProduct", data, function (result) {
                             if (result.success) {
@@ -379,6 +381,7 @@
                         var _self = this;
                         if (codeOrBarCode == "") { return; }
                         if (_self.model.storeId == 0) { bootbox.alert("请选择门店"); return; }
+                        if(_self.model.supplierId==0)  { bootbox.alert("请选择供应商"); return; }
                         var data = {
                             productCodeOrBarCode: codeOrBarCode,
                             storeId: _self.model.storeId,
