@@ -156,7 +156,7 @@ where i.storepurchaseorderid= @Id";
  i.ContractPrice,i.Price,i.SupplierId,s.`Name` as SupplierName,i.ProductionDate,i.ShelfLife,i.BatchNo,si.Quantity as inventoryQuantity
 from storeinventorybatch i inner join product p on p.Id = i.ProductId
 left join supplier s on s.Id = i.SupplierId
-left join storeinventory si on si.ProductId = p.Id
+left join (select productid,quantity from storeinventory where storeid=@StoreId)  si on si.ProductId = p.Id
 where (p.`Code`=@productCodeOrBarCode or p.BarCode=@productCodeOrBarCode) and i.Quantity>0 and i.StoreId=@StoreId {0} LIMIT 1";
             string whereBatch = "";
             if (batchNo>0)

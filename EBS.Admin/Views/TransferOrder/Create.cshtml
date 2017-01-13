@@ -314,10 +314,16 @@
                         var v_data = _self.model;
                         $.post("/TransferOrder/Create", v_data, function (result) {
                             if (result.success) {
-                                bootbox.alert("保存成功！");
                                 _self.model.code = result.code;
                                 _self.model.statusName = result.statusName;
-                                _self.id = result.id;
+                                _self.model.id = result.id;
+                                bootbox.confirm("保存成功，你要打印吗？", function (sure) {
+                                    if (sure)
+                                    {
+                                        _self.print();
+                                    }
+                                });
+                               
                             }
                             else {
                                 bootbox.alert(result.error);
@@ -504,18 +510,19 @@
                         }
                     },
                     print: function () {
-                        var data = { id: this.model.id };
                         var _self = this;
-                        $.get("/TransaferOrder/Print", data, function (result) {
+                        if (_self.model.id == 0) { bootbox.alert("请先保存单据再打印"); return;}
+                        var data = { id: _self.model.id };                       
+                        $.get("/TransferOrder/Print", data, function (result) {
                             $("#printDiv").html(result);
                             $("#printTemplate").printArea();
                             $("#printDiv").html("");
 
                             // 清空当前记录信息
                             _self.clearItems();
-                            _self.model.statusName = "";
-                            _self.model.code = "";
-                            _self.model.id = 0;
+                            //_self.model.statusName = "";
+                            //_self.model.code = "";
+                            //_self.model.id = 0;
                         });
                     },
                     clearItems:function(){
@@ -527,6 +534,9 @@
                                 ProductionDate: '', ShelfLife: 0,BatchNo:0,InventoryQuantity:0
                             }];
                         }
+                        _self.model.statusName = "";
+                        _self.model.code = "";
+                        _self.model.id = 0;
                     },
                     showBatch: function (index) {
                        
@@ -578,7 +588,10 @@
                         {
                             var index = this.inputIndex;
                             var selectItem = selectRow[0];
-                            this.products.$set(index, selectItem);  //替换录入行数据
+                            var productItem = this.products[index];
+                            productItem.BatchNo = selectItem.BatchNo;  //替换批次
+                            productItem.ContractPrice = selectItem.ContractPrice;
+                            this.products.$set(index, productItem);  //替换录入行数据
                             //设置焦点                          
                             setTimeout(function () {
                                 var selector = "tr:eq(" + index + ")";

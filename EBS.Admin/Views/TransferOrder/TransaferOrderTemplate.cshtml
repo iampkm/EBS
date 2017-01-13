@@ -1,5 +1,5 @@
 ﻿@model EBS.Query.DTO.TransferOrderDto
-<div id="printTemplate" class="">
+<div id="printTemplate" class="table-printfontsize12">
     <div class="row">
         <div class="col-xs-4 col-sm-4"></div>
         <div class="col-xs-4 col-sm-4"><h3 class="text-center text-danger" style="border-bottom:2px solid;padding-bottom:1px;"><b>调 拨 单</b></h3></div>
@@ -29,7 +29,7 @@
     <div class="row">
         <div class="col-xs-12 col-sm-12">
             <div class="table-responsive">
-                <table class="table table-bordered">
+                <table class="table table-bordered table-printfontsize">
                     <thead>
                         <tr>
                             <th>序号</th>
@@ -45,32 +45,32 @@
                         </tr>
                     </thead>
                     <tbody id="tbody">
-                        @{ 
+                        @{
                             var index = 0;
                             var totalQuanttiy = 0;
                             var totalAmount = 0m;
                         }
                         @foreach (var item in Model.Items)
                         {
-                            index+=1;
+                            index += 1;
                             totalQuanttiy += item.Quantity;
                             totalAmount += item.Price * item.Quantity;
-                        <tr>
-                            <td class="text-center">@index</td>
-                            <td>
-                               @item.ProductCode
-                            </td>
-                            <td>@item.BarCode</td>
-                            <td>@item.ProductName</td>
-                            <td>@item.Specification</td>
-                            <td>@item.Unit</td>
-                            <td>@item.Price.ToString("F4")</td>
-                            <td>
-                                @item.Quantity
-                            </td>
-                            <td>@item.Amount.ToString("F2")</td>
-                            <td>@item.BatchNo</td>
-                        </tr>
+                            <tr>
+                                <td class="text-center">@index</td>
+                                <td>
+                                    @item.ProductCode
+                                </td>
+                                <td>@item.BarCode</td>
+                                <td>@item.ProductName</td>
+                                <td>@item.Specification</td>
+                                <td>@item.Unit</td>
+                                <td>@item.Price.ToString("F4")</td>
+                                <td>
+                                    @item.Quantity
+                                </td>
+                                <td>@item.Amount.ToString("F2")</td>
+                                <td>@item.BatchNo</td>
+                            </tr>
                         }
                     </tbody>
                     <tfoot>
@@ -85,7 +85,6 @@
                             <td></td>
                             <td>@totalQuanttiy</td>
                             <td>@totalAmount.ToString("F2")</td>
-                            <td></td>
                         </tr>
                     </tfoot>
                 </table>

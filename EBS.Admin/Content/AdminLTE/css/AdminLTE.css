@@ -4952,6 +4952,10 @@ table.text-center th {
         font-size: 10px;
         font-family: 'ËÎÌו',Tahoma, Helvetica, Arial, sans-serif;
   }
+  .table-printfontsize12 {
+        font-size: 12px;
+        font-family: 'ËÎÌו',Tahoma, Helvetica, Arial, sans-serif;
+  }
   table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td
   {
       padding:4px;

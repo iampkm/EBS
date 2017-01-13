@@ -32,6 +32,7 @@ namespace EBS.Application.Facade
         public void Create(ProductModel model)
         {
             Product entity = model.MapTo<Product>();
+            entity.BarCode = entity.BarCode.Trim();
             _productService.ValidateBarCode(entity.BarCode);
             entity.CreatedBy = model.UpdatedBy;
             entity.Code = _productService.GenerateNewCode(entity.CategoryId);
@@ -49,6 +50,7 @@ namespace EBS.Application.Facade
         public void Edit(ProductModel model)
         {
             var entity = _db.Table.Find<Product>(model.Id);
+            entity.BarCode = entity.BarCode.Trim();
             if (!String.Equals(model.BarCode, entity.BarCode, StringComparison.OrdinalIgnoreCase))
             {
                 _productService.ValidateBarCode(model.BarCode);
@@ -93,6 +95,7 @@ namespace EBS.Application.Facade
                     errors += string.Format("[{0}] 条码[{1}]为空或重复 <br />", product.Name, product.BarCode);
                     continue;
                 }
+                product.BarCode = product.BarCode.Trim();
                 product.Code = _productService.GenerateNewCode(product.CategoryId);
                 successProducts.Add(product);
             }

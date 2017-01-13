@@ -115,7 +115,7 @@ namespace EBS.Domain.Entity
                 this.Status = PurchaseOrderStatus.FinanceAuditd;
             }
             else {
-                throw new Exception("单据为结束，不能进行财务审核");
+                throw new Exception("单据未结束，不能进行财务审核");
             }
         }
        

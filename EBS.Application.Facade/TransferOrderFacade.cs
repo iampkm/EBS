@@ -84,7 +84,7 @@ namespace EBS.Application.Facade
             _processHistoryService.Track(entity.UpdatedBy, editByName, (int)entity.Status, entity.Id, BillIdentity.TransferOrder.ToString(), reason);
             _inventoryService.TransaferOutInventory(entity);
             _inventoryService.TransaferInInventory(entity);
-            _db.SaveChange();
+           _db.SaveChange();
         }
 
         public void Cancel(int id, int editBy, string editByName)

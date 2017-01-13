@@ -54,7 +54,7 @@ where 1=1 {0} ORDER BY o.Id desc ";
         public List<TransaferOrderItemDto> QueryProductBatch(string productCodeOrBarCode, int storeId)
         {
             string sql = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.Specification,p.BarCode,p.Unit,p.SpecificationQuantity as ProductSpecificationQuantity, 
- b.ContractPrice,b.Price,b.SupplierId,b.BatchNo ,s.`Name` as SupplierName,b.Quantity AS InventoryQuantity
+ b.ContractPrice,b.Price,b.SupplierId,b.BatchNo ,s.`Name` as SupplierName,b.Quantity AS BatchQuantity
 from storeinventorybatch b left join  product p on p.Id = b.ProductId
 left join supplier s on b.SupplierId = s.Id
 where (p.`Code`=@productCodeOrBarCode or p.BarCode=@productCodeOrBarCode)  and  b.Quantity>0   and b.StoreId = @StoreId
@@ -67,9 +67,10 @@ ORDER BY b.Id ";
         public TransaferOrderItemDto QueryProduct(string productCodeOrBarCode, int storeId)
         {
             string sql = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.Specification,p.BarCode,p.Unit,p.SpecificationQuantity as ProductSpecificationQuantity, 
- b.ContractPrice,b.Price,b.SupplierId,b.BatchNo ,s.`Name` as SupplierName,b.Quantity AS InventoryQuantity
+ b.ContractPrice,b.Price,b.SupplierId,b.BatchNo ,s.`Name` as SupplierName,i.Quantity AS InventoryQuantity
 from storeinventorybatch b left join  product p on p.Id = b.ProductId
 left join supplier s on b.SupplierId = s.Id
+left join (select productId,Quantity from storeinventory where storeid = @StoreId ) i on b.productId = i.productId
 where (p.`Code`=@productCodeOrBarCode or p.BarCode=@productCodeOrBarCode)  and  b.Quantity>0   and b.StoreId = @StoreId
 ORDER BY b.Id Limit 1";
             var model = this._query.Find<TransaferOrderItemDto>(sql, new { ProductCodeOrBarCode = productCodeOrBarCode, StoreId = storeId });

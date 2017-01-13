@@ -74,7 +74,9 @@
                         if (result) {
                             $.post("/TransferOrder/Audit", { id: selectId }, function (result) {
                                 if (result.success) {
-                                    v_self.$refs.vtable.loadData();
+                                    bootbox.alert("审核成功!", function () {
+                                        v_self.$refs.vtable.loadData();
+                                    });                                   
                                 }
                                 else {
                                     bootbox.alert(result.error);
