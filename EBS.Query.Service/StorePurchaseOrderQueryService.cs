@@ -84,7 +84,7 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
 inner join product p on p.Id = i.ProductId
 left join supplier s on c.SupplierId = s.Id
 where (p.`Code`=@productCodeOrBarCode or p.BarCode=@productCodeOrBarCode) and c.EndDate>@Today and c.`Status` = 3 and c.SupplierId=@SupplierId 
-and FIND_IN_SET(@StoreId,c.StoreIds)  LIMIT 1";
+and FIND_IN_SET(@StoreId,c.StoreIds) order by c.Id desc  LIMIT 1";
             //var supplierWhere = "";
             //if (supplierId > 0)            {
             //    supplierWhere = "and c.supplierId="+supplierId;               
@@ -110,7 +110,7 @@ and FIND_IN_SET(@StoreId,c.StoreIds)  LIMIT 1";
 inner join product p on p.Id = i.ProductId
 left join supplier s on c.SupplierId = s.Id
 where p.BarCode in @ProductCode  and c.EndDate>@Today and c.`Status` = 3 and c.SupplierId=@SupplierId
-and FIND_IN_SET(@StoreId,c.StoreIds)";
+and FIND_IN_SET(@StoreId,c.StoreIds) order by c.Id desc ";
             var productItems = _query.FindAll<StorePurchaseOrderItemDto>(sql, new { ProductCode = dic.Keys.ToArray(), StoreId = storeId, SupplierId = supplierId, Today = DateTime.Now });
             if (!productItems.Any()) { throw new Exception("查无商品，请检查供应商合同"); }
             foreach (var product in productItems)
