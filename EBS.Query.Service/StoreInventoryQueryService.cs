@@ -102,8 +102,13 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<Product>(where, param);
             sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
             var rows = this._query.FindAll<StoreInventoryHistoryQueryDto>(sql, param);
-            // page.Total = this._query.Count<StoreInventory>(where, param);
-            page.Total = this._query.Count<StoreInventoryHistory>();
+
+            string sqlCount = @"select count(*) from storeinventoryhistory t0 inner join product t1 on t0.productId = t1.Id
+inner join store t2 on t2.Id = t0.StoreId 
+where 1=1 {0} ";
+            sqlCount = string.Format(sqlCount, where);
+            int rowCount= this._query.Context.ExecuteScalar<int>(sqlCount, param);
+            page.Total = rowCount;
 
             return rows;
         }

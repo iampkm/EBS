@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2017-01-11 17:14:05                          */
+/* Created on:     2017-01-16 10:09:56                          */
 /*==============================================================*/
 
 
@@ -108,11 +108,19 @@ drop index idx_store_Code on Store;
 
 drop table if exists Store;
 
+drop index idx_storeInventory_pid on StoreInventory;
+
 drop table if exists StoreInventory;
+
+drop index idx_storeInventoryBath_pid on StoreInventoryBatch;
 
 drop table if exists StoreInventoryBatch;
 
 drop table if exists StoreInventoryHistory;
+
+drop index idx_storeInventoryMonthly_pid on StoreInventoryMonthly;
+
+drop table if exists StoreInventoryMonthly;
 
 drop index idx_StorePurchaseOrder_code on StorePurchaseOrder;
 
@@ -933,6 +941,14 @@ create table StoreInventory
 alter table StoreInventory comment '门店库存';
 
 /*==============================================================*/
+/* Index: idx_storeInventory_pid                                */
+/*==============================================================*/
+create index idx_storeInventory_pid on StoreInventory
+(
+   ProductId
+);
+
+/*==============================================================*/
 /* Table: StoreInventoryBatch                                   */
 /*==============================================================*/
 create table StoreInventoryBatch
@@ -955,6 +971,14 @@ create table StoreInventoryBatch
 alter table StoreInventoryBatch comment '门店商品批次';
 
 /*==============================================================*/
+/* Index: idx_storeInventoryBath_pid                            */
+/*==============================================================*/
+create index idx_storeInventoryBath_pid on StoreInventoryBatch
+(
+   ProductId
+);
+
+/*==============================================================*/
 /* Table: StoreInventoryHistory                                 */
 /*==============================================================*/
 create table StoreInventoryHistory
@@ -975,6 +999,30 @@ create table StoreInventoryHistory
 );
 
 alter table StoreInventoryHistory comment '门店库存历史记录';
+
+/*==============================================================*/
+/* Table: StoreInventoryMonthly                                 */
+/*==============================================================*/
+create table StoreInventoryMonthly
+(
+   Id                   int not null auto_increment comment '编号',
+   Month                date comment '月',
+   StoreId              int comment '门店编码',
+   ProductId            int comment '商品Id',
+   Quantity             int comment '实际库存数',
+   AvgCostPrice         decimal(8,4) comment '平均成本价',
+   primary key (Id)
+);
+
+alter table StoreInventoryMonthly comment '门店库存月报';
+
+/*==============================================================*/
+/* Index: idx_storeInventoryMonthly_pid                         */
+/*==============================================================*/
+create index idx_storeInventoryMonthly_pid on StoreInventoryMonthly
+(
+   ProductId
+);
 
 /*==============================================================*/
 /* Table: StorePurchaseOrder                                    */

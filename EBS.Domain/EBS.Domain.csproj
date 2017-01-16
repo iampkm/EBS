@@ -81,6 +81,7 @@
     <Compile Include="Entity\StoreInventoryBatch.cs" />
     <Compile Include="Entity\StoreInventoryBatchUpdate.cs" />
     <Compile Include="Entity\StoreInventoryHistory.cs" />
+    <Compile Include="Entity\StoreInventoryMonthly.cs" />
     <Compile Include="Entity\StoreInventoryUpdate.cs" />
     <Compile Include="Entity\StorePurchaseOrder.cs" />
     <Compile Include="Entity\StorePurchaseOrderItem.cs" />
@@ -108,6 +109,7 @@
     <Compile Include="Service\ShelfService.cs" />
     <Compile Include="Service\StocktakingPlanService.cs" />
     <Compile Include="Service\StocktakingService.cs" />
+    <Compile Include="Service\StoreInventoryMonthlyTask.cs" />
     <Compile Include="Service\StoreInventoryService.cs" />
     <Compile Include="Service\StorePurchaseOrderService.cs" />
     <Compile Include="Service\StoreInventoryBatchService.cs" />
