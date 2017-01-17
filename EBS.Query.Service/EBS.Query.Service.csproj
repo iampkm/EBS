@@ -65,6 +65,7 @@
     <Compile Include="StoreQueryService.cs" />
     <Compile Include="SupplierQueryService.cs" />
     <Compile Include="TransferOrderQueryService.cs" />
+    <Compile Include="VipProductQueryService.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Domain\EBS.Domain.csproj">

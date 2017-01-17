@@ -65,6 +65,7 @@
     <Compile Include="DTO\StoreModel.cs" />
     <Compile Include="DTO\SupplierModel.cs" />
     <Compile Include="DTO\TransferOrderModel.cs" />
+    <Compile Include="DTO\VipProductModel.cs" />
     <Compile Include="IAccessTokenFacade.cs" />
     <Compile Include="IAccountFacade.cs" />
     <Compile Include="IAdjustContractPriceFacade.cs" />
@@ -83,6 +84,7 @@
     <Compile Include="IStorePurchaseOrderFacade.cs" />
     <Compile Include="ISupplierFacade.cs" />
     <Compile Include="ITransferOrderFacade.cs" />
+    <Compile Include="IVipProductFacade.cs" />
     <Compile Include="Message\IMessage.cs" />
     <Compile Include="Message\InputCashAmountMessage.cs" />
     <Compile Include="Message\SaleOrderSyncMessage.cs" />

@@ -164,6 +164,7 @@
     <Compile Include="Controllers\StorePurchaseOrderController.cs" />
     <Compile Include="Controllers\SupplierController.cs" />
     <Compile Include="Controllers\TransferOrderController.cs" />
+    <Compile Include="Controllers\VipProductController.cs" />
     <Compile Include="FluentValidationResource.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -1285,6 +1286,8 @@
     <Content Include="Views\AdjustContractPrice\Detail.cshtml" />
     <Content Include="Views\PurchaseContract\Detail.cshtml" />
     <Content Include="Views\Product\PriceCheck.cshtml" />
+    <Content Include="Views\VipProduct\Index.cshtml" />
+    <Content Include="Views\VipProduct\Create.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">

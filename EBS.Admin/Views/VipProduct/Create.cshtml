@@ -1,0 +1,241 @@
+﻿@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+@section styles{
+    <link href="~/Content/zTree.min.css" rel="stylesheet" />
+    <style>
+        .ztree li span {
+            font-size: 14px;
+        }
+
+        .dataRow div {
+            margin-bottom: 0px;
+        }
+    </style>
+}
+<!-- demo root element -->
+<div id="app" class="box box-primary">
+    <div class="box-header with-border">
+        <ol class="breadcrumb" style="padding:0px;margin:1px;">
+            <li><a href="/VipProduct/Index"><i class="fa fa-dashboard"></i>会员价管理</a></li>
+            <li class="active"><a href="/VipProduct/Create">新增会员商品</a></li>
+        </ol>
+    </div>
+    <!-- /.box-header -->
+    <!-- form start -->
+    <form>
+        <div class="box-body">
+            <div class="row">
+                <div class="form-group col-sm-4 col-xs-6">
+                    <button type="button" class="btn btn-warning btn-flat" v-on:click="onSubmit">保 存</button>
+                    <button type="button" class="btn btn-success btn-flat" v-on:click="showModal()">导入商品</button>
+                    <a class="btn btn-default btn-flat" href="javascript:history.back()">取 消</a>                  
+                </div>
+            </div>            
+            <div class="row">
+                <div class="col-xs-4 col-sm-4"></div>
+                <div class="col-xs-4 col-sm-4"><h3 class="text-center text-success" style="border-bottom:2px solid;padding-bottom:1px;"><b>会员价商品</b></h3></div>
+                <div class="col-xs-4 col-sm-4"></div>
+            </div>            
+            <div class="row">
+                <div class="col-xs-12 col-sm-12">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="width:90px;"></th>
+                                    <th style="width:50px;">序号</th>
+                                    <th style="width:150px;">商品编码</th>
+                                    <th>条码</th>
+                                    <th style="width:200px;">品名</th>
+                                    <th>规格</th>
+                                    <th>单位</th>
+                                    <th>售价</th>
+                                    <th>会员价</th>                                    
+                                </tr>
+                            </thead>
+                            <tbody id="tbody">
+                                <tr v-for="(index,item) in products">
+                                    <td>
+                                        <button type="button" class="btn btn-flat  btn-sm" title="添加行" v-on:click="addRow($event)"><span class="fa fa-plus"></span></button>
+                                        <button type="button" class="btn btn-flat  btn-sm" v-show="index>0" title="删除行" v-on:click="removeRow(index)"><span class="fa fa-trash"></span></button>
+                                    </td>
+                                    <td class="text-center">{{index+1}}</td>
+                                    <td>
+                                        <input type="text" class="form-control productCode" v-model="item.ProductCode" v-on:keyup.enter="inputProduct(item.ProductCode,index)" placeholder="录入编码或扫码" />
+                                    </td>
+                                    <td>{{item.BarCode}}</td>
+                                    <td>{{item.ProductName}}</td>
+                                    <td>{{item.Specification}}</td>
+                                    <td>{{item.Unit}}</td>
+                                    <td>{{item.SalePrice.toFixed(4)}}</td>                                    
+                                    <td>
+                                        <input type="number" class="form-control quantity" v-model="item.VipSalePrice" v-on:keyup.enter="inputNext($event)" />
+                                    </td>
+                                    
+                                </tr>
+                            </tbody>                            
+                        </table>
+                    </div>
+                </div>
+            </div>            
+        </div>
+    </form>
+    <!-- modal -->
+    <v-modal title="导入商品" ok-text="确 定" cancel-text="取 消" v-bind:callback="importProduct" v-bind:show.sync="modal" v-bind:effect="fade" width="300">
+        <div slot="modal-body" class="modal-body">
+            <v-input type="textarea" help="请将excel中商品条码和价格两列粘贴到文本框中" v-bind:value.sync="inputProducts" placeholder="输入商品" required icon></v-input>
+        </div>
+    </v-modal>    
+</div>
+@section scripts{  
+    <script>
+        $("doucument").ready(function () {
+            var demo = new Vue({
+                components: {
+                    'v-modal': VueStrap.modal,
+                    'v-input': VueStrap.input,
+                    'v-checkbox': VueStrap.checkbox
+                },
+                el: '#app',
+                data: {
+                    modal: false,                    
+                    products: [{ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', SalePrice: 0, VipSalePrice: 0}],
+                    inputProducts: '',                    
+                },
+                methods: {
+                    onSubmit: function () {
+                        //获取选择节点
+                        var _self = this;
+                        var data = "";
+                        for (var i = 0; i < _self.products.length; i++) {
+                            var item = _self.products[i];
+                            if (item.ProductId > 0 && item.VipSalePrice > 0) {     
+                                data += "{\"ProductId\":" + item.ProductId + ",\"VipSalePrice\":" + item.VipSalePrice  + "},";
+                            }
+                        }
+                        if (data == "") {
+                            bootbox.alert("请导入商品");
+                            return;
+                        }
+                        data = data.substring(0, data.length - 1);
+                        data = "[" + data + "]";
+                        var v_data ={vipProducts:data};
+                        $.post("/VipProduct/Create", v_data, function (result) {
+                            if (result.success) {
+                                bootbox.alert("保存成功！", function () {
+                                    window.location.href = "/VipProduct/Index";
+                                });
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
+                    },
+                    importProduct: function () {
+                        var inputItems = this.inputProducts;
+                        var _self = this;
+                        if (inputItems == "") { return; }
+                        var data = {
+                            inputProducts: inputItems,
+                        }
+                        $.post("/VipProduct/ImportProduct", data, function (result) {
+                            if (result.success) {
+                                _self.products = [];
+                                for(var i=0;i<result.data.length;i++)
+                                {
+                                    var item = result.data[i];                                   
+                                    _self.products.push(item);
+                                }
+
+                                _self.modal = false;
+                                //设置焦点,延迟500，等待vue.js 渲染完毕
+                                setTimeout(function () {
+                                    var selector = "tr:eq(0)";
+                                    var row = $("#tbody").find(selector);
+                                    row.find("input.quantity").focus().select();
+                                }, 300);
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
+                    },
+                    showModal: function () {
+                        this.modal = true;
+                    },
+                    addRow: function (event) {
+                        this.products.push({ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', SalePrice: 0, VipSalePrice: 0});
+                        //设置焦点
+                        var target = event.srcElement || event.target;
+                        var row = target.localName == "span" ? $(target).parent().parent().parent() : $(target).parent().parent();
+                        setfocus();
+                        function setfocus()
+                        {
+                            setTimeout(function () {
+                                var nextRow = row.next();
+                                if (nextRow) { // 等待 vue.js 渲染完成后，才设置
+                                    nextRow.find("input.productCode").focus().select();
+                                }
+                                else {
+                                    setfocus();
+                                }
+                            }, 200);
+                        }
+                    },
+                    removeRow: function (index) {
+                        this.products.splice(index, 1);
+                    },
+                    inputProduct: function (codeOrBarCode, index) {
+                        var _self = this;
+                        if (codeOrBarCode == "") { return; }                      
+                        var data = {
+                            productCodeOrBarCode: codeOrBarCode,                           
+                        }
+                        //设置焦点
+                        $.get("/VipProduct/QueryProduct", data, function (result) {
+                            if (result.success) {                                
+                                _self.products.$set(index, result.data);
+
+                                //设置焦点,延迟500，等待vue.js 渲染完毕
+                                setTimeout(function () {
+                                    var selector = "tr:eq(" + index + ")";
+                                    var row= $("#tbody").find(selector);
+                                    row.find("input.quantity").focus().select();
+                                }, 300);
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
+
+                    },
+                    inputNext: function (event) {
+                        var target = event.target;
+                        var row = $(target).parent().parent();
+                        if (row.next().length > 0) {
+                            row.next().find("input.quantity").focus().select();
+                        }
+                        else {
+                            this.addRow(event);
+                        }
+                    },                    
+                    clearItems:function(){
+                        if(this.products.length>0)
+                        {
+                            this.products = [{ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', SalePrice: 0, VipSalePrice: 0}];
+                        }
+                    }
+                }                
+            });
+
+        });
+
+
+    </script>
+}
+
+
+
+
+

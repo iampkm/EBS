@@ -76,6 +76,7 @@
     <Compile Include="DTO\SearchStorePurchaseOrder.cs" />
     <Compile Include="DTO\SearchSupplierContract.cs" />
     <Compile Include="DTO\SearchTransferOrder.cs" />
+    <Compile Include="DTO\SearchVipProduct.cs" />
     <Compile Include="DTO\ShelfTreeNode.cs" />
     <Compile Include="DTO\StocktakingDto.cs" />
     <Compile Include="DTO\StocktakingItemDto.cs" />
@@ -97,6 +98,7 @@
     <Compile Include="DTO\SupplierProductDto.cs" />
     <Compile Include="DTO\TransaferOrderItemDto.cs" />
     <Compile Include="DTO\TransferOrderDto.cs" />
+    <Compile Include="DTO\VipProductDto.cs" />
     <Compile Include="IAccountQuery.cs" />
     <Compile Include="IAdjustContractPriceQuery.cs" />
     <Compile Include="IAdjustSalePriceQuery.cs" />
@@ -121,6 +123,7 @@
     <Compile Include="IStoreQuery.cs" />
     <Compile Include="ISupplierQuery.cs" />
     <Compile Include="ITransferOrderQuery.cs" />
+    <Compile Include="IVipProductQuery.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SyncObject\AccountSync.cs" />
     <Compile Include="SyncObject\ChangeDataSync.cs" />
