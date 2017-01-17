@@ -64,7 +64,13 @@ namespace EBS.Domain.Service
                     inventoryUpdateModel.SaleQuantity = purchaseOrderItem.ActualQuantity; // 更新可售数量
                     // 计算移动加权平均成本
                     int totalQuantity = inventory.Quantity + purchaseOrderItem.ActualQuantity;
-                    inventoryUpdateModel.AvgCostPrice = Math.Round((inventory.AvgCostPrice * inventory.Quantity + purchaseOrderItem.Price * purchaseOrderItem.ActualQuantity) / totalQuantity, 4);
+                    if (totalQuantity == 0)
+                    {
+                        inventoryUpdateModel.AvgCostPrice = purchaseOrderItem.Price;
+                    }
+                    else {
+                        inventoryUpdateModel.AvgCostPrice = Math.Round((inventory.AvgCostPrice * inventory.Quantity + purchaseOrderItem.Price * purchaseOrderItem.ActualQuantity) / totalQuantity, 4);
+                    }                    
                     inventoryUpdates.Add(inventoryUpdateModel);
                     //记录库存流水
                     var history = new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventory.Quantity, purchaseOrderItem.ActualQuantity,
@@ -355,7 +361,15 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
 
                     // 计算移动加权平均成本
                     int totalQuantity = inventory.Quantity + quantity;
-                    inventoryUpdateModel.AvgCostPrice = Math.Round((inventory.AvgCostPrice * inventory.Quantity + purchaseOrderItem.AvgCostPrice * quantity) / totalQuantity, 4);
+                    if (totalQuantity == 0)
+                    {
+                        inventoryUpdateModel.AvgCostPrice = purchaseOrderItem.AvgCostPrice;
+                    }
+                    else
+                    {
+                        inventoryUpdateModel.AvgCostPrice = Math.Round((inventory.AvgCostPrice * inventory.Quantity + purchaseOrderItem.AvgCostPrice * quantity) / totalQuantity, 4);
+                    } 
+                   
                     inventoryUpdates.Add(inventoryUpdateModel);
 
 
@@ -519,7 +533,15 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
                     inventoryUpdateModel.SaleQuantity = purchaseOrderItem.Quantity; // 更新可售数量
                     // 计算移动加权平均成本
                     int totalQuantity = inventory.Quantity + purchaseOrderItem.Quantity;
-                    inventoryUpdateModel.AvgCostPrice = Math.Round((inventory.AvgCostPrice * inventory.Quantity + purchaseOrderItem.Price * purchaseOrderItem.Quantity) / totalQuantity, 4);
+                    if (totalQuantity == 0)
+                    {
+                        inventoryUpdateModel.AvgCostPrice = purchaseOrderItem.Price;
+                    }
+                    else
+                    {
+                        inventoryUpdateModel.AvgCostPrice = Math.Round((inventory.AvgCostPrice * inventory.Quantity + purchaseOrderItem.Price * purchaseOrderItem.Quantity) / totalQuantity, 4);
+                    } 
+                    
                     inventoryUpdates.Add(inventoryUpdateModel);
                     //记录库存流水
                     var history = new StoreInventoryHistory(inventory.ProductId, entity.ToStoreId, inventory.Quantity, purchaseOrderItem.Quantity,
