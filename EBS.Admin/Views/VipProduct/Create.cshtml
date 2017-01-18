@@ -51,7 +51,10 @@
                                     <th>规格</th>
                                     <th>单位</th>
                                     <th>售价</th>
-                                    <th>会员价</th>                                    
+                                    <th title="最新合同参考进价">进价</th>
+                                    <th>会员价</th> 
+                                    <th>毛利额</th>
+                                    <th>毛利率</th>                                   
                                 </tr>
                             </thead>
                             <tbody id="tbody">
@@ -68,19 +71,39 @@
                                     <td>{{item.ProductName}}</td>
                                     <td>{{item.Specification}}</td>
                                     <td>{{item.Unit}}</td>
-                                    <td>{{item.SalePrice.toFixed(4)}}</td>                                    
+                                    <td>{{item.SalePrice.toFixed(4)}}</td>  
+                                    <td>{{item.ContractPrice.toFixed(2)}}</td>                                  
                                     <td>
                                         <input type="number" class="form-control quantity" v-model="item.VipSalePrice" v-on:keyup.enter="inputNext($event)" />
                                     </td>
-                                    
+                                    <td v-bind:class="{'text-danger':item.Profit<=0}">{{item.Profit.toFixed(2)}}</td>
+                                    <td v-bind:class="{'text-danger':item.Profit<=0}">{{item.ProfitMargin}}%</td>
                                 </tr>
-                            </tbody>                            
+                            </tbody> 
+                            <tfoot>
+                                <tr>
+                                    <td></td>
+                                    <td style="width:50px;"></td>
+                                    <td>合计：</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>{{profitTotal.toFixed(2)}}</td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>                           
                         </table>
                     </div>
                 </div>
             </div>            
         </div>
     </form>
+    <br />
+    <p class="text-danger">友情提示：商品若存在，会更新会员价</p>
     <!-- modal -->
     <v-modal title="导入商品" ok-text="确 定" cancel-text="取 消" v-bind:callback="importProduct" v-bind:show.sync="modal" v-bind:effect="fade" width="300">
         <div slot="modal-body" class="modal-body">
@@ -100,7 +123,10 @@
                 el: '#app',
                 data: {
                     modal: false,                    
-                    products: [{ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', SalePrice: 0, VipSalePrice: 0}],
+                    products: [{
+                        Id: 0, ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '',
+                        Unit: '', SalePrice: 0, VipSalePrice: 0, ContractPrice: 0, Profit: 0, ProfitMargin: 0
+                    }],
                     inputProducts: '',                    
                 },
                 methods: {
@@ -110,12 +136,16 @@
                         var data = "";
                         for (var i = 0; i < _self.products.length; i++) {
                             var item = _self.products[i];
+                            if (item.SalePrice < item.VipSalePrice) {
+                                bootbox.alert("商品["+item.ProductName+" "+item.BarCode+"]会员价高于售价");
+                                return;
+                            }
                             if (item.ProductId > 0 && item.VipSalePrice > 0) {     
-                                data += "{\"ProductId\":" + item.ProductId + ",\"VipSalePrice\":" + item.VipSalePrice  + "},";
+                                data += "{\"Id\":"+item.Id + ",\"ProductId\":" + item.ProductId + ",\"SalePrice\":" + item.VipSalePrice  + "},";
                             }
                         }
                         if (data == "") {
-                            bootbox.alert("请导入商品");
+                            bootbox.alert("商品明细为空，或有商品会员价为空");
                             return;
                         }
                         data = data.substring(0, data.length - 1);
@@ -165,7 +195,10 @@
                         this.modal = true;
                     },
                     addRow: function (event) {
-                        this.products.push({ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', SalePrice: 0, VipSalePrice: 0});
+                        this.products.push({
+                            Id: 0, ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '',
+                            Unit: '', SalePrice: 0, VipSalePrice: 0, ContractPrice: 0, Profit: 0, ProfitMargin: 0
+                        });
                         //设置焦点
                         var target = event.srcElement || event.target;
                         var row = target.localName == "span" ? $(target).parent().parent().parent() : $(target).parent().parent();
@@ -223,10 +256,30 @@
                     clearItems:function(){
                         if(this.products.length>0)
                         {
-                            this.products = [{ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', SalePrice: 0, VipSalePrice: 0}];
+                            this.products = [{
+                                Id: 0, ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '',
+                                Unit: '', SalePrice: 0, VipSalePrice: 0, ContractPrice: 0, Profit: 0, ProfitMargin: 0
+                            }];
                         }
                     }
-                }                
+                },
+                computed: {
+                    profitTotal: function () {
+                        var _self = this;
+                        var _profitTotal = 0;
+                        _self.products.forEach(function (item) {
+                            item.Profit = item.VipSalePrice - item.ContractPrice;
+                            if (item.VipSalePrice > 0) {
+                                var result = item.Profit / item.VipSalePrice * 100;
+                                item.ProfitMargin = result.toFixed(2);
+                            }
+                            _profitTotal += item.Profit;
+                        });
+
+                        return _profitTotal;
+                    }
+                }
+                
             });
 
         });

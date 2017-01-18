@@ -20,13 +20,15 @@ namespace EBS.Admin.Controllers
     {
         IQuery _query;
         IVipProductQuery _vipProductQuery;
+        IVipProductFacade _vipProductFacade;
         IContextService _context;
         ILogger _log;
 
-        public VipProductController(IContextService context, IQuery query, IVipProductQuery vipProductQuery, ILogger log)
+        public VipProductController(IContextService context, IQuery query, IVipProductQuery vipProductQuery, ILogger log,IVipProductFacade vipProductFacade)
         {
             this._query = query;
             _vipProductQuery = vipProductQuery;
+            _vipProductFacade = vipProductFacade;
             this._context = context;
             _log = log;
         }
@@ -50,17 +52,20 @@ namespace EBS.Admin.Controllers
         [HttpPost]
         public JsonResult Create(string vipProducts)
         {
+            _vipProductFacade.Create(vipProducts);
             return Json(new { success = true});
         }
 
         public JsonResult QueryProduct(string productCodeOrBarCode)
         {
-            return Json(new { success = true });
+            var model = _vipProductQuery.QueryProduct(productCodeOrBarCode);
+            return Json(new { success = true, data = model });
         }
 
         public JsonResult ImportProduct(string inputProducts)
         {
-            return Json(new { success = true });
+            var rows=  _vipProductQuery.QueryProductByBarCode(inputProducts);
+            return Json(new { success = true,data = rows });
         }
     }
 }

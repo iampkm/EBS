@@ -8,7 +8,7 @@ namespace EBS.Application
 {
    public interface IVipProductFacade
     {
-       void Create(VipProductModel model);
+       void Create(string vipProducts);
 
        void Edit(VipProductModel model);
     }
