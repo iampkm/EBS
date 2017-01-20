@@ -43,10 +43,12 @@ namespace EBS.Query.Service
                 where += "and t0.Status=@Status ";
                 param.Status = condition.Status;
             }
+            string pwhere="";
             if (!string.IsNullOrEmpty(condition.ProductCodeOrBarCode))
             {
-                where += "and t3.ProductId in (select Id from Product where Code=@ProductCodeOrBarCode or BarCode=@ProductCodeOrBarCode) ";
-                param.Code = condition.Code;
+                //where += "and t3.ProductId in (select Id from Product where Code=@ProductCodeOrBarCode or BarCode=@ProductCodeOrBarCode) ";
+                //param.Code = condition.Code;
+                pwhere = string.Format("left join product p on p.Id = i.productid  where p.Code='{0}' or p.BarCode='{0}'", condition.ProductCodeOrBarCode);
             }
             if (condition.OrderType > 0)
             {
@@ -54,14 +56,16 @@ namespace EBS.Query.Service
                 param.OrderType = condition.OrderType;
             }          
             string sql = @"select t0.Id,t0.Code,t0.SupplierId,t0.CreatedOn,t0.CreatedByName,t0.Status,t1.Code as SupplierCode,t1.Name as SupplierName,t2.Name as StoreName,t3.Quantity,t3.ActualQuantity,t3.Amount  
-from storepurchaseorder t0 inner join supplier t1 on t0.SupplierId = t1.Id inner join store t2 on t0.StoreId = t2.Id
-left join (select i.StorePurchaseOrderId,SUM(i.Quantity) as Quantity,SUM(i.ActualQuantity) as ActualQuantity,SUM(i.Price* i.ActualQuantity ) as Amount 
-from  storepurchaseorderitem i GROUP BY i.StorePurchaseOrderId) t3 on t0.Id = t3.StorePurchaseOrderId 
-where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
-            //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<Product>(where, param);
-            sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
+from  (select i.StorePurchaseOrderId,SUM(i.Quantity) as Quantity,SUM(i.ActualQuantity) as ActualQuantity,SUM(i.Price* i.ActualQuantity ) as Amount 
+from  storepurchaseorderitem i {3} GROUP BY i.StorePurchaseOrderId) t3 left join 
+ storepurchaseorder t0 on t0.Id = t3.StorePurchaseOrderId left join supplier t1 on t0.SupplierId = t1.Id left join store t2 on t0.StoreId = t2.Id where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
+            
+            sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize,pwhere);
             var rows = this._query.FindAll<StorePurchaseOrderQueryDto>(sql, param);
-            page.Total = this._query.Count<StorePurchaseOrder>(where, param);
+            string sqlCount = @"select count(*) from  (select i.StorePurchaseOrderId,SUM(i.Quantity) as Quantity,SUM(i.ActualQuantity) as ActualQuantity,SUM(i.Price* i.ActualQuantity ) as Amount from  storepurchaseorderitem i {1} GROUP BY i.StorePurchaseOrderId) t3 left join 
+ storepurchaseorder t0 on t0.Id = t3.StorePurchaseOrderId left join supplier t1 on t0.SupplierId = t1.Id left join store t2 on t0.StoreId = t2.Id where 1=1 {0} ";
+            sqlCount = string.Format(sqlCount, where, pwhere);
+            page.Total = this._query.Context.ExecuteScalar<int>(sqlCount, param);
 
             return rows;
         }

@@ -168,7 +168,7 @@ namespace EBS.Admin.Controllers
             catch (Exception ex)
             {
                 _log.Error(ex);
-                return "0";
+                return ex.Message;
             }
            
         }
@@ -186,7 +186,7 @@ namespace EBS.Admin.Controllers
             catch (Exception ex)
             {
                 _log.Error(ex);
-                return "0";
+                return ex.Message;
             }
            
         }
@@ -204,7 +204,7 @@ namespace EBS.Admin.Controllers
             catch (Exception ex)
             {
                 _log.Error(ex);
-                return "0";
+                return ex.Message;
             }
            
         }

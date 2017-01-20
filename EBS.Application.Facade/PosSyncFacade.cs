@@ -41,19 +41,21 @@ namespace EBS.Application.Facade
             if (_db.Table.Exists<SaleOrder>(n => n.Code == model.Code))
             {
                 _log.Info("订单{0}已存在", model.Code);
-                throw new Exception(string.Format("订单{0}已存在", model.Code));
+               // throw new Exception(string.Format("订单{0}已存在", model.Code));
             }
-            _db.Insert(model);
-            _db.SaveChange();  // 先保存订单 
-            _log.Info("订单{0}保存成功", model.Code);
+            else {
+                _db.Insert(model);
+                _db.SaveChange();  // 先保存订单 
+                _log.Info("订单{0}保存成功", model.Code);
+            }         
 
             //已支付部分，扣减库存
             if (model.Status == SaleOrderStatus.Paid)
             {
                 if (_db.Table.Exists<StoreInventoryHistory>(n => n.BillCode == model.Code))
                 {
-                    _log.Info("库存流水已经记录{0}已存在", model.Code);
-                    throw new Exception(string.Format("库存流水已经记录{0}已存在", model.Code));
+                    _log.Info("订单{0}库存已扣减", model.Code);
+                    throw new Exception(string.Format("订单{0}库存已扣减", model.Code));
                 }
 
                 var entity = _db.Table.Find<SaleOrder>(n => n.Code == model.Code);
@@ -84,10 +86,11 @@ namespace EBS.Application.Facade
                 // 分布式系统只能根据code 更新
                 string sql = "update WorkSchedule set cashAmount = @CashAmount,EndDate=@EndDate,EndBy=@EndBy,EndByName=@EndByName where `code` = @Code ";
                 _db.Command.AddExecute(sql, model);
-               // _db.Update(model);
+                _log.Info("班次{0},已更新CashAmount={1},EndByName={2}", model.Code,model.CashAmount,model.EndByName);
             }
             else {
-                _db.Insert(model); 
+                _db.Insert(model);
+                _log.Info("班次{0},已新增StartDate={1},CreatedByName={2},", model.Code, model.StartDate, model.CreatedByName);
             }           
             _db.SaveChange();
         }
@@ -104,7 +107,7 @@ namespace EBS.Application.Facade
                 if (result > 0)
                 {
                     string usql = "update SaleSync set OrderCount = @OrderCount,OrderTotalAmount=@OrderTotalAmount,ClientUpdatedOn=@ClientUpdatedOn  where  SaleDate=@SaleDate and StoreId=@StoreId and PosId=@PosId";
-                    _db.Command.AddExecute(usql, model);
+                    _db.Command.AddExecute(usql, model);              
                 }
                 else {
                     _db.Insert(model);

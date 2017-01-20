@@ -291,12 +291,20 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
                         }
                         else {
                             var lastItem = _db.Table.Find<StoreInventoryBatch>("select * from storeinventorybatch where  storeId=@StoreId and productId=@ProductId order by batchNo desc LIMIT 1", new { StoreId = entity.StoreId, ProductId = inventory.ProductId });
-
-                            inventoryHistorys.Add(new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventory.Quantity, -leftQuantity,
-                                                           lastItem.Price, lastItem.BatchNo, entity.Id, entity.Code, BillIdentity.SaleOrder, entity.CreatedBy));
+                            if (lastItem != null) // 只收货，不入库，会为空
+                            {
+                                inventoryHistorys.Add(new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventory.Quantity, -leftQuantity,
+                                                          lastItem.Price, lastItem.BatchNo, entity.Id, entity.Code, BillIdentity.SaleOrder, entity.CreatedBy));
+                            }
+                            else {
+                                //当无批次库存数据时，保存一条无批次的扣减记录痕迹
+                                inventoryHistorys.Add(new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventory.Quantity, -leftQuantity,
+                                                         0, 0, entity.Id, entity.Code, BillIdentity.SaleOrder, entity.CreatedBy));
+                            }
+                           
                         }
-                        //如果所有批次都扣完了，依然不够，用最后一个批次商品再扣一次负库存
-                        inventory.Quantity = inventory.Quantity - leftQuantity;  // 第1+N次扣减后总库存
+                        // 第1+N次扣减后总库存
+                        inventory.Quantity = inventory.Quantity - leftQuantity;  
                     }
 
                 }
