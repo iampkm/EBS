@@ -25,24 +25,45 @@ namespace EBS.Query.Service
             //var result = _cacheService.Get<IEnumerable<ShelfTreeNode>>(CacheKeys.EBS_Shelf_All,() => {
                 //货架
                 var trees = new List<ShelfTreeNode>();
-                var shelfs = _query.FindAll<Shelf>(n => n.StoreId == storeId).OrderBy(n => n.Code).ToList();
-                foreach (var shelf in shelfs)
+                //var shelfs = _query.FindAll<Shelf>(n => n.StoreId == storeId).OrderBy(n => n.Code).ToList();
+                string sql = @"select s.Id,s.StoreId,s.`Code`,s.Number,l.Id as LayerId,l.`Code` as ShelfLayerCode,l.Number as ShelfLayerNumber,l.ShelfId,p.Id as shelflayerproductId,p.ShelfLayerId,p.`Code` as ShelfLayerProductCode,p.Number as ShelfLayerProductNumber
+ from shelf s  
+left JOIN  shelflayer l on s.Id = l.ShelfId
+left join shelflayerproduct p on l.Id = p.ShelfLayerId
+where s.StoreId=@StoreId order by s.code ";
+                var shelfs = _query.FindAll<ShelfInfoDto>(sql, new { StoreId = storeId });
+                foreach (var shelf in shelfs.Where(n=>n.Code.Length==4))
                 {
                     var shelfNode = new ShelfTreeNode(shelf.Id, shelf.Name, string.Format("{0}({1})", shelf.Code, shelf.Name), shelf.Code);
+                    if (trees.Exists(n => n.code == shelf.Code))
+                    {
+                        continue; //剔除重复
+                    }
                     trees.Add(shelfNode);
                     // 层
-                    var layers = _query.FindAll<ShelfLayer>(n => n.ShelfId == shelf.Id).OrderBy(n => n.Code).ToList();
+                   // var layers = _query.FindAll<ShelfLayer>(n => n.ShelfId == shelf.Id).OrderBy(n => n.Code).ToList();
+                    var layers = shelfs.Where(n => n.ShelfId == shelf.Id&&n.ShelfLayerCode.Length==6).OrderBy(n => n.ShelfLayerCode).ToList();
                     foreach (var layer in layers)
                     {
-                        var layerName = string.Format("{0}({1}层)", layer.Code, layer.Number);
-                        var layerNode = new ShelfTreeNode(layer.Id, layerName, layerName, layer.Code);
+                        var layerName = string.Format("{0}({1}层)", layer.ShelfLayerCode, layer.ShelfLayerNumber);
+                        var layerNode = new ShelfTreeNode(layer.LayerId, layerName, layerName, layer.ShelfLayerCode);
+                        if (shelfNode.children.Exists(n => n.code == layer.ShelfLayerCode))
+                        {
+                            continue;
+                        }
                         shelfNode.children.Add(layerNode);
                         // 商品
-                        var products = _query.FindAll<ShelfLayerProduct>(n => n.ShelfLayerId == layer.Id).OrderBy(n => n.Code).ToList();
+                        //var products = _query.FindAll<ShelfLayerProduct>(n => n.ShelfLayerId == layer.Id).OrderBy(n => n.Code).ToList();
+                        var products = shelfs.Where(n => n.ShelfLayerId == layer.LayerId && n.ShelfLayerProductCode.Length == 8)
+                                    .OrderBy(n => n.ShelfLayerProductCode).ToList();
                         foreach (var product in products)
                         {
-                            var layerProductName = string.Format("{0}({1}列)", product.Code, layer.Number);
-                            var productNode = new ShelfTreeNode(product.Id, layerProductName, layerProductName, product.Code);
+                            var layerProductName = string.Format("{0}({1}列)", product.ShelfLayerProductCode, product.ShelfLayerProductNumber);
+                            var productNode = new ShelfTreeNode(product.ShelfLayerProductId, layerProductName, layerProductName, product.ShelfLayerProductCode);
+                            if (layerNode.children.Exists(n => n.code == product.ShelfLayerProductCode))
+                            {
+                                continue;
+                            }
                             layerNode.children.Add(productNode);
                         }
                     }

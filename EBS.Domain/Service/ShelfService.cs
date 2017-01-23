@@ -198,6 +198,51 @@ namespace EBS.Domain.Service
         public void DeleteShelfLayerProduct(int id)
         {
             _db.Delete<ShelfLayerProduct>(id);
+            //删除商品后，重新排序商品
+            //var waitingDeleteGoods = _shelfLayerGoodsDAL.GetList(ids);
+            ////删除商品
+            //_idb.Delete<ShelfLayerGoods>(ids);
+            ////每层商品重新排序
+
+            //if (waitingDeleteGoods.Count() == 0) { throw new Exception("请勾选要删除的商品"); }
+            //Dictionary<int, IList<ShelfLayerGoods>> waitingDeleteGoodsDic = new Dictionary<int, IList<ShelfLayerGoods>>();
+            ////按层分组
+            //foreach (ShelfLayerGoods goods in waitingDeleteGoods)
+            //{
+            //    int key = goods.ShelfLayerSysNo;
+            //    if (waitingDeleteGoodsDic.ContainsKey(key))
+            //    {
+            //        waitingDeleteGoodsDic[key].Add(goods);
+            //    }
+            //    else
+            //    {
+            //        IList<ShelfLayerGoods> list = new List<ShelfLayerGoods>();
+            //        list.Add(goods);
+            //        waitingDeleteGoodsDic.Add(key, list);
+            //    }
+            //}
+            //foreach (int layerID in waitingDeleteGoodsDic.Keys)
+            //{
+            //    var firstWaitingDeleteGoods = waitingDeleteGoodsDic[layerID].OrderBy(n => n.Number).First();
+            //    //获取当前层所有商品
+            //    var curentLayerGoodsList = _idb.QueryList<ShelfLayerGoods>(new { ShelfLayerSysNo = layerID }).OrderBy(n => n.Number).ToList();
+            //    int number = firstWaitingDeleteGoods.Number;
+            //    int index = 0;
+            //    foreach (var item in curentLayerGoodsList)
+            //    {
+            //        if (ids.Contains(item.SysNo))  //当前层包含要删除的商品
+            //        {
+            //            continue; //删除的商品不修改
+            //        }
+            //        if (item.Number > firstWaitingDeleteGoods.Number)
+            //        {
+            //            item.Number = firstWaitingDeleteGoods.Number + index;
+            //            index++;
+            //            item.Code = item.Code.Substring(0, item.Code.Length - 2) + item.Number.ToString().PadLeft(2, '0');
+            //            _idb.Update(item);
+            //        }
+            //    }
+            //}
         }
 
     }

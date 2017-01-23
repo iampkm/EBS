@@ -12,6 +12,7 @@ using EBS.Admin.Services;
 using EBS.Application;
 namespace EBS.Admin.Controllers
 {
+    [Permission]
     public class ShelfController : Controller
     {    
           IQuery _query;
@@ -34,7 +35,9 @@ namespace EBS.Admin.Controllers
                 var tree = JsonConvert.SerializeObject(treeNodes);
                 ViewBag.Tree = tree;
             }
-           
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+            ViewBag.StoreId = _context.CurrentAccount.StoreId;
+            ViewBag.StoreName = _context.CurrentAccount.StoreName;
             return View();
         }
 

@@ -22,15 +22,16 @@
     <form v-on:submit.prevent="onSubmit">
         <div class="box-body">
             <div class="row">                
-                <div class="col-sm-2 col-xs-3">
+                <div class="col-sm-2 col-xs-3" v-show="selectStore.view">
                     <div class="input-group ">
-                        <input type="hidden" class="form-control" v-model="storeId">
+                        <input type="hidden" class="form-control" v-model="model.storeId">
                         <input type="text" class="form-control" v-model="selectStore.name" placeholder="选择门店" readonly>
                         <span class="input-group-btn">
                             <button class="btn btn-flat btn-default" type="button" v-on:click="showStore"><i class="fa fa-search"></i></button>
+                            @*<button class="btn btn-flat btn-default" type="button" v-on:click="clearStore"><i class="fa fa-eraser"></i></button>*@
                         </span>
                     </div>
-                </div> 
+                </div>
                 <div class="col-sm-10 col-xs-9">
                     <button type="button" class="btn btn-warning btn-flat" v-on:click="create()">
                         <span class="glyphicon glyphicon-plus">货架</span>
@@ -74,15 +75,15 @@
                 <div class="col-xs-9 col-sm-9">
                     <vue-table v-ref:vtable v-bind:columns="gridColumns"
                                v-bind:url="url"
-                               v-bind:args="searchArgs" v-bind:data.sync="rows" v-bind:show-toolbar="showTool">
+                               v-bind:args="searchArgs" v-bind:data.sync="rows" v-bind:show-toolbar="showTool" v-bind:show-checkbox="false">
                         <div class="row" style="margin-bottom:10px;" slot="customSearch">
                             <div class="col-xs-2">
                                 <input class="form-control" v-model="searchArgs.productCodeOrBarCode" placeholder="商品编码/条码" debounce="500" />
                             </div>
                             <div class="col-xs-2">
                                 <input class="form-control" v-model="searchArgs.productName" placeholder="商品名称" debounce="500" />
-                            </div>                
-                         </div>
+                            </div>
+                        </div>
                     </vue-table>
                 </div>  
             </div>
@@ -108,20 +109,9 @@
             </div>
         </div>
     </v-modal>
-    <v-modal title="选择门店" ok-text="确 定" cancel-text="取 消" v-bind:callback="getStore" v-bind:show.sync="selectStore.modal" v-bind:effect="fade" width="50%">
+    <v-modal title="选择门店" ok-text="确 定" cancel-text="取 消" v-bind:callback="getStore" v-bind:show.sync="selectStore.modal" v-bind:effect="fade" width="60%">
         <div slot="modal-body" class="modal-body">
-            <vue-table v-bind:columns="selectStore.gridColumns"
-                       v-bind:url="selectStore.url" v-bind:show-toolbar="false"
-                       v-bind:args="selectStore.searchArgs" v-bind:data.sync="selectStore.rows">
-                <div class="row" style="margin-bottom:10px;" slot="customSearch">
-                    <div class="col-xs-4 col-sm-3">
-                        <input class="form-control" v-model="selectStore.searchArgs.code" placeholder="门店编码" debounce="300" />
-                    </div>
-                    <div class="col-xs-4 col-sm-3">
-                        <input class="form-control" v-model="selectStore.searchArgs.name" placeholder="门店名" debounce="300" />
-                    </div>
-                </div>
-            </vue-table>
+            <div style="min-height:350px;max-height:500px;overflow:auto;"><ul id="storeTree" class="ztree"></ul></div>
         </div>
     </v-modal>
     <v-modal title="添加商品" ok-text="保 存" cancel-text="取 消" v-bind:callback="saveProduct" v-bind:show.sync="shelfProduct.modal" v-bind:effect="fade" width="800">
@@ -155,26 +145,19 @@
                     modal: false,
                     modalTitle:"新增货架",
                     valid: false,
-                    operate:'add',
-                    storeId:0,
+                    operate:'add',                    
                     model: {
                         id:0,
                         name: '',
                         pId: 0,
                         code:'',                       
-                        showName:''
+                        showName:'',
+                        storeId:@ViewBag.StoreId,
                     },
                     selectStore: {
                         modal: false,
-                        name: '',
-                        gridColumns: [
-                            { name: 'Code', localName: '门店编码' },
-                           { name: 'Name', localName: '门店名' },
-                           { name: 'FullName', localName: '区域', width: '200' }
-                        ],
-                        url: "/Store/LoadData",
-                        searchArgs: { name: '',code:'' },
-                        rows: []
+                        name: '@ViewBag.StoreName',
+                        view:@ViewBag.View,                    
                     },
                     gridColumns: [
                        { name: 'Code', localName: '货架码', width: '100' },
@@ -203,7 +186,7 @@
                             v_url ="/Shelf/Edit" ;
                         }
                         var v_self = this;
-                        if(this.storeId==0){
+                        if(this.model.storeId==0){
                             bootbox.alert("请选择门店");return;
                         }
                         $.post(v_url, v_data, function (result) {
@@ -237,7 +220,7 @@
                     reloadTree:function()
                     {
                         //加载选择门店的货架数据
-                        var selectStore = this.storeId;
+                        var selectStore = this.model.storeId;
                         if(selectStore==0){return;}
                         $.get("/Shelf/GetShelfTree", { storeId: selectStore }, function (result) {
                             if (result.success) {                                    
@@ -313,13 +296,15 @@
                             bootbox.alert("请选择一个货架节点");
                             return;
                         }
+                        var _self =this;
                         bootbox.confirm("该操作将删除所有货架及商品，你确定要删除吗？", function (result) {
                             if (result) {
                                 $.post("/Shelf/Remove", { id: selectNode.id,code:selectNode.code}, function (result) {
                                     if (result.success) {
                                         //删除子节点
-                                        treeObj.removeChildNodes(selectNode);
-                                        treeObj.removeNode(selectNode);
+                                       // treeObj.removeChildNodes(selectNode);
+                                        // treeObj.removeNode(selectNode);
+                                        _self.reloadTree();
                                     }
                                     else {
                                         bootbox.alert(result.error);
@@ -340,20 +325,33 @@
                         this.selectStore.modal = true;
                     },
                     clearStore: function () {
-                        this.storeId = 0;
+                        this.model.storeId = 0;
                         this.selectStore.name = "";
                     },
                     getStore: function () {
-                        var selecteds = this.selectStore.rows.filter(function (item) {
-                            return item.checked;
-                        });
+                        var treeObj = $.fn.zTree.getZTreeObj("storeTree"); 
+                        var selecteds= treeObj.getCheckedNodes(true);
                         if (selecteds) {
-                            this.storeId = selecteds[0].Id;
-                            this.selectStore.name = selecteds[0].Name;
-                            this.selectStore.modal = false;
-                            this.reloadTree();                           
+                            var idArray = new Array();
+                            var nameArray = new Array();
+                            selecteds.forEach(function(item){
+                                if(item.level==1){
+                                    idArray.push(item.id);
+                                    nameArray.push(item.name);
+                                }
+                            })
+                            if(idArray.length>0){
+                                this.model.storeId = idArray[0];
+                                this.selectStore.name = nameArray[0];
+                                this.selectStore.modal = false;
+                                this.reloadTree(); 
+                            }
+                            else
+                            {
+                                bootbox.alert("请选择一个门店");
+                            }
+                           
                         }
-
                     },
                      PrintShelfGrid:function() {
                         this.PrintTemplate("/Shelf/PrintShelfGrid");
@@ -385,7 +383,17 @@
                         }, "text");
                      },
                      showAddProduct:function(){
-                         this.shelfProduct.modal = true;
+                         var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                         var selectNode = treeObj.getSelectedNodes()[0];
+                         if(selectNode&&selectNode.code.length>4)
+                         {
+                             this.shelfProduct.modal = true;
+                         }
+                         else
+                         {
+                             bootbox.alert("请选择一个货架层，或者一个要插入的商品列");
+                         }
+                         
                      },
                      saveProduct:function(){
                          var treeObj = $.fn.zTree.getZTreeObj("ztree");
@@ -410,7 +418,7 @@
 
                              var v_url="/Shelf/CreateProduct" ;
                              var v_data = {
-                                 storeId:this.storeId,
+                                 storeId:this.model.storeId,
                                  shelfLayerId:layerId,
                                  productCodeOrBarCode: this.shelfProduct.productCodeOrBarCode,
                                  shelfProductId:productId
@@ -441,17 +449,39 @@
             });
              var zNodes =@Html.Raw(ViewBag.Tree) ; 
             loadTree(zNodes);
+
+            //加载门店
+            var zTreeObj;           
+            var setting = {
+                check: {
+                    enable:true
+                },               
+                async: {
+                    enable: true,
+                    url: "/Store/LoadStore",
+                    //autoParam: ["id", "name"]
+                },
+                callback:{
+                    onClick:function(event, treeId, treeNode){
+                        //点击展开/折叠节点
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                        var open = !treeNode.open;
+                        treeObj.expandNode(treeNode, open, false, false);
+                        // vue.searchArgs.categoryId =treeNode.id;                      
+                    }
+                }
+            };           
+            zTreeObj = $.fn.zTree.init($("#storeTree"), setting);
         });
 
         function loadTree(zNodes)
         {
             var zTreeObj;
-            // zTree 的参数配置，深入使用请参考 API 文档（setting 配置详解）
             var setting = {
                 data: {
                     key:{name:"showName"}
                 },
-                check:{enable:true,},
+                check:{enable:true,chkboxType: { "Y": "s", "N": "s" }},
                 callback:{
                     onClick:function(event, treeId, treeNode){
                         //点击展开/折叠节点
@@ -461,12 +491,11 @@
                         // vue.searchArgs.categoryId =treeNode.id;
                         // 查询货架商品 
                         vue.searchArgs.code = treeNode.code ;
-                        vue.searchArgs.storeId = vue.storeId;
+                        vue.searchArgs.storeId = vue.model.storeId;
                        
                    }
                 }
-            };
-            // zTree 的数据属性，深入使用请参考 API 文档（zTreeNode 节点数据详解）           
+            };        
             zTreeObj = $.fn.zTree.init($("#ztree"), setting, zNodes);
         }
 

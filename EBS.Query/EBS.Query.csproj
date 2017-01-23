@@ -77,6 +77,7 @@
     <Compile Include="DTO\SearchSupplierContract.cs" />
     <Compile Include="DTO\SearchTransferOrder.cs" />
     <Compile Include="DTO\SearchVipProduct.cs" />
+    <Compile Include="DTO\ShelfInfoDto.cs" />
     <Compile Include="DTO\ShelfTreeNode.cs" />
     <Compile Include="DTO\StocktakingDto.cs" />
     <Compile Include="DTO\StocktakingItemDto.cs" />
