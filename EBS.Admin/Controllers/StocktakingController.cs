@@ -72,14 +72,8 @@ namespace EBS.Admin.Controllers
         public ActionResult Create()
         {
             ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
-            ViewBag.StoreId = 0;
-            ViewBag.StoreName = "";
-            if (_context.CurrentAccount.StoreId > 0)
-            {
-                var store = _query.Find<Store>(_context.CurrentAccount.StoreId);
-                ViewBag.StoreId = store.Id;
-                ViewBag.StoreName = store.Name;
-            }
+            ViewBag.StoreId = _context.CurrentAccount.StoreId;
+            ViewBag.StoreName = _context.CurrentAccount.StoreName;
             return View();
         }
 

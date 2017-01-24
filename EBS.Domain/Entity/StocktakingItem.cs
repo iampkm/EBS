@@ -17,22 +17,7 @@ namespace EBS.Domain.Entity
         /// 商品编号
         /// </summary>
         public int ProductId { get; set; }
-        /// <summary>
-        /// 商品编码
-        /// </summary>
-        public string ProductCode { get; set; }
-        /// <summary>
-        /// 商品名称
-        /// </summary>
-        public string ProductName { get; set; }
-        /// <summary>
-        /// 商品条码
-        /// </summary>
-        public string BarCode { get; set; }
-        /// <summary>
-        /// 规格
-        /// </summary>
-        public string Specification { get; set; }
+       
         /// <summary>
         /// 成本价
         /// </summary>

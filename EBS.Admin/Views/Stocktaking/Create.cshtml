@@ -25,7 +25,7 @@
                 <div class="form-group col-sm-4 col-xs-6">
                     <button type="button" class="btn btn-warning btn-flat" v-on:click="onSubmit">保 存</button>
                     <button type="button" class="btn btn-default btn-flat" v-on:click="print">打印</button>
-                    <a class="btn btn-default btn-flat" href="/Stocktaking/Index">取 消</a>
+                    <a class="btn btn-default btn-flat" href="javascript:history.back()">取 消</a>
                     <input type="hidden" v-model="model.id" />
                 </div>
             </div>
@@ -43,7 +43,7 @@
                 <div class="form-group col-sm-2 col-xs-3">
                     <div class="input-group">
                         <span class="input-group-addon">货架码</span>
-                        <input type="text" class="form-control" v-model="model.shelfCode" v-on:keyup.enter="queryShelfProduct()" placeholder="输入回车/扫码" />
+                        <input type="text" id="shelfCode" class="form-control" v-model="model.shelfCode" v-on:keyup.enter="queryShelfProduct()" placeholder="输入回车/扫码" />
                     </div>
                 </div>
             </div>
@@ -326,6 +326,8 @@
                     }
                 }                
             });
+
+            $("#shelfCode").focus();
 
             //加载门店tree
             var zTreeObj;           

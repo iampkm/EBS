@@ -46,6 +46,8 @@ namespace EBS.Admin.Controllers
             return Json(new { success = true, data = rows, total = page.Total });
         }
 
+
+
         public ActionResult Help()
         {
             return View();
@@ -56,18 +58,25 @@ namespace EBS.Admin.Controllers
         /// <returns></returns>
         public ActionResult Summary()
         {
-            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
-            ViewBag.Status = _stocktakingPlanQuery.GetStocktakingPlanStatus();
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";          
             ViewBag.StoreId = _context.CurrentAccount.StoreId;
             ViewBag.StoreName = _context.CurrentAccount.StoreName;                  
             return View();
         }
 
-        public JsonResult LoadSummaryData(Pager page, SearchStocktakingPlan condition)
+        public JsonResult LoadSummaryData(Pager page, SearchStocktakingPlanSummary condition)
         {
             var rows = _stocktakingPlanQuery.GetSummaryData(page, condition);
 
             return Json(new { success = true, data = rows, total = page.Total });
+        }
+
+        public ActionResult Finish()
+        {
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";         
+            ViewBag.StoreId = _context.CurrentAccount.StoreId;
+            ViewBag.StoreName = _context.CurrentAccount.StoreName;
+            return View();
         }
 
         public ActionResult Detail(int id)
@@ -84,22 +93,25 @@ namespace EBS.Admin.Controllers
         /// <param name="to">差异数 到</param>
         /// <param name="showDifference">显示差异</param>
         /// <returns></returns>
-        public ActionResult LoadDetail(int planId, int? from, int? to, bool showDifference)
+        public ActionResult LoadDetail(Pager page, int planId, int? from, int? to, bool? showDifference,string productCodeOrBarCode)
         {
             var model = _query.Find<StocktakingPlan>(planId);
             var rows =new List<StocktakingPlanItemDto>();
-            //if (model.Status == StocktakingPlanStatus.FirstInventory)
-            //{
-            //    return Json(new { success = true, data = rows, total = rows.Count });
-            //}
-            //else
-            //{
-            //    rows = _stocktakingPlanQuery.GetDetails(planId, from, to, showDifference).ToList();
-            //    return Json(new { success = true, data = rows, total = rows.Count });
-            //}           
-            rows = _stocktakingPlanQuery.GetDetails(planId, from, to, showDifference).Take(50).ToList();
-            return Json(new { success = true, data = rows, total = rows.Count });
-           
+            var difference = false;
+            if (showDifference.HasValue)
+            {
+                difference = showDifference.Value;
+            }
+            // 没合并过盘点，不让看明细
+            if (model.Status == StocktakingPlanStatus.FirstInventory)
+            {
+                return Json(new { success = true, data = rows, total = rows.Count });
+            }
+            else
+            {
+                rows = _stocktakingPlanQuery.GetDetails(page, planId, from, to, difference, productCodeOrBarCode).ToList();
+                return Json(new { success = true, data = rows, total = rows.Count });
+            }           
         }
 
         public ActionResult Create()

@@ -56,7 +56,7 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             return rows;
         }
 
-        public IEnumerable<StocktakingSummaryDto> GetSummaryData(Pager page, SearchStocktakingPlan condition)
+        public IEnumerable<StocktakingSummaryDto> GetSummaryData(Pager page, SearchStocktakingPlanSummary condition)
         {
             dynamic param = new ExpandoObject();
             string where = "";
@@ -70,11 +70,11 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
                 where += "and t0.StoreId=@StoreId ";
                 param.StoreId = condition.StoreId;
             }
-            //if (condition.Status > 0)
-            //{
-            //    where += "and t0.Status=@Status ";
-            //    param.Status = condition.Status;
-            //}
+            if (!string.IsNullOrEmpty(condition.Status))
+            {
+                where += "and t0.Status in(@Status) ";
+                param.Status = condition.Status;
+            }
             if (condition.StocktakingDate.HasValue)
             {
                 where += "and t0.StocktakingDate>=@beginDate and t0.StocktakingDate<@endDate ";
@@ -94,7 +94,7 @@ inner join stocktakingplanitem i on p.Id = i.StocktakingPlanId
 group by p.Id 
 ) t1 on t0.Id = t1.Id
 inner join store t2 on t2.Id = t0.StoreId 
-where 1=1 and t0.Status in (2,3) {0} ORDER BY t0.Id desc LIMIT {1},{2}";
+where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
 
             sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
             var rows = this._query.FindAll<StocktakingSummaryDto>(sql, param);
@@ -109,7 +109,7 @@ inner join stocktakingplanitem i on p.Id = i.StocktakingPlanId
 group by p.Id 
 ) t1 on t0.Id = t1.Id
 inner join store t2 on t2.Id = t0.StoreId 
-where 1=1 and t0.Status in (2,3) {0}";
+where 1=1 {0}";
             sqlCount = string.Format(sqlCount, where);
             page.Total = this._query.Context.ExecuteScalar<int>(sqlCount, param);
 
@@ -122,7 +122,7 @@ where 1=1 and t0.Status in (2,3) {0}";
             return dic;
         }
 
-        public IEnumerable<StocktakingPlanItemDto> GetDetails(int planId, int? from, int? to, bool showDifference)
+        public IEnumerable<StocktakingPlanItemDto> GetDetails(Pager page, int planId, int? from, int? to, bool showDifference, string productCodeOrBarCode)
         {
             dynamic param = new ExpandoObject();
             string where = "";
@@ -140,14 +140,24 @@ where 1=1 and t0.Status in (2,3) {0}";
             {
                 where += "and i.CountQuantity-i.Quantity!=0 ";
             }
+            if (!string.IsNullOrEmpty(productCodeOrBarCode))
+            {
+                where += "and (p.Code =@ProductCodeOrBarCode or p.BarCode =@ProductCodeOrBarCode)";
+                param.ProductCodeOrBarCode = productCodeOrBarCode;
+            }
             string sql = @"select i.ProductId,p.`Name` as ProductName,p.`Code` as ProductCode ,p.BarCode,p.Specification, i.CostPrice,i.CountQuantity,i.Quantity,i.SalePrice from stocktakingplan s 
 inner join stocktakingplanitem i on s.Id = i.StocktakingPlanId
 left join product p on i.ProductId = p.Id
-where s.Id =@PlanId {0}";
+where s.Id =@PlanId {0}  ORDER BY i.Id desc LIMIT {1},{2}";
             param.PlanId = planId;
-            sql = string.Format(sql, where);
+            sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
             var rows = _query.FindAll<StocktakingPlanItemDto>(sql, param);
-            
+            string sqlCount = @"select count(*) from stocktakingplan s 
+inner join stocktakingplanitem i on s.Id = i.StocktakingPlanId
+left join product p on i.ProductId = p.Id
+where s.Id =@PlanId {0} ";
+            sqlCount = string.Format(sqlCount, where);
+            page.Total = this._query.Context.ExecuteScalar<int>(sqlCount, param);
             return rows;
         }
     }

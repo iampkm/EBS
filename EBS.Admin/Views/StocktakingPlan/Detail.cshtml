@@ -15,8 +15,11 @@
         <div class="box-body">
             <vue-table v-ref:vtable v-bind:columns="gridColumns"
                        v-bind:url="url"
-                       v-bind:args="searchArgs" v-bind:data.sync="rows" show-pagination="false">
+                       v-bind:args="searchArgs" v-bind:data.sync="rows" >
                 <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                    <div class="col-xs-3 col-sm-2">
+                       <input type="text" class="form-control" placeholder="商品编码/条码"  v-model="searchArgs.productCodeOrBarCode"/>
+                    </div>
                     <div class="col-xs-6 col-sm-4"> 
                         <div class="input-group">
                             <span class="input-group-addon"><i class="fa fa-bar-chart"></i> 差异</span>
@@ -25,14 +28,14 @@
                             <input class="form-control" v-model="searchArgs.to" placeholder="到" debounce="500" />
                         </div>
                     </div>   
-                    <div class="col-sm-2 col-xs-3">
-                        <v-checkbox checked.sync="searchArgs.showDifference" value="true" type="success">显示差异</v-checkbox>
+                    <div class="col-xs-3 col-sm-2">
+                        <v-checkbox v-bind:checked.sync="searchArgs.showDifference"  type="success">显示差异</v-checkbox>
                     </div>
                 </div>
                 <span class="input-group-btn" slot="customButtons">
                     <button type="button" class="btn btn-warning btn-flat" v-on:click="submitAudit()">打印</button>
                     <button type="button" class="btn btn-danger btn-flat" v-on:click="submitAudit()">导出Excel</button>
-                    <a class="btn btn-success btn-flat" href="/StocktakingPlan/Help">盘点助手</a>
+                    <a class="btn btn-default btn-flat" href="javascript:history.back()">返回</a>
                 </span>
             </vue-table>
         </div>
@@ -71,7 +74,7 @@
                     { name: 'SaleAmoutDifferent', localName: '金额差异', width: '100',style: "<strong>{column}</strong>" },
                     ],
                     url: "/StocktakingPlan/LoadDetail",
-                    searchArgs: { planId: @ViewBag.PlanId, from: null, to:null, showDifference: false },
+                    searchArgs: { planId: @ViewBag.PlanId, from: null, to:null, showDifference: false,productCodeOrBarCode:'' },
                     rows: []                    
                 },
                 methods: {

@@ -44,4 +44,17 @@ namespace EBS.Query.DTO
 
        public int StoreId { get; set; }
    }
+
+    public class SearchStocktakingPlanSummary
+    {
+        public string Code { get; set; }
+        /// <summary>
+        /// 逗号分隔状态值
+        /// </summary>
+        public string Status { get; set; }
+
+        public DateTime? StocktakingDate { get; set; }
+
+        public int StoreId { get; set; }
+    }
 }

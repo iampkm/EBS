@@ -10,9 +10,9 @@ namespace EBS.Query
     {
         IEnumerable<StocktakingPlanDto> GetPageList(Pager page, SearchStocktakingPlan condition);
 
-        IEnumerable<StocktakingSummaryDto> GetSummaryData(Pager page, SearchStocktakingPlan condition);
+        IEnumerable<StocktakingSummaryDto> GetSummaryData(Pager page, SearchStocktakingPlanSummary condition);
 
-        IEnumerable<StocktakingPlanItemDto> GetDetails(int planId, int? from, int? to, bool showDifference);
+        IEnumerable<StocktakingPlanItemDto> GetDetails(Pager page, int planId, int? from, int? to, bool showDifference,string productCodeOrBarCode);
 
         Dictionary<int, string> GetStocktakingPlanStatus();
     }
