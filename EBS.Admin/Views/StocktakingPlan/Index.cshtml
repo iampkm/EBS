@@ -92,13 +92,13 @@
                 gridColumns: [
                 { name: 'Code', localName: '单号', style: "<a href='/StocktakingPlan/Edit/{id}'>{column}</a>" },
                 { name: 'StoreName', localName: '门店' },
-                { name: 'StocktakingDate', localName: '盘点日期', width: '200' },
+                { name: 'StocktakingDateString', localName: '盘点日期', width: '200' },
                 { name: 'StocktakingPlanMethod', localName: '类型', width: '80' },
                 { name: 'StocktakingPlanStatus', localName: '状态', width: '80' },
                 { name: 'CreatedByName', localName: '创建人' },
                 ],
                 url: "/StocktakingPlan/LoadData",
-                searchArgs: { code: '', stocktakingDate: '', storeId: 0, status: 0 },
+                searchArgs: { code: '', stocktakingDate: '', storeId: 0, status: 1 },
                 rows: [],               
                 selectStore: {
                     modal: false,

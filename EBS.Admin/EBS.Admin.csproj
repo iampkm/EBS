@@ -1288,6 +1288,7 @@
     <Content Include="Views\Product\PriceCheck.cshtml" />
     <Content Include="Views\VipProduct\Index.cshtml" />
     <Content Include="Views\VipProduct\Create.cshtml" />
+    <Content Include="Views\StocktakingPlan\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">

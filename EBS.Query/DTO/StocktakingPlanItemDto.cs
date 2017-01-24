@@ -8,6 +8,23 @@ namespace EBS.Query.DTO
 {
    public class StocktakingPlanItemDto:StocktakingPlanItem
     {
+        /// <summary>
+        /// 商品编码
+        /// </summary>
+        public string ProductCode { get; set; }
+        /// <summary>
+        /// 商品名称
+        /// </summary>
+        public string ProductName { get; set; }
+        /// <summary>
+        /// 条码
+        /// </summary>
+        public string BarCode { get; set; }
+        /// <summary>
+        /// 规格
+        /// </summary>
+        public string Specification { get; set; }
+
        public int DifferentQuantity { get{
            return base.GetDifferenceQuantity();
        }}
@@ -38,14 +55,14 @@ namespace EBS.Query.DTO
        {
            get
            {
-               return base.SalesPrice * Quantity;
+               return base.SalePrice * Quantity;
            }
        }
        public decimal SaleCountAmount
        {
            get
            {
-               return base.SalesPrice * CountQuantity;
+               return base.SalePrice * CountQuantity;
            }
        }
        public decimal SaleAmoutDifferent

@@ -12,7 +12,11 @@ namespace EBS.Query.DTO
        public int Id { get; set; }
        public string StoreName { get; set; }
        public string Code { get; set; }
-       public string StocktakingDate { get; set; }
+       public DateTime StocktakingDate { get; set; }
+
+       public string StocktakingDateString { get {
+           return StocktakingDate.ToString("yyyy-MM-dd");
+       } }
 
        public StocktakingPlanStatus Status { get; set; }
 
@@ -26,6 +30,8 @@ namespace EBS.Query.DTO
        {
            get { return Method.Description(); }
        }
+
+       public string CreatedByName { get; set; }
     }
 
    public class SearchStocktakingPlan

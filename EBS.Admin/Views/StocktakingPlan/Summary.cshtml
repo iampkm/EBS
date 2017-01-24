@@ -83,6 +83,8 @@
     <script src="~/Content/Vue/vuetable/vuetable.js"></script>
 <script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
     <script>
+        // <a  v-on:click.stop.prevent href='/StocktakingPlan/Detail/{id}'>{column}</a>
+        // <a  v-on:click.stop.prevent=\"showDetail({id},'{StocktakingPlanStatus}')\">{column}</a>"
         $("doucument").ready(function () {
             var vue = new Vue({
                 components: {
@@ -92,27 +94,27 @@
                 el: '#app',
                 data: {
                     gridColumns: [
-                    { name: 'Code', localName: '单号', style: "<a href='/StocktakingPlan/Edit/{id}'>{column}</a>" },
+                    { name: 'Code', localName: '单号', width: '100', style: "<a href='/StocktakingPlan/Detail/{id}'>{column}</a>" },
                     { name: 'StoreName', localName: '门店' },
-                    { name: 'StocktakingDate', localName: '盘点日期', width: '200' },
-                    { name: 'StocktakingPlanMethod', localName: '类型', width: '80',visible:false },
-                    { name: 'StocktakingPlanStatus', localName: '状态', width: '80',visible:false },
-                    { name: 'TotalInventoryQuantity', localName: '库存数' },
-                    { name: 'TotalCountQuantity', localName: '盘点数' },
-                    { name: 'TotalDifferentQuantity', localName: '差异数',style: "<strong>{column}</strong>" },
-                     { name: 'CostAmount', localName: '成本' },
-                    { name: 'CostCountAmount', localName: '盘点成本' },
-                    { name: 'CostAmountDifferent', localName: '成本差异',style: "<strong>{column}</strong>" },
-                     { name: 'SaleAmout', localName: '金额' },
-                    { name: 'SaleCountAmount', localName: '盘点金额' },
-                    { name: 'SaleAmoutDifferent', localName: '金额差异',style: "<strong>{column}</strong>" },
+                    { name: 'StocktakingDateString', localName: '盘点日期', width: '100' },
+                    { name: 'StocktakingPlanMethod', localName: '类型', width: '80' },
+                    { name: 'StocktakingPlanStatus', localName: '状态', width: '80' },
+                    { name: 'TotalInventoryQuantity', localName: '库存数', width: '80' },
+                    { name: 'TotalCountQuantity', localName: '盘点数', width: '80' },
+                    { name: 'TotalDifferentQuantity', localName: '差异数', width: '80', style: "<strong class='text-danger'>{column}</strong>" },
+                    { name: 'CostAmount', localName: '成本', width: '100' },
+                    { name: 'CostCountAmount', localName: '盘点成本', width: '120' },
+                    { name: 'CostAmountDifferent', localName: '成本差异', width: '120',style: "<strong class='text-danger'>{column}</strong>" },
+                    { name: 'SaleAmout', localName: '金额', width: '100' },
+                    { name: 'SaleCountAmount', localName: '盘点金额', width: '120' },
+                    { name: 'SaleAmoutDifferent', localName: '金额差异', width: '120',style: "<strong class='text-danger'>{column}</strong>" },
                     ],
                     url: "/StocktakingPlan/LoadSummaryData",
-                    searchArgs: { code: '', stocktakingDate: '', storeId:0, status: 0 },
+                    searchArgs: { code: '', stocktakingDate: '', storeId:@ViewBag.StoreId, status: 0 },
                     rows: [],
                     selectStore: {
                         modal: false,
-                        name: '',
+                        name: '@ViewBag.StoreName',
                         view:@ViewBag.View,                    
                     }
                 },
@@ -172,6 +174,14 @@
                             }
                            
                         }
+                    },
+                    showDetail:function(id,status)
+                    {
+                        if(status=="初盘"){
+                            bootbox.alert("还没有合并盘点，不能查阅明细");
+                            return ;
+                        }
+                        window.location.href="/StocktakingPlan/Detail/"+id;
                     }
                 }
 

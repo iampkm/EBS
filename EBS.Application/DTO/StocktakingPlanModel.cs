@@ -14,6 +14,8 @@ namespace EBS.Application.DTO
 
        public int EditedBy {get;set;}
        public string Editor {get;set;}
+
+       public int StoreId { get; set; }
        public DateTime StocktakingDate { get; set; }
 
     }

@@ -29,8 +29,11 @@ namespace EBS.Application.Facade
             var entity = model.MapTo<StocktakingPlan>();
             entity.CreatedBy = model.EditedBy;
             entity.CreatedByName = model.Editor;
+            entity.UpdatedBy = model.EditedBy;
+            entity.UpdatedByName = model.Editor;
             entity.Code = _billService.GenerateNewCode(BillIdentity.StoreStocktakingPlan);
             _service.ValidatePlan(entity);
+            _service.ValidatePlanDate(entity);
             _db.Insert(entity);
             _db.SaveChange();
         }
@@ -38,11 +41,16 @@ namespace EBS.Application.Facade
         public void Edit(StocktakingPlanModel model)
         {
             var entity = _db.Table.Find<StocktakingPlan>(model.Id);
+            var oldStocktakingDate = entity.StocktakingDate;
             entity = model.MapTo<StocktakingPlan>(entity);
             entity.UpdatedBy = model.EditedBy;
             entity.UpdatedByName = model.Editor;
             entity.UpdatedOn = DateTime.Now;
             _service.ValidatePlan(entity);
+            if (oldStocktakingDate != entity.StocktakingDate)
+            {
+                _service.ValidatePlanDate(entity);
+            }
             _db.Update(entity);
             _db.SaveChange();
         }

@@ -15,6 +15,7 @@ using EBS.Domain.Entity;
 using EBS.Domain.ValueObject;
 namespace EBS.Admin.Controllers
 {
+    [Permission]
     public class StocktakingPlanController : Controller
     {
         IQuery _query;
@@ -57,6 +58,8 @@ namespace EBS.Admin.Controllers
         {
             ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
             ViewBag.Status = _stocktakingPlanQuery.GetStocktakingPlanStatus();
+            ViewBag.StoreId = _context.CurrentAccount.StoreId;
+            ViewBag.StoreName = _context.CurrentAccount.StoreName;                  
             return View();
         }
 
@@ -69,6 +72,7 @@ namespace EBS.Admin.Controllers
 
         public ActionResult Detail(int id)
         {
+            ViewBag.PlanId = id;
             return View();
         }
 
@@ -80,16 +84,29 @@ namespace EBS.Admin.Controllers
         /// <param name="to">差异数 到</param>
         /// <param name="showDifference">显示差异</param>
         /// <returns></returns>
-        public JsonResult LoadDetail(int planId, int? from, int? to, bool showDifference)
+        public ActionResult LoadDetail(int planId, int? from, int? to, bool showDifference)
         {
-            var rows = _stocktakingPlanQuery.GetDetails(planId, from,to,showDifference).ToList();
-
+            var model = _query.Find<StocktakingPlan>(planId);
+            var rows =new List<StocktakingPlanItemDto>();
+            //if (model.Status == StocktakingPlanStatus.FirstInventory)
+            //{
+            //    return Json(new { success = true, data = rows, total = rows.Count });
+            //}
+            //else
+            //{
+            //    rows = _stocktakingPlanQuery.GetDetails(planId, from, to, showDifference).ToList();
+            //    return Json(new { success = true, data = rows, total = rows.Count });
+            //}           
+            rows = _stocktakingPlanQuery.GetDetails(planId, from, to, showDifference).Take(50).ToList();
             return Json(new { success = true, data = rows, total = rows.Count });
+           
         }
 
         public ActionResult Create()
         {
             ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+            ViewBag.StoreId = _context.CurrentAccount.StoreId;
+            ViewBag.StoreName = _context.CurrentAccount.StoreName;
             var dic = typeof(StocktakingPlanMethod).GetValueToDescription();
             ViewBag.Method = dic;
             return View();
@@ -99,18 +116,27 @@ namespace EBS.Admin.Controllers
         {
             model.EditedBy = _context.CurrentAccount.AccountId;
             model.Editor = _context.CurrentAccount.NickName;
+            _stocktakingPlanFacade.Create(model);
             return Json(new { success = true });
         }
 
         public ActionResult Edit(int id)
         {
-            return View();
+            var model = _query.Find<StocktakingPlan>(id);
+            var store = _query.Find<Store>(model.StoreId);
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+            ViewBag.StoreId = store.Id;
+            ViewBag.StoreName = store.Name;
+            var dic = typeof(StocktakingPlanMethod).GetValueToDescription();
+            ViewBag.Method = dic;
+            return View(model);
         }
         [HttpPost]
         public ActionResult Edit(StocktakingPlanModel model)
         {
             model.EditedBy = _context.CurrentAccount.AccountId;
             model.Editor = _context.CurrentAccount.NickName;
+            _stocktakingPlanFacade.Edit(model);
             return Json(new { success = true });
         }
 

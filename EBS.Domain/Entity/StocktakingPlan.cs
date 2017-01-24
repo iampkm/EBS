@@ -12,7 +12,7 @@ namespace EBS.Domain.Entity
         public StocktakingPlan()
         {
             Items = new List<StocktakingPlanItem>();
-            Status = StocktakingPlanStatus.FirstInventory;
+            Status = StocktakingPlanStatus.ToBeInventory;  //初始状态
             this.CreatedOn = DateTime.Now;
             this.UpdatedOn = DateTime.Now;
         }
@@ -54,7 +54,7 @@ namespace EBS.Domain.Entity
         /// </summary>
         public int StoreId { get; set; }
 
-        public virtual List<StocktakingPlanItem> Items { get; set; }
+        public List<StocktakingPlanItem> Items { get; set; }
 
 
         public void StartPlan(int editedBy,string editor)

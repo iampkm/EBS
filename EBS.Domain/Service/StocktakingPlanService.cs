@@ -23,26 +23,30 @@ namespace EBS.Domain.Service
             if (model.StoreId == 0)
                 throw new Exception("请选择门店。");
             if (model.StocktakingDate < DateTime.Now.AddDays(-1))
-                throw new Exception("盘点日期不能在当前日期之前。");
+                throw new Exception("盘点日期不能在当前日期之前。");           
+        }
+
+        public void ValidatePlanDate(StocktakingPlan model)
+        {
             if (_db.Table.Exists<StocktakingPlan>(n => n.StoreId == model.StoreId && n.StocktakingDate == model.StocktakingDate.Date))
                 throw new Exception("【" + model.StocktakingDate.ToString("yyyy-MM-dd") + "】已经存在一个盘点计划。");
         }
 
         public void AddInventoryItems(StocktakingPlan model)
         {
-            string checkSql = "select count(*) from StocktakingPlan where StoreId=@StoreId and (Status==@ToBeInventory or Status==@Replay )";
+            string checkSql = "select count(*) from StocktakingPlan where StoreId=@StoreId and (Status=@ToBeInventory or Status=@Replay )";
 
             if (_db.Table.Context.ExecuteScalar<int>(checkSql, new { StoreId = model.StoreId, ToBeInventory = StocktakingPlanStatus.ToBeInventory, Replay = StocktakingPlanStatus.Replay }) > 0)
             {
                 throw new Exception("有未完成的盘点计划，不能开启新盘点");
             }
             //把库存明细导入盘点表
-            string sql = @"insert into tocktakingPlanItem( StocktakingPlanId,ProductId,ProductCode,ProductName,BarCode,Specification,CostPrice,SalePrice,Quantity,CountQuantity )
-  SELECT  s.Id,p.Id ,p.`Code`,p.`Name` ,p.BarCode ,p.Specification ,i.AvgCostPrice ,p.SalePrice ,i.Quantity ,0  
+            string sql = @"insert into stocktakingPlanItem( StocktakingPlanId,ProductId,CostPrice,SalePrice,Quantity,CountQuantity )
+  SELECT  s.Id,p.Id as ProductId ,i.AvgCostPrice ,p.SalePrice ,i.Quantity ,0  
 FROM    StoreInventory i 
 INNER JOIN StocktakingPlan s ON s.StoreId = i.StoreId 
 INNER JOIN Product p ON p.Id=i.ProductId  
-WHERE s.Id=@StocktakingPlanId";
+WHERE s.Id=@StocktakingPlanId and i.IsQuit=0";
             _db.Command.AddExecute(sql, new { StocktakingPlanId = model.Id });
         }
 

@@ -2,6 +2,18 @@
     ViewBag.Title = "Index";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
+@section styles{
+    <link href="~/Content/zTree.min.css" rel="stylesheet" />
+    <style>
+        .ztree li span {
+            font-size: 14px;
+        }
+
+        .dataRow div {
+            margin-bottom: 0px;
+        }
+    </style>
+}
 <!-- demo root element -->
 <div id="app" class="box box-primary">
     <div class="box-header with-border">
@@ -64,61 +76,42 @@
             </div>
         </div>
     </form>
-    <v-modal title="选择门店" ok-text="确 定" cancel-text="取 消" v-bind:callback="getStore" v-bind:show.sync="selectStore.modal" v-bind:effect="fade" width="50%">
+    <v-modal title="选择门店" ok-text="确 定" cancel-text="取 消" v-bind:callback="getStore" v-bind:show.sync="selectStore.modal" v-bind:effect="fade" width="60%">
         <div slot="modal-body" class="modal-body">
-            <vue-table v-bind:columns="selectStore.gridColumns"
-                       v-bind:url="selectStore.url" v-bind:show-toolbar="false"
-                       v-bind:args="selectStore.searchArgs" v-bind:data.sync="selectStore.rows">
-                <div class="row" style="margin-bottom:10px;" slot="customSearch">
-                    <div class="col-xs-4 col-sm-3">
-                        <input class="form-control" v-model="selectStore.searchArgs.code" placeholder="输入门编码" debounce="300" />
-                    </div>
-                    <div class="col-xs-4 col-sm-3">
-                        <input class="form-control" v-model="selectStore.searchArgs.name" placeholder="输入门店名" debounce="300" />
-                    </div>
-                </div>
-            </vue-table>
+            <div style="min-height:350px;max-height:500px;overflow:auto;"><ul id="ztree" class="ztree"></ul></div>
         </div>
     </v-modal>
 </div>
-@{Html.RenderPartial("VueTableTemplate");}
 @section scripts{
-    <script src="~/Content/Vue/vuetable/vuetable.js"></script>
+<script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
     <script>
-        var demo = new Vue({
-            components: {
-                'v-modal': VueStrap.modal,
-                'v-input': VueStrap.input,
-                'v-form': VueStrap.formGroup
-            },
-            el: '#app',
-            data: {
-                modal: false,
-                valid: false,
-                model: {
-                    id:0,
-                    storeId: 0,
-                    stocktakingDate: '@DateTime.Now.Date.ToString("yyyy-MM-dd")',
-                    method: 1
+    var demo = new Vue({
+        components: {
+            'v-modal': VueStrap.modal,
+            'v-input': VueStrap.input,
+            'v-form': VueStrap.formGroup
+        },
+        el: '#app',
+        data: {
+            modal: false,
+            valid: false,
+            model: {
+                id:0,
+                storeId: @ViewBag.StoreId,
+                stocktakingDate: '@DateTime.Now.Date.ToString("yyyy-MM-dd")',
+                method: 1
                 },
-                selectStore: {
-                    modal: false,
-                    name: '',
-                    view: @ViewBag.View,
-                    gridColumns: [
-                       { name: 'Code', localName: '门店编码' },
-                       { name: 'Name', localName: '门店名' }                           
-                    ],
-                    url: "/Store/LoadData",
-                    searchArgs: { name: '',code:'' },
-                    rows: []
+            selectStore: {
+                modal: false,
+                name: '@ViewBag.StoreName',
+                view:@ViewBag.View,
                 }
             },
-            methods: {                
+            methods: {
                 onSubmit: function () {
-                    var v_data = this.model;
                     if(this.model.storeId==0){ bootbox.alert("请选择门店");return;}
                     if(this.model.stocktakingDate==""){ bootbox.alert("请选择盘点日期");return;}
+                    var v_data = this.model;                   
                     $.post("/StocktakingPlan/Create", v_data, function (result) {
                         if (result.success) {
                             bootbox.alert("保存成功！", function () {
@@ -129,7 +122,7 @@
                             bootbox.alert(result.error);
                         }
                     }, "json");
-                },               
+                },
                 showStore: function () {
                     this.selectStore.modal = true;
                 },
@@ -138,18 +131,54 @@
                     this.selectStore.name = "";
                 },
                 getStore: function () {
-                    var selecteds = this.selectStore.rows.filter(function (item) {
-                        return item.checked;
-                    });
+                    var treeObj = $.fn.zTree.getZTreeObj("ztree"); 
+                    var selecteds= treeObj.getCheckedNodes(true);
                     if (selecteds) {
-                        this.model.storeId = selecteds[0].Id;
-                        this.selectStore.name = selecteds[0].Name;
-                        this.selectStore.modal = false;
+                        var idArray = new Array();
+                        var nameArray = new Array();
+                        selecteds.forEach(function(item){
+                            if(item.level==1){
+                                idArray.push(item.id);
+                                nameArray.push(item.name);
+                            }
+                        })
+                        if(idArray.length>0){
+                            this.model.storeId = idArray[0];
+                            this.selectStore.name = nameArray[0];
+                            this.selectStore.modal = false;
+                        }
+                        else
+                        {
+                            bootbox.alert("请选择一个门店");
+                        }
+                           
                     }
-
-                }
+                },
             }
-        })
+    })
+
+    //加载门店tree
+    var zTreeObj;           
+    var setting = {
+        check: {
+            enable:true
+        },               
+        async: {
+            enable: true,
+            url: "/Store/LoadStore",
+            //autoParam: ["id", "name"]
+        },
+        callback:{
+            onClick:function(event, treeId, treeNode){
+                //点击展开/折叠节点
+                var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                var open = !treeNode.open;
+                treeObj.expandNode(treeNode, open, false, false);
+                // vue.searchArgs.categoryId =treeNode.id;                      
+            }
+        }
+    };           
+    zTreeObj = $.fn.zTree.init($("#ztree"), setting);
 
     </script>
 }
