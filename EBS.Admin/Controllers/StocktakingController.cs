@@ -35,6 +35,8 @@ namespace EBS.Admin.Controllers
         public ActionResult Index()
         {
             ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+            ViewBag.StoreId = _context.CurrentAccount.StoreId;
+            ViewBag.StoreName = _context.CurrentAccount.StoreName;
             ViewBag.Status = typeof(StocktakingType).GetValueToDescription();
             return View();
         }
@@ -74,6 +76,7 @@ namespace EBS.Admin.Controllers
             ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
             ViewBag.StoreId = _context.CurrentAccount.StoreId;
             ViewBag.StoreName = _context.CurrentAccount.StoreName;
+            ViewBag.CreatedByName = _context.CurrentAccount.NickName;
             return View();
         }
 
@@ -86,11 +89,11 @@ namespace EBS.Admin.Controllers
             return Json(new { success = true });
         }
 
-        public JsonResult QueryShelfProduct(int storeId, string shelfCode)
+        public JsonResult QueryShelf(int storeId, string shelfCode)
         {
             var model = GetRunningPlan(storeId);
 
-            var rows = _stocktakingQuery.QueryShelfProduct(storeId, shelfCode).ToList();
+            var rows = _stocktakingQuery.QueryShelf(model.Id,storeId, shelfCode).ToList();
             return Json(new { success = true,data = rows,plan = model });
         }
         public JsonResult QueryShelfProduct(int planId,int storeId, string productCodeOrBarCode)
@@ -108,7 +111,7 @@ namespace EBS.Admin.Controllers
             var model = this._query.Find<StocktakingPlan>(n => n.StoreId == storeId && n.Status == StocktakingPlanStatus.FirstInventory);
             if (model == null)
             {
-                throw new Exception("没有开始盘点计划");
+                throw new Exception("请新建盘点计划，并执行开始盘点");
             }
             return model;
         }

@@ -296,7 +296,7 @@
                         $.post("/StorePurchaseOrder/Create", v_data, function (result) {
                             if (result.success) {
                                 bootbox.alert("保存成功！", function () {
-                                    window.location.href = "/StorePurchaseOrder/Index";
+                                    window.location.href = "/StorePurchaseOrder/Create";
                                 });
                             }
                             else {

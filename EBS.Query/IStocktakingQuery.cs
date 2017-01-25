@@ -13,7 +13,7 @@ namespace EBS.Query
 
        IEnumerable<StocktakingDto> GetAuditList(Pager page, SearchStocktaking condition);
 
-       IEnumerable<StocktakingItemDto> QueryShelfProduct(int storeId, string shelfCode);
+       IEnumerable<StocktakingItemDto> QueryShelf(int planId, int storeId, string shelfCode);
 
        StocktakingItemDto QueryShelfProduct(int planId, int storeId, string productCodeOrBarCode);
 

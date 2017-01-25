@@ -26,7 +26,7 @@ namespace EBS.Query.Service
                 //货架
                 var trees = new List<ShelfTreeNode>();
                 //var shelfs = _query.FindAll<Shelf>(n => n.StoreId == storeId).OrderBy(n => n.Code).ToList();
-                string sql = @"select s.Id,s.StoreId,s.`Code`,s.Number,l.Id as LayerId,l.`Code` as ShelfLayerCode,l.Number as ShelfLayerNumber,l.ShelfId,p.Id as shelflayerproductId,p.ShelfLayerId,p.`Code` as ShelfLayerProductCode,p.Number as ShelfLayerProductNumber
+                string sql = @"select s.Id,s.StoreId,s.`Code`,s.Number,s.`Name`,l.Id as LayerId,l.`Code` as ShelfLayerCode,l.Number as ShelfLayerNumber,l.ShelfId,p.Id as shelflayerproductId,p.ShelfLayerId,p.`Code` as ShelfLayerProductCode,p.Number as ShelfLayerProductNumber
  from shelf s  
 left JOIN  shelflayer l on s.Id = l.ShelfId
 left join shelflayerproduct p on l.Id = p.ShelfLayerId

@@ -29,6 +29,7 @@ namespace EBS.Query.DTO
 
         public string Unit { get; set; }
 
+        public decimal CostPrice { get; set; }
         /// <summary>
         /// 售价
         /// </summary>

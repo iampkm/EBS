@@ -45,7 +45,7 @@ namespace EBS.Application.DTO
        /// <summary>
        /// 明细json 字符串
        /// </summary>
-        public string Items { get; set; }
+        public string ItemsJson { get; set; }
 
     }
 }

@@ -21,7 +21,7 @@
         <div class="box-body">
             <vue-table v-ref:vtable v-bind:columns="gridColumns"
                        v-bind:url="url"
-                       v-bind:args="searchArgs" v-bind:data.sync="rows" show-pagination="false">
+                       v-bind:args="searchArgs" v-bind:data.sync="rows" @*show-pagination="false"*@>
                 <div class="row" style="margin-bottom:10px;" slot="customSearch">
                     <div class="col-xs-3 col-sm-2">
                         <input class="form-control" v-model="searchArgs.code" placeholder="单编号" debounce="500" />
@@ -96,23 +96,25 @@
             el: '#app',
             data: {
                 gridColumns: [
-                { name: 'ProductCode', localName: '编码', width: '80' },
+                { name: 'StoreName', localName: '门店' }, 
+                { name: 'Code', localName: '单据号' },                                            
+                { name: 'CreatedByName', localName: '创建人' },
+                { name: 'Type', localName: '单据类型', width: '100' },
+                { name: 'ShelfCode', localName: '货架号', width: '100' }, 
+                { name: 'ProductCode', localName: '编码', width: '100' },
                 { name: 'BarCode', localName: '条码'},
                 { name: 'ProductName', localName: '品名', width: '200'  },
-                { name: 'Specification', localName: '规格' },  
-                { name: 'ShelfCode', localName: '货架号' }, 
-                { name: 'CountQuantity', localName: '盘点数', width: '80'  },
-                { name: 'Code', localName: '单据号' },
-                { name: 'StoreName', localName: '门店' },                              
-                { name: 'CreatedByName', localName: '创建人' },
-                { name: 'Type', localName: '单据类型' },
+                { name: 'Specification', localName: '规格', width: '100' },
+                { name: 'CountQuantity', localName: '盘点数', width: '80'  }, 
+                { name: 'CorectReason', localName: '差错原因' }, 
+                { name: 'Note', localName: '备注'}, 
                 ],
                 url: "/Stocktaking/LoadData",
-                searchArgs: { code: '',shelfCode:'',productCodeOrBarCode:'', stocktakingDate: '', storeId: 0, type: 0,status:2 },
+                searchArgs: { code: '',shelfCode:'',productCodeOrBarCode:'', stocktakingDate: '', storeId: @ViewBag.StoreId, type: 0,status:2 },
                 rows: [],
                 selectStore: {
                     modal: false,
-                    name: '',
+                    name: '@ViewBag.StoreName',
                     view:@ViewBag.View,
                 }
             },

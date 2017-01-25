@@ -25,11 +25,11 @@ namespace EBS.Application.Facade
         }
         public void Create(StocktakingModel model)
         {
-            var entity = model.MapTo<Stocktaking>();
-            entity.Code = _billService.GenerateNewCode(BillIdentity.StoreStocktaking);
+            var entity = model.MapTo<Stocktaking>();          
             entity.Status = StocktakingStatus.Audited;
             entity.StocktakingType = StocktakingType.Stocktaking;
-            entity.Items = JsonConvert.DeserializeObject<List<StocktakingItem>>(model.Items);
+            entity.Items = JsonConvert.DeserializeObject<List<StocktakingItem>>(model.ItemsJson);
+            entity.Code = _billService.GenerateNewCode(BillIdentity.StoreStocktaking);
             _db.Insert(entity);
             _db.SaveChange();
         }
@@ -40,7 +40,7 @@ namespace EBS.Application.Facade
             entity.Code = _billService.GenerateNewCode(BillIdentity.StoreStocktaking);
             entity.Status = StocktakingStatus.WaitAuditing;
             entity.StocktakingType = StocktakingType.StocktakingCorect;
-            entity.Items = JsonConvert.DeserializeObject<List<StocktakingItem>>(model.Items);
+            entity.Items = JsonConvert.DeserializeObject<List<StocktakingItem>>(model.ItemsJson);
             _db.Insert(entity);
             _db.SaveChange();
         }
@@ -59,7 +59,7 @@ namespace EBS.Application.Facade
             entity = model.MapTo<Stocktaking>(entity);
             entity.Status = StocktakingStatus.Audited;
             entity.StocktakingType = StocktakingType.StocktakingCorect;
-            entity.Items = JsonConvert.DeserializeObject<List<StocktakingItem>>(model.Items);
+            entity.Items = JsonConvert.DeserializeObject<List<StocktakingItem>>(model.ItemsJson);
             if (entity.Items.Count > 0)
             {
                 _db.Delete(entity.Items.ToArray());

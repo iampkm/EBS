@@ -28,11 +28,11 @@ namespace EBS.Query.DTO
         /// <summary>
         /// 创建人
         /// </summary>
-        public string CreateByName { get; set; }
+        public string CreatedByName { get; set; }
         /// <summary>
         /// 部门ID
         /// </summary>
-        public int StoreName { get; set; }
+        public string StoreName { get; set; }
 
         public string ProductCode { get; set; }
 
@@ -42,5 +42,13 @@ namespace EBS.Query.DTO
         public string Specification { get; set; }
 
         public string CountQuantity { get; set; }
+        /// <summary>
+        /// 差错原因
+        /// </summary>
+        public string CorectReason { get; set; }
+       /// <summary>
+       /// 备注
+       /// </summary>
+        public string Note { get; set; }
     }
 }

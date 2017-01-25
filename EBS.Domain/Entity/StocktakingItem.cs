@@ -25,7 +25,7 @@ namespace EBS.Domain.Entity
         /// <summary>
         /// 售价
         /// </summary>
-        public decimal SalesPrice { get; set; }
+        public decimal SalePrice { get; set; }
         /// <summary>
         /// 库存数
         /// </summary>

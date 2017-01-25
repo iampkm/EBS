@@ -43,7 +43,7 @@
                 <div class="form-group col-sm-2 col-xs-3">
                     <div class="input-group">
                         <span class="input-group-addon">货架码</span>
-                        <input type="text" id="shelfCode" class="form-control" v-model="model.shelfCode" v-on:keyup.enter="queryShelfProduct()" placeholder="输入回车/扫码" />
+                        <input type="text" id="shelfCode" class="form-control" v-model="inputShelfCode" v-on:keyup.enter="queryShelf()" placeholder="输入货架码" />
                     </div>
                 </div>
             </div>
@@ -91,13 +91,13 @@
                                 </tr>
                             </thead>
                             <tbody id="tbody">
-                                <tr v-for="(index,item) in products">
+                                <tr v-for="(index,item) in products" >
                                     <td>
                                         <button type="button" class="btn btn-flat  btn-sm" title="添加行" v-on:click="addRow($event)"><span class="fa fa-plus"></span></button>
                                         <button type="button" class="btn btn-flat  btn-sm" v-show="index>0" title="删除行" v-on:click="removeRow(index)"><span class="fa fa-trash"></span></button>
                                     </td>
                                     <td class="text-center">{{index+1}}</td>
-                                    <td class="text-center">{{item.ShelfCode}}</td>
+                                    <td>{{item.ShelfCode}}</td>
                                     <td>
                                         <input type="text" class="form-control productCode" v-model="item.ProductCode" v-on:keyup.enter="inputProduct(item.ProductCode,index)" placeholder="录入编码或扫码" />
                                     </td>
@@ -107,7 +107,9 @@
                                     <td>{{item.Unit}}</td>
                                     <td>￥{{item.SalePrice}}</td>
                                     <td>
-                                        <input type="text" class="form-control quantity" v-model="item.countQuantity" v-on:keyup.enter="inputNext" />
+                                        <div>
+                                            <input type="text" class="form-control quantity" v-model="item.CountQuantity" v-on:keyup.enter="inputNext" />
+                                        </div>
                                     </td>
                                 </tr>
                             </tbody>                            
@@ -143,15 +145,16 @@
                 data: {
                     valid: false,
                     modal: false,
+                    inputShelfCode:'',
                     model: {
                         id: 0,
                         code: '',
                         storeId: @ViewBag.StoreId,
                         shelfCode: '',
-                        items: '',
+                        itemsJson: '',
                         stocktakingPlanId:0,
                     },
-                    products: [{ ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', SalePrice: 0, CountQuantity: 0 }],
+                    products: [{ ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '',CostPrice:0, SalePrice: 0, CountQuantity: 0,Quantity:0 }],
                     totalQuantity: 0,
                     inputProducts: '',
                     selectStore: {
@@ -168,18 +171,19 @@
                         var data = "";
                         for (var i = 0; i < _self.products.length; i++) {
                             var item = _self.products[i];
-                            if (item.ProductId > 0 && item.ContractPrice > 0) {
-                                data += "{\"ProductId\":" + item.ProductId + ",\"CountQuantity\":" + item.CountQuantity
-                                     + ",\"ContractPrice\":" + item.ContractPrice + "},";
+                            if(item.CountQuantity<=0){bootbox.alert("商品["+item.ProductName+"]盘点数为0"); return;}
+                            if (item.ProductId > 0 && item.CountQuantity > 0) {
+                                data += "{\"ProductId\":" + item.ProductId + ",\"CountQuantity\":" + item.CountQuantity + ",\"Quantity\":" + item.Quantity
+                                     + ",\"CostPrice\":" + item.CostPrice +",\"SalePrice\":" + item.SalePrice+ "},";
                             }
                         }
                         if (data == "") {
-                            bootbox.alert("请导入商品");
+                            bootbox.alert("请录入商品");
                             return;
                         }
                         data = data.substring(0, data.length - 1);
                         data = "[" + data + "]";
-                        _self.model.items = data;
+                        _self.model.itemsJson = data;
                         var v_data = _self.model;
                         $.post("/Stocktaking/Create", v_data, function (result) {
                             if (result.success) {
@@ -192,26 +196,30 @@
                             }
                         }, "json");
                     },
-                    queryShelfProduct: function () {
+                    queryShelf: function () {
                         var _self = this;
-                        var _shelfCode = _self.model.shelfCode;                        
+                        var _shelfCode = _self.inputShelfCode;                        
                         if (_shelfCode == "") { return; }
                         if (_self.model.storeId == 0) { bootbox.alert("请选择门店"); return; }
                         var data = {
                             shelfCode: _shelfCode,
                             storeId: _self.model.storeId
                         }
-                        $.post("/Stocktaking/QueryShelfProduct", data, function (result) {
+                        _self.model.shelfCode =_shelfCode  ;
+                        $.post("/Stocktaking/QueryShelf", data, function (result) {
                             if (result.success) {
-                                _self.products = [];
-                                result.data.forEach(function (item) {
-                                    _self.products.push(item);
-                                });
+                                if(result.data.length>0)
+                                {
+                                    _self.products = [];
+                                    result.data.forEach(function (item) {
+                                        _self.products.push(item);
+                                    }); 
+                                }                              
                                 if(_self.model.stocktakingPlanId==0)
                                 {
-                                    _self.model.stocktakingPlanId = result.data.Id;
-                                }
-                                _self.model.shelfCode = "";
+                                    _self.model.stocktakingPlanId = result.plan.Id;
+                                }                                
+                               _self.inputShelfCode ="";
                                 //设置焦点,延迟500，等待vue.js 渲染完毕
                                 setTimeout(function () {
                                     var selector = "tr:eq(0)";
@@ -225,7 +233,7 @@
                         }, "json");
                     },
                     addRow: function (event) {
-                        this.products.push({ ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', SalePrice: 0, CountQuantity: 0  });
+                        this.products.push({ ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '',CostPrice:0,  SalePrice: 0, CountQuantity: 0 ,Quantity:0 });
                         //设置焦点
                         var target = event.srcElement || event.target;
                         var row = target.localName == "button" ? $(target).parent().parent() : $(target).parent().parent().parent();
@@ -308,6 +316,7 @@
                                 this.model.storeId = idArray[0];
                                 this.selectStore.name = nameArray[0];
                                 this.selectStore.modal = false;
+                                $("#shelfCode").focus();
                             }
                             else
                             {
@@ -321,7 +330,7 @@
                     },
                     clearItems: function () {
                         if (this.products.length > 0) {
-                            this.products = [{ ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', SalePrice: 0, CountQuantity: 0  }];
+                            this.products = [{ ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '',CostPrice:0,  SalePrice: 0, CountQuantity: 0,Quantity:0  }];
                         }
                     }
                 }                

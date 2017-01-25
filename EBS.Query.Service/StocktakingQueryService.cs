@@ -65,16 +65,24 @@ namespace EBS.Query.Service
                 return new List<StocktakingListDto>();
             }
 
-            string sql = @"select t0.`Code`,t0.ShelfCode,t0.CreatedByName,t0.StocktakingType,t1.*,t2.`Name` as StoreName,t3.StocktakingDate
+            string sql = @"select t0.`Code`,t0.ShelfCode,t0.CreatedByName,t0.StocktakingType,t1.*,t2.`Name` as StoreName,t3.StocktakingDate,p.Code as ProductCode,p.Name as ProductName,p.Specification,p.BarCode,p.Unit
 from stocktaking t0 inner join stocktakingitem t1 on t0.Id = t1.StocktakingId
 inner join store t2 on t2.Id = t0.StoreId
 inner join stocktakingPlan t3 on t3.Id = t0.StocktakingPlanId 
-where 1=1 {0} ORDER BY t0.Id desc ";
+left join product p on p.id = t1.productId
+where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
 
-           // sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
-            sql = string.Format(sql, where);
+            sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
+           // sql = string.Format(sql, where);
             var rows = this._query.FindAll<StocktakingListDto>(sql, param) as IEnumerable<StocktakingListDto>;
-            page.Total = rows.Count();
+            string sqlCount = @"select count(*) 
+from stocktaking t0 inner join stocktakingitem t1 on t0.Id = t1.StocktakingId
+inner join store t2 on t2.Id = t0.StoreId
+inner join stocktakingPlan t3 on t3.Id = t0.StocktakingPlanId 
+left join product p on p.id = t1.productId
+where 1=1 {0}";
+            sqlCount = string.Format(sqlCount, where);
+            page.Total = _query.Context.ExecuteScalar<int>(sqlCount,param);
             return rows;
         }
 
@@ -136,22 +144,24 @@ where 1=1 {0} ORDER BY t0.Id desc ";
         }
 
 
-        public IEnumerable<StocktakingItemDto> QueryShelfProduct(int storeId, string shelfCode)
+        public IEnumerable<StocktakingItemDto> QueryShelf(int planId, int storeId, string shelfCode)
         {            
             // 查询货架商品信息
-            string sql = @"select g.Id,g.Code as ShelfCode,g.ProductId,p.Code as ProductCode,p.Name as ProductName,p.Specification,p.BarCode,p.Unit, p.SalePrice  
+            string sql = @"select g.Id,g.Code as ShelfCode,g.ProductId,p.Code as ProductCode,p.Name as ProductName,p.Specification,p.BarCode,p.Unit, p.SalePrice ,t.costprice,t.Quantity  
   from ShelfLayerProduct g inner join Product p on g.ProductId = p.Id  
+  left join (select costprice,ProductId,quantity from stocktakingplanitem where stocktakingplanId = @PlanId) t on t.ProductId =p.Id
   where g.Code like @Code and g.StoreId=@StoreId order by g.Code";
-            var rows = _query.FindAll<StocktakingItemDto>(sql, new { StoreId = storeId, Code = shelfCode });
+            var rows = _query.FindAll<StocktakingItemDto>(sql, new { PlanId = planId, StoreId = storeId, Code = string.Format("{0}%", shelfCode) });
            return rows;
         }
 
 
         public StocktakingItemDto QueryShelfProduct(int planId, int storeId, string productCodeOrBarCode)
         {
-            string sql = @"SELECT st.ProductId,st.BarCode,st.ProductName,st.Specification,st.SalePrice,sh.Code ShelfCode 
+            string sql = @"SELECT st.ProductId,p.Code as ProductCode,p.Name as ProductName,p.Specification,p.BarCode,p.Unit, p.SalePrice ,st.costprice ,st.Quantity ,sh.Code ShelfCode 
 FROM StocktakingPlanItem AS st LEFT JOIN (SELECT * FROM ShelfLayerProduct WHERE StoreId=@StoreId) AS sh on st.ProductId=sh.ProductId 
- WHERE st.StocktakingPlanId=@StocktakingPlanId and (st.ProductID = @ProductCodeOrBarCode or BarCode=@ProductCodeOrBarCode)";
+left join product p on p.id = st.ProductId
+ WHERE st.StocktakingPlanId=@StocktakingPlanId and (p.Code = @ProductCodeOrBarCode or p.BarCode=@ProductCodeOrBarCode)";
             var model = _query.Find<StocktakingItemDto>(sql, new { StocktakingPlanId = planId, StoreId = storeId, ProductCodeOrBarCode = productCodeOrBarCode });
             if (model == null) {
                 throw new Exception("商品不存在");
