@@ -119,14 +119,9 @@ namespace EBS.Admin.Controllers
         public ActionResult Correct()
         {
             ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
-            ViewBag.StoreId = 0;
-            ViewBag.StoreName = "";
-            if (_context.CurrentAccount.StoreId > 0)
-            {
-                var store = _query.Find<Store>(_context.CurrentAccount.StoreId);
-                ViewBag.StoreId = store.Id;
-                ViewBag.StoreName = store.Name;
-            }
+            ViewBag.StoreId = _context.CurrentAccount.StoreId;
+            ViewBag.StoreName = _context.CurrentAccount.StoreName;
+            ViewBag.CreatedByName = _context.CurrentAccount.NickName;
             return View();
         }
 
@@ -139,10 +134,15 @@ namespace EBS.Admin.Controllers
             return Json(new { success = true });
         }
 
-        public JsonResult QueryStocktakingItem(int planId, string productCodeOrBarCode)
+        public JsonResult QueryStocktakingItem(int planId,int storeId, string productCodeOrBarCode)
         {
-            var model = _stocktakingQuery.QueryStocktaingItem(planId, productCodeOrBarCode);
-            return Json(new { success = true,data = model });
+            var model = this._query.Find<StocktakingPlan>(n => n.StoreId == storeId && n.Status == StocktakingPlanStatus.Replay);
+            if (model == null)
+            {
+                throw new Exception("还没进行合并盘点，不能创建盘点修正单");
+            }
+            var item = _stocktakingQuery.QueryStocktaingItem(model.Id, productCodeOrBarCode);
+            return Json(new { success = true, data = item });
         }
 
         public ActionResult Edit(int id)

@@ -21,6 +21,13 @@ namespace EBS.Query.DTO
         public string Type { get {
             return StocktakingType.Description();
         } }
+
+        public DateTime StocktakingDate { get; set; }
+
+        public string StocktakingDateString { get {
+            return StocktakingDate.ToString("yyyy-MM-dd");
+        } }
+
         /// <summary>
         /// 货架码
         /// </summary>

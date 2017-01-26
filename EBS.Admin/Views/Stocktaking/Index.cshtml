@@ -39,7 +39,7 @@
                                 <i class="fa fa-calendar"></i>
                                 <span>盘点日期</span>
                             </div>
-                            <input type="text" class="form-control" v-model="model.stocktakingDate" readonly>
+                            <input type="text" class="form-control" v-model="searchArgs.stocktakingDate" readonly>
                         </div>
                     </div>
                     <div class="col-sm-2 col-xs-3" v-show="selectStore.view">
@@ -98,7 +98,8 @@
                 gridColumns: [
                 { name: 'StoreName', localName: '门店' }, 
                 { name: 'Code', localName: '单据号' },                                            
-                { name: 'CreatedByName', localName: '创建人' },
+                { name: 'CreatedByName', localName: '创建人' , width: '100'},
+                { name: 'StocktakingDateString', localName: '盘点日', width: '100' },
                 { name: 'Type', localName: '单据类型', width: '100' },
                 { name: 'ShelfCode', localName: '货架号', width: '100' }, 
                 { name: 'ProductCode', localName: '编码', width: '100' },

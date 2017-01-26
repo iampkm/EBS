@@ -46,13 +46,13 @@ namespace EBS.Query.Service
             }
             if (condition.StocktakingDate.HasValue)
             {
-                where += "and TIMESTAMPDIFF(DAY,t0.StocktakingDate,@StocktakingDate)=0";
+                where += "and datediff(t3.StocktakingDate,@StocktakingDate)=0";
                 param.StocktakingDate = condition.StocktakingDate;
             }
             if (!string.IsNullOrEmpty(condition.ProductCodeOrBarCode))
             {
-                where+=" and (t1.ProductID=@ProductIdOrBarCode or t1.BarCode=@ProductIdOrBarCode)";
-                param.ProductIdOrBarCode = condition.ProductCodeOrBarCode;
+                where += " and (p.Code=@ProductCodeOrBarCode or p.BarCode=@ProductCodeOrBarCode)";
+                param.ProductCodeOrBarCode = condition.ProductCodeOrBarCode;
             }
             if (!string.IsNullOrEmpty(condition.ShelfCode))
             {
@@ -65,7 +65,7 @@ namespace EBS.Query.Service
                 return new List<StocktakingListDto>();
             }
 
-            string sql = @"select t0.`Code`,t0.ShelfCode,t0.CreatedByName,t0.StocktakingType,t1.*,t2.`Name` as StoreName,t3.StocktakingDate,p.Code as ProductCode,p.Name as ProductName,p.Specification,p.BarCode,p.Unit
+            string sql = @"select t0.`Code`,t0.ShelfCode,t0.CreatedByName,t0.StocktakingType,t3.StocktakingDate,t1.*,t2.`Name` as StoreName,t3.StocktakingDate,p.Code as ProductCode,p.Name as ProductName,p.Specification,p.BarCode,p.Unit
 from stocktaking t0 inner join stocktakingitem t1 on t0.Id = t1.StocktakingId
 inner join store t2 on t2.Id = t0.StoreId
 inner join stocktakingPlan t3 on t3.Id = t0.StocktakingPlanId 
