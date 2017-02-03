@@ -50,8 +50,8 @@
                     </div>                   
                 </div>
                 <span class="input-group-btn" slot="customButtons">                   
-                    <button type="button" class="btn btn-warning btn-flat" v-on:click="submitAudit()">合并盘点</button>
-                    <button type="button" class="btn btn-danger btn-flat" v-on:click="submitAudit()">结束盘点</button>
+                    <button type="button" class="btn btn-warning btn-flat" v-on:click="mergeDetial()">合并盘点</button>
+                    <button type="button" class="btn btn-danger btn-flat" v-on:click="endPlan()">结束盘点</button>
                     <a class="btn btn-success btn-flat" href="/StocktakingPlan/Help">盘点助手</a>
                 </span>
             </vue-table>
@@ -107,7 +107,7 @@
                     }
                 },
                 methods: {
-                    submitAudit: function () {
+                    mergeDetial: function () {
                         var selectRow = this.rows.filter(function (item, index) {
                             if (item.checked) {
                                 return true;
@@ -121,7 +121,32 @@
                         v_self = this;
                         bootbox.confirm("您确定提交该记录？", function (result) {
                             if (result) {
-                                $.post("/StocktakingPlan/StartPlan", { id: selectId }, function (result) {
+                                $.post("/StocktakingPlan/MergeDetial", { id: selectId }, function (result) {
+                                    if (result.success) {
+                                        v_self.$refs.vtable.loadData();
+                                    }
+                                    else {
+                                        bootbox.alert(result.error);
+                                    }
+                                }, "json");
+                            }
+                        });
+                    },
+                    endPlan: function () {
+                        var selectRow = this.rows.filter(function (item, index) {
+                            if (item.checked) {
+                                return true;
+                            }
+                        });
+                        if (selectRow.length == 0) {
+                            bootbox.alert("请选择一条记录");
+                            return;
+                        }
+                        var selectId = selectRow[0].Id;
+                        v_self = this;
+                        bootbox.confirm("您确定提交该记录？", function (result) {
+                            if (result) {
+                                $.post("/StocktakingPlan/EndPlan", { id: selectId }, function (result) {
                                     if (result.success) {
                                         v_self.$refs.vtable.loadData();
                                     }

@@ -110,7 +110,7 @@ namespace EBS.Admin.Controllers
             else
             {
                 rows = _stocktakingPlanQuery.GetDetails(page, planId, from, to, difference, productCodeOrBarCode).ToList();
-                return Json(new { success = true, data = rows, total = rows.Count });
+                return Json(new { success = true, data = rows, total = page.Total });
             }           
         }
 

@@ -70,11 +70,11 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
                 where += "and t0.StoreId=@StoreId ";
                 param.StoreId = condition.StoreId;
             }
-            if (!string.IsNullOrEmpty(condition.Status))
-            {
-                where += "and t0.Status in(@Status) ";
-                param.Status = condition.Status;
-            }
+            //if (!string.IsNullOrEmpty(condition.Status))
+            //{
+            //    where += "and t0.Status in(@Status) ";
+            //    param.Status = condition.Status;
+            //}
             if (condition.StocktakingDate.HasValue)
             {
                 where += "and t0.StocktakingDate>=@beginDate and t0.StocktakingDate<@endDate ";
@@ -94,7 +94,7 @@ inner join stocktakingplanitem i on p.Id = i.StocktakingPlanId
 group by p.Id 
 ) t1 on t0.Id = t1.Id
 inner join store t2 on t2.Id = t0.StoreId 
-where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
+where 1=1 and t0.Status in (2,3) {0} ORDER BY t0.Id desc LIMIT {1},{2}";
 
             sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
             var rows = this._query.FindAll<StocktakingSummaryDto>(sql, param);
@@ -109,7 +109,7 @@ inner join stocktakingplanitem i on p.Id = i.StocktakingPlanId
 group by p.Id 
 ) t1 on t0.Id = t1.Id
 inner join store t2 on t2.Id = t0.StoreId 
-where 1=1 {0}";
+where 1=1 and t0.Status in (2,3) {0}";
             sqlCount = string.Format(sqlCount, where);
             page.Total = this._query.Context.ExecuteScalar<int>(sqlCount, param);
 
@@ -138,7 +138,7 @@ where 1=1 {0}";
             }
             if (showDifference)
             {
-                where += "and i.CountQuantity-i.Quantity!=0 ";
+                where += "and i.CountQuantity-i.Quantity <> 0 ";
             }
             if (!string.IsNullOrEmpty(productCodeOrBarCode))
             {

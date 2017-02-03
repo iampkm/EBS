@@ -36,11 +36,11 @@ namespace EBS.Application.Facade
 
         public void Correct(StocktakingModel model)
         {
-            var entity = model.MapTo<Stocktaking>();
-            entity.Code = _billService.GenerateNewCode(BillIdentity.StoreStocktaking);
+            var entity = model.MapTo<Stocktaking>();           
             entity.Status = StocktakingStatus.WaitAuditing;
             entity.StocktakingType = StocktakingType.StocktakingCorect;
             entity.Items = JsonConvert.DeserializeObject<List<StocktakingItem>>(model.ItemsJson);
+            entity.Code = _billService.GenerateNewCode(BillIdentity.StoreStocktaking);
             _db.Insert(entity);
             _db.SaveChange();
         }

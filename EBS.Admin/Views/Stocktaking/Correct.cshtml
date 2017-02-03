@@ -107,17 +107,21 @@
                                     <td>{{item.ProductName}}</td>
                                     <td>{{item.Specification}}</td>
                                     <td>{{item.Unit}}</td>
-                                    <td>{{item.SalePrice}}</td>
+                                    <td>{{item.SalePrice.toFixed(2)}}</td>
                                     <th>{{item.Quantity}}</th>
                                     <th>{{item.CountQuantity}}</th>
                                     <td>
                                         <div>
-                                            <input type="text" class="form-control quantity" v-model="item.countQuantity" v-on:keyup.enter="inputNext" />
+                                            <input type="text" class="form-control quantity" v-model="item.CorectQuantity" v-on:keyup.enter="inputNext" />
                                         </div>                                       
                                     </td>
                                     <td>{{item.Quantity-item.CountQuantity}}</td>
-                                    <td>{{item.SalePrice*(item.Quantity-item.CountQuantity)}}</td>
-                                    <td><input type="text" class="form-control reason" v-model="item.corectReason"  /></td>
+                                    <td>{{(item.SalePrice*(item.Quantity-item.CountQuantity)).toFixed(2)}}</td>
+                                    <td>
+                                    <div>
+                                        <input type="text" class="form-control reason" v-model="item.CorectReason" v-on:keyup.enter="inputReason" />
+                                    </div>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -157,10 +161,10 @@
                         code: '',
                         storeId: @ViewBag.StoreId,
                         shelfCode: '',
-                        items: '',
+                        itemsJson: '',
                         stocktakingPlanId:0,
                     },
-                    products: [{ ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', SalePrice: 0,Quantity:0, CountQuantity: 0,CorectReason:'' }],
+                    products: [{ ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', SalePrice: 0,Quantity:0, CountQuantity: 0,CorectQuantity:0,CorectReason:'' }],
                     totalQuantity: 0,
                     inputProducts: '',
                     selectStore: {
@@ -177,9 +181,10 @@
                         var data = "";
                         for (var i = 0; i < _self.products.length; i++) {
                             var item = _self.products[i];
-                            if (item.ProductId > 0 && item.ContractPrice > 0) {
-                                data += "{\"ProductId\":" + item.ProductId + ",\"CountQuantity\":" + item.CountQuantity
-                                     + ",\"ContractPrice\":" + item.ContractPrice + "},";
+                            if (item.ProductId > 0 ) {
+                                data += "{\"ProductId\":" + item.ProductId + ",\"CountQuantity\":" + item.CountQuantity + ",\"Quantity\":" + item.Quantity
+                                    + ",\"CostPrice\":" + item.CostPrice +",\"SalePrice\":" + item.SalePrice+ ",\"CorectQuantity\":" + item.CorectQuantity
+                                    +",\"CorectReason\":'" + item.CorectReason+ "'},";
                             }
                         }
                         if (data == "") {
@@ -188,7 +193,7 @@
                         }
                         data = data.substring(0, data.length - 1);
                         data = "[" + data + "]";
-                        _self.model.items = data;
+                        _self.model.itemsJson = data;
                         var v_data = _self.model;
                         $.post("/Stocktaking/Correct", v_data, function (result) {
                             if (result.success) {
@@ -202,7 +207,7 @@
                         }, "json");
                     },                    
                     addRow: function (event) {
-                        this.products.push({ ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', SalePrice: 0,Quantity:0, CountQuantity: 0,CorectReason:'' });
+                        this.products.push({ ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', SalePrice: 0,Quantity:0, CountQuantity: 0,CorectQuantity:0,CorectReason:'' });
                         //设置焦点
                         var target = event.srcElement || event.target;
                         var row = target.localName == "button" ? $(target).parent().parent() : $(target).parent().parent().parent();
@@ -237,7 +242,7 @@
                                 _self.products.$set(index, result.data);
                                 if(_self.model.stocktakingPlanId==0)
                                 {
-                                    _self.model.stocktakingPlanId = result.data.Id;
+                                    _self.model.stocktakingPlanId = result.planId;
                                 }
                                 //设置焦点,延迟500，等待vue.js 渲染完毕
                                 setTimeout(function () {
@@ -255,8 +260,20 @@
                     inputNext: function (event) {
                         var target = event.target;
                         var row = $(target).parent().parent().parent();
+                        //if (row.next().length > 0) {
+                        //    row.next().find("input.quantity").focus().select();
+                        //}
+                        //else {
+                        //    this.addRow(event);
+                        //}
+                        row.find("input.reason").focus().select();
+                    },
+                    inputReason:function(event)
+                    {
+                        var target = event.target;
+                        var row = $(target).parent().parent().parent();
                         if (row.next().length > 0) {
-                            row.next().find("input.quantity").focus().select();
+                            row.next().find("input.reason").focus().select();
                         }
                         else {
                             this.addRow(event);
@@ -298,10 +315,10 @@
                     },
                     clearItems: function () {
                         if (this.products.length > 0) {
-                            this.products = [{ ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', SalePrice: 0,Quantity:0, CountQuantity: 0,CorectReason:'' }];
+                            this.products = [{ ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', SalePrice: 0,Quantity:0, CountQuantity: 0,CorectQuantity:0,CorectReason:'' }];
                         }
                     }
-                }
+                },
             });
 
             //加载门店tree

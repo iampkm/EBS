@@ -55,9 +55,9 @@ WHERE s.Id=@StocktakingPlanId and i.IsQuit=0";
             string sql = @"UPDATE  StocktakingPlanItem si left join 
 (
 SELECT   i.ProductId ,SUM(i.CountQuantity) CountQuantity
- FROM     Stocktaking s
+ FROM   Stocktaking s
 	INNER JOIN stocktakingItem i ON i.Stocktakingid = s.id
- WHERE    s.StocktakingPlanId = 1 AND s.`Status`=@Status
+ WHERE    s.StocktakingPlanId = @StocktakingPlanId AND s.`Status`=@Status
  GROUP BY i.Productid
 )t ON t.ProductId = si.ProductId
 SET  si.CountQuantity = t.CountQuantity 

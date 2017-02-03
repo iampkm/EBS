@@ -23,14 +23,22 @@ namespace EBS.Domain.Service
        }
         public void Execute()
         {
-            if (DateTime.Now.Day == 1) {
+            var today = DateTime.Now;
+            var todayString =today.ToString("yyyy-MM-dd HH:mm:ss");
+            _log.Info("执行{0}库存存储自动任务", todayString);
+            if (today.AddDays(1).Day == 1)
+            {
                 // 每天 00:03分 执行
-                _log.Info("执行{0}库存存储自动任务", DateTime.Now.AddDays(-1).ToString("yyyy-MM"));
+                _log.Info("时间条件{0}是月末，开始存储当月库存", todayString);
                 string sql = @"insert into StoreInventoryMonthly (Monthly,StoreId,ProductId,Quantity,AvgCostPrice) 
             select @Monthly,StoreId,ProductId,Quantity,AvgCostPrice from StoreInventory";
-                _db.Command.Execute(sql, new { Monthly = DateTime.Now.AddDays(-1).ToString("yyyy-MM") });
-                _log.Info("任务执行完毕");
-            }           
+                _db.Command.Execute(sql, new { Monthly = today.ToString("yyyy-MM") });
+            }
+            else
+            {
+                _log.Info("时间条件{0}不满足，结束任务", todayString);
+            }
+            _log.Info("任务执行完毕");
 
         }
     }

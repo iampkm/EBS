@@ -136,13 +136,17 @@ namespace EBS.Admin.Controllers
 
         public JsonResult QueryStocktakingItem(int planId,int storeId, string productCodeOrBarCode)
         {
-            var model = this._query.Find<StocktakingPlan>(n => n.StoreId == storeId && n.Status == StocktakingPlanStatus.Replay);
-            if (model == null)
+            if (planId == 0)
             {
-                throw new Exception("还没进行合并盘点，不能创建盘点修正单");
+                var model = this._query.Find<StocktakingPlan>(n => n.StoreId == storeId && n.Status == StocktakingPlanStatus.Replay);
+                if (model == null)
+                {
+                    throw new Exception("还没进行合并盘点，不能创建盘点修正单");
+                }
+                planId = model.Id;
             }
-            var item = _stocktakingQuery.QueryStocktaingItem(model.Id, productCodeOrBarCode);
-            return Json(new { success = true, data = item });
+            var item = _stocktakingQuery.QueryStocktaingItem(planId, productCodeOrBarCode);
+            return Json(new { success = true, data = item, planId = planId });
         }
 
         public ActionResult Edit(int id)

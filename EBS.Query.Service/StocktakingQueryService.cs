@@ -172,8 +172,9 @@ left join product p on p.id = st.ProductId
 
         public StocktakingItemDto QueryStocktaingItem(int planId, string productCodeOrBarCode)
         {
-            string sql = @"SELECT ProductId,ProductCode,ProductName,BarCode,Specification,CostPrice,SalesPrice,Quantity,CountQuantity FROM O2O_StocktakingPlanItem  
-WHERE StocktakingPlanId=@StocktakingPlanId and (ProductId = @ProductIdOrBarCode or BarCode=@ProductIdOrBarCode)";
+            string sql = @"SELECT i.ProductId,p.`Code` as ProductCode,p.`Name` as ProductName,p.Specification,p.BarCode,p.Unit, p.SalePrice ,i.CostPrice,Quantity,CountQuantity FROM StocktakingPlanItem i
+LEFT JOIN product p on p.id = i.productid   
+WHERE i.StocktakingPlanId=@StocktakingPlanId and (p.Code = @ProductCodeOrBarCode or p.BarCode=@ProductCodeOrBarCode)";
             var model = _query.Find<StocktakingItemDto>(sql, new { StocktakingPlanId = planId, ProductCodeOrBarCode = productCodeOrBarCode });
             if (model == null)
             {

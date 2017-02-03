@@ -170,9 +170,8 @@
                         if (_self.storeId==0) { bootbox.alert("请选择门店"); return; }
                         var data = "";
                         for (var i = 0; i < _self.products.length; i++) {
-                            var item = _self.products[i];
-                            if(item.CountQuantity<=0){bootbox.alert("商品["+item.ProductName+"]盘点数为0"); return;}
-                            if (item.ProductId > 0 && item.CountQuantity > 0) {
+                            var item = _self.products[i];                         
+                            if (item.ProductId > 0 ) {
                                 data += "{\"ProductId\":" + item.ProductId + ",\"CountQuantity\":" + item.CountQuantity + ",\"Quantity\":" + item.Quantity
                                      + ",\"CostPrice\":" + item.CostPrice +",\"SalePrice\":" + item.SalePrice+ "},";
                             }
