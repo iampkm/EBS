@@ -134,6 +134,12 @@ namespace EBS.Admin.Controllers
             return Json(new { success = true });
         }
 
+        public ActionResult Detail(int id)
+        {
+            var model = _stocktakingQuery.QueryStocktaking(id);
+            return View(model);
+        }
+
         public JsonResult QueryStocktakingItem(int planId,int storeId, string productCodeOrBarCode)
         {
             if (planId == 0)
@@ -153,14 +159,9 @@ namespace EBS.Admin.Controllers
         {
             var model = _query.Find<Stocktaking>(id);
             ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
-            ViewBag.StoreId = 0;
-            ViewBag.StoreName = "";
-            if (_context.CurrentAccount.StoreId > 0)
-            {
-                var store = _query.Find<Store>(_context.CurrentAccount.StoreId);
-                ViewBag.StoreId = store.Id;
-                ViewBag.StoreName = store.Name;
-            }
+            ViewBag.StoreId = _context.CurrentAccount.StoreId;
+            ViewBag.StoreName = _context.CurrentAccount.StoreName;
+
             return View(model);
         }
 

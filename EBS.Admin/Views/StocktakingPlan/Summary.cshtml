@@ -65,6 +65,15 @@
             <div style="min-height:350px;max-height:500px;overflow:auto;"><ul id="ztree" class="ztree"></ul></div>
         </div>
     </v-modal>
+    <v-modal title="输入确认密码" ok-text="确 定" cancel-text="取 消" v-bind:callback="getPassword" v-bind:show.sync="inputBox.modal" v-bind:effect="fade" width="60%">
+        <div slot="modal-body" class="modal-body">
+            <div class="row">
+                <div class="col-xs-4 col-sm-3">
+                    <input type="password" class="form-control" v-model="inputBox.password" placeholder="输入登录密码确认" />
+                </div>
+            </div>            
+        </div>
+    </v-modal>
 </div>
 @{Html.RenderPartial("VueTableTemplate");}
 @section scripts{
@@ -90,12 +99,12 @@
                     { name: 'TotalInventoryQuantity', localName: '库存数', width: '80' },
                     { name: 'TotalCountQuantity', localName: '盘点数', width: '80' },
                     { name: 'TotalDifferentQuantity', localName: '差异数', width: '80', style: "<strong class='text-danger'>{column}</strong>" },
-                    { name: 'CostAmount', localName: '成本', width: '100' },
-                    { name: 'CostCountAmount', localName: '盘点成本', width: '120' },
-                    { name: 'CostAmountDifferent', localName: '成本差异', width: '120',style: "<strong class='text-danger'>{column}</strong>" },
-                    { name: 'SaleAmout', localName: '金额', width: '100' },
-                    { name: 'SaleCountAmount', localName: '盘点金额', width: '120' },
-                    { name: 'SaleAmoutDifferent', localName: '金额差异', width: '120',style: "<strong class='text-danger'>{column}</strong>" },
+                    { name: 'CostAmount', localName: '库存成本金额', width: '120' },
+                    { name: 'CostCountAmount', localName: '盘点成本金额', width: '120' },
+                    { name: 'CostAmountDifferent', localName: '成本差异金额', width: '120',style: "<strong class='text-danger'>{column}</strong>" },
+                    { name: 'SaleAmout', localName: '售价金额', width: '100' },
+                    { name: 'SaleCountAmount', localName: '盘点售价金额', width: '120' },
+                    { name: 'SaleAmoutDifferent', localName: '售价差异金额', width: '120',style: "<strong class='text-danger'>{column}</strong>" },
                     ],
                     url: "/StocktakingPlan/LoadSummaryData",
                     searchArgs: { code: '', stocktakingDate: '', storeId:@ViewBag.StoreId, status: '2,3' },
@@ -104,6 +113,11 @@
                         modal: false,
                         name: '@ViewBag.StoreName',
                         view:@ViewBag.View,                    
+                    },
+                    inputBox:{
+                        modal:false,
+                        password:'',
+                        selectId:0,
                     }
                 },
                 methods: {
@@ -146,16 +160,36 @@
                         v_self = this;
                         bootbox.confirm("您确定提交该记录？", function (result) {
                             if (result) {
-                                $.post("/StocktakingPlan/EndPlan", { id: selectId }, function (result) {
-                                    if (result.success) {
-                                        v_self.$refs.vtable.loadData();
-                                    }
-                                    else {
-                                        bootbox.alert(result.error);
-                                    }
-                                }, "json");
+                                v_self.showInputBox();
+                                v_self.inputBox.selectId = selectId;
                             }
                         });
+                    },
+                    showInputBox:function(){
+                        this.inputBox.modal = true;
+                    },
+                    getPassword:function(){
+                        var v_self =this;
+                        var selectId = v_self.inputBox.selectId;                        
+                        var password = v_self.inputBox.password;
+                        if (password == "") {
+                            bootbox.alert("请输入登录密码");
+                            return;
+                        }
+                        $.post("/StocktakingPlan/EndPlan", { id: selectId ,loginPassword:password}, function (result) {
+                            if (result.success) {
+                                v_self.$refs.vtable.loadData();
+                                v_self.closeInputBox();
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
+                    },
+                    closeInputBox:function(){
+                        this.inputBox.modal = false;
+                        this.inputBox.password="";
+                        this.inputBox.selectId = 0;
                     },
                     showStore: function () {
                         this.selectStore.modal = true;
@@ -187,7 +221,7 @@
                             }
                            
                         }
-                    },
+                    },                    
                     showDetail:function(id,status)
                     {
                         if(status=="初盘"){

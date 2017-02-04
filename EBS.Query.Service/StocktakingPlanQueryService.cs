@@ -86,7 +86,7 @@ t1.CostAmount,t1.CostCountAmount,t1.SaleAmout,t1.SaleCountAmount
 from stocktakingplan t0
 left join
 (
-SELECT i.Id,sum(i.Quantity) as TotalInventoryQuantity,sum(i.CountQuantity) as TotalCountQuantity,
+SELECT p.Id,sum(i.Quantity) as TotalInventoryQuantity,sum(i.CountQuantity) as TotalCountQuantity,
 sum(i.CostPrice*i.Quantity) as CostAmount,sum(i.CostPrice*i.CountQuantity) as CostCountAmount,
 sum(i.SalePrice*i.Quantity) as SaleAmout,sum(i.SalePrice*i.CountQuantity) as SaleCountAmount
  FROM stocktakingplan p 
@@ -101,7 +101,7 @@ where 1=1 and t0.Status in (2,3) {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             string sqlCount = @"select count(*) from stocktakingplan t0
 left join
 (
-SELECT i.Id,sum(i.Quantity) as TotalInventoryQuantity,sum(i.CountQuantity) as TotalCountQuantity,
+SELECT p.Id,sum(i.Quantity) as TotalInventoryQuantity,sum(i.CountQuantity) as TotalCountQuantity,
 sum(i.CostPrice*i.Quantity) as CostAmount,sum(i.CostPrice*i.CountQuantity) as CostCountAmount,
 sum(i.SalePrice*i.Quantity) as SaleAmout,sum(i.SalePrice*i.CountQuantity) as SaleCountAmount
  FROM stocktakingplan p 

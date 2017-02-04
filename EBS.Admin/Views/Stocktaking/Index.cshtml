@@ -97,7 +97,7 @@
             data: {
                 gridColumns: [
                 { name: 'StoreName', localName: '门店' }, 
-                { name: 'Code', localName: '单据号' },                                            
+                { name: 'Code', localName: '单据号',style: "<a href='/Stocktaking/Detail/{id}'>{column}</a>", },                                            
                 { name: 'CreatedByName', localName: '创建人' , width: '100'},
                 { name: 'StocktakingDateString', localName: '盘点日', width: '100' },
                 { name: 'Type', localName: '单据类型', width: '100' },
@@ -107,8 +107,7 @@
                 { name: 'ProductName', localName: '品名', width: '200'  },
                 { name: 'Specification', localName: '规格', width: '100' },
                 { name: 'CountQuantity', localName: '盘点数', width: '80'  }, 
-                { name: 'CorectReason', localName: '差错原因' }, 
-                { name: 'Note', localName: '备注'}, 
+                { name: 'CorectReason', localName: '差错原因' },                
                 ],
                 url: "/Stocktaking/LoadData",
                 searchArgs: { code: '',shelfCode:'',productCodeOrBarCode:'', stocktakingDate: '', storeId: @ViewBag.StoreId, type: 0,status:2 },

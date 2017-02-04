@@ -9,6 +9,7 @@ namespace EBS.Query.DTO
 {
    public class StocktakingListDto
     {
+       public int Id { get; set; }
         /// <summary>
         /// 盘点单据号
         /// </summary>

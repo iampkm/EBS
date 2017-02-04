@@ -83,6 +83,8 @@ namespace EBS.Application.Facade
                 throw new Exception("密码错误");
             }
             var entity = _db.Table.Find<StocktakingPlan>(id);
+            var items = _db.Table.FindAll<StocktakingPlanItem>(n => n.StocktakingPlanId == id);
+            entity.Items = items.ToList();
             _service.ValidateEndStatus(entity);
             // 开始结转
             entity.ChangeCompleteStatus(editedBy, editor);

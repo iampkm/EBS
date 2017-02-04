@@ -42,6 +42,11 @@ namespace EBS.Query.DTO
        /// 盘点数
        /// </summary>
         public int CountQuantity { get; set; }
+
+       /// <summary>
+       /// 修正数
+       /// </summary>
+        public int CorectQuantity { get; set; }
        /// <summary>
        /// 差错原因
        /// </summary>

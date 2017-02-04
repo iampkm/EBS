@@ -18,6 +18,8 @@ namespace EBS.Query
        StocktakingItemDto QueryShelfProduct(int planId, int storeId, string productCodeOrBarCode);
 
        StocktakingItemDto QueryStocktaingItem(int planId, string productCodeOrBarCode);
+
+       StocktakingDto QueryStocktaking(int id);
        
     }
 }

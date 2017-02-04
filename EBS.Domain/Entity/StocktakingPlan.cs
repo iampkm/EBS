@@ -50,7 +50,7 @@ namespace EBS.Domain.Entity
         /// </summary>
         public StocktakingPlanStatus Status { get; set; }
         /// <summary>
-        /// 部门ID
+        /// 门店ID
         /// </summary>
         public int StoreId { get; set; }
 

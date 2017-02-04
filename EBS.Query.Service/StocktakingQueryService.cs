@@ -65,7 +65,7 @@ namespace EBS.Query.Service
                 return new List<StocktakingListDto>();
             }
 
-            string sql = @"select t0.`Code`,t0.ShelfCode,t0.CreatedByName,t0.StocktakingType,t3.StocktakingDate,t1.*,t2.`Name` as StoreName,t3.StocktakingDate,p.Code as ProductCode,p.Name as ProductName,p.Specification,p.BarCode,p.Unit
+            string sql = @"select t0.Id,t0.`Code`,t0.ShelfCode,t0.CreatedByName,t0.StocktakingType,t3.StocktakingDate,t1.CountQuantity,t1.CorectReason,t2.`Name` as StoreName,t3.StocktakingDate,p.Code as ProductCode,p.Name as ProductName,p.Specification,p.BarCode,p.Unit
 from stocktaking t0 inner join stocktakingitem t1 on t0.Id = t1.StocktakingId
 inner join store t2 on t2.Id = t0.StoreId
 inner join stocktakingPlan t3 on t3.Id = t0.StocktakingPlanId 
@@ -180,6 +180,22 @@ WHERE i.StocktakingPlanId=@StocktakingPlanId and (p.Code = @ProductCodeOrBarCode
             {
                 throw new Exception("商品不存在");
             }
+            return model;
+        }
+
+
+        public StocktakingDto QueryStocktaking(int id)
+        {
+            string sql = @"select t0.*,t2.`Name` as StoreName,t3.StocktakingDate
+from stocktaking t0 inner join store t2 on t2.Id = t0.StoreId
+inner join stocktakingPlan t3 on t3.Id = t0.StocktakingPlanId 
+where t0.Id =@Id";
+            var model = _query.Find<StocktakingDto>(sql, new { Id = id });
+            string sqlDetail = @"SELECT i.ProductId,p.`Code` as ProductCode,p.`Name` as ProductName,p.Specification,p.BarCode,p.Unit, i.SalePrice ,i.CostPrice,i.Quantity,i.CountQuantity,i.CorectQuantity,i.CorectReason FROM StocktakingItem i
+LEFT JOIN product p on p.id = i.productid   
+WHERE i.StocktakingId=@Id";
+            var items = _query.FindAll<StocktakingItemDto>(sqlDetail, new { Id = id }).ToList();
+            model.Items = items;
             return model;
         }
     }

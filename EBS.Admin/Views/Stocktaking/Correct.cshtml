@@ -115,7 +115,7 @@
                                             <input type="text" class="form-control quantity" v-model="item.CorectQuantity" v-on:keyup.enter="inputNext" />
                                         </div>                                       
                                     </td>
-                                    <td>{{item.Quantity-item.CountQuantity}}</td>
+                                    <td>{{item.CorectQuantity-item.CountQuantity}}</td>
                                     <td>{{(item.SalePrice*(item.Quantity-item.CountQuantity)).toFixed(2)}}</td>
                                     <td>
                                     <div>
@@ -182,7 +182,8 @@
                         for (var i = 0; i < _self.products.length; i++) {
                             var item = _self.products[i];
                             if (item.ProductId > 0 ) {
-                                data += "{\"ProductId\":" + item.ProductId + ",\"CountQuantity\":" + item.CountQuantity + ",\"Quantity\":" + item.Quantity
+                                var countQuantity = item.CorectQuantity-item.CountQuantity;
+                                data += "{\"ProductId\":" + item.ProductId + ",\"CountQuantity\":" + countQuantity + ",\"Quantity\":" + item.Quantity
                                     + ",\"CostPrice\":" + item.CostPrice +",\"SalePrice\":" + item.SalePrice+ ",\"CorectQuantity\":" + item.CorectQuantity
                                     +",\"CorectReason\":'" + item.CorectReason+ "'},";
                             }
@@ -319,6 +320,9 @@
                         }
                     }
                 },
+                computed: {
+                    
+                }
             });
 
             //加载门店tree

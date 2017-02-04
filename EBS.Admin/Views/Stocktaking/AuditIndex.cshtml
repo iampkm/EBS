@@ -63,7 +63,7 @@
                 </div>
                 <span class="input-group-btn" slot="customButtons">
                     <button type="button" class="btn btn-warning btn-flat" v-on:click="submitAudit()">审核</button>
-                    <a class="btn btn-success btn-flat" href="/Stocktaking/Help">盘点助手</a>
+                    @*<a class="btn btn-success btn-flat" href="/Stocktaking/Help">盘点助手</a>*@
                 </span>
             </vue-table>
         </div>
@@ -91,7 +91,7 @@
             el: '#app',
             data: {
                 gridColumns: [
-                    { name: 'Code', localName: '单据号',style: "<a href='/Stocktaking/Edit/{id}'>{column}</a>", },
+                    { name: 'Code', localName: '单据号',style: "<a href='/Stocktaking/Detail/{id}'>{column}</a>", },
                     { name: 'StoreName', localName: '门店' },
                     { name: 'CreatedByName', localName: '创建人' },
                     { name: 'StocktakingTypeString', localName: '单据类型' },
