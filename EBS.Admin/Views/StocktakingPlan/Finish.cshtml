@@ -15,8 +15,7 @@
     <div class="box box-primary">
         <div class="box-header">
             <ol class="breadcrumb" style="padding:0px;margin:1px;">
-                <li><a href="/StocktakingPlan/Index"><i class="fa fa-dashboard"></i>盘点管理</a></li>
-                <li class="active"><a href="/StocktakingPlan/Summary">盘点差错汇总表</a></li>
+                <li><a href="/StocktakingPlan/Finish"><i class="fa fa-dashboard"></i>盘点差错汇总表-完成</a></li>
             </ol>
         </div>
         <div class="box-body">
@@ -47,11 +46,11 @@
                                 <button class="btn btn-flat btn-default" type="button" v-on:click="clearStore"><i class="fa fa-eraser"></i></button>
                             </span>
                         </div>
-                    </div>                   
+                    </div>
                 </div>
                 <span class="input-group-btn" slot="customButtons">
-                    @*<button type="button" class="btn btn-warning btn-flat" v-on:click="submitAudit()">合并盘点</button>
-                    <button type="button" class="btn btn-danger btn-flat" v-on:click="submitAudit()">结束盘点</button>
+                    @*<button type="button" class="btn btn-warning btn-flat" v-on:click="mergeDetial()">合并盘点</button>
+                    <button type="button" class="btn btn-danger btn-flat" v-on:click="endPlan()">结束盘点</button>
                     <a class="btn btn-success btn-flat" href="/StocktakingPlan/Help">盘点助手</a>*@
                 </span>
             </vue-table>
@@ -63,6 +62,15 @@
     <v-modal title="选择门店" ok-text="确 定" cancel-text="取 消" v-bind:callback="getStore" v-bind:show.sync="selectStore.modal" v-bind:effect="fade" width="60%">
         <div slot="modal-body" class="modal-body">
             <div style="min-height:350px;max-height:500px;overflow:auto;"><ul id="ztree" class="ztree"></ul></div>
+        </div>
+    </v-modal>
+    <v-modal title="输入确认密码" ok-text="确 定" cancel-text="取 消" v-bind:callback="getPassword" v-bind:show.sync="inputBox.modal" v-bind:effect="fade" width="60%">
+        <div slot="modal-body" class="modal-body">
+            <div class="row">
+                <div class="col-xs-4 col-sm-3">
+                    <input type="password" class="form-control" v-model="inputBox.password" placeholder="输入登录密码确认" />
+                </div>
+            </div>
         </div>
     </v-modal>
 </div>
@@ -90,12 +98,12 @@
                     { name: 'TotalInventoryQuantity', localName: '库存数', width: '80' },
                     { name: 'TotalCountQuantity', localName: '盘点数', width: '80' },
                     { name: 'TotalDifferentQuantity', localName: '差异数', width: '80', style: "<strong class='text-danger'>{column}</strong>" },
-                    { name: 'CostAmount', localName: '成本', width: '100' },
-                    { name: 'CostCountAmount', localName: '盘点成本', width: '120' },
-                    { name: 'CostAmountDifferent', localName: '成本差异', width: '120',style: "<strong class='text-danger'>{column}</strong>" },
-                    { name: 'SaleAmout', localName: '金额', width: '100' },
-                    { name: 'SaleCountAmount', localName: '盘点金额', width: '120' },
-                    { name: 'SaleAmoutDifferent', localName: '金额差异', width: '120',style: "<strong class='text-danger'>{column}</strong>" },
+                    { name: 'CostAmount', localName: '库存成本金额', width: '120' },
+                    { name: 'CostCountAmount', localName: '盘点成本金额', width: '120' },
+                    { name: 'CostAmountDifferent', localName: '成本差异金额', width: '120',style: "<strong class='text-danger'>{column}</strong>" },
+                    { name: 'SaleAmout', localName: '售价金额', width: '100' },
+                    { name: 'SaleCountAmount', localName: '盘点售价金额', width: '120' },
+                    { name: 'SaleAmoutDifferent', localName: '售价差异金额', width: '120',style: "<strong class='text-danger'>{column}</strong>" },
                     ],
                     url: "/StocktakingPlan/LoadSummaryData",
                     searchArgs: { code: '', stocktakingDate: '', storeId:@ViewBag.StoreId, status: '4' },
@@ -104,10 +112,15 @@
                         modal: false,
                         name: '@ViewBag.StoreName',
                         view:@ViewBag.View,
+                    },
+                    inputBox:{
+                        modal:false,
+                        password:'',
+                        selectId:0,
                     }
                 },
                 methods: {
-                    submitAudit: function () {
+                    mergeDetial: function () {
                         var selectRow = this.rows.filter(function (item, index) {
                             if (item.checked) {
                                 return true;
@@ -121,7 +134,7 @@
                         v_self = this;
                         bootbox.confirm("您确定提交该记录？", function (result) {
                             if (result) {
-                                $.post("/StocktakingPlan/StartPlan", { id: selectId }, function (result) {
+                                $.post("/StocktakingPlan/MergeDetial", { id: selectId }, function (result) {
                                     if (result.success) {
                                         v_self.$refs.vtable.loadData();
                                     }
@@ -131,6 +144,51 @@
                                 }, "json");
                             }
                         });
+                    },
+                    endPlan: function () {
+                        var selectRow = this.rows.filter(function (item, index) {
+                            if (item.checked) {
+                                return true;
+                            }
+                        });
+                        if (selectRow.length == 0) {
+                            bootbox.alert("请选择一条记录");
+                            return;
+                        }
+                        var selectId = selectRow[0].Id;
+                        v_self = this;
+                        bootbox.confirm("您确定提交该记录？", function (result) {
+                            if (result) {
+                                v_self.showInputBox();
+                                v_self.inputBox.selectId = selectId;
+                            }
+                        });
+                    },
+                    showInputBox:function(){
+                        this.inputBox.modal = true;
+                    },
+                    getPassword:function(){
+                        var v_self =this;
+                        var selectId = v_self.inputBox.selectId;
+                        var password = v_self.inputBox.password;
+                        if (password == "") {
+                            bootbox.alert("请输入登录密码");
+                            return;
+                        }
+                        $.post("/StocktakingPlan/EndPlan", { id: selectId ,loginPassword:password}, function (result) {
+                            if (result.success) {
+                                v_self.$refs.vtable.loadData();
+                                v_self.closeInputBox();
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
+                    },
+                    closeInputBox:function(){
+                        this.inputBox.modal = false;
+                        this.inputBox.password="";
+                        this.inputBox.selectId = 0;
                     },
                     showStore: function () {
                         this.selectStore.modal = true;
@@ -201,11 +259,5 @@
         });
     </script>
 }
-
-
-
-
-
-
 
 

@@ -7,13 +7,20 @@
     <div class="box-header with-border">
         <ol class="breadcrumb" style="padding:0px;margin:1px;">
             <li><a href="/StocktakingPlan/Index"><i class="fa fa-dashboard"></i>盘点计划</a></li>
-            <li class="active"><a href="/StocktakingPlan/Help">盘点助手</a></li>
+            <li class="active"><a href="/StocktakingPlan/Help">盘点操作流程</a></li>
         </ol>
     </div>
+   
     <!-- /.box-header -->
     <!-- form start -->
     <form v-on:submit.prevent="onSubmit">
         <div class="box-body">
+            <div class="row">
+                <div class="col-xs-3 col-sm-2">
+                    <a class="btn btn-default btn-flat" href="javascript:history.back()">返回</a>
+                </div>
+            </div>
+            <br />
             <v-form v-bind:valid.sync="valid">
                 <ul class="timeline">
                     <li class="time-label">
@@ -72,7 +79,7 @@
                         </div>
                     </li>
                     <li>
-                        <i class="fa fa-paperclip"></i>
+                        <i class="fa fa-clock-o"></i>
                         <div class="timeline-item">
                             <span class="time"><i class="fa fa-clock-o"></i> 12:05</span>
                             <h3 class="timeline-header"><a href="/StockTaking/Create">6. 结束盘点</a></h3>
@@ -80,8 +87,7 @@
                                 盘点数据修正正确后，通过结束盘点功能，完成本次盘点。注意，如果本次盘点为大盘，盘点结束后，盘点数据会修正库存数据，小盘则不会修正库存。
                             </div>
                         </div>
-                    </li>
-                    <li><i class="fa fa-clock-o"></i></li>
+                    </li>                   
                 </ul>
 
             </v-form>

@@ -15,6 +15,7 @@ namespace EBS.Application.Facade
     {
         IDBContext _db;
         StocktakingPlanService _service;
+        StocktakingService _stocktakingService;
         BillSequenceService _billService;
         StoreInventoryService _inventoryService;
         public StocktakingPlanFacade(IDBContext dbContext)
@@ -23,6 +24,7 @@ namespace EBS.Application.Facade
             _service = new StocktakingPlanService(_db);
             _billService = new BillSequenceService(_db);
             _inventoryService = new StoreInventoryService(_db);
+            _stocktakingService = new StocktakingService(_db);
         }
         public void Create(StocktakingPlanModel model)
         {
@@ -67,7 +69,8 @@ namespace EBS.Application.Facade
 
         public void MergeDetial(int id, int editedBy, string editor)
         {
-            var entity = _db.Table.Find<StocktakingPlan>(id);            
+            var entity = _db.Table.Find<StocktakingPlan>(id);
+            _stocktakingService.CheckWaittingAuditCorrect(id);
             _service.MergeDetial(id);
             entity.ChangeReplayStatus(editedBy, editor);
             _db.Update(entity);

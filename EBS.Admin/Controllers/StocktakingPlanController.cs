@@ -35,7 +35,7 @@ namespace EBS.Admin.Controllers
         public ActionResult Index()
         {
             ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
-            ViewBag.Status = _stocktakingPlanQuery.GetStocktakingPlanStatus();
+           // ViewBag.Status = _stocktakingPlanQuery.GetStocktakingPlanStatus();
             return View();
         }
 

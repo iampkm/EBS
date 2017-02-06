@@ -7,8 +7,7 @@
     <div class="box box-primary">
         <div class="box-header">
             <ol class="breadcrumb" style="padding:0px;margin:1px;">
-                <li><a href="/StocktakingPlan/Index"><i class="fa fa-dashboard"></i>盘点管理</a></li>
-                <li class="active"><a href="/StocktakingPlan/Summary">盘点差错汇总表</a></li>
+                <li><a href="/StocktakingPlan/Summary"><i class="fa fa-dashboard"></i>盘点差错汇总表</a></li>
                 <li class="active"><a href="/StocktakingPlan/Detail/{{searchArgs.planId}}">盘点明细表</a></li>
             </ol>
         </div>
@@ -57,7 +56,7 @@
                 el: '#app',
                 data: {
                     gridColumns: [
-                    { name: 'ProductCode', localName: '编码' },
+                    { name: 'ProductCode', localName: '编码', width: '100' },
                     { name: 'BarCode', localName: '条码' },
                     { name: 'ProductName', localName: '品名', width: '200' },
                     { name: 'Specification', localName: '规格', width: '80' },

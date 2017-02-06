@@ -45,24 +45,12 @@
                                 <button class="btn btn-flat btn-default" type="button" v-on:click="clearStore"><i class="fa fa-eraser"></i></button>
                             </span>
                         </div>
-                    </div>
-                    <div class="form-group col-sm-2 col-xs-3">
-                        <div class="input-group">
-                            <span class="input-group-addon">状态</span>
-                            <select name="brand" class="form-control" v-model="searchArgs.status">
-                                <option value="0">-请选择-</option>
-                                @foreach (var item in ViewBag.Status)
-                                {
-                                    <option value="@item.Key">@item.Value</option>
-                                }
-                            </select>
-                        </div>
-                    </div>
+                    </div>                    
                 </div>
                 <span class="input-group-btn" slot="customButtons">
                     <a class="btn btn-warning btn-flat" href="/StocktakingPlan/Create">新增盘点</a>
                     <button type="button" class="btn btn-danger btn-flat" v-on:click="submitAudit()">开始盘点</button>
-                    <a class="btn btn-success btn-flat" href="/StocktakingPlan/Help">盘点助手</a>                    
+                    <a class="btn btn-success btn-flat" href="/StocktakingPlan/Help">盘点操作流程</a>                    
                 </span>
             </vue-table>
         </div>
@@ -123,7 +111,9 @@
                         if (result) {
                             $.post("/StocktakingPlan/StartPlan", { id: selectId }, function (result) {
                                 if (result.success) {
-                                    v_self.$refs.vtable.loadData();
+                                    bootbox.alert("保存成功！", function () {
+                                        v_self.$refs.vtable.loadData();
+                                    });                                   
                                 }
                                 else {
                                     bootbox.alert(result.error);

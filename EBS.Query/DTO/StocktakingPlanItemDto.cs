@@ -47,7 +47,7 @@ namespace EBS.Query.DTO
        {
            get
            {
-               return CostAmount - CostCountAmount;
+               return  CostCountAmount - CostAmount ;
            }
        }
 
@@ -69,7 +69,7 @@ namespace EBS.Query.DTO
        {
            get
            {
-               return SaleAmout - SaleCountAmount;
+               return  SaleCountAmount - SaleAmout ;
            }
        }
     }

@@ -35,8 +35,8 @@ namespace EBS.Domain.Service
         public void AddInventoryItems(StocktakingPlan model)
         {
             string checkSql = "select count(*) from StocktakingPlan where StoreId=@StoreId and (Status=@ToBeInventory or Status=@Replay )";
-
-            if (_db.Table.Context.ExecuteScalar<int>(checkSql, new { StoreId = model.StoreId, ToBeInventory = StocktakingPlanStatus.ToBeInventory, Replay = StocktakingPlanStatus.Replay }) > 0)
+            //存在初盘和复盘的 计划，就不能开始一个新的盘点计划
+            if (_db.Table.Context.ExecuteScalar<int>(checkSql, new { StoreId = model.StoreId, ToBeInventory = StocktakingPlanStatus.FirstInventory, Replay = StocktakingPlanStatus.Replay }) > 0)
             {
                 throw new Exception("有未完成的盘点计划，不能开启新盘点");
             }
@@ -60,7 +60,7 @@ SELECT   i.ProductId ,SUM(i.CountQuantity) CountQuantity
  WHERE    s.StocktakingPlanId = @StocktakingPlanId AND s.`Status`=@Status
  GROUP BY i.Productid
 )t ON t.ProductId = si.ProductId
-SET  si.CountQuantity = t.CountQuantity 
+SET  si.CountQuantity = IFNULL(t.CountQuantity,0)  
  WHERE   si.StocktakingPlanId = @StocktakingPlanId ";
             _db.Command.AddExecute(sql, new { StocktakingPlanId = planId, Status = StocktakingStatus.Audited });
         }

@@ -101,6 +101,7 @@ namespace EBS.Admin.Controllers
             var stocktakingPlan = new StocktakingPlan();
             if (planId == 0) {
                 stocktakingPlan = GetRunningPlan(storeId);
+                planId = stocktakingPlan.Id;
             }
             var model = _stocktakingQuery.QueryShelfProduct(planId, storeId, productCodeOrBarCode);
             return Json(new { success = true, data = model, plan = stocktakingPlan });
