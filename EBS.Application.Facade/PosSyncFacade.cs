@@ -116,5 +116,39 @@ namespace EBS.Application.Facade
             _db.SaveChange();
         }
 
+
+        /// <summary>
+        /// 销售单库存同步：可用于修复库存数据
+        /// </summary>
+        /// <param name="saleOrderCode"></param>
+        public void SaleOrderInventorySync(string saleOrderCode)
+        {
+            if (_db.Table.Exists<StoreInventoryHistory>(n => n.BillCode == saleOrderCode))
+            {
+                _log.Info("订单{0}库存已扣减", saleOrderCode);
+                throw new Exception(string.Format("订单{0}库存已扣减", saleOrderCode));
+            }           
+
+            var entity = _db.Table.Find<SaleOrder>(n => n.Code == saleOrderCode);
+            if (entity == null) { throw new Exception(string.Format("订单{0}不存在", saleOrderCode)); }
+            if (entity.Status != SaleOrderStatus.Paid)
+            {
+                throw new Exception(string.Format("订单{0}非已支付状态，不能扣减库存", saleOrderCode));
+            }
+
+            var entityItems = _db.Table.FindAll<SaleOrderItem>(n => n.SaleOrderId == entity.Id).ToList();
+            entity.Items = entityItems;
+            if (entity.OrderType == (int)OrderType.Order)
+            {
+                _storeInventoryService.StockOutSaleOrder(entity);
+            }
+            else
+            {
+                _storeInventoryService.StockInRefundOrder(entity);
+            }
+
+            _db.SaveChange();
+            _log.Info("订单{0}库存已增减", saleOrderCode);
+        }
     }
 }

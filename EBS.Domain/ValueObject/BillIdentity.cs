@@ -17,7 +17,7 @@ namespace EBS.Domain.ValueObject
         /// 销售订单
         /// </summary>
         SaleOrder = 1,
-        [Description("销售退订单")]
+        [Description("销售退单")]
         /// <summary>
         /// 销售退订单
         /// </summary>
@@ -33,7 +33,7 @@ namespace EBS.Domain.ValueObject
         /// 采购订单
         /// </summary>
         PurchaseOrder = 11,
-        [Description("采购退单订单")]
+        [Description("采购退单")]
         /// <summary>
         /// 采购退单订单
         /// </summary>
@@ -52,12 +52,12 @@ namespace EBS.Domain.ValueObject
 
 
         // 通用单据  10~49 ， 门店单据50~-99
-        [Description("采购单")]      
+        [Description("采购订单")]      
         /// <summary>
         /// 门店采购订单
         /// </summary>
         StorePurchaseOrder = 51,
-        [Description("采购单")]
+        [Description("采购退单")]
         /// <summary>
         /// 门店采购退单订单
         /// </summary>

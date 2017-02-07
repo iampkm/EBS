@@ -209,8 +209,22 @@ namespace EBS.Admin.Controllers
            
         }
 
+        public string SaleOrderInventorySync(string saleOrderCode)
+        {
+            try
+            {
+                _log.Info("SaleOrderInventorySync request:saleOrderCode={0}", saleOrderCode);
+                _posFacade.SaleOrderInventorySync(saleOrderCode);
+                _log.Info("SaleOrderInventorySync request:success");
+                return "1";
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex);
+                return ex.Message;
+            }
 
-
+        }
 
     }
 }

@@ -334,10 +334,10 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
             var inventoryBatchs = new List<StoreInventoryBatch>();
             var batchNo = _sequenceService.GenerateBatchNo(entity.StoreId);
             foreach (var item in entityItems)
-            {
+            { 
                 // 查询商品合同价
-                var contract = _db.Table.Find<PurchaseContract>("select * from PurchaseContract where FIND_IN_SET(@StoreId,StoreIds) and Status=3 and  EndDate>=@Today", new { StoreId = entity.StoreId, Today = DateTime.Now.Date });
-                var contractItem = _db.Table.Find<PurchaseContractItem>("select * from purchasecontractitem where PurchaseContractId=@PurchaseContractId and ProductId=@ProductId", new { PurchaseContractId=contract.Id,ProductId=item.ProductId });
+                var contract = _db.Table.Find<PurchaseContract>(@"SELECT c.Id,c.SupplierId from purchasecontract c inner join purchasecontractitem i on c.id = i.PurchaseContractId where FIND_IN_SET(@StoreId,c.StoreIds) and c.`Status`=3 and i.ProductId = @productId order by c.Id desc", new { StoreId = entity.StoreId, ProductId = item.ProductId });
+                var contractItem = _db.Table.Find<PurchaseContractItem>("select * from purchasecontractitem where PurchaseContractId=@PurchaseContractId and ProductId=@ProductId", new { PurchaseContractId = contract.Id, ProductId = item.ProductId });
 
                 var batch = new StoreInventoryBatch(item.ProductId, entity.StoreId, contract.SupplierId, Math.Abs(item.Quantity),
                     contractItem.ContractPrice, contractItem.ContractPrice, batchNo, null, 0, entity.UpdatedBy);
@@ -383,7 +383,7 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
 
                     //记录库存流水
                     var history = new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventory.Quantity, -purchaseOrderItem.Quantity,
-                        contractPrice, batchNo, entity.Id, entity.Code, BillIdentity.SaleOrder, entity.UpdatedBy);
+                        contractPrice, batchNo, entity.Id, entity.Code, BillIdentity.SaleRefund, entity.UpdatedBy);
                     inventoryHistorys.Add(history);
                 }
             }
@@ -553,69 +553,13 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
                     inventoryUpdates.Add(inventoryUpdateModel);
                     //记录库存流水
                     var history = new StoreInventoryHistory(inventory.ProductId, entity.ToStoreId, inventory.Quantity, purchaseOrderItem.Quantity,
-                        purchaseOrderItem.Price, purchaseOrderItem.BatchNo, entity.Id, entity.Code, BillIdentity.StorePurchaseOrder, entity.UpdatedBy);
+                        purchaseOrderItem.Price, purchaseOrderItem.BatchNo, entity.Id, entity.Code, BillIdentity.TransferOrder, entity.UpdatedBy);
                     inventoryHistorys.Add(history);
                 }
             }
             // update storeinventory set quantity =quantity+@addQuantity ,saleQuantity=saleQuantity+@addQuantity where Id=@id and quantity=@oldQuantity
             var updateInventorySql = UpdateQuantityAndAvgCostPriceSql();
             _db.Command.AddExecute(updateInventorySql, inventoryUpdates.ToArray());
-            _db.Insert(inventoryHistorys.ToArray());
-        }
-
-       
-
-        // 扣减库存 
-        public void MinusInventory(SaleOrder entity)
-        {
-            if (entity == null) { throw new Exception("单据不存在"); }
-            if (entity.Items.Count() == 0) { throw new Exception("单据明细为空"); }
-            Dictionary<int, SaleOrderItem> productQuantityDic = new Dictionary<int, SaleOrderItem>();
-            entity.Items.ToList().ForEach(item => productQuantityDic.Add(item.ProductId, item));
-            var productIdArray = productQuantityDic.Keys.ToArray();
-            // 商品查询，要考虑供应商
-            var inventorys = _db.Table.FindAll<StoreInventory>("select * from storeinventory where storeId=@StoreId and productId in @ProductIds", new { StoreId = entity.StoreId, ProductIds = productIdArray });
-            var inventoryBatchs = _db.Table.FindAll<StoreInventoryBatch>("select * from storeinventorybatch where  storeId=@StoreId and productId in @ProductIds and Quantity>0", new { StoreId = entity.StoreId, ProductIds = productIdArray });
-            var inventoryHistorys = new List<StoreInventoryHistory>();
-            foreach (var product in inventorys)
-            {
-                if (productQuantityDic.ContainsKey(product.ProductId))
-                {
-                    var inventoryQuantity = product.Quantity;
-                    // 销售数量
-                    var quantity = productQuantityDic[product.ProductId].Quantity;
-                    var price = productQuantityDic[product.ProductId].RealPrice;
-                    //库存
-                    product.Quantity -= quantity;
-                    product.SaleQuantity -= quantity;
-
-                    // 设置订单明细中的均价成本
-                    productQuantityDic[product.ProductId].AvgCostPrice = product.AvgCostPrice;
-
-                    // 扣减库存批次
-                    var productBatchs = inventoryBatchs.Where(n => n.ProductId == product.ProductId).OrderBy(n => n.BatchNo).ToList();
-                    foreach (var batchItem in productBatchs)
-                    {
-                        if (batchItem.Quantity - quantity >= 0)
-                        {
-                            //记录修改历史
-                            var history = new StoreInventoryHistory(product.ProductId, entity.StoreId, batchItem.Quantity, quantity,
-                                price, batchItem.BatchNo, entity.Id, entity.Code, ValueObject.BillIdentity.SaleOrder, entity.CreatedBy);
-                            inventoryHistorys.Add(history);
-                            break;
-                        }
-                        else
-                        {
-                            var history = new StoreInventoryHistory(product.ProductId, entity.StoreId, batchItem.Quantity, batchItem.Quantity,
-                                                         price, batchItem.BatchNo, entity.Id, entity.Code, ValueObject.BillIdentity.SaleOrder, entity.CreatedBy);
-                            inventoryHistorys.Add(history);
-                        }
-                    }
-
-                }
-            }
-            _db.Update(inventorys.ToArray());
-            _db.Update(inventoryBatchs.ToArray());
             _db.Insert(inventoryHistorys.ToArray());
         }
 
