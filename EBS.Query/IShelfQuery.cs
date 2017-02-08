@@ -15,6 +15,9 @@ namespace EBS.Query
        ShelfTreeNode QueryShelfLayer(int shelfId, string code);
 
        ShelfTreeNode QueryProduct(int shelfLayerId, string code);
+
+       IEnumerable<ShelfTreeNode> QueryShelfLayerProduct(int storeId, int shelfLayerId);
+
        /// <summary>
        /// 货架信息
        /// </summary>

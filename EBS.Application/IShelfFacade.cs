@@ -25,6 +25,8 @@ namespace EBS.Application
 
         void DeleteAll(int id, string code);
 
+        void DeleteProduct(int shelfLayerId, string ids);
+
 
     }
 }

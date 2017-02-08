@@ -95,6 +95,17 @@ where s.StoreId=@StoreId order by s.code ";
             return new ShelfTreeNode(model.Id, showName, showName, model.Code);
         }
 
+        public IEnumerable<ShelfTreeNode> QueryShelfLayerProduct(int storeId, int shelfLayerId)
+        {
+            var list = _query.FindAll<ShelfLayerProduct>(n => n.StoreId == storeId && n.ShelfLayerId == shelfLayerId).OrderBy(n=>n.Number).ToList();
+            List<ShelfTreeNode> rows = new List<ShelfTreeNode>();
+            foreach (var model in list)
+            { 
+                 var showName = string.Format("{0}({1}列)", model.Code, model.Number);
+                 rows.Add(new ShelfTreeNode(model.Id, showName, showName, model.Code));
+            }
+            return rows;
+        }
 
         public IEnumerable<PrintShelfDto> GetPrintShelfInfo(string shelfIds)
         {

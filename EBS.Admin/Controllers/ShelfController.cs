@@ -71,7 +71,7 @@ namespace EBS.Admin.Controllers
         public JsonResult CreateProduct(int storeId, int shelfLayerId, string productCodeOrBarCode, int shelfProductId)
         {
             var layerProductCode = _shelfFacade.CreatePorduct(storeId, shelfLayerId, productCodeOrBarCode,shelfProductId);
-            var node = _shelfQuery.QueryProduct(shelfLayerId, layerProductCode);
+            var node = _shelfQuery.QueryShelfLayerProduct(storeId, shelfLayerId);
             return Json(new { success = true, data = node });
         }
 
@@ -85,6 +85,13 @@ namespace EBS.Admin.Controllers
         {
             _shelfFacade.DeleteAll(id,code);
             return Json(new { success = true });
+        }
+
+        public JsonResult RemoveProduct(int storeId, int shelfLayerId, string ids)
+        {
+            _shelfFacade.DeleteProduct(shelfLayerId, ids);
+            var node = _shelfQuery.QueryShelfLayerProduct(storeId, shelfLayerId);
+            return Json(new { success = true, data = node });
         }
 
         public JsonResult QueryShelfProduct(int storeId, string code,string productCodeOrBarCode,string productName)

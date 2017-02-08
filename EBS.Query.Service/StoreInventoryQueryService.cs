@@ -40,13 +40,13 @@ namespace EBS.Query.Service
                 param.ProductCodeOrBarCode = condition.ProductCodeOrBarCode;
             }
             string sql = @"select t0.*,t1.`Code` as ProductCode ,t1.`Name` as ProductName,t1.BarCode,t1.Specification,t1.SalePrice,t2.`name` as StoreName
-from storeinventory t0 inner join product t1 on t0.productId = t1.Id
+from storeinventory t0 left join product t1 on t0.productId = t1.Id
 inner join store t2 on t2.Id = t0.StoreId
 where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<Product>(where, param);
             sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
             var rows = this._query.FindAll<StoreInventoryQueryDto>(sql, param);
-            string sqlCount = @"select count(*) from storeinventory t0 inner join product t1 on t0.productId = t1.Id
+            string sqlCount = @"select count(*) from storeinventory t0 left join product t1 on t0.productId = t1.Id
 inner join store t2 on t2.Id = t0.StoreId
 where 1=1 {0} ";
             sqlCount = string.Format(sqlCount, where);
@@ -54,7 +54,7 @@ where 1=1 {0} ";
 
             // 查询统计列数据
             string sqlSum = @"select sum(t0.Quantity) as Quantity,sum(t0.AvgCostPrice*t0.Quantity) as Amount,sum(t1.SalePrice*t0.Quantity) as SaleAmount
-from storeinventory t0 inner join product t1 on t0.productId = t1.Id
+from storeinventory t0 left join product t1 on t0.productId = t1.Id
 inner join store t2 on t2.Id = t0.StoreId
 where 1=1 {0}";
             sqlSum = string.Format(sqlSum, where);
@@ -96,14 +96,14 @@ where 1=1 {0}";
                 param.ProductCodeOrBarCode = condition.ProductCodeOrBarCode;
             }
             string sql = @"select t0.*,t1.`Code` as ProductCode ,t1.`Name` as ProductName,t1.BarCode,t1.Specification,t2.`name` as StoreName
-from storeinventoryhistory t0 inner join product t1 on t0.productId = t1.Id
+from storeinventoryhistory t0 left join product t1 on t0.productId = t1.Id
 inner join store t2 on t2.Id = t0.StoreId 
 where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<Product>(where, param);
             sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
             var rows = this._query.FindAll<StoreInventoryHistoryQueryDto>(sql, param);
 
-            string sqlCount = @"select count(*) from storeinventoryhistory t0 inner join product t1 on t0.productId = t1.Id
+            string sqlCount = @"select count(*) from storeinventoryhistory t0 left join product t1 on t0.productId = t1.Id
 inner join store t2 on t2.Id = t0.StoreId 
 where 1=1 {0} ";
             sqlCount = string.Format(sqlCount, where);
@@ -141,7 +141,7 @@ where 1=1 {0} ";
                 param.ProductCodeOrBarCode = condition.ProductCodeOrBarCode;
             }
             string sql = @"select t0.*,t1.`Code` as ProductCode ,t1.`Name` as ProductName,t1.BarCode,t1.Specification,t2.`name` as StoreName,t3.`Name` as SupplierName
-from storeinventorybatch t0 inner join product t1 on t0.productId = t1.Id
+from storeinventorybatch t0 left join product t1 on t0.productId = t1.Id
 inner join store t2 on t2.Id = t0.StoreId
 left join supplier t3 on t3.Id = t0.SupplierId 
 where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";

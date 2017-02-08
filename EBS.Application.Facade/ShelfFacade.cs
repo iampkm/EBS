@@ -66,11 +66,21 @@ namespace EBS.Application.Facade
                 _shelfService.DeleteShelfLayer(id);
             }
             else {
-                _shelfService.DeleteShelfLayerProduct(id);
+               // _shelfService.DeleteShelfLayerProduct(id);
             }
             _db.SaveChange();
         }
 
-       
+
+
+
+        public void DeleteProduct(int shelfLayerId, string ids)
+        {
+            int[] idArray = _shelfService.GetWaitDeleteProductIdArray(ids);
+            _db.Delete<ShelfLayerProduct>(idArray);          
+
+            _shelfService.ReOrderLayerProduct(shelfLayerId, idArray);
+            _db.SaveChange();
+        }
     }
 }

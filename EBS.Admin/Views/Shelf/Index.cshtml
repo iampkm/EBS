@@ -39,11 +39,11 @@
                     <button type="button" class="btn btn-warning btn-flat" v-on:click="createLayer()">
                         <span class="glyphicon glyphicon-plus">层</span>
                     </button>
-                    <button type="button" class="btn btn-warning btn-flat" v-on:click="showAddProduct()" title="添加商品">
+                    @*<button type="button" class="btn btn-warning btn-flat" v-on:click="showAddProduct()" title="添加商品">
                         <span class="glyphicon glyphicon-plus" aria-hidden="true">商品</span>
-                    </button>
-                    <button type="button" class="btn btn-success btn-flat" v-on:click="edit()"><span class="glyphicon glyphicon-pencil">修改</span></button>
-                    <button type="button" class="btn btn-success btn-flat" v-on:click="remove()"><span class="glyphicon glyphicon-trash">删除</span></button>
+                    </button>*@
+                    <button type="button" class="btn btn-success btn-flat" v-on:click="edit()"><span class="glyphicon glyphicon-pencil">修改货架</span></button>
+                    <button type="button" class="btn btn-success btn-flat" v-on:click="remove()"><span class="glyphicon glyphicon-trash">删除货架</span></button>
                     <button type="button" class="btn btn-success btn-flat" v-on:click="cancelSelect()"><span class="glyphicon glyphicon-minus">取消选择</span></button>
                     <button type="button" class="btn btn-success btn-flat" v-on:click="reloadTree()">
                         <span class="glyphicon glyphicon-refresh">刷新</span>
@@ -73,9 +73,21 @@
                    
                 </div>
                 <div class="col-xs-9 col-sm-9">
+                    <div class="row">
+                        <div class="col-xs-5 col-sm-4">
+                            <div class="input-group">
+                                <input type="text" class="form-control" v-model="shelfProduct.productCodeOrBarCode" v-on:keyup.enter="saveProduct" placeholder="录入商品编码或条码回车" />
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-primary btn-flat" v-on:click="saveProduct()"><span class="glyphicon glyphicon-plus">添加商品</span></button>
+                                    <button type="button" class="btn btn-danger btn-flat" v-on:click="removeProduct()"><span class="glyphicon glyphicon-trash">删除商品</span></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <hr style="border:1px solid #808080" />
                     <vue-table v-ref:vtable v-bind:columns="gridColumns"
                                v-bind:url="url"
-                               v-bind:args="searchArgs" v-bind:data.sync="rows" v-bind:show-toolbar="showTool" v-bind:show-checkbox="false">
+                               v-bind:args="searchArgs" v-bind:data.sync="rows" v-bind:show-toolbar="showTool" v-bind:show-checkbox="true">
                         <div class="row" style="margin-bottom:10px;" slot="customSearch">
                             <div class="col-xs-2">
                                 <input class="form-control" v-model="searchArgs.productCodeOrBarCode" placeholder="商品编码/条码" debounce="500" />
@@ -85,6 +97,9 @@
                             </div>
                         </div>
                     </vue-table>
+                    <p>
+                        友情提示：添加商品时，如选中一个商品，将插入选中商品的前面。
+                    </p>
                 </div>  
             </div>
         </div>
@@ -160,10 +175,10 @@
                         view:@ViewBag.View,                    
                     },
                     gridColumns: [
-                       { name: 'Code', localName: '货架码', width: '100' },
-                       { name: 'ProductName', localName: '品名' , width: '200'},
+                       { name: 'Code', localName: '货架码', width: '100' },                       
                        { name: 'ProductCode', localName: '编码' },
                        { name: 'BarCode', localName: '条码' },
+                       { name: 'ProductName', localName: '品名' , width: '200'},
                        { name: 'Specification', localName: '规格' },
                        { name: 'SalePrice', localName: '售价' }
                     ],
@@ -313,6 +328,58 @@
                             }
                         });
                     },
+                    removeProduct:function(){
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                        var selectNode = treeObj.getSelectedNodes()[0];
+                        var layerId  =0;
+                        if(selectNode&&selectNode.code.length==6)
+                        {
+                            var layerId = selectNode.id;
+                        }
+                        else{
+                            bootbox.alert("请选择货架层");
+                            return ;
+                        }
+
+                        //选择插入商品位置，默认为0，表示从末尾插入
+                        var rowIds = "";
+                        var idArray = new Array();
+                        var selectRow = this.rows.filter(function (item, index) {
+                            if (item.checked) {
+                                idArray.push(item.Id);
+                                return true;
+                            }
+                        });
+                        if (idArray.length == 0) {
+                            bootbox.alert("请勾选要删除的商品");
+                            return ;
+                        } 
+                        rowIds = idArray.join();
+                        var postData = {
+                            storeId:this.model.storeId,
+                            shelfLayerId:layerId,
+                            ids:rowIds
+                        }
+                        var _self =this;
+                        bootbox.confirm("你确定要删除吗？", function (result) {
+                            if (result) {
+                                $.post("/Shelf/RemoveProduct", postData, function (result) {
+                                    if (result.success) {
+                                        //刷新节点树
+                                        treeObj.removeChildNodes(selectNode); 
+                                        result.data.forEach(function(item,index){
+                                            treeObj.addNodes(selectNode,-1,item);
+                                        });
+                                        //刷新表格
+                                        _self.$refs.vtable.loadData();
+                                    }
+                                    else {
+                                        bootbox.alert(result.error);
+                                    }
+                                }, "json");
+                            }
+                        });
+                    },
                     cancelSelect:function()
                     {
                         var treeObj = $.fn.zTree.getZTreeObj("ztree");
@@ -396,54 +463,53 @@
                          
                      },
                      saveProduct:function(){
+                         // 必须选择货架
                          var treeObj = $.fn.zTree.getZTreeObj("ztree");
                          var selectNode = treeObj.getSelectedNodes()[0];
-                         if(selectNode&&selectNode.code.length>4)
+                         var layerId  =0;
+                         if(selectNode&&selectNode.code.length==6)
                          {
-                             var layerId = 0;
-                             var productId = 0;
-                             var isSelectLayer = false;
-                             var insertIndex = -1;
-                             if(selectNode.code.length==6){
-                                 //选择的货架层
-                                 layerId = selectNode.id;
-                                 isSelectLayer= true;
-                             }
-                             else
-                             {
-                                 layerId = selectNode.getParentNode().id;
-                                 productId = selectNode.id;
-                                 insertIndex = selectNode.getIndex()+1; //插入位置加1
-                             }
-
-                             var v_url="/Shelf/CreateProduct" ;
-                             var v_data = {
-                                 storeId:this.model.storeId,
-                                 shelfLayerId:layerId,
-                                 productCodeOrBarCode: this.shelfProduct.productCodeOrBarCode,
-                                 shelfProductId:productId
-                             };
-                             var _self = this;
-                             $.post(v_url, v_data, function (result) {
-                                 if (result.success) { 
-                                     if(isSelectLayer)
-                                     {
-                                         treeObj.addNodes(selectNode,insertIndex,result.data);
-                                     }
-                                     else
-                                     {
-                                         treeObj.addNodes(selectNode.getParentNode(),insertIndex,result.data);
-                                     } 
-                                     _self.shelfProduct.productCodeOrBarCode="";
-                                 }
-                                 else {
-                                     bootbox.alert(result.error);
-                                 }
-                             }, "json");
+                             var layerId = selectNode.id;
                          }
                          else{
-                             bootbox.alert("请选择一个货架层，或者一个要插入的商品列");
+                             bootbox.alert("请选择要添加商品的货架层");
+                             return ;
                          }
+
+                         //选择插入商品位置，默认为0，表示从末尾插入
+                         var beforeProductId = 0;
+                         var selectRow = this.rows.filter(function (item, index) {
+                             if (item.checked) {
+                                 return true;
+                             }
+                         });
+                         if (selectRow.length > 0) {
+                             beforeProductId = selectRow[0].Id;
+                         }   
+                         
+                        var v_url="/Shelf/CreateProduct" ;
+                        var v_data = {
+                            storeId:this.model.storeId,
+                            shelfLayerId:layerId,
+                            productCodeOrBarCode: this.shelfProduct.productCodeOrBarCode,
+                            shelfProductId:beforeProductId
+                        };
+                        var _self = this;
+                        $.post(v_url, v_data, function (result) {
+                            if (result.success) { 
+                                //刷新节点树
+                                treeObj.removeChildNodes(selectNode); 
+                                result.data.forEach(function(item,index){
+                                    treeObj.addNodes(selectNode,-1,item);
+                                });
+                                //刷新表格
+                                _self.$refs.vtable.loadData();
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
+          
                      }
                 }
             });

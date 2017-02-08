@@ -42,7 +42,7 @@ namespace EBS.Query.DTO
         /// 总差异数
         /// </summary>
         public int TotalDifferentQuantity { get {
-            return this.TotalInventoryQuantity - TotalCountQuantity;
+            return TotalCountQuantity - this.TotalInventoryQuantity;
         } }
 
 
@@ -61,7 +61,7 @@ namespace EBS.Query.DTO
         {
             get
             {
-                return this.CostAmount - CostCountAmount;
+                return CostCountAmount - this.CostAmount;
             }
         }
         /// <summary>
@@ -79,7 +79,7 @@ namespace EBS.Query.DTO
         {
             get
             {
-                return this.SaleAmout - SaleCountAmount;
+                return  SaleCountAmount-this.SaleAmout ;
             }
         }
 

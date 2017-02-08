@@ -111,9 +111,12 @@ namespace EBS.Domain.Service
             if (product == null) { throw new ArgumentException("商品不存在"); }
             var layer = _db.Table.Find<ShelfLayer>(shelfLayerId);
             if (layer == null) { throw new ArgumentException("货架层不存在"); }
-            if (_db.Table.Exists<ShelfLayerProduct>(n => n.ShelfLayerId == shelfLayerId && n.ProductId == product.Id))
+            string sql = "select count(*) from ShelfLayerProduct where storeId=@StoreId and ShelfLayerId=@ShelfLayerId and ProductId=@ProductId";
+
+            //if (_db.Table.Exists<ShelfLayerProduct>(n => n.ShelfLayerId == shelfLayerId && n.ProductId == product.Id))
+            if (_db.Table.Context.ExecuteScalar<int>(sql, new { StoreId = storeId, ShelfLayerId = shelfLayerId, ProductId  = product.Id})>0)
             {
-                throw new Exception("该货架层中已经存在此商品");
+                throw new Exception(string.Format("商品[{0}]在此货架中已存在",product.Name));
             }
             var model = new ShelfLayerProduct();
             var goodsList = _db.Table.FindAll<ShelfLayerProduct>(n => n.ShelfLayerId == shelfLayerId);
@@ -142,9 +145,10 @@ namespace EBS.Domain.Service
             if (product == null) { throw new ArgumentException("商品不存在"); }
             var layer = _db.Table.Find<ShelfLayer>(shelfLayerId);
             if (layer == null) { throw new ArgumentException("货架层不存在"); }
-            if (_db.Table.Exists<ShelfLayerProduct>(n => n.ShelfLayerId == shelfLayerId && n.ProductId == product.Id))
+            string sql = "select count(*) from ShelfLayerProduct where storeId=@StoreId and ShelfLayerId=@ShelfLayerId and ProductId=@ProductId";
+            if (_db.Table.Context.ExecuteScalar<int>(sql, new { StoreId = storeId, ShelfLayerId = shelfLayerId, ProductId = product.Id }) > 0)
             {
-                throw new Exception("该货架层中已经存在此商品");
+                throw new Exception(string.Format("商品[{0}]在此货架中已存在", product.Name));
             }
             //先修改后插入
             var allGoods = _db.Table.FindAll<ShelfLayerProduct>(n=> n.StoreId == storeId&&n.ShelfLayerId == layer.Id ).OrderBy(n => n.Number).ToList();
@@ -193,57 +197,60 @@ namespace EBS.Domain.Service
                 _db.Delete<ShelfLayerProduct>(n => n.ShelfLayerId == id);
             }
             _db.Delete<ShelfLayer>(id);
+
+            //货架层重新排序
+            var shelfLayers = _db.Table.FindAll<ShelfLayer>(n=>n.ShelfId==model.ShelfId).OrderBy(n=>n.Number).ToList();
+            int number = 1;
+            //全部重新排序
+            foreach (var item in shelfLayers)
+            {
+                if (item.Id==id)
+                {
+                    continue; //跳过要删除的商品
+                }
+
+                item.Number = number;
+                item.Code = item.Code.Substring(0, item.Code.Length - 2) + item.Number.ToString().PadLeft(2, '0');
+                number += 1;
+            }
+            if (shelfLayers.Count > 0)
+            {
+                _db.Update<ShelfLayer>(shelfLayers.ToArray());
+            }
+
         }
 
-        public void DeleteShelfLayerProduct(int id)
+        public int[] GetWaitDeleteProductIdArray(string ids)
         {
-            _db.Delete<ShelfLayerProduct>(id);
-            //删除商品后，重新排序商品
-            //var waitingDeleteGoods = _shelfLayerGoodsDAL.GetList(ids);
-            ////删除商品
-            //_idb.Delete<ShelfLayerGoods>(ids);
-            ////每层商品重新排序
-
-            //if (waitingDeleteGoods.Count() == 0) { throw new Exception("请勾选要删除的商品"); }
-            //Dictionary<int, IList<ShelfLayerGoods>> waitingDeleteGoodsDic = new Dictionary<int, IList<ShelfLayerGoods>>();
-            ////按层分组
-            //foreach (ShelfLayerGoods goods in waitingDeleteGoods)
-            //{
-            //    int key = goods.ShelfLayerSysNo;
-            //    if (waitingDeleteGoodsDic.ContainsKey(key))
-            //    {
-            //        waitingDeleteGoodsDic[key].Add(goods);
-            //    }
-            //    else
-            //    {
-            //        IList<ShelfLayerGoods> list = new List<ShelfLayerGoods>();
-            //        list.Add(goods);
-            //        waitingDeleteGoodsDic.Add(key, list);
-            //    }
-            //}
-            //foreach (int layerID in waitingDeleteGoodsDic.Keys)
-            //{
-            //    var firstWaitingDeleteGoods = waitingDeleteGoodsDic[layerID].OrderBy(n => n.Number).First();
-            //    //获取当前层所有商品
-            //    var curentLayerGoodsList = _idb.QueryList<ShelfLayerGoods>(new { ShelfLayerSysNo = layerID }).OrderBy(n => n.Number).ToList();
-            //    int number = firstWaitingDeleteGoods.Number;
-            //    int index = 0;
-            //    foreach (var item in curentLayerGoodsList)
-            //    {
-            //        if (ids.Contains(item.SysNo))  //当前层包含要删除的商品
-            //        {
-            //            continue; //删除的商品不修改
-            //        }
-            //        if (item.Number > firstWaitingDeleteGoods.Number)
-            //        {
-            //            item.Number = firstWaitingDeleteGoods.Number + index;
-            //            index++;
-            //            item.Code = item.Code.Substring(0, item.Code.Length - 2) + item.Number.ToString().PadLeft(2, '0');
-            //            _idb.Update(item);
-            //        }
-            //    }
-            //}
+            if (string.IsNullOrEmpty(ids))
+            {
+                throw new Exception("请勾选要删除的商品");
+            }
+            var idArray = ids.Split(',').ToIntArray();
+            return idArray;
         }
+
+        public void ReOrderLayerProduct(int shelfLayerId,int[] idArray)
+        {
+            var curentLayerGoodsList = _db.Table.FindAll<ShelfLayerProduct>(n => n.ShelfLayerId == shelfLayerId).OrderBy(n => n.Number).ToList();
+            int number = 1;
+            //全部重新排序
+            foreach (var item in curentLayerGoodsList)
+            {
+                if (idArray.Contains(item.Id)) {
+                    continue; //跳过要删除的商品
+                }
+
+                item.Number = number;
+                item.Code = item.Code.Substring(0, item.Code.Length - 2) + item.Number.ToString().PadLeft(2, '0');
+                number += 1;               
+            }
+            if (curentLayerGoodsList.Count > 0)
+            {
+                _db.Update<ShelfLayerProduct>(curentLayerGoodsList.ToArray());
+            }
+           
+        }        
 
     }
 }
