@@ -9,6 +9,11 @@ namespace EBS.Query.DTO
    public class StocktakingItemDto
     {
        public string ShelfCode { get; set; }
+
+       //public string ShelfLayerCode { get; set; }
+
+       //public string ShelfLayerProductCode { get; set; }
+
         public int ProductId { get; set; }
         /// <summary>
         /// 商品编码

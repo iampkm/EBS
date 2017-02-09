@@ -60,5 +60,17 @@ namespace EBS.Domain.Entity
         public StocktakingStatus Status { get; set; }
 
         public virtual List<StocktakingItem> Items { get; set; }
+
+
+        public void Cancel()
+        {
+            if (this.Status != StocktakingStatus.Audited)
+            {
+                this.Status = StocktakingStatus.Cancel;
+            }
+            else {
+                throw new Exception("已审单据不能作废");
+            }
+        }
     }
 }

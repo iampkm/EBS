@@ -64,6 +64,13 @@ namespace EBS.Admin.Controllers
             return Json(new { success = true });
         }
 
+        [HttpPost]
+        public ActionResult Cancel(int id)
+        {
+            _stocktakingFacade.Cancel(id);
+            return Json(new { success = true });
+        }
+
          public JsonResult LoadAuditData(Pager page, SearchStocktaking condition)
         {
             var rows = _stocktakingQuery.GetAuditList(page, condition);
@@ -158,17 +165,20 @@ namespace EBS.Admin.Controllers
 
         public ActionResult Edit(int id)
         {
-            var model = _query.Find<Stocktaking>(id);
+            var model = _stocktakingQuery.QueryStocktaking(id);
             ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
-            ViewBag.StoreId = _context.CurrentAccount.StoreId;
-            ViewBag.StoreName = _context.CurrentAccount.StoreName;
-
+            ViewBag.StoreId =model.StoreId;
+            ViewBag.StoreName =model.StoreName;
+            ViewBag.StocktakingItems = JsonConvert.SerializeObject(model.Items.ToArray());
+            ViewBag.CreatedByName = model.CreatedByName;
             return View(model);
         }
-
+        [HttpPost]
         public ActionResult Edit(StocktakingModel model)
         {
-
+           // model.CreatedBy = _context.CurrentAccount.AccountId;
+           // model.CreatedByName = _context.CurrentAccount.NickName;
+            _stocktakingFacade.Edit(model);
             return Json(new { success = true });
         }
 	}

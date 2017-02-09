@@ -1,7 +1,7 @@
-﻿@{
+﻿@model EBS.Query.DTO.StocktakingDto
+@{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
-
 @section styles{
     <link href="~/Content/zTree.min.css" rel="stylesheet" />
     <style>
@@ -18,8 +18,8 @@
 <div id="app" class="box box-primary">
     <div class="box-header with-border">
         <ol class="breadcrumb" style="padding:0px;margin:1px;">
-            <li><a href="/Stocktaking/AuditIndex"><i class="fa fa-dashboard"></i>盘点修正单审核</a></li>
-            <li class="active"><a href="/Stocktaking/Edit/{{model.id}}">审核盘点修正单</a></li>
+            <li><a href="/Stocktaking/AuditIndex"><i class="fa fa-dashboard"></i>盘点单审核</a></li>
+            <li class="active"><a href="/Stocktaking/Edit/{{model.id}}">修改盘点修正单</a></li>
         </ol>
     </div>
     <!-- /.box-header -->
@@ -29,12 +29,12 @@
             <div class="row">
                 <div class="form-group col-sm-4 col-xs-6">
                     <button type="button" class="btn btn-warning btn-flat" v-on:click="onSubmit">保 存</button>
-                    <button type="button" class="btn btn-default btn-flat" v-on:click="print">打印</button>
-                    <a class="btn btn-default btn-flat" href="/Stocktaking/Index">取 消</a>
+                    @*<button type="button" class="btn btn-default btn-flat" v-on:click="print">打印</button>*@
+                    <a class="btn btn-default btn-flat" href="javascript:history.back()">取 消</a>
                     <input type="hidden" v-model="model.id" />
                 </div>
             </div>
-            <div class="row">
+            @*<div class="row">
                 <div class="col-sm-2 col-xs-3" v-show="selectStore.view">
                     <div class="input-group ">
                         <input type="hidden" class="form-control" v-model="searchArgs.storeId">
@@ -45,7 +45,7 @@
                         </span>
                     </div>
                 </div>
-            </div>
+            </div>*@
             <div class="row">
                 <div class="col-xs-4 col-sm-4"></div>
                 <div class="col-xs-4 col-sm-4"><h3 class="text-center text-success" style="border-bottom:2px solid;padding-bottom:1px;"><b>盘点修正单</b></h3></div>
@@ -58,7 +58,7 @@
                 <div class="col-xs-4 col-sm-4 text-center">
                 </div>
                 <div class="col-xs-4 col-sm-4 ">
-                    <span v-bind:class="checkStartDate">单据号：</span>
+                    <span v-bind:class="checkStartDate">单据号：{{model.code}}</span>
                 </div>
             </div>
             <div class="row">
@@ -68,7 +68,7 @@
                 <div class="col-xs-4 col-sm-4 text-center">
                 </div>
                 <div class="col-xs-4 col-sm-4">
-                    <span>制单日期：@DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")</span>
+                    <span>制单日期：@Model.CreatedOnString</span>
                 </div>
             </div>
             <div class="row">
@@ -107,15 +107,21 @@
                                     <td>{{item.ProductName}}</td>
                                     <td>{{item.Specification}}</td>
                                     <td>{{item.Unit}}</td>
-                                    <td>{{item.SalePrice}}</td>
+                                    <td>{{item.SalePrice.toFixed(2)}}</td>
                                     <th>{{item.Quantity}}</th>
                                     <th>{{item.CountQuantity}}</th>
                                     <td>
-                                        <input type="text" class="form-control quantity" v-model="item.countQuantity" v-on:keyup.enter="inputNext" />
+                                        <div>
+                                            <input type="text" class="form-control quantity" v-model="item.CorectQuantity" v-on:keyup.enter="inputNext" />
+                                        </div>
                                     </td>
-                                    <td>{{item.Quantity-item.CountQuantity}}</td>
-                                    <td>{{item.SalePrice*(item.Quantity-item.CountQuantity)}}</td>
-                                    <td><input type="text" class="form-control reason" v-model="item.corectReason" /></td>
+                                    <td>{{item.CorectQuantity-item.CountQuantity}}</td>
+                                    <td>{{(item.SalePrice*(item.Quantity-item.CountQuantity)).toFixed(2)}}</td>
+                                    <td>
+                                        <div>
+                                            <input type="text" class="form-control reason" v-model="item.CorectReason" v-on:keyup.enter="inputReason" />
+                                        </div>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -140,25 +146,26 @@
     <script src="~/Content/Vue/vuetable/vuetable.js"></script>
     <script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
     <script>
-        $("doucument").ready(function () {
-            var demo = new Vue({
-                components: {
-                    'v-modal': VueStrap.modal,
-                    'v-input': VueStrap.input
+    $("doucument").ready(function () {
+        var demo = new Vue({
+            components: {
+                'v-modal': VueStrap.modal,
+                'v-input': VueStrap.input
+            },
+            el: '#app',
+            data: {
+                valid: false,
+                modal: false,
+                model: {
+                    id: @Model.Id,
+                    code: '@Model.Code',
+                    storeId: @ViewBag.StoreId,
+                    shelfCode: '@Model.ShelfCode',
+                    itemsJson: '',
+                    stocktakingPlanId:@Model.StocktakingPlanId,
                 },
-                el: '#app',
-                data: {
-                    valid: false,
-                    modal: false,
-                    model: {
-                        id: 0,
-                        code: '',
-                        storeId: @ViewBag.StoreId,
-                        shelfCode: '',
-                        items: '',
-                        stocktakingPlanId:0,
-                    },
-                    products: [{ ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', SalePrice: 0,Quantity:0, CountQuantity: 0,CorectReason:'' }],
+                // products: [{ ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', SalePrice: 0,Quantity:0, CountQuantity: 0,CorectQuantity:0,CorectReason:'' }],
+                    products:@Html.Raw(ViewBag.StocktakingItems),
                     totalQuantity: 0,
                     inputProducts: '',
                     selectStore: {
@@ -175,9 +182,11 @@
                         var data = "";
                         for (var i = 0; i < _self.products.length; i++) {
                             var item = _self.products[i];
-                            if (item.ProductId > 0 && item.ContractPrice > 0) {
-                                data += "{\"ProductId\":" + item.ProductId + ",\"CountQuantity\":" + item.CountQuantity
-                                     + ",\"ContractPrice\":" + item.ContractPrice + "},";
+                            if (item.ProductId > 0 ) {
+                                var countQuantity = item.CorectQuantity-item.CountQuantity;
+                                data += "{\"StocktakingId\":"+_self.model.id +",\"ProductId\":" + item.ProductId + ",\"CountQuantity\":" + countQuantity + ",\"Quantity\":" + item.Quantity
+                                    + ",\"CostPrice\":" + item.CostPrice +",\"SalePrice\":" + item.SalePrice+ ",\"CorectQuantity\":" + item.CorectQuantity
+                                    +",\"CorectReason\":'" + item.CorectReason+ "'},";
                             }
                         }
                         if (data == "") {
@@ -186,12 +195,12 @@
                         }
                         data = data.substring(0, data.length - 1);
                         data = "[" + data + "]";
-                        _self.model.items = data;
+                        _self.model.itemsJson = data;
                         var v_data = _self.model;
-                        $.post("/Stocktaking/Correct", v_data, function (result) {
+                        $.post("/Stocktaking/Edit", v_data, function (result) {
                             if (result.success) {
                                 bootbox.alert("保存成功！", function () {
-                                    window.location.href = "/Stocktaking/Correct";
+                                    window.location.href = "/Stocktaking/AuditIndex";
                                 });
                             }
                             else {
@@ -200,7 +209,7 @@
                         }, "json");
                     },
                     addRow: function (event) {
-                        this.products.push({ ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', SalePrice: 0,Quantity:0, CountQuantity: 0,CorectReason:'' });
+                        this.products.push({ ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', SalePrice: 0,Quantity:0, CountQuantity: 0,CorectQuantity:0,CorectReason:'' });
                         //设置焦点
                         var target = event.srcElement || event.target;
                         var row = target.localName == "button" ? $(target).parent().parent() : $(target).parent().parent().parent();
@@ -226,7 +235,8 @@
                         if (_self.model.storeId == 0) { bootbox.alert("请选择门店"); return; }
                         var data = {
                             productCodeOrBarCode: codeOrBarCode,
-                            planId:_self.model.stocktakingPlanId
+                            planId:_self.model.stocktakingPlanId,
+                            storeId:_self.model.storeId
                         }
                         //设置焦点
                         $.get("/Stocktaking/QueryStocktakingItem", data, function (result) {
@@ -234,7 +244,7 @@
                                 _self.products.$set(index, result.data);
                                 if(_self.model.stocktakingPlanId==0)
                                 {
-                                    _self.model.stocktakingPlanId = result.data.Id;
+                                    _self.model.stocktakingPlanId = result.planId;
                                 }
                                 //设置焦点,延迟500，等待vue.js 渲染完毕
                                 setTimeout(function () {
@@ -252,8 +262,20 @@
                     inputNext: function (event) {
                         var target = event.target;
                         var row = $(target).parent().parent().parent();
+                        //if (row.next().length > 0) {
+                        //    row.next().find("input.quantity").focus().select();
+                        //}
+                        //else {
+                        //    this.addRow(event);
+                        //}
+                        row.find("input.reason").focus().select();
+                    },
+                    inputReason:function(event)
+                    {
+                        var target = event.target;
+                        var row = $(target).parent().parent().parent();
                         if (row.next().length > 0) {
-                            row.next().find("input.quantity").focus().select();
+                            row.next().find("input.reason").focus().select();
                         }
                         else {
                             this.addRow(event);
@@ -295,9 +317,12 @@
                     },
                     clearItems: function () {
                         if (this.products.length > 0) {
-                            this.products = [{ ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', SalePrice: 0,Quantity:0, CountQuantity: 0,CorectReason:'' }];
+                            this.products = [{ ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', SalePrice: 0,Quantity:0, CountQuantity: 0,CorectQuantity:0,CorectReason:'' }];
                         }
                     }
+                },
+                computed: {
+
                 }
             });
 
@@ -328,15 +353,6 @@
 
     </script>
 }
-
-
-
-
-
-
-
-
-
 
 
 

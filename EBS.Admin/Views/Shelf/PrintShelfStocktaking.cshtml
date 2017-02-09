@@ -1,49 +1,67 @@
 ﻿@model IEnumerable<EBS.Query.DTO.PrintShelfDto>
+<style>
+    .row {
+        margin-right: 0px !important;
+    }
+</style>
 <div class="container-fluid">
     @foreach (var item in Model)
     {
         if (item.Items.Count() == 0) { continue; }
-        int index = 1;       
-        <div class="row">
+        int index = 1;
+        <div class="row table-printfontsize">
             <div class="col-xs-4 col-sm-4"></div>
-            <div class="col-xs-4 col-sm-4" ><h3 class="" style="border-bottom:1px solid;text-align:center"><b>商品盘点表</b></h3></div>
+            <div class="col-xs-4 col-sm-4"><h4 class="" style="border-bottom:2px solid;text-align:center"><b>商品盘点表</b></h4></div>
             <div class="col-xs-4 col-sm-4"></div>
         </div>
-        <div class="row">
+        <div class="row table-printfontsize">
             <div class="col-xs-4 col-sm-4"><span>门店：</span><span>@item.StoreName</span></div>
             <div class="col-xs-4 col-sm-4"><span>货架码：</span><span id="code">@item.Code @item.Name</span></div>
             <div class="col-xs-4 col-sm-4"><span>日期：</span><span>@DateTime.Now.ToString()</span></div>
         </div>
-    <table class="table table-bordered table-printfontsize" >
-        <thead>
-            <tr class="bg-info">
-                <th></th>
-                <th>货架码</th>
-                <th>编码</th>
-                <th>条码</th>
-                <th style="width: 300px;">品名</th>
-                <th>规格</th>
-                <th>售价</th>
-                <th style="width:150px;">数量</th>
-            </tr>
-        </thead>
-        <tbody id="tableData">
-            @foreach (var goods in item.Items.OrderBy(n => n.Code).ToList())
-            {
-                <tr class="item">
-                    <td>@(index++)</td>
-                    <td>@goods.Code</td>
-                    <td>@goods.ProductCode</td>
-                    <td>@goods.BarCode</td>
-                    <td>@(goods.ProductName.Length>=16?goods.ProductName.Substring(0,16):goods.ProductName)</td>
-                    <td>@goods.Specification</td>
-                    <td>@goods.SalesPrice.ToString("F2")</td>
-                    <td></td>
+        <table class="table table-bordered table-printfontsize">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>货架码</th>
+                    <th>货架层</th>
+                    <th>货架列</th>
+                    <th>编码</th>
+                    <th>条码</th>
+                    <th>品名</th>
+                    <th>规格</th>
+                    <th>售价</th>
+                    <th style="width:150px">数量</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody id="tableData">
+                @foreach (var goods in item.Items.OrderBy(n => n.Code).ToList())
+                {
+                    <tr>
+                        <td>@(index++)</td>
+                        <td>@goods.Code.Substring(0, goods.Code.Length - 4)</td>
+                        <td>@goods.Code.Substring(0, goods.Code.Length - 2)</td>                      
+                        <td>@goods.Code</td>
+                        <td>@goods.ProductCode</td>
+                        <td>@goods.BarCode</td>
+                        <td>@(goods.ProductName.Length >= 16 ? goods.ProductName.Substring(0, 16) : goods.ProductName)</td>
+                        <td>@goods.Specification</td>
+                        <td>@goods.SalePrice.ToString("F2")</td>
+                        <td></td>
+                    </tr>
+                }
+            </tbody>            
+        </table>
+    <div class="row table-printfontsize">
+        <div class="col-xs-3 col-sm-3">
+            <span>制单人：</span>
+        </div>
+        <div class="col-xs-3 col-sm-3">
+            <span>审核人：</span>
+        </div>
+    </div>
     <!--打印分页-->
-    <div style="page-break-after :always"></div>
+        <div style="page-break-after: always; margin-right: 0px !important;"></div>
     }
+
 </div>

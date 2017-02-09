@@ -14,7 +14,11 @@
     <div class="box-body">
         <form>
             <div class="row">
-                <div class="form-group col-sm-4 col-xs-6">                    
+                <div class="form-group col-sm-4 col-xs-6">
+                    @if(Model.StocktakingType== StocktakingType.StocktakingCorect&&Model.Status== StocktakingStatus.WaitAuditing)
+                    {
+                       <a class="btn btn-warning btn-flat" href="/Stocktaking/Edit/@Model.Id">修 改</a>    
+                    }                               
                     <button type="button" class="btn btn-primary btn-flat" v-on:click="print">打印</button>
                     <a class="btn btn-default btn-flat" href="javascript:history.go(-1);">取 消</a>
                 </div>
@@ -37,7 +41,7 @@
                         <thead>
                             <tr>
                                 <th>序号</th>
-                                <th>货架号</th>
+                                <th>货架码</th>
                                 <th>商品编码</th>
                                 <th>商品条码</th>
                                 <th>商品名称</th>
@@ -121,6 +125,9 @@
                 <div class="row">
                     <div class="col-xs-3 col-sm-3">
                         <span>制单人：@Model.CreatedByName</span>
+                    </div>
+                    <div class="col-xs-3 col-sm-3">
+                        <span>审核人：</span>
                     </div>
                 </div>
             </div>

@@ -91,6 +91,6 @@ namespace EBS.Query.DTO
        public string Specification { get; set; }
        [Description("商品条码")]
        public string BarCode { get; set; }
-       public decimal SalesPrice { get; set; }
+       public decimal SalePrice { get; set; }
    }
 }

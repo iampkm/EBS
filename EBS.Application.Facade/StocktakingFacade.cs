@@ -56,16 +56,26 @@ namespace EBS.Application.Facade
         public void Edit(StocktakingModel model)
         {
             var entity = _db.Table.Find<Stocktaking>(model.Id);
-            entity = model.MapTo<Stocktaking>(entity);
-            entity.Status = StocktakingStatus.Audited;
-            entity.StocktakingType = StocktakingType.StocktakingCorect;
+           // entity = model.MapTo<Stocktaking>(entity);
+           // entity.Status = StocktakingStatus.Audited;
+           // entity.StocktakingType = StocktakingType.StocktakingCorect;
             entity.Items = JsonConvert.DeserializeObject<List<StocktakingItem>>(model.ItemsJson);
             if (entity.Items.Count > 0)
             {
-                _db.Delete(entity.Items.ToArray());
+                _db.Delete<StocktakingItem>(n => n.StocktakingId == entity.Id);
+               // _db.Delete(entity.Items.ToArray());
+                _db.Insert(entity.Items.ToArray());
             }
+           // _db.Update(entity);           
+            _db.SaveChange();
+        }
+
+
+        public void Cancel(int id)
+        {
+            var entity = _db.Table.Find<Stocktaking>(id);
+            entity.Cancel();
             _db.Update(entity);
-            _db.Insert(entity.Items.ToArray());
             _db.SaveChange();
         }
     }

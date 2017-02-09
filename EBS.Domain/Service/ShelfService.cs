@@ -198,25 +198,25 @@ namespace EBS.Domain.Service
             }
             _db.Delete<ShelfLayer>(id);
 
-            //货架层重新排序
-            var shelfLayers = _db.Table.FindAll<ShelfLayer>(n=>n.ShelfId==model.ShelfId).OrderBy(n=>n.Number).ToList();
-            int number = 1;
-            //全部重新排序
-            foreach (var item in shelfLayers)
-            {
-                if (item.Id==id)
-                {
-                    continue; //跳过要删除的商品
-                }
+            //货架层重新排序,货架下的商品code 也要跟着变
+            //var shelfLayers = _db.Table.FindAll<ShelfLayer>(n=>n.ShelfId==model.ShelfId).OrderBy(n=>n.Number).ToList();
+            //int number = 1;
+            ////全部重新排序
+            //foreach (var item in shelfLayers)
+            //{
+            //    if (item.Id==id)
+            //    {
+            //        continue; //跳过要删除的商品
+            //    }
 
-                item.Number = number;
-                item.Code = item.Code.Substring(0, item.Code.Length - 2) + item.Number.ToString().PadLeft(2, '0');
-                number += 1;
-            }
-            if (shelfLayers.Count > 0)
-            {
-                _db.Update<ShelfLayer>(shelfLayers.ToArray());
-            }
+            //    item.Number = number;
+            //    item.Code = item.Code.Substring(0, item.Code.Length - 2) + item.Number.ToString().PadLeft(2, '0');
+            //    number += 1;
+            //}
+            //if (shelfLayers.Count > 0)
+            //{
+            //    _db.Update<ShelfLayer>(shelfLayers.ToArray());
+            //}
 
         }
 

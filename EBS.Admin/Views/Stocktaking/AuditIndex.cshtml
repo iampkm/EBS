@@ -62,7 +62,8 @@
                     </div>
                 </div>
                 <span class="input-group-btn" slot="customButtons">
-                    <button type="button" class="btn btn-warning btn-flat" v-on:click="submitAudit()">审核</button>                    
+                    <button type="button" class="btn btn-warning btn-flat" v-on:click="submitAudit()">审核</button> 
+                    <button type="button" class="btn btn-danger btn-flat" v-on:click="cancel()">作废</button>                    
                 </span>
             </vue-table>
         </div>
@@ -123,6 +124,32 @@
                     bootbox.confirm("您确定提交该记录？", function (result) {
                         if (result) {
                             $.post("/Stocktaking/Audit", { id: selectId }, function (result) {
+                                if (result.success) {
+                                    v_self.$refs.vtable.loadData();
+                                }
+                                else {
+                                    bootbox.alert(result.error);
+                                }
+                            }, "json");
+                        }
+                    });
+                },
+                cancel:function()
+                {
+                    var selectRow = this.rows.filter(function (item, index) {
+                        if (item.checked) {
+                            return true;
+                        }
+                    });
+                    if (selectRow.length == 0) {
+                        bootbox.alert("请选择一条记录");
+                        return;
+                    }
+                    var selectId = selectRow[0].Id;
+                    v_self = this;
+                    bootbox.confirm("您确定提交该记录？", function (result) {
+                        if (result) {
+                            $.post("/Stocktaking/Cancel", { id: selectId }, function (result) {
                                 if (result.success) {
                                     v_self.$refs.vtable.loadData();
                                 }

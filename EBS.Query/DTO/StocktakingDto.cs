@@ -25,6 +25,8 @@ namespace EBS.Query.DTO
        /// </summary>
        public StocktakingType StocktakingType { get; set; }
 
+       public int StocktakingPlanId { get; set; }
+
        /// <summary>
        /// 创建时间
        /// </summary>
@@ -73,6 +75,8 @@ namespace EBS.Query.DTO
                return StocktakingType.Description();
            }
        }
+
+       public int StoreId { get; set; }
 
        public string StoreName
        {

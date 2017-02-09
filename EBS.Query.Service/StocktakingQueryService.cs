@@ -39,7 +39,7 @@ namespace EBS.Query.Service
                 where += "and t0.StocktakingType=@StocktakingType ";
                 param.StocktakingType = condition.Type;
             }
-            if (condition.Status > 0)
+            if (condition.Status != 0)
             {
                 where += "and t0.Status=@StocktakingStatus ";
                 param.StocktakingStatus = condition.Status;
@@ -105,7 +105,7 @@ where 1=1 {0}";
                 where += "and t0.StocktakingType=@StocktakingType ";
                 param.StocktakingType = condition.Type;
             }
-            if (condition.Status > 0)
+            if (condition.Status != 0)
             {
                 where += "and t0.Status=@StocktakingStatus ";
                 param.StocktakingStatus = condition.Status;

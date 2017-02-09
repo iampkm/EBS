@@ -23,6 +23,8 @@ namespace EBS.Application
 
        void Audit(int id);
 
+       void Cancel(int id);
+
 
     }
 }
