@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2017-01-16 10:09:56                          */
+/* Created on:     2017-02-10 17:06:03                          */
 /*==============================================================*/
 
 
@@ -80,6 +80,8 @@ drop table if exists Role;
 
 drop table if exists RoleMenu;
 
+drop index idx_saleorder_updatedOn on SaleOrder;
+
 drop index idx_saleorder_code on SaleOrder;
 
 drop table if exists SaleOrder;
@@ -115,6 +117,12 @@ drop table if exists StoreInventory;
 drop index idx_storeInventoryBath_pid on StoreInventoryBatch;
 
 drop table if exists StoreInventoryBatch;
+
+drop index idx_storeinventoryhistory_productid on StoreInventoryHistory;
+
+drop index idx_storeinventoryhistory_billCode on StoreInventoryHistory;
+
+drop index idx_storeinventoryhistory_CreatedOn on StoreInventoryHistory;
 
 drop table if exists StoreInventoryHistory;
 
@@ -720,6 +728,14 @@ create unique index idx_saleorder_code on SaleOrder
 );
 
 /*==============================================================*/
+/* Index: idx_saleorder_updatedOn                               */
+/*==============================================================*/
+create index idx_saleorder_updatedOn on SaleOrder
+(
+   UpdatedOn
+);
+
+/*==============================================================*/
 /* Table: SaleOrderItem                                         */
 /*==============================================================*/
 create table SaleOrderItem
@@ -832,11 +848,8 @@ create table StocktakingItem
    Id                   int not null auto_increment comment '编号',
    StocktakingId        int,
    ProductId            nvarchar(50) comment '商品编码',
-   ProductName          nvarchar(300) comment '商品名',
-   BarCode              nvarchar(50) comment '条码',
-   Specification        nvarchar(100) comment '规格',
    CostPrice            decimal(8,4) comment '调拨成本价',
-   SalesPrice           decimal(8,2) comment '销售价',
+   SalePrice            decimal(8,2) comment '销售价',
    Quantity             int comment '盘点锁定库存数',
    CountQuantity        int comment '盘点数量',
    CorectQuantity       int comment '修正数',
@@ -878,9 +891,6 @@ create table StocktakingPlanItem
    Id                   int not null auto_increment comment '编号',
    StocktakingPlanId    int comment '盘点计划编号',
    ProductId            int comment '系统编码',
-   ProductName          nvarchar(300) comment '商品名',
-   BarCode              nvarchar(50) comment '条码',
-   Specification        nvarchar(100) comment '规格',
    CostPrice            decimal(8,4) comment '调拨成本价',
    SalePrice            decimal(8,2) comment '销售价',
    Quantity             int comment '库存数量',
@@ -1001,12 +1011,36 @@ create table StoreInventoryHistory
 alter table StoreInventoryHistory comment '门店库存历史记录';
 
 /*==============================================================*/
+/* Index: idx_storeinventoryhistory_CreatedOn                   */
+/*==============================================================*/
+create index idx_storeinventoryhistory_CreatedOn on StoreInventoryHistory
+(
+   CreatedOn
+);
+
+/*==============================================================*/
+/* Index: idx_storeinventoryhistory_billCode                    */
+/*==============================================================*/
+create index idx_storeinventoryhistory_billCode on StoreInventoryHistory
+(
+   BillCode
+);
+
+/*==============================================================*/
+/* Index: idx_storeinventoryhistory_productid                   */
+/*==============================================================*/
+create index idx_storeinventoryhistory_productid on StoreInventoryHistory
+(
+   ProductId
+);
+
+/*==============================================================*/
 /* Table: StoreInventoryMonthly                                 */
 /*==============================================================*/
 create table StoreInventoryMonthly
 (
    Id                   int not null auto_increment comment '编号',
-   Month                date comment '月',
+   Monthly              varchar(10) comment '会计期间 2017-01 按月存储',
    StoreId              int comment '门店编码',
    ProductId            int comment '商品Id',
    Quantity             int comment '实际库存数',

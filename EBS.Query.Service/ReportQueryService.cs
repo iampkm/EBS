@@ -19,94 +19,73 @@ namespace EBS.Query.Service
         {
             this._query = query;
         }
-       
-        public IEnumerable<SaleOrderDto> QuerySaleOrderItems(Pager page, SearchSaleOrder condition)
+        public IEnumerable<PurchaseSaleInventoryDto> QueryPurchaseSaleInventorySummary(Pager page, PurchaseSaleInventorySearch condition)
         {
             dynamic param = new ExpandoObject();
             string where = "";
-            if (!string.IsNullOrEmpty(condition.NickName))
+            if (condition.StoreId!=0)
             {
-                where += " and a.NickName like @NickName ";
-                param.NickName = string.Format("%{0}%", condition.NickName);
-            }
-            if (!string.IsNullOrEmpty(condition.Code))
-            {
-                where += "and o.Code=@Code ";
-                param.Code = condition.Code;
-            }
-            if (condition.PosId.HasValue)
-            {
-                where += " and o.PosId=@PosId ";
-                param.PosId = condition.PosId.Value;
-            }
-            if (condition.StoreId > 0)
-            {
-                where += " and s.Id=@StoreId ";
+                where += "and t.StoreId = @StoreId ";
                 param.StoreId = condition.StoreId;
             }
             
-            if(condition.WrokFrom.HasValue )
-            {
-                where +=" and w.StartDate >= @StartDate ";
-                param.StartDate = condition.WrokFrom.Value;
-            }
-            if(condition.WrokTo.HasValue)
-            {
-                where += " and w.StartDate < @EndDate ";
-                param.EndDate = condition.WrokTo.Value.AddDays(1);
-            }
-            if (condition.From.HasValue)
-            {
-                where += " and o.UpdatedOn>=@From";
-                param.From = condition.From.Value;
-            }
-            if (condition.To.HasValue)
-            {
-                where += " and o.UpdatedOn<@To";
-                param.To = condition.To.Value.AddDays(1);
-            }
+            param.StartDate = condition.StartDate;
 
-            string sql = @"select  o.Id, o.`Code`,o.PosId,o.OrderType,o.`Status`,o.OrderAmount,o.PayAmount,o.OnlinePayAmount,o.PaymentWay,o.PaidDate,o.UpdatedOn,a.NickName,s.Name as StoreName 
- from saleorder o 
-left join store s on s.Id= o.StoreId 
-left join account a on a.Id = o.CreatedBy
-left join workschedule w on o.WorkScheduleCode = w.Code
-where 1=1 {0}";
+            param.EndDate = condition.EndDate.AddDays(1);
+           
+            string sql = @"select t.name as StoreName,ifnull(t1.qty,0) as PreInventoryQuantity,ifnull(t1.amount,0) as PreInventoryAmount,
+ifnull(t2.qty,0) as PurchaseQuantity,ifnull(t2.amount,0) as PurchaseAmount,
+ifnull(t4.qty,0) as SaleQuantity,ifnull(t4.amount,0) as SaleAmount, ifnull(t4.costAmount,0) as CostAmount,
+ifnull(t3.qty,0) as EndInventoryQuantity ,ifnull(t3.amount,0) as EndInventoryAmount from 
+store t LEFT JOIN 
+ (
+	select storeid,SUM(changequantity) as qty,sum(changequantity*price) as amount from storeinventoryhistory
+where createdOn <@StartDate
+group by storeid
+) t1 on t.Id = t1.storeid left join 
+(
+select d.storeid,sum(d.qty) as qty,sum(d.amount) as amount from 
+		(
+		select s.storeid,sum(i.actualQuantity) qty,sum(i.price*i.actualQuantity) amount from storepurchaseorder s inner join storepurchaseorderitem i
+		on s.id = i.storepurchaseorderid 
+		where s.`Status`>=4 and s.ordertype=1 and  s.StoragedOn BETWEEN @StartDate and @EndDate
+		group by s.storeid
+		union 
+		select s.storeid,sum(-i.actualQuantity) qty,sum(i.price*-i.actualQuantity) amount from storepurchaseorder s inner join storepurchaseorderitem i
+		on s.id = i.storepurchaseorderid 
+		where s.`Status`>=4 and s.ordertype=2 and s.StoragedOn BETWEEN @StartDate and @EndDate
+		group by s.storeid
+		union	
+	select t.toStoreId as storeid,sum(i.quantity) qty,sum(i.price*i.quantity) amount
+	 from transferorder t inner join transferorderitem i on t.id = i.transferorderid  and t.`status` = 2
+   where t.UpdatedOn BETWEEN @StartDate and @EndDate
+	 group by t.toStoreId
+	UNION
+	select t.fromStoreId as storeid,sum(-i.quantity) qty,sum(i.price*-i.quantity) amount
+	 from transferorder t inner join transferorderitem i on t.id = i.transferorderid  and t.`status` = 2
+   where t.UpdatedOn BETWEEN @StartDate and @EndDate
+	 group by t.toStoreId
+	) d group by d.storeid
+) t2 on t.Id = t2.storeid
+left  join 
+(
+select storeid,SUM(changequantity) as qty,sum(changequantity*price) as amount from storeinventoryhistory
+where createdOn <@EndDate
+group by storeid
+) t3 on t.Id = t3.storeid
+left join 
+(
+	select s.storeid,sum(i.Quantity) qty,sum(i.realprice*i.Quantity) amount ,sum(i.AvgCostPrice) costAmount from saleorder s inner join saleorderitem i 
+on s.id= i.saleorderid
+where s.`Status` = 3 and s.UpdatedOn BETWEEN @StartDate and @EndDate
+group by s.storeid
+) t4 on t.Id = t4.StoreId
+where 1=1 {0} ORDER BY t.Id LIMIT {1},{2}";
             //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<Product>(where, param);
-            if (string.IsNullOrEmpty(where))
-            {
-                page.Total= 0;
-                return new List<SaleOrderDto>();
-            }
-            sql = string.Format(sql, where);
-            var rows = this._query.FindAll<SaleOrderDto>(sql, param) as IEnumerable<SaleOrderDto>;
-            page.Total =  rows.Count();
-
+            sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
+            var rows = this._query.FindAll<PurchaseSaleInventoryDto>(sql, param);
+            page.Total = rows.Count;
             return rows;
         }
-
-        public IEnumerable<SaleSummaryDto> QuerySaleSummary(Pager page, SearchSaleOrder condition)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<SaleCheckDto> QuerySaleCheck(Pager page, SearchSaleOrder condition)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<SaleSyncDto> QuerySaleSync(Pager page, DateTime saleDate)
-        {
-            //客户端数据
-            string csql = @"select s.`Name` as StoreName ,y.*,t.ServerOrderCount,t.ServerOrderTotalAmount from (
-select o.StoreId,o.PosId,date_format(o.CreatedOn,'%Y-%m-%d') as SaleDate,count(*) ServerOrderCount,sum(OrderAmount) ServerOrderTotalAmount
- from saleorder o where o.`Status` in (-1,3) and o.CreatedOn >= @BeginDate and o.CreatedOn < @EndDate GROUP BY o.StoreId,o.PosId,date_format(o.CreatedOn, '%Y-%m-%d')
-) t RIGHT JOIN Store s on s.Id = t.StoreId
-LEFT JOIN salesync y on s.Id = y.StoreId
-where t.PosId= y.PosId and y.SaleDate=@SaleDate";
-            var rows = _query.FindAll<SaleSyncDto>(csql, new { BeginDate = saleDate, EndDate = saleDate.Date.AddDays(1),SaleDate=saleDate.Date.ToString("yyyy-MM-dd") }).ToList();
-            return rows;
-
-         }
     }
 }

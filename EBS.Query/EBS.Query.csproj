@@ -61,6 +61,8 @@
     <Compile Include="DTO\ProductDto.cs" />
     <Compile Include="DTO\PurchaseContractDto.cs" />
     <Compile Include="DTO\PurchaseContractItemDto.cs" />
+    <Compile Include="DTO\PurchaseSaleInventoryDto.cs" />
+    <Compile Include="DTO\PurchaseSaleInventorySearch.cs" />
     <Compile Include="DTO\SaleCheckDto.cs" />
     <Compile Include="DTO\SaleOrderDto.cs" />
     <Compile Include="DTO\SaleOrderItemDto.cs" />

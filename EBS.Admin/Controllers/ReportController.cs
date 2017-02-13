@@ -27,64 +27,25 @@ namespace EBS.Admin.Controllers
         /// 收银流水
         /// </summary>
         /// <returns></returns>
-        public ActionResult SaleOrderItems()
+        public ActionResult PurchaseSaleInventory()
         {
+            ViewBag.StoreId = _context.CurrentAccount.StoreId;
+            ViewBag.StoreName = _context.CurrentAccount.StoreName;
             ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+            var today = DateTime.Now;
+            var firstDay = new DateTime(today.Year, today.Month, 1);
+            ViewBag.StartDate = firstDay.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = firstDay.AddMonths(1).AddDays(-1).ToString("yyyy-MM-dd");
             return View();
         }
-   
-        public JsonResult QuerySaleOrderItems(Pager page, SearchSaleOrder condition)
+
+        public JsonResult QueryPurchaseSaleInventorySummary(Pager page, PurchaseSaleInventorySearch condition)
         {
-            var rows = _reportQuery.QuerySaleOrderItems(page, condition);
+            var rows = _reportQuery.QueryPurchaseSaleInventorySummary(page, condition);
 
             return Json(new { success = true, data = rows, total = page.Total });
         }
 
-        /// <summary>
-        /// 营业额汇总核对
-        /// </summary>
-        /// <returns></returns>
-        public ActionResult SaleSummary()
-        {
-            return View();
-        }
-
-        public JsonResult QuerySaleSummary(Pager page, SearchSaleOrder condition)
-        {
-            var rows = _reportQuery.QuerySaleSummary(page, condition);
-
-            return Json(new { success = true, data = rows, total = page.Total });
-        }
-
-        /// <summary>
-        /// 收银防损核对
-        /// </summary>
-        /// <returns></returns>
-        public ActionResult SaleCheck()
-        {
-            return View();
-        }
-
-        public JsonResult QuerySaleCheck(Pager page, SearchSaleOrder condition)
-        {
-            var rows = _reportQuery.QuerySaleCheck(page, condition);
-
-            return Json(new { success = true, data = rows, total = page.Total });
-        }
-
-
-        public ActionResult SaleSync()
-        {
-            ViewBag.saleDate = DateTime.Now.ToString("yyyy-MM-dd");
-            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
-            return View();
-        }
-
-        public JsonResult QuerySaleSync(Pager page, DateTime saleDate)
-        {
-            var rows = _reportQuery.QuerySaleSync(page, saleDate);
-
-            return Json(new { success = true, data = rows, total = page.Total });
-        }
+        
     }
 }

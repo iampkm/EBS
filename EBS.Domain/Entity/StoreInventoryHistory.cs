@@ -24,6 +24,21 @@ namespace EBS.Domain.Entity
             this.CreatedBy = createdBy;
             this.CreatedOn = DateTime.Now;
         }
+        public StoreInventoryHistory(int productId, int storeId, int quantity, int changeQuantity, decimal price, long batchNo,
+            int billId, string billCode, BillIdentity billType, int createdBy, DateTime createdOn )
+        {
+            this.ProductId = productId;
+            this.StoreId = storeId;
+            this.Quantity = quantity;
+            this.ChangeQuantity = changeQuantity;
+            this.Price = price;
+            this.BatchNo = batchNo;
+            this.BillId = billId;
+            this.BillCode = billCode;
+            this.BillType = billType;
+            this.CreatedBy = createdBy;
+            this.CreatedOn = createdOn;
+        }
         /// <summary>
         /// 商品SKUID
         /// </summary>
