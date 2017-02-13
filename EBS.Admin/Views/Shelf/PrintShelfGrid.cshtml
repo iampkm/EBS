@@ -30,7 +30,7 @@
                             <td @colspanInfo style="width: 80px; text-align: center;" >
                                 <b>@goods.Code</b><br />
                                 @(goods.ProductName.Length >= 12 ? goods.ProductName.Substring(0, 12) : goods.ProductName)<br />
-                                @goods.SalesPrice.ToString("F2")
+                                @goods.SalePrice.ToString("F2")
                             </td>
                             i++;
                         }
