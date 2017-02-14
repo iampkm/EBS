@@ -1,0 +1,92 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<!-- demo root element -->
+<div id="app">
+    <div class="box box-primary">
+        <div class="box-header">            
+            <ol class="breadcrumb" style="padding:0px;margin:1px;">
+                <li><a href="/Tool/Index"><i class="fa fa-dashboard"></i> 工具箱</a></li>
+                <li class="active"><a href="/Tool/Repair">库存修复</a></li>
+            </ol>
+        </div>
+        <div class="box-body">
+            <vue-table v-ref:vtable v-bind:columns="gridColumns"
+                       v-bind:url="url"
+                       v-bind:args="searchArgs" v-bind:data.sync="rows">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                    <div class="col-xs-3">
+                        <input class="form-control" v-model="searchArgs.code" placeholder="单据号" debounce="500" />
+                    </div>
+                </div>
+                <span class="input-group-btn" slot="customButtons">
+                    @*<a class="btn btn-warning btn-flat" href="/Role/Create">新 增</a>*@
+                    <button type="button" class="btn btn-default btn-flat" v-on:click="remove()">修复</button>
+                </span>
+            </vue-table>
+        </div>
+        <!-- /.box-body -->
+    </div>
+    <div class="clearfix"></div>
+</div>
+@{Html.RenderPartial("VueTableTemplate");}
+@section scripts{
+    <script src="~/Content/Vue/vuetable/vuetable.js"></script>
+    <script>
+
+        // bootstrap the demo
+        var demo = new Vue({
+            el: '#app',
+            data: {
+                searchQuery: '',
+                gridColumns: [
+                    { name: 'ProductId', localName: '商品编码'},
+                    { name: 'Quantity', localName: '库存数' },
+                    { name: 'ChangeQuantity', localName: '改变数量' },
+                    { name: 'BillCode', localName: '单据号' },
+                    { name: 'BillType', localName: '单据类型' },
+                    { name: 'BatchNo', localName: '批次号' },
+                    { name: 'Id', localName: 'Id' },
+
+                ],
+                url: "/Tool/QueryStoreInventoryHistory",
+                searchArgs: { code: '' },
+                rows: []
+            },
+            methods: {
+                remove: function () {
+                    var selectRow = this.rows.filter(function (item, index) {
+                        if (item.checked) {
+                            return true;
+                        }
+                    });
+                    if (selectRow.length == 0) {
+                        bootbox.alert("请选择一条记录");
+                        return;
+                    }
+                    var row = selectRow[0];                    
+                    v_self = this;
+                    $.post("/Tool/RepairInventory", row, function (result) {
+                        if (result.success) {
+                            v_self.$refs.vtable.loadData();
+                        }
+                        else {
+                            bootbox.alert(result.error);
+                        }
+                    }, "json");
+                   
+                    //bootbox.confirm("您确定删除该记录？", function (result) {
+                    //if (result) {
+
+                    //}
+                    //});
+                }
+            }
+        })
+
+    </script>
+}
+
+
+

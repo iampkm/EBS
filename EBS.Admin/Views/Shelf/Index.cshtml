@@ -507,6 +507,7 @@
                                 });
                                 //刷新表格
                                 _self.$refs.vtable.loadData();
+                                _self.shelfProduct.productCodeOrBarCode ="";
                             }
                             else {
                                 bootbox.alert(result.error);

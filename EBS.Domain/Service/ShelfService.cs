@@ -235,6 +235,7 @@ namespace EBS.Domain.Service
             var curentLayerGoodsList = _db.Table.FindAll<ShelfLayerProduct>(n => n.ShelfLayerId == shelfLayerId).OrderBy(n => n.Number).ToList();
             int number = 1;
             //全部重新排序
+            var waitReOrderProducts = new List<ShelfLayerProduct>();
             foreach (var item in curentLayerGoodsList)
             {
                 if (idArray.Contains(item.Id)) {
@@ -243,11 +244,12 @@ namespace EBS.Domain.Service
 
                 item.Number = number;
                 item.Code = item.Code.Substring(0, item.Code.Length - 2) + item.Number.ToString().PadLeft(2, '0');
-                number += 1;               
+                number += 1;
+                waitReOrderProducts.Add(item);
             }
-            if (curentLayerGoodsList.Count > 0)
+            if (waitReOrderProducts.Count > 0)
             {
-                _db.Update<ShelfLayerProduct>(curentLayerGoodsList.ToArray());
+                _db.Update<ShelfLayerProduct>(waitReOrderProducts.ToArray());
             }
            
         }        

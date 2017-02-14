@@ -1,0 +1,37 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!-- demo root element -->
+<div id="app" class="box box-primary">
+    <div class="box-header with-border">
+        <ol class="breadcrumb" style="padding:0px;margin:1px;">
+            <li><a href="/Tool/Index"><i class="fa fa-dashboard"></i> 工具箱</a></li>          
+        </ol>
+    </div>
+    <!-- /.box-header -->
+    <!-- form start -->
+    <form v-on:submit.prevent="onSubmit">
+        <div class="box-body">
+            <v-form v-bind:valid.sync="valid">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <ul class="list-group">
+                            <li class="list-group-item"><a href="/Tool/Repair">订单重复扣减库存修复</a></li>
+                            <li class="list-group-item"><a href="/Tool/OrderRepair">订单未扣减库存修复</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </v-form>
+        </div>
+        <!-- /.box-body -->
+        <div class="box-footer">
+           
+        </div>
+    </form>
+</div>
+
+
+

@@ -54,8 +54,8 @@ namespace EBS.Application.Facade
             {
                 if (_db.Table.Exists<StoreInventoryHistory>(n => n.BillCode == model.Code))
                 {
-                    _log.Info("订单{0}库存已扣减", model.Code);
-                    throw new Exception(string.Format("订单{0}库存已扣减", model.Code));
+                    _log.Info("订单{0}库存流水已存在", model.Code);
+                    throw new Exception(string.Format("订单{0}库存流水已存在", model.Code));
                 }
 
                 var entity = _db.Table.Find<SaleOrder>(n => n.Code == model.Code);
@@ -125,8 +125,8 @@ namespace EBS.Application.Facade
         {
             if (_db.Table.Exists<StoreInventoryHistory>(n => n.BillCode == saleOrderCode))
             {
-                _log.Info("订单{0}库存已扣减", saleOrderCode);
-                throw new Exception(string.Format("订单{0}库存已扣减", saleOrderCode));
+                _log.Info("订单{0}库存流水已存在", saleOrderCode);
+                throw new Exception(string.Format("订单{0}库存流水已存在", saleOrderCode));
             }           
 
             var entity = _db.Table.Find<SaleOrder>(n => n.Code == saleOrderCode);

@@ -1,0 +1,86 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+@section styles{
+}
+<!-- demo root element -->
+<div id="app" class="box box-primary">
+    <div class="box-header with-border">
+        <ol class="breadcrumb" style="padding:0px;margin:1px;">
+            <li><a href="/Tool/Index"><i class="fa fa-dashboard"></i> 工具箱</a></li>
+            <li class="active"><a href="/Tool/OrderRepair">订单未扣减库存修复</a></li>
+        </ol>
+    </div>
+    <!-- /.box-header -->
+    <!-- form start -->
+    <form v-on:submit.prevent="onSubmit">
+        <div class="box-body">
+            <v-form v-bind:valid.sync="valid">
+                <div class="row">
+                    <div class="col-sm-4 col-xs-4">
+                        <v-input type="textarea" label="订单编号：" v-bind:value.sync="model.saleOrderCodes" placeholder="订单编号" required icon></v-input>
+                    </div>
+                </div>  
+                <p>{{{model.result}}}</p>              
+            </v-form>
+        </div>
+        <!-- /.box-body -->
+        <div class="box-footer">
+            <div class="row">
+                <div class="col-sm-4 col-xs-4">
+                    <button type="submit" class="btn btn-warning btn-flat" v-bind:disabled="!valid">保 存</button>
+                    @*<a class="btn btn-default btn-flat" href="/Role/Index">取 消</a>*@
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+@section scripts{
+    <script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
+    <script>
+        $("doucument").ready(function () {
+            var demo = new Vue({
+                components: {
+                    'v-input': VueStrap.input,
+                    'v-form': VueStrap.formGroup
+                },
+                el: '#app',
+                data: {
+                    valid: false,
+                    model: {
+                        saleOrderCodes: '',
+                        result:''
+                    },
+                },
+                methods: {
+                    onSubmit: function () {
+                        //获取选择节点
+                        var v_data = {
+                            saleOrderCodes: this.model.saleOrderCodes
+                        }
+                        var _self = this;
+                        $.post("/Tool/OrderRepair", v_data, function (result) {
+                            if (result.success) {
+                                _self.model.result = result.message;
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
+                    }
+                }
+            });
+          
+
+        });
+
+
+
+    </script>
+}
+
+
+
+
+
