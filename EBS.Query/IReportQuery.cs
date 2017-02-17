@@ -10,5 +10,7 @@ namespace EBS.Query
    public interface IReportQuery
     {
        IEnumerable<PurchaseSaleInventoryDto> QueryPurchaseSaleInventorySummary(Pager page, PurchaseSaleInventorySearch condition);
+
+       IEnumerable<PurchaseSaleInventoryDetailDto> QueryPurchaseSaleInventoryDetail(Pager page, PurchaseSaleInventoryDetailSearch condition);
     }
 }

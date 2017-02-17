@@ -8,6 +8,10 @@ namespace EBS.Query.DTO
 {
    public class PurchaseSaleInventoryDto
     {
+       /// <summary>
+       /// 门店Id
+       /// </summary>
+       public int Id { get; set; }
        public string StoreName { get; set; }
 
        //public string Month { get; set; }
@@ -30,8 +34,27 @@ namespace EBS.Query.DTO
        /// </summary>
        public decimal SaleAmount { get; set; }
 
+       /// <summary>
+       /// 毛利额
+       /// </summary>
+       public decimal ProfitAmount { get {
+           return SaleAmount - SaleCostAmount;
+       } }
+       /// <summary>
+       /// 毛利率
+       /// </summary>
+       public decimal ProfitPercent { get {
+           if (SaleAmount == 0) { return 0; }
+           var result = decimal.Round((SaleAmount - SaleCostAmount) / SaleAmount * 100,2);
+           return result;
+       } }
+
        public int EndInventoryQuantity { get; set; }
 
        public decimal EndInventoryAmount { get; set; }
+
+       public string StartDate { get; set; }
+
+       public string EndDate { get; set; }
     }
 }

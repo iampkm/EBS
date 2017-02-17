@@ -1264,9 +1264,6 @@
     <Content Include="Views\StorePurchaseOrder\RefundEdit.cshtml" />
     <Content Include="Views\StorePurchaseOrder\RefundDetails.cshtml" />
     <Content Include="Views\StorePurchaseOrder\WaitStockOut.cshtml" />
-    <Content Include="Views\Report\SaleOrderItems.cshtml" />
-    <Content Include="Views\Report\SaleSummary.cshtml" />
-    <Content Include="Views\Report\SaleCheck.cshtml" />
     <Content Include="Views\Product\PriceTag.cshtml" />
     <Content Include="Views\Product\PrintPriceTag.cshtml" />
     <Content Include="Views\TransferOrder\Create.cshtml" />
@@ -1274,7 +1271,6 @@
     <Content Include="Views\TransferOrder\AuditIndex.cshtml" />
     <Content Include="Views\TransferOrder\Detail.cshtml" />
     <Content Include="Views\TransferOrder\Index.cshtml" />
-    <Content Include="Views\Report\SaleSync.cshtml" />
     <Content Include="Views\SaleOrder\Details.cshtml" />
     <Content Include="Views\SaleOrder\Index.cshtml" />
     <Content Include="Views\SaleOrder\SaleSummary.cshtml" />
@@ -1296,6 +1292,7 @@
     <Content Include="Views\Tool\Repair.cshtml" />
     <Content Include="Views\Tool\Index.cshtml" />
     <Content Include="Views\Tool\OrderRepair.cshtml" />
+    <Content Include="Views\Report\PurchaseSaleInventoryDetail.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">

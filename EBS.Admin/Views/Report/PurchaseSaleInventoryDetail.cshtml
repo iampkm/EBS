@@ -20,13 +20,17 @@
         <div class="box-header">
             <ol class="breadcrumb" style="padding:0px;margin:1px;">
                 <li><a href="/Report/PurchaseSaleInventory"><i class="fa fa-dashboard"></i>进销存报表</a></li>
+                <li><a href="/Report/PurchaseSaleInventoryDetail/{{searchArgs.storeId}}?startDate={{searchArgs.startDate}}&endDate={{searchArgs.endDate}}">进销存明细报表</a></li>
             </ol>
         </div>
         <div class="box-body">
             <vue-table v-ref:vtable v-bind:columns="gridColumns"
                        v-bind:url="url"
-                       v-bind:args="searchArgs" v-bind:data.sync="rows" show-pagination="true" show-toolbar="false">
-                <div class="row" style="margin-bottom:10px;" slot="customSearch">                    
+                       v-bind:args="searchArgs" v-bind:data.sync="rows"  show-toolbar="false">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                    <div class="col-xs-2">
+                        <input class="form-control" v-model="searchArgs.productCodeOrBarCode" placeholder="商品编码/条码" debounce="500" />
+                    </div>
                     <div class="col-sm-2 col-xs-3" v-show="selectStore.view">
                         <div class="input-group ">
                             <input type="hidden" class="form-control" v-model="searchArgs.storeId">
@@ -90,7 +94,9 @@
             el: '#app',
             data: {
                 gridColumns: [
-                    { name: 'StoreName', localName: '门店', style: "<a href='/Report/PurchaseSaleInventoryDetail/{id}?startDate={StartDate}&endDate={EndDate}'>{column}</a>"  },
+                    { name: 'ProductCode', localName: '商品编码',width:100 },
+                    { name: 'BarCode', localName: '条码',visiable:false },
+                    { name: 'ProductName', localName: '品名',width:200 },
                     { name: 'PreInventoryQuantity', localName: '期初库存' ,width:100},
                     { name: 'PreInventoryAmount', localName: '期初库存金额'},
                     { name: 'PurchaseQuantity', localName: '本期入库',width:120 },
@@ -103,8 +109,8 @@
                     { name: 'EndInventoryQuantity', localName: '期末库存',width:100 },
                     { name: 'EndInventoryAmount', localName: '期末库存金额' },
                 ],
-                url: "/Report/QueryPurchaseSaleInventorySummary",
-                searchArgs: { storeId: @ViewBag.StoreId, startDate: '@ViewBag.StartDate',endDate:'@ViewBag.EndDate'},
+                url: "/Report/QueryPurchaseSaleInventoryDetail",
+                searchArgs: { storeId: @ViewBag.StoreId, startDate: '@ViewBag.StartDate',endDate:'@ViewBag.EndDate',productCodeOrBarCode:''},
                 rows: [],
                 selectStore: {
                     modal: false,
@@ -112,7 +118,7 @@
                     view: @ViewBag.View,
                 }
             },
-            methods: {                
+            methods: {
                 showStore: function () {
                     this.selectStore.modal = true;
                 },
@@ -170,6 +176,10 @@
 
     </script>
 }
+
+
+
+
 
 
 

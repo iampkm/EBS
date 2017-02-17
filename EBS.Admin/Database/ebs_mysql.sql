@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2017-02-10 17:06:03                          */
+/* Created on:     2017-02-17 15:25:23                          */
 /*==============================================================*/
 
 
@@ -86,6 +86,10 @@ drop index idx_saleorder_code on SaleOrder;
 
 drop table if exists SaleOrder;
 
+drop index idx_saleorderitem_productid on SaleOrderItem;
+
+drop index idx_saleorderitem_saleorderid on SaleOrderItem;
+
 drop table if exists SaleOrderItem;
 
 drop index idx_SaleSync on SaleSync;
@@ -109,6 +113,8 @@ drop table if exists StocktakingPlanItem;
 drop index idx_store_Code on Store;
 
 drop table if exists Store;
+
+drop index idx_storeInventory_pidAndStoreId on StoreInventory;
 
 drop index idx_storeInventory_pid on StoreInventory;
 
@@ -753,6 +759,22 @@ create table SaleOrderItem
 );
 
 /*==============================================================*/
+/* Index: idx_saleorderitem_saleorderid                         */
+/*==============================================================*/
+create index idx_saleorderitem_saleorderid on SaleOrderItem
+(
+   SaleOrderId
+);
+
+/*==============================================================*/
+/* Index: idx_saleorderitem_productid                           */
+/*==============================================================*/
+create index idx_saleorderitem_productid on SaleOrderItem
+(
+   ProductId
+);
+
+/*==============================================================*/
 /* Table: SaleSync                                              */
 /*==============================================================*/
 create table SaleSync
@@ -955,6 +977,15 @@ alter table StoreInventory comment 'це╣Й©Б╢Ф';
 /*==============================================================*/
 create index idx_storeInventory_pid on StoreInventory
 (
+   ProductId
+);
+
+/*==============================================================*/
+/* Index: idx_storeInventory_pidAndStoreId                      */
+/*==============================================================*/
+create index idx_storeInventory_pidAndStoreId on StoreInventory
+(
+   StoreId,
    ProductId
 );
 
