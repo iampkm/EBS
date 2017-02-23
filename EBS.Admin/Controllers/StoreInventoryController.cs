@@ -48,6 +48,9 @@ namespace EBS.Admin.Controllers
 
         public ActionResult History()
         {
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+            ViewBag.StoreId = _context.CurrentAccount.StoreId;
+            ViewBag.StoreName = _context.CurrentAccount.StoreName;
             return View();
         }
         public JsonResult LoadDataHistory(Pager page, SearchStoreInventoryHistory condition)
@@ -58,6 +61,9 @@ namespace EBS.Admin.Controllers
         }
         public ActionResult Batch()
         {
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+            ViewBag.StoreId = _context.CurrentAccount.StoreId;
+            ViewBag.StoreName = _context.CurrentAccount.StoreName;
             return View();
         }
         public JsonResult LoadDataBatch(Pager page, SearchStoreInventoryBatch condition)

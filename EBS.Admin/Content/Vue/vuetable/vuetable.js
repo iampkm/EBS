@@ -66,17 +66,20 @@
                 self.columns.$set(i, obj)
             })
         },
-        setColumnStyle: function (columnStyle, column, key, data) {
+        setColumnStyle: function (columnStyle, column, key, item) {
             if (columnStyle == "") {
                 return column;
             }
             columnStyle = columnStyle.replace('{column}', column).replace("{id}", key);
             // 替换 自定义列
-            for (var i = 0; i < data.length; i++) {
-                var item = data[i];
-                for (var col in item) {
-                    columnStyle = columnStyle.replace("{" + col + "}", item[col]);
-                }
+            //for (var i = 0; i < data.length; i++) {
+            //    var item = data[i];
+            //    for (var col in item) {
+            //        columnStyle = columnStyle.replace("{" + col + "}", item[col]);
+            //    }
+            //}
+            for (var col in item) {
+                columnStyle = columnStyle.replace("{" + col + "}", item[col]);
             }
             return columnStyle;
         },

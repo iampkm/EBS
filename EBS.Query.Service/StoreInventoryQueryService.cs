@@ -98,8 +98,7 @@ where 1=1 {0}";
             string sql = @"select t0.*,t1.`Code` as ProductCode ,t1.`Name` as ProductName,t1.BarCode,t1.Specification,t2.`name` as StoreName
 from storeinventoryhistory t0 left join product t1 on t0.productId = t1.Id
 inner join store t2 on t2.Id = t0.StoreId 
-where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
-            //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<Product>(where, param);
+where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";          
             sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
             var rows = this._query.FindAll<StoreInventoryHistoryQueryDto>(sql, param);
 

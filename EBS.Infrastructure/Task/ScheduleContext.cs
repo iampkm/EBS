@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Timers;
 //using System.Threading;
+using EBS.Infrastructure.Log;
 namespace EBS.Infrastructure.Task
 {
     public class ScheduleContext
@@ -18,7 +19,8 @@ namespace EBS.Infrastructure.Task
        public static void Start(){
            if (string.IsNullOrEmpty(TaskConfigPath)) { throw new Exception("自动任务配置文件根路径未配置TaskConfigPath"); }
            _schedule = new DefaultSchedule(ScheduleContext.TaskConfigPath);
-          
+           ILogger log = AppContext.Current.Resolve<ILogger>();
+           log.Info("自动任务已启动");
            _timer = new Timer(1000);
            _timer.Elapsed += timer_Elapsed;
            _timer.Enabled = true;

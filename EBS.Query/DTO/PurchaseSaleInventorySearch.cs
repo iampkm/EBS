@@ -10,8 +10,8 @@ namespace EBS.Query.DTO
     {
        public int StoreId { get; set; }
 
-       public DateTime StartDate { get; set; }
+       public int Year { get; set; }
 
-       public DateTime EndDate { get; set; }
+       public int Month { get; set; }
     }
 }

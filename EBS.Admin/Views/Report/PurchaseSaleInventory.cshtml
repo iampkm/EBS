@@ -25,8 +25,8 @@
         <div class="box-body">
             <vue-table v-ref:vtable v-bind:columns="gridColumns"
                        v-bind:url="url"
-                       v-bind:args="searchArgs" v-bind:data.sync="rows" show-pagination="true" show-toolbar="false">
-                <div class="row" style="margin-bottom:10px;" slot="customSearch">                    
+                       v-bind:args="searchArgs" v-bind:data.sync="rows" v-bind:show-toolbar="isAdmin">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch">
                     <div class="col-sm-2 col-xs-3" v-show="selectStore.view">
                         <div class="input-group ">
                             <input type="hidden" class="form-control" v-model="searchArgs.storeId">
@@ -38,32 +38,31 @@
                         </div>
                     </div>
                     <div class="form-group col-sm-2 col-xs-3">
-                        <div class="input-group date" data-provide="datepicker" data-date-format="yyyy-mm-dd"
-                             data-date-language="zh-CN" data-date-clear-btn="true" data-date-autoclose="true">
-                            <div class="input-group-addon">
-                                <i class="fa fa-calendar"></i>
-                                <span>日期从</span>
-                            </div>
-                            <input type="text" class="form-control" v-model="searchArgs.startDate" readonly debounce="500">
+                        <div class="input-group">
+                            <span class="input-group-addon">年</span>
+                            <select name="brand" class="form-control" v-model="searchArgs.year">                           
+                                @foreach (var year in ViewBag.Years)
+                                {
+                                    <option value="@year">@year</option>
+                                }
+                            </select>
                         </div>
                     </div>
                     <div class="form-group col-sm-2 col-xs-3">
-                        <div class="input-group date " data-provide="datepicker" data-date-format="yyyy-mm-dd"
-                             data-date-language="zh-CN" data-date-clear-btn="true" data-date-autoclose="true">
-                            <div class="input-group-addon">
-                                <i class="fa fa-calendar"></i>
-                                <span>到</span>
-                            </div>
-                            <input type="text" class="form-control" v-model="searchArgs.endDate" readonly debounce="500">
+                        <div class="input-group">
+                            <span class="input-group-addon">月</span>
+                            <select name="brand" class="form-control" v-model="searchArgs.month">
+                                @for (var i = 1; i <= 12; i++)
+                                {
+                                    <option value="@(i)">@(i)</option>
+                                }
+                            </select>
                         </div>
-                    </div>                    
+                    </div>
                 </div>
-                @*<span class="input-group-btn" slot="customButtons">
-                        <a class="btn btn-warning btn-flat" href="/Report/Create">新 增</a>
-                        <a class="btn btn-primary btn-flat" href="/Report/CreateGift">新增赠品单</a>
-                        <button type="button" class="btn btn-success btn-flat" v-on:click="submitAudit()">收货</button>
-                        <button type="button" class="btn btn-danger btn-flat" v-on:click="remove()">作 废</button>
-                    </span>*@
+                <span class="input-group-btn" slot="customButtons">               
+                    <button type="button" class="btn btn-success btn-flat" v-show="isAdmin" v-on:click="execute()">生成进销存报表</button>                   
+                </span>
             </vue-table>
         </div>
         <!-- /.box-body -->
@@ -90,7 +89,7 @@
             el: '#app',
             data: {
                 gridColumns: [
-                    { name: 'StoreName', localName: '门店', style: "<a href='/Report/PurchaseSaleInventoryDetail/{id}?startDate={StartDate}&endDate={EndDate}'>{column}</a>"  },
+                    { name: 'StoreName', localName: '门店', style: "<a href='/Report/PurchaseSaleInventoryDetail/{StoreId}?yearMonth={YearMonth}'>{column}</a>"  },
                     { name: 'PreInventoryQuantity', localName: '期初库存' ,width:100},
                     { name: 'PreInventoryAmount', localName: '期初库存金额'},
                     { name: 'PurchaseQuantity', localName: '本期入库',width:120 },
@@ -104,15 +103,33 @@
                     { name: 'EndInventoryAmount', localName: '期末库存金额' },
                 ],
                 url: "/Report/QueryPurchaseSaleInventorySummary",
-                searchArgs: { storeId: @ViewBag.StoreId, startDate: '@ViewBag.StartDate',endDate:'@ViewBag.EndDate'},
+                searchArgs: { storeId: @ViewBag.StoreId, year: @DateTime.Now.Year,month:@DateTime.Now.Month },
                 rows: [],
                 selectStore: {
                     modal: false,
                     name: '@ViewBag.StoreName',
                     view: @ViewBag.View,
-                }
+                },
+                isAdmin:@ViewBag.IsAdmin
             },
-            methods: {                
+            methods: { 
+                execute:function(){
+                    var _self =this;
+                    bootbox.confirm("您确定提交该记录？", function (result) {
+                        if (result) {
+                            $.post("/Report/Generate", { year: _self.searchArgs.year,month:_self.searchArgs.month }, function (result) {
+                                if (result.success) {
+                                    bootbox.alert("生成成功！", function () {
+                                        _self.$refs.vtable.loadData();
+                                    });                                   
+                                }
+                                else {
+                                    bootbox.alert(result.error);
+                                }
+                            }, "json");
+                        }
+                    });
+                },
                 showStore: function () {
                     this.selectStore.modal = true;
                 },

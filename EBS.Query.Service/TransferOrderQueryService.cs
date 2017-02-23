@@ -33,19 +33,21 @@ namespace EBS.Query.Service
                 where += "and o.Status=@Status ";
                 param.Status = condition.Status;
             }
-            //if (string.IsNullOrEmpty(where))
-            //{
-            //    return new List<TransferOrderDto>();
-            //}             
+                   
             string sql = @"select o.Id,o.Code,o.FromStoreName,o.ToStoreName,o.Status,o.CreatedByName,o.UpdatedByName,o.CreatedOn, t.TotalQuantity,t.TotalAmount
 from transferorder o left join 
 (select i.TransferOrderId,sum(i.Quantity) as TotalQuantity ,sum(i.price* i.Quantity) as TotalAmount 
 from transferorderitem i GROUP BY i.transferorderId ) t on o.Id = t.TransferOrderId
-where 1=1 {0} ORDER BY o.Id desc ";
+where 1=1 {0} ORDER BY o.Id desc LIMIT {1},{2}";
             //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<Product>(where, param);
-            sql = string.Format(sql, where);
+            sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
             var rows = this._query.FindAll<TransferOrderDto>(sql, param);
-           // page.Total = this._query.Count<TransferOrder>(where, param);
+            string sqlCount = @"select count(*) from transferorder o left join 
+(select i.TransferOrderId,sum(i.Quantity) as TotalQuantity ,sum(i.price* i.Quantity) as TotalAmount 
+from transferorderitem i GROUP BY i.transferorderId ) t on o.Id = t.TransferOrderId
+where 1=1 {0} ORDER BY o.Id desc ";
+            sqlCount = string.Format(sqlCount, where);
+            page.Total = this._query.Context.ExecuteScalar<int>(sqlCount, param);
 
             return rows;
         }

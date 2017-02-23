@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2017-02-17 15:25:23                          */
+/* Created on:     2017-02-22 14:18:55                          */
 /*==============================================================*/
 
 
@@ -76,9 +76,19 @@ drop table if exists PurchaseOrder;
 
 drop table if exists PurchaseOrderItem;
 
+drop index idx_PurchaseSaleInventory_storeid on PurchaseSaleInventory;
+
+drop table if exists PurchaseSaleInventory;
+
+drop index idx_PurchaseSaleInventoryDetail_pk on PurchaseSaleInventoryDetail;
+
+drop table if exists PurchaseSaleInventoryDetail;
+
 drop table if exists Role;
 
 drop table if exists RoleMenu;
+
+drop index idx_saleorder_StoreIdAndupdatedOn on SaleOrder;
 
 drop index idx_saleorder_updatedOn on SaleOrder;
 
@@ -672,6 +682,72 @@ create table PurchaseOrderItem
 alter table PurchaseOrderItem comment '采购订单明细';
 
 /*==============================================================*/
+/* Table: PurchaseSaleInventory                                 */
+/*==============================================================*/
+create table PurchaseSaleInventory
+(
+   YearMonth            int comment '年',
+   StoreId              int comment '门店',
+   StoreName            varchar(100) comment '门店名',
+   PreInventoryQuantity int comment '期初库存',
+   PreInventoryAmount   decimal(12,4) comment '期初库存金额',
+   PurchaseQuantity     int comment '本期入库数',
+   PurchaseAmount       decimal(12,4) comment '本期入库金额',
+   SaleQuantity         int comment '本期销售数',
+   SaleCostAmount       decimal(12,4) comment '本期销售成本金额',
+   SaleAmount           decimal(12,2) comment '本期销售金额',
+   EndInventoryQuantity int comment '期末库存数',
+   EndInventoryAmount   decimal(12,4) comment '期末库存金额',
+   UpdatedOn            datetime comment '更新时间'
+);
+
+alter table PurchaseSaleInventory comment '进销存报表';
+
+/*==============================================================*/
+/* Index: idx_PurchaseSaleInventory_storeid                     */
+/*==============================================================*/
+create unique index idx_PurchaseSaleInventory_storeid on PurchaseSaleInventory
+(
+   YearMonth,
+   StoreId
+);
+
+/*==============================================================*/
+/* Table: PurchaseSaleInventoryDetail                           */
+/*==============================================================*/
+create table PurchaseSaleInventoryDetail
+(
+   YearMonth            int comment '年月',
+   StoreId              int comment '门店id',
+   ProductId            int comment '商品编码',
+   ProductCode          varchar(20) comment '商品代码',
+   BarCode              varchar(20) comment '条码',
+   ProductName          varchar(50) comment '品名',
+   PreInventoryQuantity int comment '期初库存',
+   PreInventoryAmount   decimal(12,4) comment '期初库存金额',
+   PurchaseQuantity     int comment '本期入库数',
+   PurchaseAmount       decimal(12,4) comment '本期入库金额',
+   SaleQuantity         int comment '本期销售数',
+   SaleCostAmount       decimal(12,4) comment '本期销售成本金额',
+   SaleAmount           decimal(12,2) comment '本期销售金额',
+   EndInventoryQuantity int comment '期末库存数',
+   EndInventoryAmount   decimal(12,4) comment '期末库存金额',
+   UpdatedOn            datetime comment '更新时间'
+);
+
+alter table PurchaseSaleInventoryDetail comment '进销存明细报表';
+
+/*==============================================================*/
+/* Index: idx_PurchaseSaleInventoryDetail_pk                    */
+/*==============================================================*/
+create unique index idx_PurchaseSaleInventoryDetail_pk on PurchaseSaleInventoryDetail
+(
+   YearMonth,
+   StoreId,
+   ProductId
+);
+
+/*==============================================================*/
 /* Table: Role                                                  */
 /*==============================================================*/
 create table Role
@@ -738,6 +814,16 @@ create unique index idx_saleorder_code on SaleOrder
 /*==============================================================*/
 create index idx_saleorder_updatedOn on SaleOrder
 (
+   UpdatedOn
+);
+
+/*==============================================================*/
+/* Index: idx_saleorder_StoreIdAndupdatedOn                     */
+/*==============================================================*/
+create index idx_saleorder_StoreIdAndupdatedOn on SaleOrder
+(
+   StoreId,
+   Status,
    UpdatedOn
 );
 

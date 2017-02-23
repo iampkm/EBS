@@ -11,10 +11,10 @@ namespace EBS.Query.DTO
        /// <summary>
        /// 门店Id
        /// </summary>
-       public int Id { get; set; }
+       public int StoreId { get; set; }
        public string StoreName { get; set; }
 
-       //public string Month { get; set; }
+       public string YearMonth { get; set; }
 
        public int PreInventoryQuantity { get; set; }
 

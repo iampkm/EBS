@@ -9,6 +9,7 @@ using EBS.Admin.Services;
 using EBS.Infrastructure;
 using Dapper.DBContext;
 using EBS.Domain.Entity;
+using EBS.Domain.Service;
 namespace EBS.Admin.Controllers
 {
     [Permission]
@@ -36,12 +37,8 @@ namespace EBS.Admin.Controllers
             ViewBag.StoreId = _context.CurrentAccount.StoreId;
             ViewBag.StoreName = _context.CurrentAccount.StoreName;
             ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
-             var today = DateTime.Now;
-           // var today = new DateTime(2017, 1, 1);
-            var firstDay = new DateTime(today.Year, today.Month, 1);
-            ViewBag.StartDate = firstDay.ToString("yyyy-MM-dd");
-            ViewBag.EndDate = firstDay.AddMonths(1).AddDays(-1).ToString("yyyy-MM-dd");
-          
+            ViewBag.IsAdmin = _context.CurrentAccount.AccountId == 1 ? "true" : "false";
+            ViewBag.Years = _reportQuery.GetYears();
             return View();
         }
 
@@ -59,14 +56,16 @@ namespace EBS.Admin.Controllers
         /// <param name="startDate"></param>
         /// <param name="endDate"></param>
         /// <returns></returns>
-        public ActionResult PurchaseSaleInventoryDetail(int id,string startDate,string endDate)
+        public ActionResult PurchaseSaleInventoryDetail(int id,string yearMonth)
         {
             var model = _query.Find<Store>(id);
             ViewBag.StoreId = id;
-            ViewBag.StoreName = model.Name;
-            ViewBag.StartDate = startDate;
-            ViewBag.EndDate = endDate;
+            ViewBag.StoreName = model.Name;          
             ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+            ViewBag.IsAdmin = _context.CurrentAccount.AccountId == 1 ? "true" : "false";
+            ViewBag.Year = yearMonth.Substring(0, 4);
+            ViewBag.Month = yearMonth.Substring(yearMonth.Length-2, 2);
+            ViewBag.Years = _reportQuery.GetYears();
             return View();
         }
 
@@ -76,5 +75,23 @@ namespace EBS.Admin.Controllers
 
             return Json(new { success = true, data = rows, total = page.Total });
         }
+
+        public JsonResult Generate(int year, int month)
+        {            
+            var selectDate = new DateTime(year, month, 1);
+            PurchaseSaleInventoryTask task = new PurchaseSaleInventoryTask(selectDate);
+            task.Execute();
+            return Json(new { success = true });
+        }
+
+        public JsonResult GenerateDetail(int year, int month)
+        {
+            var selectDate = new DateTime(year, month, 1);
+            PurchaseSaleInventoryDetailTask task = new PurchaseSaleInventoryDetailTask(selectDate);
+            task.Execute();
+            return Json(new { success = true });
+        }
+
+       
     }
 }

@@ -103,7 +103,7 @@
                             <td v-show="showCheckbox" width="30px"><input type="checkbox" v-model="data[index].checked" /></td>
                             <template v-for="key in columns">
                                 <template v-if="key.visible">
-                                    <td v-bind:style="{width:key.width}">{{{setColumnStyle(key.style,entry[key.name],entry[id],data)}}}</td>
+                                    <td v-bind:style="{width:key.width}">{{{setColumnStyle(key.style,entry[key.name],entry[id],entry)}}}</td>
                                 </template>
                             </template>
                             <td><slot name="customColumn"></slot></td>
