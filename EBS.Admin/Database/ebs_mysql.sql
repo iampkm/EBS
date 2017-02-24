@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2017-02-22 14:18:55                          */
+/* Created on:     2017-02-24 09:38:50                          */
 /*==============================================================*/
 
 
@@ -76,11 +76,7 @@ drop table if exists PurchaseOrder;
 
 drop table if exists PurchaseOrderItem;
 
-drop index idx_PurchaseSaleInventory_storeid on PurchaseSaleInventory;
-
 drop table if exists PurchaseSaleInventory;
-
-drop index idx_PurchaseSaleInventoryDetail_pk on PurchaseSaleInventoryDetail;
 
 drop table if exists PurchaseSaleInventoryDetail;
 
@@ -686,8 +682,8 @@ alter table PurchaseOrderItem comment '采购订单明细';
 /*==============================================================*/
 create table PurchaseSaleInventory
 (
-   YearMonth            int comment '年',
-   StoreId              int comment '门店',
+   YearMonth            int not null comment '年',
+   StoreId              int not null comment '门店',
    StoreName            varchar(100) comment '门店名',
    PreInventoryQuantity int comment '期初库存',
    PreInventoryAmount   decimal(12,4) comment '期初库存金额',
@@ -698,28 +694,20 @@ create table PurchaseSaleInventory
    SaleAmount           decimal(12,2) comment '本期销售金额',
    EndInventoryQuantity int comment '期末库存数',
    EndInventoryAmount   decimal(12,4) comment '期末库存金额',
-   UpdatedOn            datetime comment '更新时间'
+   UpdatedOn            datetime comment '更新时间',
+   primary key (YearMonth, StoreId)
 );
 
 alter table PurchaseSaleInventory comment '进销存报表';
-
-/*==============================================================*/
-/* Index: idx_PurchaseSaleInventory_storeid                     */
-/*==============================================================*/
-create unique index idx_PurchaseSaleInventory_storeid on PurchaseSaleInventory
-(
-   YearMonth,
-   StoreId
-);
 
 /*==============================================================*/
 /* Table: PurchaseSaleInventoryDetail                           */
 /*==============================================================*/
 create table PurchaseSaleInventoryDetail
 (
-   YearMonth            int comment '年月',
-   StoreId              int comment '门店id',
-   ProductId            int comment '商品编码',
+   YearMonth            int not null comment '年月',
+   StoreId              int not null comment '门店id',
+   ProductId            int not null comment '商品编码',
    ProductCode          varchar(20) comment '商品代码',
    BarCode              varchar(20) comment '条码',
    ProductName          varchar(50) comment '品名',
@@ -732,20 +720,11 @@ create table PurchaseSaleInventoryDetail
    SaleAmount           decimal(12,2) comment '本期销售金额',
    EndInventoryQuantity int comment '期末库存数',
    EndInventoryAmount   decimal(12,4) comment '期末库存金额',
-   UpdatedOn            datetime comment '更新时间'
+   UpdatedOn            datetime comment '更新时间',
+   primary key (YearMonth, StoreId, ProductId)
 );
 
 alter table PurchaseSaleInventoryDetail comment '进销存明细报表';
-
-/*==============================================================*/
-/* Index: idx_PurchaseSaleInventoryDetail_pk                    */
-/*==============================================================*/
-create unique index idx_PurchaseSaleInventoryDetail_pk on PurchaseSaleInventoryDetail
-(
-   YearMonth,
-   StoreId,
-   ProductId
-);
 
 /*==============================================================*/
 /* Table: Role                                                  */
@@ -941,6 +920,9 @@ create table Stocktaking
    CreatedByName        nvarchar(50) comment '创建人名',
    CreatedOn            datetime comment '创建时间',
    Status               int comment '状态（待审，已审）',
+   UpdatedOn            datetime comment '修改时间',
+   UpdatedBy            int comment '修改人',
+   UpdatedByName        varchar(50) comment '修改人名',
    StoreId              int comment '门店',
    Note                 nvarchar(1000) comment '备注',
    primary key (Id)

@@ -65,7 +65,7 @@
                     </div>
                 </div>
                 <span class="input-group-btn" slot="customButtons">
-                    <button type="button" class="btn btn-success btn-flat" v-show="isAdmin" v-on:click="execute()">生成进销存明细报表</button>
+                    <button type="button" class="btn btn-success btn-flat" v-show="isAdmin" v-bind:disabled="enabled" v-on:click="execute()">生成进销存明细报表</button>
                     <a class="btn btn-default btn-flat" href="javascript:history.back()">返 回</a>
                 </span>
             </vue-table>
@@ -117,7 +117,8 @@
                     name: '@ViewBag.StoreName',
                 view: @ViewBag.View,
                 },
-            isAdmin:@ViewBag.IsAdmin
+            isAdmin:@ViewBag.IsAdmin,
+            enabled:false
 
         },
         methods: {
@@ -125,6 +126,7 @@
                 var _self =this;
                 bootbox.confirm("您确定提交该记录？", function (result) {
                     if (result) {
+                        _self.enabled = true;
                         $.post("/Report/GenerateDetail", { year: _self.searchArgs.year,month:_self.searchArgs.month }, function (result) {
                             if (result.success) {
                                 bootbox.alert("生成成功！", function () {
@@ -134,6 +136,7 @@
                             else {
                                 bootbox.alert(result.error);
                             }
+                            _self.enabled = false;
                         }, "json");
                     }
                 });

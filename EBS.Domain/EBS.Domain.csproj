@@ -67,6 +67,7 @@
     <Compile Include="Entity\ProductStorePrice.cs" />
     <Compile Include="Entity\PurchaseContract.cs" />
     <Compile Include="Entity\PurchaseContractItem.cs" />
+    <Compile Include="Entity\PurchaseSaleInventoryDetail.cs" />
     <Compile Include="Entity\RoleMenu.cs" />
     <Compile Include="Entity\SaleSync.cs" />
     <Compile Include="Entity\Shelf.cs" />

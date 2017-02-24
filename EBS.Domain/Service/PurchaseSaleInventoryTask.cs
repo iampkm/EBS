@@ -80,7 +80,7 @@ group by s.storeid
            var endDate = startDate.AddMonths(1); // 统计当月所有数据
             try
             {
-                _db.Command.Execute(sql, new { YearMonth = yearMonth, StartDate = startDate, EndDate = endDate, UpdatedOn = DateTime.Now });
+                _db.Command.Execute(sql, new { YearMonth = yearMonth, StartDate = startDate, EndDate = endDate, UpdatedOn = DateTime.Now },180);
             }
             catch (Exception ex)
             {
