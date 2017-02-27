@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EBS.Query.Service", "EBS.Qu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EBS.Test", "EBS.Test\EBS.Test.csproj", "{AFEF7BE6-56C4-4296-860D-A0182638B72C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EBS.AutoTask", "EBS.AutoTask\EBS.AutoTask.csproj", "{798B3A0E-6FFE-4AFC-A800-763A9B2399AF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,10 @@ Global
 		{AFEF7BE6-56C4-4296-860D-A0182638B72C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AFEF7BE6-56C4-4296-860D-A0182638B72C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AFEF7BE6-56C4-4296-860D-A0182638B72C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{798B3A0E-6FFE-4AFC-A800-763A9B2399AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{798B3A0E-6FFE-4AFC-A800-763A9B2399AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{798B3A0E-6FFE-4AFC-A800-763A9B2399AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{798B3A0E-6FFE-4AFC-A800-763A9B2399AF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -66,5 +72,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{623583C3-DE06-42C8-8217-C36B5F3B36AC} = {536754D2-2A92-4F1B-9CC8-452B5330FCA7}
 		{AFEF7BE6-56C4-4296-860D-A0182638B72C} = {536754D2-2A92-4F1B-9CC8-452B5330FCA7}
+		{798B3A0E-6FFE-4AFC-A800-763A9B2399AF} = {536754D2-2A92-4F1B-9CC8-452B5330FCA7}
 	EndGlobalSection
 EndGlobal

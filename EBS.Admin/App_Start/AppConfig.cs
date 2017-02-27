@@ -51,11 +51,11 @@ namespace EBS.Admin
             //DataAnnotationsModelValidatorProvider.AddImplicitRequiredAttributeForValueTypes = false;
             DependencyResolver.SetResolver(new AutofacDependencyResolver(AppContext.Container));
             // start auto task
-            if (Configer.OpenTask)
-            {
-                ScheduleContext.TaskConfigPath = HttpRuntime.AppDomainAppPath + "Task.Config";
-                ScheduleContext.Start();
-            }
+            //if (Configer.OpenTask)
+            //{
+            //    ScheduleContext.TaskConfigPath = HttpRuntime.AppDomainAppPath + "Task.Config";
+            //    ScheduleContext.Start();
+            //}
 
             // setting validator local
             // 设置 FluentValidation 默认的资源文件提供程序 - 中文资源
