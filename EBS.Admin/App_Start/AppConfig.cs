@@ -12,6 +12,9 @@ using EBS.Infrastructure.Log;
 using EBS.Admin.Services;
 using Dapper.DBContext;
 using FluentValidation;
+using EBS.Application;
+using EBS.Application.Facade;
+using EBS.Infrastructure.Queue;
 namespace EBS.Admin
 {
     public class AppConfig
@@ -29,7 +32,11 @@ namespace EBS.Admin
            builder.RegisterType<ContextService>().As<IContextService>().InstancePerLifetimeScope();
             // register database connection
            builder.RegisterType<DapperDBContext>().As<IDBContext>().WithParameter("connectionStringName", "masterDB");
-           builder.RegisterType<QueryService>().As<IQuery>().WithParameter("connectionStringName", "masterDB");                                                                         
+           builder.RegisterType<QueryService>().As<IQuery>().WithParameter("connectionStringName", "masterDB");                                                             
+            
+            //注册销售单队列处理，单例
+           builder.RegisterType<PosSyncFacade>().As<IQueueHander<string>>();
+           builder.RegisterType<SimpleQueue<string>>().As<ISimpleQueue<string>>().SingleInstance();
           // builder.RegisterInstance(new DapperDBContext(Configer.MasterDB)).As<IDBContext>().InstancePerLifetimeScope();
           // builder.RegisterType<DapperDBContext>().WithParameter(Configer.MasterDB).As<IDBContext>().SingleInstance();
            // builder.RegisterAssemblyTypes(webAssembly);

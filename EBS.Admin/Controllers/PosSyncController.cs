@@ -16,6 +16,9 @@ using EBS.Infrastructure.Events;
 using Newtonsoft.Json.Converters;
 using EBS.Infrastructure.Log;
 using EBS.Application.DTO;
+using System.Collections.Concurrent;
+using System.Threading.Tasks;
+using EBS.Infrastructure.Queue;
 namespace EBS.Admin.Controllers
 {
     /// <summary>
@@ -27,12 +30,18 @@ namespace EBS.Admin.Controllers
         IPosSyncFacade _posFacade;
         ILogger _log;
         IAccessTokenFacade _accessTokenFacade;
-        public PosSyncController(IPosSyncQuery query,IPosSyncFacade posFacade,ILogger log,IAccessTokenFacade accessTokenFacade)
+        ISimpleQueue<string> _saleQueue;
+        // 订单队列
+      //  private static BlockingCollection<string> _requestOrderQueue = new BlockingCollection<string>();
+
+       
+        public PosSyncController(IPosSyncQuery query,IPosSyncFacade posFacade,ILogger log,IAccessTokenFacade accessTokenFacade,ISimpleQueue<string> isaleQueue)
         {
             _posQuery = query;
             _posFacade = posFacade;
             _log = log;
             _accessTokenFacade = accessTokenFacade;
+            _saleQueue = isaleQueue;            
         }
         public string QueryAccount(AccessTokenModel token)
         {
@@ -161,9 +170,16 @@ namespace EBS.Admin.Controllers
             {
                 _log.Info("SaleOrderSync request:body={0}", body);
                 _accessTokenFacade.ValidateCDKey(token);
-                _posFacade.SaleOrderSync(body);
-                _log.Info("SaleOrderSync request:success");
-                return "1";
+               // _posFacade.SaleOrderSync(body);
+                if (_saleQueue.Add(body)) //加入订单消费队列
+                {
+                    _log.Info("SaleOrderSync request:success");
+                    return "1";
+                }
+                else {
+                    _log.Info("SaleOrderSync request:failed");
+                    return "0";
+                }
             }
             catch (Exception ex)
             {

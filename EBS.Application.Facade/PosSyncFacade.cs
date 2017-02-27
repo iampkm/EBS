@@ -11,9 +11,10 @@ using Newtonsoft.Json;
 using EBS.Domain.Service;
 using EBS.Domain.ValueObject;
 using EBS.Infrastructure.Log;
+using EBS.Infrastructure.Queue;
 namespace EBS.Application.Facade
 {
-   public class PosSyncFacade:IPosSyncFacade
+    public class PosSyncFacade : IPosSyncFacade, IQueueHander<string>
     {
        IDBContext _db;
         ProductService _productService;
@@ -149,6 +150,16 @@ namespace EBS.Application.Facade
 
             _db.SaveChange();
             _log.Info("订单{0}库存已增减", saleOrderCode);
+        }
+
+
+        /// <summary>
+        /// 队列处理销售单
+        /// </summary>
+        /// <param name="t"></param>
+        public void Hander(string t)
+        {
+            SaleOrderSync(t);
         }
     }
 }
