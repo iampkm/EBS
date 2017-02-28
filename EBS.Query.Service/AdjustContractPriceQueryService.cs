@@ -26,7 +26,8 @@ namespace EBS.Query.Service
             string where = "";
             if (!string.IsNullOrEmpty(condition.ProductCodeOrBarCode))
             {
-                where += "and (p.`Code`=@ProductCodeOrBarCode or p.BarCode=@ProductCodeOrBarCode)";
+                where += @"and a.Id in( select i.AdjustContractPriceId from adjustcontractpriceitem i left join product p on p.id = i.ProductId
+where (p.`Code`=@ProductCodeOrBarCode or p.BarCode=@ProductCodeOrBarCode) )";
                 param.ProductCodeOrBarCode = condition.ProductCodeOrBarCode;
             }
             if (!string.IsNullOrEmpty(condition.Code))

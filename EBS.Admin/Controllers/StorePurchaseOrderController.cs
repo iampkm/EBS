@@ -38,7 +38,9 @@ namespace EBS.Admin.Controllers
         public ActionResult Index()
         {
             ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
-            ViewBag.Status = _storePurchaseOrderQuery.GetStorePurchaseOrderStatus();
+           // ViewBag.Status = _storePurchaseOrderQuery.GetStorePurchaseOrderStatus();
+            ViewBag.ShowCreateStatus = (int)PurchaseOrderStatus.Create;
+            
             return View();
         }
 
@@ -48,18 +50,86 @@ namespace EBS.Admin.Controllers
 
             return Json(new { success = true, data = rows, total = page.Total }, JsonRequestBehavior.AllowGet);
         }
-
-        public ActionResult FinanceIndex()
+        /// <summary>
+        /// 待收货列表
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult ReceiveIndex()
         {
             ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
-            ViewBag.Status = _storePurchaseOrderQuery.GetStorePurchaseOrderStatus();
+            // ViewBag.Status = _storePurchaseOrderQuery.GetStorePurchaseOrderStatus();
+            ViewBag.ShowReceiveStatus = string.Format("{0},{1}", (int)PurchaseOrderStatus.Create, (int)PurchaseOrderStatus.WaitStockIn);
             return View();
         }
 
+        /// <summary>
+        /// 财务待审-采购单
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult FinanceIndex()
+        {
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+           // ViewBag.Status = _storePurchaseOrderQuery.GetStorePurchaseOrderStatus();
+            ViewBag.ShowStatus = (int)PurchaseOrderStatus.Finished;
+            ViewBag.ShowType = (int)OrderType.Order;
+            return View();
+        }
+
+        /// <summary>
+        /// 财务待审-采购退单
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult FinanceRefundIndex()
+        {
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+            // ViewBag.Status = _storePurchaseOrderQuery.GetStorePurchaseOrderStatus();
+            ViewBag.ShowStatus = (int)PurchaseOrderStatus.Finished;
+            ViewBag.ShowType = (int)OrderType.Refund;
+            return View();
+        }
+
+        /// <summary>
+        /// 采购单查询
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult Query()
+        {
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+           // ViewBag.Status = _storePurchaseOrderQuery.GetStorePurchaseOrderStatus();
+            ViewBag.ShowStatus = string.Format("{0},{1}", (int)PurchaseOrderStatus.Finished, (int)PurchaseOrderStatus.FinanceAuditd);
+            ViewBag.ShowType = (int)OrderType.Order;
+            return View();
+        }
+
+        public ActionResult QueryRefund()
+        {
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+            // ViewBag.Status = _storePurchaseOrderQuery.GetStorePurchaseOrderStatus();
+            ViewBag.ShowStatus = string.Format("{0},{1}", (int)PurchaseOrderStatus.Finished, (int)PurchaseOrderStatus.FinanceAuditd);
+            ViewBag.ShowType = (int)OrderType.Refund;
+            return View();
+        }
+
+        /// <summary>
+        /// 采购单退单
+        /// </summary>
+        /// <returns></returns>
         public ActionResult RefundIndex()
         {
             ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
-            ViewBag.Status = _storePurchaseOrderQuery.GetStorePurchaseOrderStatus();
+           // ViewBag.Status = _storePurchaseOrderQuery.GetStorePurchaseOrderStatus();
+            ViewBag.ShowCreateStatus = (int)PurchaseOrderStatus.Create;
+            return View();
+        }
+        /// <summary>
+        /// 采购单退单-退货
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult WaitRefundIndex()
+        {
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+           // ViewBag.Status = _storePurchaseOrderQuery.GetStorePurchaseOrderStatus();
+            ViewBag.ShowRefundStatus = string.Format("{0},{1}", (int)PurchaseOrderStatus.Create, (int)PurchaseOrderStatus.WaitStockOut);
             return View();
         }
 
@@ -96,16 +166,13 @@ namespace EBS.Admin.Controllers
             _storePurchaseOrderFacade.Create(model);
             return Json(new { success = true });
         }
-
-        public ActionResult Details(int id)
+       
+        public ActionResult Details(int id,string audit="false")
         {
             var model = _storePurchaseOrderQuery.GetById(id);            
             var logs = _query.FindAll<ProcessHistory>(n => n.FormId == id && n.FormType == FormType.StorePurchaseOrder);
             ViewBag.Logs = logs;
-            if (model.OrderType == OrderType.Refund)
-            {
-                return View("RefundDetails",model);
-            }
+            ViewBag.Audit = audit;
             return View(model);
         }
 
@@ -260,11 +327,12 @@ namespace EBS.Admin.Controllers
             return View(model);
         }
 
-        public ActionResult RefundDetails(int id)
+        public ActionResult RefundDetails(int id,string audit = "false")
         {
             var model = _storePurchaseOrderQuery.GetById(id);
             var logs = _query.FindAll<ProcessHistory>(n => n.FormId == id && n.FormType == BillIdentity.StorePurchaseRefundOrder.ToString());
             ViewBag.Logs = logs;
+            ViewBag.Audit = audit;
             return View(model);
         }
 

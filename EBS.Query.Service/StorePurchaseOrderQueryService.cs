@@ -38,10 +38,10 @@ namespace EBS.Query.Service
                 where += "and t0.StoreId=@StoreId ";
                 param.StoreId = condition.StoreId;
             }
-            if (condition.Status != 0)
+            if (!string.IsNullOrEmpty(condition.Status))
             {
-                where += "and t0.Status=@Status ";
-                param.Status = condition.Status;
+                where += "and t0.Status in ("+condition.Status+")";
+               // param.Status = condition.Status;
             }
             string pwhere="";
             if (!string.IsNullOrEmpty(condition.ProductCodeOrBarCode))
@@ -54,8 +54,8 @@ namespace EBS.Query.Service
             {
                 where += " and t0.OrderType=@OrderType";
                 param.OrderType = condition.OrderType;
-            }          
-            string sql = @"select t0.Id,t0.Code,t0.SupplierId,t0.CreatedOn,t0.CreatedByName,t0.Status,t1.Code as SupplierCode,t1.Name as SupplierName,t2.Name as StoreName,t3.Quantity,t3.ActualQuantity,t3.Amount  
+            }
+            string sql = @"select t0.Id,t0.Code,t0.SupplierId,t0.CreatedOn,t0.CreatedByName,t0.Status,t0.SupplierBill,t1.Code as SupplierCode,t1.Name as SupplierName,t2.Name as StoreName,t3.Quantity,t3.ActualQuantity,t3.Amount  
 from  (select i.StorePurchaseOrderId,SUM(i.Quantity) as Quantity,SUM(i.ActualQuantity) as ActualQuantity,SUM(i.Price* i.ActualQuantity ) as Amount 
 from  storepurchaseorderitem i {3} GROUP BY i.StorePurchaseOrderId) t3 left join 
  storepurchaseorder t0 on t0.Id = t3.StorePurchaseOrderId left join supplier t1 on t0.SupplierId = t1.Id left join store t2 on t0.StoreId = t2.Id where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";

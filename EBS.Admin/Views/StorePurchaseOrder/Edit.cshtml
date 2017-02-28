@@ -53,32 +53,24 @@
                 <div class="col-xs-4 col-sm-4"></div>
                 <div class="col-xs-4 col-sm-4"><h3 class="text-center text-success" style="border-bottom:2px solid;padding-bottom:1px;"><b>采购订单<span v-show="model.isGift">(赠品)</span></b></h3></div>
                 <div class="col-xs-4 col-sm-4"></div>
-            </div>
-            <div class="row">
-                <div class="col-xs-4 col-sm-4">
-                    <span>单据号：{{model.code}}</span>
-                </div>
-                <div class="col-xs-4 col-sm-4 text-center">
-                </div>
-                <div class="col-xs-4 col-sm-4">
-                    <span class="text-danger">单据状态：{{model.status}}</span>
-                </div>
-            </div>
+            </div>            
             <div class="row">
                 <div class="col-xs-4 col-sm-4">
                     <span>供应商：{{model.supplierName}}</span>
                 </div>
-                <div class="col-xs-4 col-sm-4 text-center">
+                <div class="col-xs-4 col-sm-4">
+                    <span>单据号：{{model.code}}</span>
                 </div>
                 <div class="col-xs-4 col-sm-4 ">
-                    <span>供应商单号：{{model.supplierBill}}</span>
+                    <span>备注：{{model.supplierBill}}</span>
                 </div>
             </div>
             <div class="row">
                 <div class="col-xs-4 col-sm-4">
                     <span>收货部门：{{selectStore.name}}</span>
                 </div>
-                <div class="col-xs-4 col-sm-4 text-center">
+                <div class="col-xs-4 col-sm-4 ">
+                    <span class="text-danger">单据状态：{{model.status}}</span>
                 </div>
                 <div class="col-xs-4 col-sm-4">
                     <span>制单日期：{{model.createdOn}}</span>

@@ -57,7 +57,7 @@ namespace EBS.Admin.Controllers
            // var menus = _query.FindAll<Menu>(m => m.UrlType == Domain.ValueObject.MenuUrlType.MenuLink);
             StringBuilder builder = new StringBuilder();            
 
-            foreach (var topMenu in menus.Where(m => m.ParentId == 0))
+            foreach (var topMenu in menus.Where(m => m.ParentId == 0).OrderBy(n=>n.DisplayOrder).ToList())
             {
                 builder.AppendFormat("<li class=\"treeview\"><a href=\"javascript:showTab('{0}','{1}')\"><i class=\"fa {2}\"></i><span>{0}</span><span class=\"pull-right-container\"><i class=\"fa fa-angle-left pull-right\"></i></span></a>", topMenu.Name, topMenu.Url,topMenu.Icon);
                 AddChildMenu(builder, topMenu, menus);
@@ -74,7 +74,7 @@ namespace EBS.Admin.Controllers
 
         public void AddChildMenu(StringBuilder builder,Menu parentMenu,IEnumerable<Menu> menus)
         {
-            var children = menus.Where(m => m.ParentId == parentMenu.Id);
+            var children = menus.Where(m => m.ParentId == parentMenu.Id).OrderBy(n => n.DisplayOrder).ToList();
             if(children.Count()==0){ return ;}
             builder.Append("<ul class=\"treeview-menu\">");
             foreach (var child in children)

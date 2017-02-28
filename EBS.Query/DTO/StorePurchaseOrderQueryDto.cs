@@ -51,6 +51,11 @@ namespace EBS.Query.DTO
 
         public decimal Amount { get; set; }
 
+        /// <summary>
+        /// 供应商备注：可以备注单号，其他信息
+        /// </summary>
+        public string SupplierBill { get; set; }
+
 
     }
 }

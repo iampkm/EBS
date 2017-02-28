@@ -21,10 +21,10 @@
         <div class="box-body">
             <div class="row">
                 <div class="form-group col-sm-4 col-xs-6">
-                    <a class="btn btn-warning btn-flat" href="/StorePurchaseOrder/RefundEdit/{{model.id}}" v-show="model.status==1">编辑</a>
-                    <a class="btn btn-success btn-flat" href="/StorePurchaseOrder/WaitStockOut/{{model.id}}" v-show="model.status==1||model.status==3">退货</a>
-                    <button type="button" class="btn btn-warning btn-flat" v-on:click="audit" v-show="model.status==4">财务审核</button>
-                    <button type="button" class="btn btn-primary btn-flat" v-on:click="print">打印</button>
+                    <a class="btn btn-warning btn-flat" href="/StorePurchaseOrder/RefundEdit/{{model.id}}" v-show="model.status==1">编 辑</a>
+                    <a class="btn btn-success btn-flat" href="/StorePurchaseOrder/WaitStockOut/{{model.id}}" v-show="model.status==1||model.status==3">退 货</a>
+                    <button type="button" class="btn btn-warning btn-flat" v-on:click="audit" v-show="model.audit">审 核</button>
+                    <button type="button" class="btn btn-primary btn-flat" v-on:click="print">打 印</button>
                     <a class="btn btn-default btn-flat" href="javascript:history.go(-1);">取 消</a>
                     <input type="hidden" v-model="model.id" />
                 </div>
@@ -50,7 +50,7 @@
                         <span>单据号：@Model.Code</span>
                     </div>
                     <div class="col-xs-4 col-sm-4 ">
-                        <span>供应商单号：@Model.SupplierBill</span>
+                        <span>备注：@Model.SupplierBill</span>
                     </div>
                 </div>
                 <div class="row">
@@ -95,7 +95,7 @@
                                         var totalActualQuantity = 0;
                                         decimal countTotal = 0;
                                         decimal total = 0;
-                                        var index = 0;
+                                        var index = 1;
                                     }
                                     @foreach (var item in Model.Items)
                                     {
@@ -104,7 +104,7 @@
                                         countTotal += item.Price * item.ActualQuantity;
                                         total+= item.Price * item.Quantity;
                                         <tr>
-                                            <td class="text-center">@(index + 1)</td>
+                                            <td class="text-center">@(index++)</td>
                                             <td>@item.ProductCode</td>
                                             <td>@item.BarCode</td>
                                             <td>@item.ProductName</td>
@@ -176,8 +176,8 @@
                             </caption>
                             <thead>
                                 <tr>
-                                    <th style="width:30px"></th>
-                                    <th style="width:80px">处理人</th>
+                                    <th style="width:50px"></th>
+                                    <th>处理人</th>
                                     <th>状态</th>
                                     <th>处理时间</th>
                                     <th>备注</th>
@@ -213,7 +213,8 @@
                 data: {
                     model: {
                         id: @Model.Id,
-                        status:@((int)Model.Status)
+                        status:@((int)Model.Status),
+                        audit:@ViewBag.Audit,
                      }
                 },
                 methods: {

@@ -1293,6 +1293,11 @@
     <Content Include="Views\Tool\Index.cshtml" />
     <Content Include="Views\Tool\OrderRepair.cshtml" />
     <Content Include="Views\Report\PurchaseSaleInventoryDetail.cshtml" />
+    <Content Include="Views\StorePurchaseOrder\ReceiveIndex.cshtml" />
+    <Content Include="Views\StorePurchaseOrder\WaitRefundIndex.cshtml" />
+    <Content Include="Views\StorePurchaseOrder\Query.cshtml" />
+    <Content Include="Views\StorePurchaseOrder\FinanceRefundIndex.cshtml" />
+    <Content Include="Views\StorePurchaseOrder\QueryRefund.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">

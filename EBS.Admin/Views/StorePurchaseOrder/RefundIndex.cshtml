@@ -52,22 +52,11 @@
                                 <button class="btn btn-flat btn-default" type="button" v-on:click="clearStore"><i class="fa fa-eraser"></i></button>
                             </span>
                         </div>
-                    </div>
-                    <div class="form-group col-sm-2 col-xs-3">
-                        <div class="input-group">
-                            <span class="input-group-addon">状态</span>
-                            <select name="brand" class="form-control" v-model="searchArgs.status">
-                                <option value="0">-请选择-</option>
-                                @foreach (var item in ViewBag.Status)
-                                {
-                                    <option value="@item.Key">@item.Value</option>
-                                }
-                            </select>
-                        </div>
-                    </div>
+                    </div>                    
                 </div>
                 <span class="input-group-btn" slot="customButtons">
                     <a class="btn btn-warning btn-flat" href="/StorePurchaseOrder/Refund">新 增</a>
+                    <button type="button" class="btn btn-primary btn-flat" v-on:click="print()">打 印</button>
                     <button type="button" class="btn btn-danger btn-flat" v-on:click="remove()">作 废</button>
                 </span>
             </vue-table>
@@ -103,11 +92,13 @@
             <div style="min-height:350px;max-height:500px;overflow:auto;"><ul id="ztree" class="ztree"></ul></div>
         </div>
     </v-modal>
+    <div id="printDiv"></div>
 </div>
 @{Html.RenderPartial("VueTableTemplate");}
 @section scripts{
     <script src="~/Content/Vue/vuetable/vuetable.js"></script>
     <script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
+<script src="~/Scripts/jquery.PrintArea.js"></script>
     <script>
 
         var vue = new Vue({
@@ -125,15 +116,16 @@
                 { name: 'Code', localName: '采购单号', style: "<a href='/StorePurchaseOrder/RefundDetails/{id}'>{column}</a>" },
                 { name: 'StoreName', localName: '门店' },
                 { name: 'Supplier', localName: '供应商', width: '250' },
-                { name: 'Quantity', localName: '退货数' },
-                { name: 'ActualQuantity', localName: '实退数' },
-                { name: 'Amount', localName: '实退金额' },
+                { name: 'Quantity', localName: '退货数', width: '100' },
+                { name: 'ActualQuantity', localName: '实退数', width: '100' },
+                { name: 'Amount', localName: '实退金额', width: '100' },
                 { name: 'PurchaseOrderStatus', localName: '状态', width: '80' },
                 { name: 'CreatedByName', localName: '创建人' },
-                { name: 'CreatedTime', localName: '创建时间' }
+                { name: 'CreatedTime', localName: '创建时间' },
+                { name: 'SupplierBill', localName: '备注', width: '250' }
                 ],
                 url: "/StorePurchaseOrder/LoadData",
-                searchArgs: { code: '', supplierId: 0, storeId: 0, status: 0 ,productCodeOrBarCode:'',orderType:2},
+                searchArgs: { code: '', supplierId: 0, storeId: 0, status: '@ViewBag.ShowCreateStatus' ,productCodeOrBarCode:'',orderType:2},
                 rows: [],
                 selectSupplier: {
                     modal: false,
@@ -252,6 +244,23 @@
                             bootbox.alert("请选择一个门店");
                         }
                     }
+                },
+                print: function () {
+                    var selectRow = this.rows.filter(function (item, index) {
+                        if (item.checked) {
+                            return true;
+                        }
+                    });
+                    if (selectRow.length == 0) {
+                        bootbox.alert("请选择一条记录");
+                        return;
+                    }                   
+                    var data = {id:selectRow[0].Id};
+                    $.get("/StorePurchaseOrder/Print", data, function (result) {
+                        $("#printDiv").html(result);
+                        $("#printTemplate").printArea();
+                        $("#printDiv").html("");
+                    });
                 },
             }
         });

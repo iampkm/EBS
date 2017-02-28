@@ -13,7 +13,7 @@
 <div id="app" class="box box-primary">
     <div class="box-header with-border">
         <ol class="breadcrumb" style="padding:0px;margin:1px;">
-            <li><a href="/StorePurchaseOrder/Index"><i class="fa fa-dashboard"></i>采购单管理</a></li>
+            <li><a href="/StorePurchaseOrder/ReceiveIndex"><i class="fa fa-dashboard"></i>采购单-待收货</a></li>
             <li class="active"><a href="/StorePurchaseOrder/WaitStockIn/{{model.id}}">收货入库</a></li>
         </ol>
     </div>
@@ -25,7 +25,8 @@
                 <div class="form-group col-sm-4 col-xs-6">
                     <button type="button" class="btn btn-warning btn-flat" v-on:click="onSubmit">收 货</button>
                     <button type="button" class="btn btn-success btn-flat" v-on:click="saveInventory">入 库</button>
-                    <a class="btn btn-default btn-flat" href="/StorePurchaseOrder/Index">取 消</a>
+                    <button type="button" class="btn btn-primary btn-flat" v-on:click="print">打 印</button>
+                    <a class="btn btn-default btn-flat" href="javascript:history.back()">取 消</a>
                     <input type="hidden" v-model="model.id" />
                     <input type="hidden" class="form-control" v-model="model.supplierId">
                     <input type="hidden" class="form-control" v-model="model.storeId">
@@ -42,7 +43,7 @@
                     </div>
                 </div>
                 <div class="col-sm-2 col-xs-3">
-                    <v-input type="text" v-bind:value.sync="model.supplierBill" placeholder="录入供应商单号" maxlength="20" required icon></v-input>
+                    <v-input type="text" v-bind:value.sync="model.supplierBill" placeholder="录入备注" maxlength="100" required icon></v-input>
                 </div>
             </div>
             <div class="row">
@@ -52,29 +53,21 @@
             </div>
             <div class="row">
                 <div class="col-xs-4 col-sm-4">
-                    <span>单据号：{{model.code}}</span>
-                </div>
-                <div class="col-xs-4 col-sm-4 text-center">
-                </div>
-                <div class="col-xs-4 col-sm-4">
-                    <span class="text-danger">单据状态：{{model.status}}</span>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-4 col-sm-4">
                     <span>供应商：{{model.supplierName}}</span>
                 </div>
-                <div class="col-xs-4 col-sm-4 text-center">
+                <div class="col-xs-4 col-sm-4">
+                    <span>单据号：{{model.code}}</span>
                 </div>
                 <div class="col-xs-4 col-sm-4 ">
-                    <span>供应商单号：{{model.supplierBill}}</span>
+                    <span>备注：{{model.supplierBill}}</span>
                 </div>
             </div>
             <div class="row">
                 <div class="col-xs-4 col-sm-4">
                     <span>收货部门：{{model.storeName}}</span>
                 </div>
-                <div class="col-xs-4 col-sm-4 text-center">
+                <div class="col-xs-4 col-sm-4">
+                    <span class="text-danger">单据状态：{{model.status}}</span>
                 </div>
                 <div class="col-xs-4 col-sm-4">
                     <span>制单日期：{{model.createdOn}}</span>
@@ -179,11 +172,13 @@
             </div>
         </div>       
     </form>
-    <br />       
+    <br />
+    <div id="printDiv"></div>       
 </div>
 @{Html.RenderPartial("VueTableTemplate");}
 @section scripts{
     <script src="~/Content/Vue/vuetable/vuetable.js"></script>
+<script src="~/Scripts/jquery.PrintArea.js"></script>
     <script>
         $("doucument").ready(function () {
             var demo = new Vue({
@@ -262,8 +257,13 @@
                             if (result) {
                                 $.post("/StorePurchaseOrder/SaveInventory", {id:_self.model.id}, function (result) {
                                     if (result.success) {
-                                        bootbox.alert("保存成功！", function () {
-                                            window.location.href = "/StorePurchaseOrder/Index";
+                                        bootbox.confirm("入库成功！您要打印此单据吗？选择是 打印，选择取消返回列表！", function (sure) {
+                                            if(sure){
+                                                _self.print();
+                                            }
+                                            else{
+                                                window.location.href = "/StorePurchaseOrder/Index";
+                                            }                                           
                                         });
                                     }
                                     else {
@@ -308,7 +308,15 @@
                             item.ActualQuantity = _self.toggleScanText=="关"? item.Quantity : 0 ;
                            // item.BgColor = item.ActualQuantity==item.Quantity ?"bg-success":"bg-danger";     
                         })
-                    }
+                    },
+                    print: function () {
+                        var data = {id:this.model.id};
+                        $.get("/StorePurchaseOrder/Print", data, function (result) {
+                            $("#printDiv").html(result);
+                            $("#printTemplate").printArea();
+                            $("#printDiv").html("");
+                        });
+                    },
                 },
                 computed: {
                     countTotal: function () {

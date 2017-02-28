@@ -16,7 +16,10 @@ namespace EBS.Query.DTO
 
        public string ProductCodeOrBarCode { get; set; }
 
-       public int Status { get; set; }
+       /// <summary>
+       /// 逗号分隔数字
+       /// </summary>
+       public string Status { get; set; }
 
        public int OrderType { get; set; }
     }
