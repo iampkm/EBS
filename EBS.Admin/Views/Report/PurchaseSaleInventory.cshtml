@@ -103,7 +103,7 @@
                     { name: 'EndInventoryAmount', localName: '期末库存金额' },
                 ],
                 url: "/Report/QueryPurchaseSaleInventorySummary",
-                searchArgs: { storeId: @ViewBag.StoreId, year: @DateTime.Now.Year,month:@DateTime.Now.Month },
+                searchArgs: { storeId:'@ViewBag.StoreId', year: @DateTime.Now.Year,month:@DateTime.Now.Month },
                 rows: [],
                 selectStore: {
                     modal: false,
@@ -137,7 +137,7 @@
                     this.selectStore.modal = true;
                 },
                 clearStore: function () {
-                    this.searchArgs.storeId = 0;
+                    this.searchArgs.storeId = "";
                     this.selectStore.name = "";
                 },
                 getStore: function () {
@@ -153,8 +153,8 @@
                             }
                         })
                         if(idArray.length>0){
-                            this.searchArgs.storeId = idArray[0];
-                            this.selectStore.name = nameArray[0];
+                            this.searchArgs.storeId = idArray.join();
+                            this.selectStore.name = nameArray.join();
                             this.selectStore.modal = false;
                         }
                         else

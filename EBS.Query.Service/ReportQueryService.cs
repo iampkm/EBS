@@ -23,10 +23,10 @@ namespace EBS.Query.Service
         {
             dynamic param = new ExpandoObject();
             string where = "";
-            if (condition.StoreId!=0)
+            if (!string.IsNullOrEmpty(condition.StoreId))
             {
-                where += "and t.StoreId = @StoreId ";
-                param.StoreId = condition.StoreId;
+                where += "and t.StoreId in("+condition.StoreId+")";
+               // param.StoreId = condition.StoreId;
             }
             
             param.YearMonth = int.Parse(string.Format("{0}{1}",condition.Year,condition.Month.ToString().PadLeft(2,'0')));

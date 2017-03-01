@@ -8,7 +8,10 @@ namespace EBS.Query.DTO
 {
    public class PurchaseSaleInventorySearch
     {
-       public int StoreId { get; set; }
+       /// <summary>
+       /// 门店id 多个逗号分隔
+       /// </summary>
+       public string StoreId { get; set; }
 
        public int Year { get; set; }
 

@@ -34,7 +34,7 @@ namespace EBS.Admin.Controllers
         /// <returns></returns>
         public ActionResult PurchaseSaleInventory()
         {
-            ViewBag.StoreId = _context.CurrentAccount.StoreId;
+            ViewBag.StoreId = _context.CurrentAccount.StoreId == 0 ? "" : _context.CurrentAccount.StoreId.ToString();
             ViewBag.StoreName = _context.CurrentAccount.StoreName;
             ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
             ViewBag.IsAdmin = _context.CurrentAccount.AccountId == 1 ? "true" : "false";
