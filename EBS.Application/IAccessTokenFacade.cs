@@ -9,5 +9,8 @@ namespace EBS.Application
    public interface IAccessTokenFacade
     {
        void ValidateCDKey(AccessTokenModel token);
+
+       void Create(AccessTokenModel model);
+     
     }
 }

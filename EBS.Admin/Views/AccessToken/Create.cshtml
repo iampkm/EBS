@@ -1,0 +1,183 @@
+﻿@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+@section styles{
+    <link href="~/Content/zTree.min.css" rel="stylesheet" />
+    <style>
+        .ztree li span {
+            font-size: 14px;
+        }
+    </style>
+}
+<!-- demo root element -->
+<div id="app" class="box box-primary">
+    <div class="box-header with-border">
+        <ol class="breadcrumb" style="padding:0px;margin:1px;">
+            <li><a href="/AccessToken/Index"><i class="fa fa-dashboard"></i>门店授权码</a></li>
+            <li class="active"><a href="/AccessToken/Create">新增授权码</a></li>
+        </ol>
+    </div>
+    <!-- /.box-header -->
+    <!-- form start -->
+    <form v-on:submit.prevent="onSubmit">
+        <div class="box-body">
+            <v-form v-bind:valid.sync="valid">
+                <div class="row">
+                    <div class="form-group col-sm-2 col-xs-3">
+                        <v-input type="text" label="Pos前端密码：" v-bind:value.sync="model.posPassword" placeholder="Pos前端密码" required icon></v-input>
+                    </div>
+                    <div class="col-sm-3 col-xs-3">
+                        <v-input type="text" label="前端cdkey：" v-bind:value.sync="model.poscdkey" placeholder="前端cdkey" readonly icon></v-input>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-2 col-xs-3" v-show="selectStore.view">
+                        <label for="inputPassword3" class="control-label">门店：</label>
+                        <div class="input-group ">
+                            <input type="hidden" class="form-control" v-model="model.storeId">
+                            <input type="text" class="form-control" v-model="selectStore.name" placeholder="选择门店" readonly>
+                            <span class="input-group-btn">
+                                <button class="btn btn-flat btn-default" type="button" v-on:click="showStore"><i class="fa fa-search"></i></button>
+                                <button class="btn btn-flat btn-default" type="button" v-on:click="clearStore"><i class="fa fa-eraser"></i></button>
+                            </span>
+                        </div>
+                    </div>                   
+                </div>
+                <div class="row">
+                    <div class="col-sm-2 col-xs-3">
+                        <v-input type="text" label="收银机：" v-bind:value.sync="model.posId" placeholder="收银机编号" required icon></v-input>
+                    </div>
+                    <div class="col-sm-3 col-xs-3">
+                        <v-input type="text" label="服务端cdkey：" v-bind:value.sync="model.cdkey" placeholder="服务端cdkey" readonly icon></v-input>
+                    </div>
+                </div>
+            </v-form>
+        </div>
+        <div class="box-footer">
+            <div class="row">
+                <div class="col-sm-4 col-xs-4">
+                    <button type="submit" class="btn btn-warning btn-flat" v-bind:disabled="!valid">保 存</button>
+                    <a class="btn btn-default btn-flat" href="javascript:history.back()">取 消</a>
+                </div>
+            </div>
+        </div>
+    </form>
+    <v-modal title="选择门店" ok-text="确 定" cancel-text="取 消" v-bind:callback="getStore" v-bind:show.sync="selectStore.modal" v-bind:effect="fade" width="60%">
+        <div slot="modal-body" class="modal-body">
+            <div style="min-height:350px;max-height:500px;overflow:auto;"><ul id="ztree" class="ztree"></ul></div>
+        </div>
+    </v-modal>
+</div>
+@section scripts{
+    <script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
+    <script>
+        $("doucument").ready(function () {
+            var demo = new Vue({
+                components: {
+                    'v-input': VueStrap.input,
+                    'v-form': VueStrap.formGroup,
+                    'v-modal': VueStrap.modal
+                },
+                el: '#app',
+                data: {
+                    valid: false,
+                    model: {
+                        posPassword: '',
+                        poscdkey: '',
+                        posId: 0,
+                        storeId: 0,
+                        cdkey:''
+                    },
+                    selectStore: {
+                        modal: false,
+                        name: '',
+                        view:true,
+                    },                   
+                },
+                methods: {
+                    onSubmit: function () {
+                        //获取选择节点
+                        var _self = this;
+                        var v_data = this.model;
+                        if (v_data.roleId == 0) { bootbox.alert("请选择角色！"); return; }
+                        $.post("/AccessToken/Create", v_data, function (result) {
+                            if (result.success) {
+                                bootbox.alert("保存成功！", function () {
+                                    _self.model.cdkey = result.data.CDKey;
+                                    _self.model.poscdkey = result.data.PosCDKey
+                                });
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
+                    },
+                    showStore: function () {
+                        this.selectStore.modal = true;
+                    },
+                    clearStore: function () {
+                        this.model.storeId = 0;
+                        this.selectStore.name = "";
+                    },
+                    getStore: function () {
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                        var selecteds= treeObj.getCheckedNodes(true);
+                        if (selecteds) {
+                            var idArray = new Array();
+                            var nameArray = new Array();
+                            selecteds.forEach(function(item){
+                                if(item.level==1){
+                                    idArray.push(item.id);
+                                    nameArray.push(item.name);
+                                }
+                            })
+                            if(idArray.length>0){
+                                this.model.storeId = idArray[0];
+                                this.selectStore.name = nameArray[0];
+                                this.selectStore.modal = false;
+                            }
+                            else
+                            {
+                                bootbox.alert("请选择一个门店");
+                            }
+
+                        }
+                    },                    
+                }
+            });
+
+            //加载门店tree
+            var zTreeObj;
+            var setting = {
+                check: {
+                    enable:true
+                },
+                async: {
+                    enable: true,
+                    url: "/Store/LoadStore",
+                    //autoParam: ["id", "name"]
+                },
+                callback:{
+                    onClick:function(event, treeId, treeNode){
+                        //点击展开/折叠节点
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                        var open = !treeNode.open;
+                        treeObj.expandNode(treeNode, open, false, false);
+                        // vue.searchArgs.categoryId =treeNode.id;
+                    }
+                }
+            };
+            zTreeObj = $.fn.zTree.init($("#ztree"), setting);
+            $.fn.zTree.init($("#ztree2"), setting);
+        });
+
+
+
+    </script>
+}
+
+
+
+
+
+

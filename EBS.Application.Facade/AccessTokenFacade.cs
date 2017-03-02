@@ -11,14 +11,15 @@ using EBS.Domain.Service;
 using EBS.Infrastructure.Caching;
 using System.Security.Cryptography;
 using EBS.Infrastructure.Extension;
+using EBS.Application.Facade.Mapping;
 namespace EBS.Application.Facade
 {
-   public class AccessTokenFacade:IAccessTokenFacade
+    public class AccessTokenFacade : IAccessTokenFacade
     {
         IDBContext _db;
         ICacheManager _cacheManager;
 
-        public AccessTokenFacade(IDBContext dbContext,ICacheManager cacheManager)
+        public AccessTokenFacade(IDBContext dbContext, ICacheManager cacheManager)
         {
             _db = dbContext;
             _cacheManager = cacheManager;
@@ -50,5 +51,26 @@ namespace EBS.Application.Facade
                 throw new Exception("cdkey 错误");
             }
         }
+
+
+        public void Create(AccessTokenModel model)
+        {           
+            var entity = _db.Table.Find<AccessToken>(n=>n.StoreId==model.StoreId&&n.PosId ==model.PosId);
+            if (entity == null) {
+                entity =model.MapTo<AccessToken>();
+                model.PosCDKey = entity.GenerateClientCDKey(model.PosPassword);
+                entity.GenderateServerCDKey(model.PosCDKey);
+                model.CDKey = entity.CDKey;
+                _db.Insert(entity);
+            }
+            else {               
+                model.PosCDKey = entity.GenerateClientCDKey(model.PosPassword);
+                entity.GenderateServerCDKey(model.PosCDKey);
+                model.CDKey = entity.CDKey;
+                _db.Update(entity);
+            }           
+            _db.SaveChange();
+        }
+      
     }
 }

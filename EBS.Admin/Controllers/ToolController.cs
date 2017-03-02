@@ -7,6 +7,8 @@ using System.Web.Mvc;
 using Dapper.DBContext;
 using EBS.Domain.Entity;
 using EBS.Application;
+using EBS.Query.DTO;
+using EBS.Query;
 namespace EBS.Admin.Controllers
 {
     [Permission]
@@ -15,13 +17,13 @@ namespace EBS.Admin.Controllers
         IContextService _context;
         IDBContext _db;
         IQuery _iquery;
-        IPosSyncFacade _posFacade;
+        IPosSyncFacade _posFacade;      
         public ToolController(IContextService context, IDBContext db, IQuery iquery, IPosSyncFacade posFacade)
         {
             _context = context;
             _db = db;
             _iquery = iquery;
-            _posFacade = posFacade;
+            _posFacade = posFacade;           
         }
 
         public ActionResult Index()
@@ -94,5 +96,9 @@ namespace EBS.Admin.Controllers
             return Json(new { success = true, message = html });
 
         }
+
+
+
+      
     }
 }

@@ -142,6 +142,7 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\AccessTokenController.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AdjustContractPriceController.cs" />
     <Compile Include="Controllers\AdjustSalePriceController.cs" />
@@ -1298,6 +1299,8 @@
     <Content Include="Views\StorePurchaseOrder\Query.cshtml" />
     <Content Include="Views\StorePurchaseOrder\FinanceRefundIndex.cshtml" />
     <Content Include="Views\StorePurchaseOrder\QueryRefund.cshtml" />
+    <Content Include="Views\AccessToken\Index.cshtml" />
+    <Content Include="Views\AccessToken\Create.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">

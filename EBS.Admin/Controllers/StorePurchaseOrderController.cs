@@ -37,11 +37,17 @@ namespace EBS.Admin.Controllers
 
         public ActionResult Index()
         {
-            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
-           // ViewBag.Status = _storePurchaseOrderQuery.GetStorePurchaseOrderStatus();
+            SetUserAuthention();
             ViewBag.ShowCreateStatus = (int)PurchaseOrderStatus.Create;
             
             return View();
+        }
+
+        private void SetUserAuthention()
+        {
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+            ViewBag.StoreId = _context.CurrentAccount.StoreId;
+            ViewBag.StoreName = _context.CurrentAccount.StoreName;
         }
 
         public JsonResult LoadData(Pager page, SearchStorePurchaseOrder condition)
@@ -56,8 +62,7 @@ namespace EBS.Admin.Controllers
         /// <returns></returns>
         public ActionResult ReceiveIndex()
         {
-            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
-            // ViewBag.Status = _storePurchaseOrderQuery.GetStorePurchaseOrderStatus();
+            SetUserAuthention();
             ViewBag.ShowReceiveStatus = string.Format("{0},{1}", (int)PurchaseOrderStatus.Create, (int)PurchaseOrderStatus.WaitStockIn);
             return View();
         }
@@ -68,8 +73,7 @@ namespace EBS.Admin.Controllers
         /// <returns></returns>
         public ActionResult FinanceIndex()
         {
-            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
-           // ViewBag.Status = _storePurchaseOrderQuery.GetStorePurchaseOrderStatus();
+            SetUserAuthention();
             ViewBag.ShowStatus = (int)PurchaseOrderStatus.Finished;
             ViewBag.ShowType = (int)OrderType.Order;
             return View();
@@ -81,8 +85,7 @@ namespace EBS.Admin.Controllers
         /// <returns></returns>
         public ActionResult FinanceRefundIndex()
         {
-            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
-            // ViewBag.Status = _storePurchaseOrderQuery.GetStorePurchaseOrderStatus();
+            SetUserAuthention();
             ViewBag.ShowStatus = (int)PurchaseOrderStatus.Finished;
             ViewBag.ShowType = (int)OrderType.Refund;
             return View();
@@ -94,17 +97,18 @@ namespace EBS.Admin.Controllers
         /// <returns></returns>
         public ActionResult Query()
         {
-            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
-           // ViewBag.Status = _storePurchaseOrderQuery.GetStorePurchaseOrderStatus();
+            SetUserAuthention();
             ViewBag.ShowStatus = string.Format("{0},{1}", (int)PurchaseOrderStatus.Finished, (int)PurchaseOrderStatus.FinanceAuditd);
             ViewBag.ShowType = (int)OrderType.Order;
             return View();
         }
-
+        /// <summary>
+        /// 采购退单查询
+        /// </summary>
+        /// <returns></returns>
         public ActionResult QueryRefund()
         {
-            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
-            // ViewBag.Status = _storePurchaseOrderQuery.GetStorePurchaseOrderStatus();
+            SetUserAuthention();
             ViewBag.ShowStatus = string.Format("{0},{1}", (int)PurchaseOrderStatus.Finished, (int)PurchaseOrderStatus.FinanceAuditd);
             ViewBag.ShowType = (int)OrderType.Refund;
             return View();
@@ -116,8 +120,7 @@ namespace EBS.Admin.Controllers
         /// <returns></returns>
         public ActionResult RefundIndex()
         {
-            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
-           // ViewBag.Status = _storePurchaseOrderQuery.GetStorePurchaseOrderStatus();
+            SetUserAuthention();
             ViewBag.ShowCreateStatus = (int)PurchaseOrderStatus.Create;
             return View();
         }
@@ -127,8 +130,7 @@ namespace EBS.Admin.Controllers
         /// <returns></returns>
         public ActionResult WaitRefundIndex()
         {
-            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
-           // ViewBag.Status = _storePurchaseOrderQuery.GetStorePurchaseOrderStatus();
+            SetUserAuthention();
             ViewBag.ShowRefundStatus = string.Format("{0},{1}", (int)PurchaseOrderStatus.Create, (int)PurchaseOrderStatus.WaitStockOut);
             return View();
         }

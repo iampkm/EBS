@@ -125,7 +125,7 @@
                 { name: 'SupplierBill', localName: '备注', width: '250' }
                 ],
                 url: "/StorePurchaseOrder/LoadData",
-                searchArgs: { code: '', supplierId: 0, storeId: 0, status: '@ViewBag.ShowCreateStatus' ,productCodeOrBarCode:'',orderType:2},
+                searchArgs: { code: '', supplierId: 0, storeId: @ViewBag.StoreId, status: '@ViewBag.ShowCreateStatus' ,productCodeOrBarCode:'',orderType:2},
                 rows: [],
                 selectSupplier: {
                     modal: false,
@@ -141,7 +141,7 @@
                 },
                 selectStore: {
                     modal: false,
-                    name: '',
+                    name: '@ViewBag.StoreName',
                     view: @ViewBag.View,
                 }
             },
