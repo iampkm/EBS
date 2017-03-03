@@ -39,6 +39,13 @@ namespace EBS.Query.Service
                 where += "and (t1.Code=@ProductCodeOrBarCode or t1.BarCode=@ProductCodeOrBarCode) ";
                 param.ProductCodeOrBarCode = condition.ProductCodeOrBarCode;
             }
+
+            if (!string.IsNullOrEmpty(condition.ProductName))
+            {
+                where += "and t1.Name like @ProductName ";
+                param.ProductName = string.Format("%{0}%", condition.ProductName); 
+            }
+
             string sql = @"select t0.*,t1.`Code` as ProductCode ,t1.`Name` as ProductName,t1.BarCode,t1.Specification,t1.SalePrice,t2.`name` as StoreName
 from storeinventory t0 left join product t1 on t0.productId = t1.Id
 inner join store t2 on t2.Id = t0.StoreId
@@ -153,18 +160,38 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             return rows;
         }
 
-        public IEnumerable<ProductQueryDto> QueryProduct(string productCodeOrBarCode)
+        public IEnumerable<ProductQueryDto> QueryProduct(SearchStoreInventory condition)
         {
+            dynamic param = new ExpandoObject();
+            string where = "";
+            if (!string.IsNullOrEmpty(condition.ProductCodeOrBarCode))
+            {
+                where += "and (p.BarCode=@ProductCodeOrBarCode or p.`Code`=@ProductCodeOrBarCode )";
+                param.ProductCodeOrBarCode = condition.ProductCodeOrBarCode;
+            }
+            if (!string.IsNullOrEmpty(condition.ProductName))
+            {
+                where += "and p.Name like @ProductName ";
+                param.ProductName = string.Format("%{0}%", condition.ProductName);
+            }
+            if (condition.StoreId > 0)
+            {
+                where += "and t.Id=@StoreId ";
+                param.StoreId = condition.StoreId;
+            }
             string sql = @"select i.ProductId, p.`Name` as ProductName,p.`Code` as ProductCode,p.BarCode,p.Specification,p.Unit,p.SalePrice,
-pi.ContractPrice,i.Quantity,s.Name as supplierName,t.`Name` as StoreName
-from product p
-left join storeinventory i on p.Id = i.ProductId
-left join purchasecontractitem pi on pi.productId  = p.Id
-left join purchasecontract c on pi.purchasecontractId = c.Id
-left join supplier s on s.Id = c.SupplierId
+i.Quantity,b.Quantity as BatchQuantity,s.Name as supplierName,t.`Name` as StoreName,i.AvgCostPrice,b.Price,sp.SalePrice as StoreSalePrice,v.SalePrice as VipSalePrice
+from storeinventory i
+left join product p on p.id = i.ProductId
+left join storeinventorybatch b on b.ProductId = p.Id
+left join supplier s on s.Id = b.SupplierId
 left join store t on t.Id = i.StoreId
-where (p.BarCode=@ProductCodeOrBarCode or p.`Code`=@ProductCodeOrBarCode ) and c.Status =3 and c.EndDate>= CURDATE()";
-            var rows = _query.FindAll<ProductQueryDto>(sql, new { ProductCodeOrBarCode = productCodeOrBarCode });
+left join productstoreprice sp on sp.ProductId = p.Id
+left join vipproduct v on v.ProductId = p.Id
+where  b.Quantity>0 and b.StoreId = i.StoreId {0}";
+            if (string.IsNullOrEmpty(where)) return new List<ProductQueryDto>();
+            sql = string.Format(sql, where);
+            var rows = _query.FindAll<ProductQueryDto>(sql, param);
             //设置当前件规
             return rows;
         }

@@ -33,10 +33,15 @@ namespace EBS.Admin.Controllers
 
         public ActionResult Index()
         {
+            SetCurrentStore();
+            return View();
+        }
+
+        private void SetCurrentStore()
+        {
             ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
             ViewBag.StoreId = _context.CurrentAccount.StoreId;
             ViewBag.StoreName = _context.CurrentAccount.StoreName;
-            return View();
         }
 
         public JsonResult LoadData(Pager page, SearchStoreInventory condition)
@@ -85,9 +90,9 @@ namespace EBS.Admin.Controllers
             return View();
         }
 
-        public JsonResult QueryProduct(string productCodeOrBarCode)
-        {           
-           var rows=  _storeInventoryQuery.QueryProduct(productCodeOrBarCode).ToList();           
+        public JsonResult QueryProduct(SearchStoreInventory condition)
+        {
+            var rows = _storeInventoryQuery.QueryProduct(condition).ToList();           
             return Json(new { success = true, data = rows, total = rows.Count });
         }
     }

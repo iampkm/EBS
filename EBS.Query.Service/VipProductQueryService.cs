@@ -52,9 +52,12 @@ where 1=1 {0} ";
        {
            if (string.IsNullOrEmpty(inputProducts)) throw new Exception("商品明细为空");
            var dic = inputProducts.ToDecimalDic();
-           string sql = @"select v.Id, p.Id as ProductId, p.`Name` as ProductName,p.`Code` as ProductCode,p.BarCode,p.Specification,p.Unit,p.SalePrice,v.SalePrice as VipSalePrice ,i.contractPrice  from product p left join VipProduct v  on v.ProductId = p.Id 
- left join purchasecontractitem i on i.productId = p.Id  
-where p.BarCode in @BarCodes";
+           string sql = @"select p.Id as ProductId, p.`Name` as ProductName,p.`Code` as ProductCode,p.BarCode,p.Specification,p.Unit,p.SalePrice,i.price  from (
+select s.productid,s.price from storeinventorybatch s right join (
+SELECT b.productid,MAX(b.id) as bid from storeinventorybatch b 
+group by b.productid ) t on s.id = bid ) i
+left join product p  on p.id = i.productid
+where p.BarCode in @BarCodes  ";
            var productItems= this._query.FindAll<VipProductDto>(sql, new { BarCodes = dic.Keys.ToArray() });
            foreach (var product in productItems)
            {
@@ -70,9 +73,10 @@ where p.BarCode in @BarCodes";
        public VipProductDto QueryProduct(string productCodeOrBarCode)
        {
            if (string.IsNullOrEmpty(productCodeOrBarCode)) throw new Exception("商品条码为空");
-           string sql = @"select v.Id, p.Id as ProductId, p.`Name` as ProductName,p.`Code` as ProductCode,p.BarCode,p.Specification,p.Unit,p.SalePrice,v.SalePrice as VipSalePrice,i.contractPrice  from product p left join VipProduct v  on v.ProductId = p.Id 
-             left join purchasecontractitem i on i.productId = p.Id 
-where p.BarCode = @ProductCodeOrBarCode or p.Code =@ProductCodeOrBarCode";
+           string sql = @"select v.Id, p.Id as ProductId, p.`Name` as ProductName,p.`Code` as ProductCode,p.BarCode,p.Specification,p.Unit,p.SalePrice,v.SalePrice as VipSalePrice,i.price  from product p left join VipProduct v  on v.ProductId = p.Id 
+             left join storeinventorybatch i on i.productId = p.Id 
+where p.BarCode = @ProductCodeOrBarCode or p.Code =@ProductCodeOrBarCode 
+order by i.Id desc LIMIT 1";
            var model = this._query.Find<VipProductDto>(sql, new { ProductCodeOrBarCode = productCodeOrBarCode });
            if (model == null) throw new Exception("商品不存在");
            return model;

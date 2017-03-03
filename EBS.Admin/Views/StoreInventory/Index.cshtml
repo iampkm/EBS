@@ -30,6 +30,9 @@
                     <div class="col-xs-3 col-sm-2">
                         <input class="form-control" v-model="searchArgs.productCodeOrBarCode" placeholder="商品编码/条码" debounce="500" />
                     </div>
+                    <div class="col-xs-3 col-sm-2">
+                        <input class="form-control" v-model="searchArgs.productName" placeholder="商品名" debounce="500" />
+                    </div>
                     <div class="col-sm-2 col-xs-3" v-show="selectStore.view">
                         <div class="input-group ">
                             <input type="hidden" class="form-control" v-model="model.storeId">
@@ -79,7 +82,7 @@
                 { name: 'SaleAmount', localName: '售价金额',sum:'' ,width: '120'},
                 ],
                 url: "/StoreInventory/LoadData",
-                searchArgs: { supplierId: 0, storeId: @ViewBag.StoreId, productCodeOrBarCode: '' },
+                searchArgs: { supplierId: 0, storeId: @ViewBag.StoreId, productCodeOrBarCode: '',productName:'' },
                 rows: [],
                 selectStore: {
                     modal: false,

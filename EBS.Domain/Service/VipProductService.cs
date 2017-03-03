@@ -21,7 +21,7 @@ namespace EBS.Domain.Service
             List<VipProduct> updateList = new List<VipProduct>();
             foreach (var product in products)
             {               
-                if (product.Id == 0)
+                if (!_db.Table.Exists<VipProduct>(n=>n.ProductId==product.ProductId))
                 {
                     insertList.Add(product);
                 }
@@ -35,7 +35,9 @@ namespace EBS.Domain.Service
             }
             if(updateList.Count>0)
             {
-                _db.Update(updateList.ToArray());
+                string sqlUpdate = "update VipProduct set SalePrice=@SalePrice where ProductId=@ProductId";
+                _db.Command.AddExecute(sqlUpdate, updateList.ToArray());
+               // _db.Update(updateList.ToArray());
             }
         }
 

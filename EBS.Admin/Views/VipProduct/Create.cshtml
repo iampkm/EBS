@@ -51,10 +51,10 @@
                                     <th>规格</th>
                                     <th>单位</th>
                                     <th>售价</th>
-                                    <th title="最新合同参考进价">进价</th>
+                                    <th title="最新合同参考进价">参考进价</th>
                                     <th>会员价</th> 
-                                    <th>毛利额</th>
-                                    <th>毛利率</th>                                   
+                                    <th>参考毛利额</th>
+                                    <th>参考毛利率</th>                                   
                                 </tr>
                             </thead>
                             <tbody id="tbody">
@@ -72,7 +72,7 @@
                                     <td>{{item.Specification}}</td>
                                     <td>{{item.Unit}}</td>
                                     <td>{{item.SalePrice.toFixed(4)}}</td>  
-                                    <td>{{item.ContractPrice.toFixed(2)}}</td>                                  
+                                    <td>{{item.Price.toFixed(2)}}</td>                                  
                                     <td>
                                         <input type="number" class="form-control quantity" v-model="item.VipSalePrice" v-on:keyup.enter="inputNext($event)" />
                                     </td>
@@ -125,7 +125,7 @@
                     modal: false,                    
                     products: [{
                         Id: 0, ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '',
-                        Unit: '', SalePrice: 0, VipSalePrice: 0, ContractPrice: 0, Profit: 0, ProfitMargin: 0
+                        Unit: '', SalePrice: 0, VipSalePrice: 0, Price: 0, Profit: 0, ProfitMargin: 0
                     }],
                     inputProducts: '',                    
                 },
@@ -197,7 +197,7 @@
                     addRow: function (event) {
                         this.products.push({
                             Id: 0, ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '',
-                            Unit: '', SalePrice: 0, VipSalePrice: 0, ContractPrice: 0, Profit: 0, ProfitMargin: 0
+                            Unit: '', SalePrice: 0, VipSalePrice: 0, Price: 0, Profit: 0, ProfitMargin: 0
                         });
                         //设置焦点
                         var target = event.srcElement || event.target;
@@ -258,7 +258,7 @@
                         {
                             this.products = [{
                                 Id: 0, ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '',
-                                Unit: '', SalePrice: 0, VipSalePrice: 0, ContractPrice: 0, Profit: 0, ProfitMargin: 0
+                                Unit: '', SalePrice: 0, VipSalePrice: 0, Price: 0, Profit: 0, ProfitMargin: 0
                             }];
                         }
                     }
@@ -268,7 +268,7 @@
                         var _self = this;
                         var _profitTotal = 0;
                         _self.products.forEach(function (item) {
-                            item.Profit = item.VipSalePrice - item.ContractPrice;
+                            item.Profit = item.VipSalePrice - item.Price;
                             if (item.VipSalePrice > 0) {
                                 var result = item.Profit / item.VipSalePrice * 100;
                                 item.ProfitMargin = result.toFixed(2);

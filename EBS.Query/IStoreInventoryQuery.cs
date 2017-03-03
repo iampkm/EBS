@@ -12,6 +12,6 @@ namespace EBS.Query
         IEnumerable<StoreInventoryHistoryQueryDto> GetPageList(Pager page, SearchStoreInventoryHistory condition);
         IEnumerable<StoreInventoryBatchQueryDto> GetPageList(Pager page, SearchStoreInventoryBatch condition);
 
-        IEnumerable<ProductQueryDto> QueryProduct(string productCodeOrBarCode);
+        IEnumerable<ProductQueryDto> QueryProduct(SearchStoreInventory condition);
     }
 }

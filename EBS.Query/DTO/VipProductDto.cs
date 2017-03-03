@@ -27,9 +27,9 @@ namespace EBS.Query.DTO
         public string Unit { get; set; }
 
         /// <summary>
-        /// 合同进价
+        /// 参考进价
         /// </summary>
-        public decimal ContractPrice { get; set; }
+        public decimal Price { get; set; }
 
         public decimal SalePrice { get; set; }
 

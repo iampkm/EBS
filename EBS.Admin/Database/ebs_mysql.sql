@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2017-02-24 09:38:50                          */
+/* Created on:     2017-03-03 17:02:10                          */
 /*==============================================================*/
 
 
@@ -161,6 +161,8 @@ drop table if exists TransferOrder;
 drop table if exists TransferOrderItem;
 
 drop table if exists VipCard;
+
+drop index idx_vipProduct_productid on VipProduct;
 
 drop table if exists VipProduct;
 
@@ -1166,7 +1168,7 @@ create table StorePurchaseOrder
    Code                 nvarchar(20) comment '订单号',
    OrderType            int comment '单据类型: 进 1 退 2',
    StoreId              int comment '门店Id',
-   SupplierBill         nvarchar(20) comment '供应商单据号',
+   SupplierBill         nvarchar(200) comment '供应商单据号',
    SupplierId           int comment '供应商Id',
    CreatedOn            datetime comment '创建时间',
    CreatedBy            int comment '创建人',
@@ -1340,6 +1342,14 @@ create table VipProduct
    ProductId            int,
    SalePrice            decimal(8,2),
    primary key (Id)
+);
+
+/*==============================================================*/
+/* Index: idx_vipProduct_productid                              */
+/*==============================================================*/
+create unique index idx_vipProduct_productid on VipProduct
+(
+   ProductId
 );
 
 /*==============================================================*/

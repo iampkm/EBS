@@ -43,15 +43,34 @@ namespace EBS.Query.DTO
         /// 库存数量
         /// </summary>
         public int Quantity { get; set; }
-
         /// <summary>
-        /// 合同进价
+        /// 批次库存数量
         /// </summary>
-        public decimal ContractPrice { get; set; }
+        public int BatchQuantity { get; set; }
+        
+        /// <summary>
+        /// 成本均价
+        /// </summary>
+        public decimal AvgCostPrice { get; set; }
+        /// <summary>
+        /// 进价
+        /// </summary>
+        public decimal Price { get; set; }
         /// <summary>
         /// 售价
         /// </summary>
 
         public decimal SalePrice { get; set; }
+
+        /// <summary>
+        /// 门店售价
+        /// </summary>
+
+        public decimal StoreSalePrice { get; set; }
+        /// <summary>
+        /// 会员售价
+        /// </summary>
+
+        public decimal VipSalePrice { get; set; }
     }
 }
