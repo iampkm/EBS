@@ -72,5 +72,24 @@ namespace EBS.Query.DTO
         /// </summary>
 
         public decimal VipSalePrice { get; set; }
+        
+       /// <summary>
+       /// 毛利
+       /// </summary>
+        public string ProfitAmount { get {           
+            var realPrice = StoreSalePrice == 0 ? SalePrice : StoreSalePrice;
+            if (realPrice == 0) return "0.00";
+            return (realPrice - Price).ToString("F2");
+        } }
+
+        /// <summary>
+        /// 毛利率 
+        /// </summary>
+        public string ProfitPercent { get {
+            var realPrice = StoreSalePrice == 0 ? SalePrice : StoreSalePrice;
+            if (realPrice == 0) return "0.00";
+            decimal result = Math.Round((realPrice - Price) / realPrice * 100, 2);
+            return result.ToString("F2")+"%";
+        } }
     }
 }
