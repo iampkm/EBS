@@ -20,7 +20,7 @@
                     </div>                   
                 </div>
                 <span class="input-group-btn" slot="customButtons">
-                    <button type="button" class="btn btn-success btn-flat" v-on:click="audit()">审 核</button>
+                    <button type="button" class="btn btn-success btn-flat" v-on:click="audit()" v-bind:disabled="isSubmit">审 核</button>
                 </span>
             </vue-table>
         </div>
@@ -55,7 +55,8 @@
                 ],
                 url: "/TransferOrder/LoadData",
                 searchArgs: { code: '',status:1 },
-                rows: [],                
+                rows: [],
+                isSubmit: false,
             },
             methods: {
                 audit: function () {
@@ -69,18 +70,20 @@
                         return;
                     }
                     var selectId = selectRow[0].Id;
-                    v_self = this;
+                    var _self = this;
+                    _self.isSubmit = true;
                     bootbox.confirm("您确定审核该记录？", function (result) {
                         if (result) {
                             $.post("/TransferOrder/Audit", { id: selectId }, function (result) {
                                 if (result.success) {
                                     bootbox.alert("审核成功!", function () {
-                                        v_self.$refs.vtable.loadData();
+                                        _self.$refs.vtable.loadData();
                                     });                                   
                                 }
                                 else {
                                     bootbox.alert(result.error);
                                 }
+                                _self.isSubmit = false;
                             }, "json");
                         }
                     });

@@ -23,8 +23,8 @@
         <div class="box-body">
             <div class="row">
                 <div class="form-group col-sm-4 col-xs-6">
-                    <button type="button" class="btn btn-warning btn-flat" v-on:click="onSubmit">保 存</button>
-                    <button type="button" class="btn btn-success btn-flat" v-on:click="saveInventory">出 库</button>
+                    <button type="button" class="btn btn-warning btn-flat" v-on:click="onSubmit" v-bind:disabled="isSubmit">保 存</button>
+                    <button type="button" class="btn btn-success btn-flat" v-on:click="saveInventory" v-bind:disabled="isSubmit">出 库</button>
                     <button type="button" class="btn btn-primary btn-flat" v-on:click="print">打 印</button>
                     <a class="btn btn-default btn-flat" href="javascript:history.go(-1)">取 消</a>
                     <input type="hidden" v-model="model.id" />
@@ -209,7 +209,8 @@
                     products: @Html.Raw(ViewBag.StorePurchaseOrderItems),
                     totalQuantity: 0,
                     totalActualQuantity:0,
-                    toggleScanText:'关'
+                    toggleScanText:'关',
+                    isSubmit:false,
                 },
                 methods: {
                     onSubmit: function () {
@@ -233,11 +234,12 @@
                         data = data.substring(0, data.length - 1);
                         data = "[" + data + "]";
                         if( _self.model.supplierBill==""){
-                            bootbox.alert("请录入供应商单据号");
+                            bootbox.alert("请录入备注信息，例如供应商单号，日期等");
                             return;
                         }
                         _self.model.items = data;
                         var v_data = _self.model;
+                        _self.isSubmit = true;
                         $.post("/StorePurchaseOrder/ReceiveGoods", v_data, function (result) {
                             if (result.success) {
                                 bootbox.alert("保存成功！");
@@ -247,12 +249,14 @@
                             else {
                                 bootbox.alert(result.error);
                             }
+                            _self.isSubmit = false;
                         }, "json");
                     },
                     saveInventory:function(){
                         var _self = this;
                         bootbox.confirm("您确定提交该记录？", function (result) {
                             if (result) {
+                                _self.isSubmit = true;
                                 $.post("/StorePurchaseOrder/StockOutInventory", {id:_self.model.id}, function (result) {
                                     if (result.success) {                                       
                                         bootbox.confirm("出库成功！您要打印此单据吗？选择是 打印，选择取消返回列表！", function (sure) {
@@ -267,6 +271,7 @@
                                     else {
                                         bootbox.alert(result.error);
                                     }
+                                    _self.isSubmit = false;
                                 }, "json");
                             }
                         });

@@ -82,6 +82,7 @@ namespace EBS.Application.Facade
             var reason = "审核调拨单";
             _db.Update(entity);
             _processHistoryService.Track(entity.UpdatedBy, editByName, (int)entity.Status, entity.Id, BillIdentity.TransferOrder.ToString(), reason);
+            _inventoryService.CheckIsExists(entity.Code);
             _inventoryService.TransaferOutInventory(entity);
             _inventoryService.TransaferInInventory(entity);
            _db.SaveChange();

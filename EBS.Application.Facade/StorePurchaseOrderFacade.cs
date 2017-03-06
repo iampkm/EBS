@@ -153,6 +153,7 @@ namespace EBS.Application.Facade
            _processHistoryService.Track(entity.StoragedBy, entity.StoragedByName, (int)entity.Status, entity.Id, BillIdentity.StorePurchaseOrder.ToString(), reason);
             
             // 写入库存,库存历史纪录
+           _storeInventoryService.CheckIsExists(entity.Code);
             _storeInventoryService.StockInProducts(entity);
             _db.SaveChange();
         }
@@ -168,6 +169,7 @@ namespace EBS.Application.Facade
             var reason = "出库";
             _processHistoryService.Track(entity.StoragedBy, entity.StoragedByName, (int)entity.Status, entity.Id, BillIdentity.StorePurchaseRefundOrder.ToString(), reason);
             //扣减库存，并记录库存流水
+            _storeInventoryService.CheckIsExists(entity.Code);
             _storeInventoryService.StockOutInventory(entity);
             _db.SaveChange();
 

@@ -19,6 +19,14 @@ namespace EBS.Domain.Service
             _sequenceService = new BillSequenceService(this._db);
         }
 
+        public void CheckIsExists(string code)
+        {
+            if (_db.Table.Exists<StoreInventoryHistory>(n => n.BillCode == code))
+            {
+                throw new Exception(string.Format("库存流水{0}已经存在了",code));
+            }
+        }
+
         /// <summary>
         /// 采购入库
         /// </summary>

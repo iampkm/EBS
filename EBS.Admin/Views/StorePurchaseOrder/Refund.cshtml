@@ -27,7 +27,7 @@
         <div class="box-body">
             <div class="row">
                 <div class="form-group col-sm-4 col-xs-6">
-                    <button type="button" class="btn btn-warning btn-flat" v-on:click="onSubmit">保 存</button>
+                    <button type="button" class="btn btn-warning btn-flat" v-on:click="onSubmit" v-bind:disabled="isSubmit">保 存</button>
                     <button type="button" class="btn btn-success btn-flat" v-on:click="showModal()">导入商品</button>
                     <a class="btn btn-default btn-flat" href="/StorePurchaseOrder/Index">取 消</a>
                     <input type="hidden" v-model="model.id" />
@@ -265,7 +265,8 @@
                         searchArgs: { productCodeOrBarCode: '', storeId: 0 },
                         rows: [],
                         index:0
-                    }
+                    },
+                    isSubmit:false,
                 },
                 methods: {
                     onSubmit: function () {
@@ -293,6 +294,7 @@
                         data = "[" + data + "]";
                         _self.model.items = data;
                         var v_data = _self.model;
+                        _self.isSubmit = true;
                         $.post("/StorePurchaseOrder/Create", v_data, function (result) {
                             if (result.success) {
                                 bootbox.alert("保存成功！", function () {
@@ -302,6 +304,7 @@
                             else {
                                 bootbox.alert(result.error);
                             }
+                            _self.isSubmit = false;
                         }, "json");
                     },
                     importProduct: function () {

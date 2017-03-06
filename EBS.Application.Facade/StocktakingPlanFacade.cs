@@ -91,6 +91,7 @@ namespace EBS.Application.Facade
             _service.ValidateEndStatus(entity);
             // 开始结转
             entity.ChangeCompleteStatus(editedBy, editor);
+            _inventoryService.CheckIsExists(entity.Code);
             _inventoryService.FixedInventory(entity);           
             _db.Update(entity);
             _db.SaveChange();
