@@ -179,16 +179,15 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
                 where += "and t.Id=@StoreId ";
                 param.StoreId = condition.StoreId;
             }
-            string sql = @"select i.ProductId, p.`Name` as ProductName,p.`Code` as ProductCode,p.BarCode,p.Specification,p.Unit,p.SalePrice,
-i.Quantity,b.Quantity as BatchQuantity,s.Name as supplierName,t.`Name` as StoreName,i.AvgCostPrice,b.Price,sp.SalePrice as StoreSalePrice,v.SalePrice as VipSalePrice
-from storeinventory i
-left join product p on p.id = i.ProductId
-left join storeinventorybatch b on b.ProductId = p.Id
+            string sql = @"select b.ProductId, p.`Name` as ProductName,p.`Code` as ProductCode,p.BarCode,p.Specification,p.Unit,p.SalePrice,
+b.Quantity as BatchQuantity,s.Name as supplierName,t.`Name` as StoreName,b.Price,sp.SalePrice as StoreSalePrice,v.SalePrice as VipSalePrice
+from ( select i.storeid,i.supplierId,i.productId,i.Price,sum(i.quantity) as Quantity from storeinventorybatch i group by  i.storeid,i.supplierId,i.productId,i.Price ) b 
+left join product p on b.ProductId = p.Id
 left join supplier s on s.Id = b.SupplierId
-left join store t on t.Id = i.StoreId
+left join store t on t.Id = b.StoreId
 left join productstoreprice sp on sp.ProductId = p.Id
 left join vipproduct v on v.ProductId = p.Id
-where  b.Quantity>0 and b.StoreId = i.StoreId {0}";
+where 1=1 and b.Quantity>0 {0} order by b.StoreId";  //b.Quantity>0
             if (string.IsNullOrEmpty(where)) return new List<ProductQueryDto>();
             sql = string.Format(sql, where);
             var rows = _query.FindAll<ProductQueryDto>(sql, param);
