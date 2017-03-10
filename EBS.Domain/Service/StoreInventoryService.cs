@@ -70,6 +70,9 @@ namespace EBS.Domain.Service
                     inventoryUpdateModel.Id = inventory.Id;
                     inventoryUpdateModel.Quantity = purchaseOrderItem.ActualQuantity; //要更新的库存数量
                     inventoryUpdateModel.SaleQuantity = purchaseOrderItem.ActualQuantity; // 更新可售数量
+                    // 修改最后一次进价
+                    inventoryUpdateModel.LastCostPrice = purchaseOrderItem.Price > 0 ? purchaseOrderItem.Price : inventory.LastCostPrice;
+
                     // 计算移动加权平均成本
                     int totalQuantity = inventory.Quantity + purchaseOrderItem.ActualQuantity;
                     if (totalQuantity == 0)
@@ -87,14 +90,20 @@ namespace EBS.Domain.Service
                 }
             }
             // update storeinventory set quantity =quantity+@addQuantity ,saleQuantity=saleQuantity+@addQuantity where Id=@id and quantity=@oldQuantity
-            var updateInventorySql = UpdateQuantityAndAvgCostPriceSql();
+            var updateInventorySql = UpdateQuantityAndLastCostPriceSql();
             _db.Command.AddExecute(updateInventorySql, inventoryUpdates.ToArray());
             _db.Insert(inventoryHistorys.ToArray());
         }
         /// <summary>
-        /// 更新库存数量和平均成本 （入库使用)
+        /// 更新库存数量和最新入库成本 （入库使用)
         /// </summary>
         /// <returns></returns>
+        /// 
+        private string UpdateQuantityAndLastCostPriceSql()
+        {
+            string sql = " update storeinventory set quantity =quantity+@Quantity ,saleQuantity=saleQuantity+@SaleQuantity,AvgCostPrice=@AvgCostPrice,LastCostPrice=@LastCostPrice where Id=@Id";
+            return sql;
+        }
         private string UpdateQuantityAndAvgCostPriceSql()
         {
             string sql = " update storeinventory set quantity =quantity+@Quantity ,saleQuantity=saleQuantity+@SaleQuantity,AvgCostPrice=@AvgCostPrice where Id=@Id";
@@ -549,6 +558,8 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
                     inventoryUpdateModel.Id = inventory.Id;
                     inventoryUpdateModel.Quantity = purchaseOrderItem.Quantity; //要更新的库存数量
                     inventoryUpdateModel.SaleQuantity = purchaseOrderItem.Quantity; // 更新可售数量
+                    // 修改最后一次进价
+                    inventoryUpdateModel.LastCostPrice = purchaseOrderItem.Price > 0 ? purchaseOrderItem.Price : inventory.LastCostPrice;
                     // 计算移动加权平均成本
                     int totalQuantity = inventory.Quantity + purchaseOrderItem.Quantity;
                     if (totalQuantity == 0)
@@ -568,7 +579,7 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
                 }
             }
             // update storeinventory set quantity =quantity+@addQuantity ,saleQuantity=saleQuantity+@addQuantity where Id=@id and quantity=@oldQuantity
-            var updateInventorySql = UpdateQuantityAndAvgCostPriceSql();
+            var updateInventorySql = UpdateQuantityAndLastCostPriceSql();
             _db.Command.AddExecute(updateInventorySql, inventoryUpdates.ToArray());
             _db.Insert(inventoryHistorys.ToArray());
         }
@@ -697,6 +708,17 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
             }
             _db.Command.AddExecute(UpdateQuantityAndAvgCostPriceSql(), inventoryUpdates.ToArray()); //总库存
             _db.Insert(inventoryHistorys.ToArray());
+        }
+
+        public void UpdateStoreSalePrice(AdjustStorePrice entity)
+        {
+            if (entity.Items.Count() == 0)
+            {
+                throw new Exception("明细为空");
+            }
+            var parma = entity.Items.Select(n => new { StoreId = entity.StoreId, ProductId = n.ProductId, AdjustPrice = n.AdjustPrice }).ToArray();
+            string sql = "update StoreInventory set StoreSalePrice =@AdjustPrice where StoreId=@StoreId and ProductId=@ProductId";
+            _db.Command.AddExecute(sql, parma);
         }
 
     }

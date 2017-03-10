@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2017-03-03 17:02:10                          */
+/* Created on:     2017-03-08 15:59:09                          */
 /*==============================================================*/
 
 
@@ -23,6 +23,12 @@ drop table if exists AdjustContractPriceItem;
 drop table if exists AdjustSalePrice;
 
 drop table if exists AdjustSalePriceItem;
+
+drop index idx_AdjustStorePrice_code on AdjustStorePrice;
+
+drop table if exists AdjustStorePrice;
+
+drop table if exists AdjustStorePriceItem;
 
 drop table if exists Area;
 
@@ -61,6 +67,8 @@ drop table if exists ProductCodeSequence;
 drop table if exists ProductDetails;
 
 drop table if exists ProductPicture;
+
+drop index idx_ProductStorePrice_pid on ProductStorePrice;
 
 drop table if exists ProductStorePrice;
 
@@ -311,6 +319,48 @@ create table AdjustSalePriceItem
 alter table AdjustSalePriceItem comment '调整售价明细';
 
 /*==============================================================*/
+/* Table: AdjustStorePrice                                      */
+/*==============================================================*/
+create table AdjustStorePrice
+(
+   Id                   int not null auto_increment comment '编号',
+   Code                 nvarchar(50) comment '调价单号',
+   StoreId              int comment '门店',
+   CreatedOn            datetime comment '创建时间',
+   CreatedBy            int comment '创建人',
+   UpdatedOn            datetime comment '修改时间',
+   UpdatedBy            int comment '修改人',
+   Status               int comment '状态',
+   Remark               varchar(500) comment '备注',
+   primary key (Id)
+);
+
+alter table AdjustStorePrice comment '调整门店售价';
+
+/*==============================================================*/
+/* Index: idx_AdjustStorePrice_code                             */
+/*==============================================================*/
+create unique index idx_AdjustStorePrice_code on AdjustStorePrice
+(
+   Code
+);
+
+/*==============================================================*/
+/* Table: AdjustStorePriceItem                                  */
+/*==============================================================*/
+create table AdjustStorePriceItem
+(
+   Id                   int not null auto_increment comment '编号',
+   AdjustStorePriceId   int comment '调价单编码',
+   StoreSalePrice       decimal(8,2) comment '原售价',
+   AdjustPrice          decimal(8,2) comment '调整售价',
+   ProductId            int comment '商品编号',
+   primary key (Id)
+);
+
+alter table AdjustStorePriceItem comment '调整售价明细';
+
+/*==============================================================*/
 /* Table: Area                                                  */
 /*==============================================================*/
 create table Area
@@ -529,6 +579,8 @@ create table ProductAreaPrice
    primary key (Id)
 );
 
+alter table ProductAreaPrice comment '商品区域价，该表不再使用';
+
 /*==============================================================*/
 /* Table: ProductCodeSequence                                   */
 /*==============================================================*/
@@ -581,7 +633,19 @@ create table ProductStorePrice
    ProductId            int,
    StoreId              int,
    SalePrice            decimal(8,2),
+   Status               int comment '状态',
    primary key (Id)
+);
+
+alter table ProductStorePrice comment '商品门店价； 此表不再使用，属性与库存表重合，用库存表代替';
+
+/*==============================================================*/
+/* Index: idx_ProductStorePrice_pid                             */
+/*==============================================================*/
+create unique index idx_ProductStorePrice_pid on ProductStorePrice
+(
+   ProductId,
+   StoreId
 );
 
 /*==============================================================*/
@@ -1037,6 +1101,9 @@ create table StoreInventory
    AvgCostPrice         decimal(8,4) comment '平均成本价',
    WarnQuantity         int comment '警告库存',
    IsQuit               bool comment '是否退出',
+   LastCostPrice        decimal(8,2) comment '最新进价',
+   StoreSalePrice       decimal(8,2) comment '门店售价',
+   Status               int comment '状态',
    primary key (Id)
 );
 

@@ -180,12 +180,12 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
                 param.StoreId = condition.StoreId;
             }
             string sql = @"select b.ProductId, p.`Name` as ProductName,p.`Code` as ProductCode,p.BarCode,p.Specification,p.Unit,p.SalePrice,
-b.Quantity as BatchQuantity,s.Name as supplierName,t.`Name` as StoreName,b.Price,sp.SalePrice as StoreSalePrice,v.SalePrice as VipSalePrice
+b.Quantity as BatchQuantity,s.Name as supplierName,t.`Name` as StoreName,b.Price,sp.StoreSalePrice,v.SalePrice as VipSalePrice
 from ( select i.storeid,i.supplierId,i.productId,i.Price,sum(i.quantity) as Quantity from storeinventorybatch i group by  i.storeid,i.supplierId,i.productId,i.Price ) b 
 left join product p on b.ProductId = p.Id
 left join supplier s on s.Id = b.SupplierId
 left join store t on t.Id = b.StoreId
-left join productstoreprice sp on sp.ProductId = p.Id
+left join storeinventory sp on sp.ProductId = p.Id and sp.StoreId = b.storeid
 left join vipproduct v on v.ProductId = p.Id
 where 1=1 and b.Quantity>0 {0} order by b.StoreId";  //b.Quantity>0
             if (string.IsNullOrEmpty(where)) return new List<ProductQueryDto>();

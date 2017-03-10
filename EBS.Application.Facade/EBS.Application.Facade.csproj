@@ -57,6 +57,7 @@
     <Compile Include="AccountFacade.cs" />
     <Compile Include="AdjustContractPriceFacade.cs" />
     <Compile Include="AdjustSalePriceFacade.cs" />
+    <Compile Include="AdjustStorePriceFacade.cs" />
     <Compile Include="BrandFacade.cs" />
     <Compile Include="CategoryFacade.cs" />
     <Compile Include="Mapping\AutoMappingExtension.cs" />

@@ -146,6 +146,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AdjustContractPriceController.cs" />
     <Compile Include="Controllers\AdjustSalePriceController.cs" />
+    <Compile Include="Controllers\AdjustStorePriceController.cs" />
     <Compile Include="Controllers\BrandController.cs" />
     <Compile Include="Controllers\CategoryController.cs" />
     <Compile Include="Controllers\CommonController.cs" />
@@ -1301,6 +1302,12 @@
     <Content Include="Views\StorePurchaseOrder\QueryRefund.cshtml" />
     <Content Include="Views\AccessToken\Index.cshtml" />
     <Content Include="Views\AccessToken\Create.cshtml" />
+    <Content Include="Views\AdjustStorePrice\Index.cshtml" />
+    <Content Include="Views\AdjustStorePrice\Create.cshtml" />
+    <Content Include="Views\AdjustStorePrice\Edit.cshtml" />
+    <Content Include="Views\AdjustStorePrice\Detail.cshtml" />
+    <Content Include="Views\AdjustStorePrice\AuditIndex.cshtml" />
+    <Content Include="Views\AdjustStorePrice\Finish.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">

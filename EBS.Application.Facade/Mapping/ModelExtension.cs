@@ -54,5 +54,12 @@ namespace EBS.Application.Facade.Mapping
             return result;
         }
 
+        public static List<AdjustStorePriceItem> ConvertJsonToItem(this AdjustStorePriceModel source)
+        {
+            if (string.IsNullOrEmpty(source.Items)) throw new Exception("商品明细为空");
+            var result = JsonConvert.DeserializeObject<List<AdjustStorePriceItem>>(source.Items);
+            return result;
+        }
+
     }
 }

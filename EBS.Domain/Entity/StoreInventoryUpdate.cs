@@ -19,6 +19,10 @@ namespace EBS.Domain.Entity
 
          public decimal AvgCostPrice { get; set; }
 
+        /// <summary>
+        /// 最后一次进价
+        /// </summary>
+         public decimal LastCostPrice { get; set; }
 
     }
 

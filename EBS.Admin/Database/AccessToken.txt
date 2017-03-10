@@ -1,6 +1,10 @@
 ﻿成都东站3店：  posid=301 ,storeid=2,cdkeySource=20170101@a, cdkey =c3089eaeb92880e92e1c1545a2ddf3d6 ; 服务端cdkey =22e5b2cb96acc9631c1be1129cd3ff8d
 成都东站2店：  posid=201 ,storeid=1,cdkeySource=20170111@a, cdkey =4fcea6de65af8a606e399a4aec955c70 ; 服务端cdkey =f90b9c3735f6f542795a7966bfe6d253
 成都东站5店：  posid=501 ,storeid=6,cdkeySource=20170111@b, cdkey =6d43d931e66bd88038aa384ddde7bdc8 ; 服务端cdkey =126b0948e96b487dd5e05068b7a7bf00
-涪陵2店:      posid =201,storeid=15,cdkeySource=20170301@qaz,cdkey =9e591dfa860110bc9b3974d391dbba05 ;    cdkey =e99bd12f4a7526ce0022a95c0f765deb
-涪陵1店:      posid =101,storeid=14,cdkeySource=20170302@wsx,cdkey =e9209c4176974792fa302cf53a8acaf1 ;    cdkey =0f28a063246e06ea8af37a6b5fa94538
+涪陵2店:      posid =201,storeid=15,cdkeySource=20170301@qaz,cdkey =9e591dfa860110bc9b3974d391dbba05 ;服务端    cdkey =e99bd12f4a7526ce0022a95c0f765deb
+涪陵1店:      posid =101,storeid=14,cdkeySource=20170302@wsx,cdkey =e9209c4176974792fa302cf53a8acaf1 ; 服务端   cdkey =0f28a063246e06ea8af37a6b5fa94538
+丰都店:       posid=101,storeid=16  ,cdkeySource =20170307@edc,cdkey =0265464f6fa49f35105c8104ba8a11d1    服务端cdkey=8684a2197712ea6232d382ecd63f4c78
+石柱店:        posid=101,storeid=17  ,cdkeySource =20170307@rfv,cdkey =c2bd66c0995a94789212bb2616efe7d8    服务端cdkey=52ce7e72cdf3cdeba2855d95064bbf0f
+成都4店:      posid=401,storeid=5  ,cdkeySource =20170307@tgb,cdkey = 1fe64f60ee142b8a5659448476079d18   服务端cdkey=d1d88298e3bf9f3ad3653868c46ef157
+成都6店:       posid=601,storeid=7  ,cdkeySource =20170307@yhn,cdkey =62af0bf2aee4cfa1038143b90c09ddff    服务端cdkey=7fd6eb69513afd79a407afeef7729f5b
                      

@@ -56,6 +56,8 @@
     <Compile Include="Entity\AdjustContractPriceItem.cs" />
     <Compile Include="Entity\AdjustSalePrice.cs" />
     <Compile Include="Entity\AdjustSalePriceItem.cs" />
+    <Compile Include="Entity\AdjustStorePrice.cs" />
+    <Compile Include="Entity\AdjustStorePriceItem.cs" />
     <Compile Include="Entity\Area.cs" />
     <Compile Include="Entity\BillSequence.cs" />
     <Compile Include="Entity\Brand.cs" />
@@ -100,6 +102,7 @@
     <Compile Include="Entity\AccountLoginHistory.cs" />
     <Compile Include="Service\AdjustContractPriceService.cs" />
     <Compile Include="Service\AdjustSalePriceService.cs" />
+    <Compile Include="Service\AdjustStorePriceService.cs" />
     <Compile Include="Service\BillSequenceService.cs" />
     <Compile Include="Service\BrandService.cs" />
     <Compile Include="Service\CategoryService.cs" />
@@ -120,6 +123,7 @@
     <Compile Include="Service\VipProductService.cs" />
     <Compile Include="ValueObject\AdjustContractPriceStatus.cs" />
     <Compile Include="ValueObject\AdjustSalePriceStatus.cs" />
+    <Compile Include="ValueObject\AdjustStorePriceStatus.cs" />
     <Compile Include="ValueObject\OrderType.cs" />
     <Compile Include="ValueObject\SaleOrderStatus.cs" />
     <Compile Include="ValueObject\PurchaseOrderStatus.cs" />
@@ -132,6 +136,7 @@
     <Compile Include="ValueObject\StocktakingPlanStatus.cs" />
     <Compile Include="ValueObject\StocktakingStatus.cs" />
     <Compile Include="ValueObject\StocktakingType.cs" />
+    <Compile Include="ValueObject\StoreInventoryStatus.cs" />
     <Compile Include="ValueObject\SupplierProductStatus.cs" />
     <Compile Include="ValueObject\SupplierType.cs" />
     <Compile Include="ValueObject\DateRange.cs" />

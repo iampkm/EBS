@@ -47,6 +47,7 @@
     <Compile Include="AccountQueryService.cs" />
     <Compile Include="AdjustContractPriceQueryService.cs" />
     <Compile Include="AdjustSalePriceQueryService.cs" />
+    <Compile Include="AdjustStorePriceQueryService.cs" />
     <Compile Include="AreaQueryService.cs" />
     <Compile Include="BrandQueryService.cs" />
     <Compile Include="CategoryQueryService.cs" />

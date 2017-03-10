@@ -21,6 +21,12 @@ namespace EBS.Query.DTO
         /// 创建时间
         /// </summary>
         public string CreatedOn { get; set; }
+
+        public string LicenseCode { get; set; }
+
+        public string IsSettingLicenseCode { get {
+            return string.IsNullOrEmpty(LicenseCode) ? "空" : "已设置";
+        } }
         
     }
 }

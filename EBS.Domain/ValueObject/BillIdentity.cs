@@ -49,6 +49,11 @@ namespace EBS.Domain.ValueObject
         /// 商品调价单
         /// </summary>
         AdjustSalePrice = 16,
+        [Description("门店调价单")]
+        /// <summary>
+        /// 调整门店售价单
+        /// </summary>
+        AdjustStorePrice = 17,
 
 
         // 通用单据  10~49 ， 门店单据50~-99

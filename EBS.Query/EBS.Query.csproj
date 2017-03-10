@@ -48,6 +48,9 @@
     <Compile Include="DTO\AdjustContractPriceItemDto.cs" />
     <Compile Include="DTO\AdjustSalePriceDto.cs" />
     <Compile Include="DTO\AdjustSalePriceItemDto.cs" />
+    <Compile Include="DTO\AdjustStorePriceDto.cs" />
+    <Compile Include="DTO\AdjustStorePriceItemDto.cs" />
+    <Compile Include="DTO\AdjustStorePriceListDto.cs" />
     <Compile Include="DTO\AreaTreeNode.cs" />
     <Compile Include="DTO\CacheKeys.cs" />
     <Compile Include="DTO\CategoryTreeNode.cs" />
@@ -73,6 +76,7 @@
     <Compile Include="DTO\SaleSyncDto.cs" />
     <Compile Include="DTO\SearchAdjustContractPrice.cs" />
     <Compile Include="DTO\SearchAdjustSalePrice.cs" />
+    <Compile Include="DTO\SearchAdjustStorePrice.cs" />
     <Compile Include="DTO\SearchSaleOrder.cs" />
     <Compile Include="DTO\SearchStocktaking.cs" />
     <Compile Include="DTO\SearchStoreInventory.cs" />
@@ -109,6 +113,7 @@
     <Compile Include="IAccountQuery.cs" />
     <Compile Include="IAdjustContractPriceQuery.cs" />
     <Compile Include="IAdjustSalePriceQuery.cs" />
+    <Compile Include="IAdjustStorePriceQuery.cs" />
     <Compile Include="IAreaQuery.cs">
       <SubType>Code</SubType>
     </Compile>

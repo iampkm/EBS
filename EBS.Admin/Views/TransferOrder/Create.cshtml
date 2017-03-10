@@ -320,9 +320,11 @@
                                 _self.model.statusName = result.statusName;
                                 _self.model.id = result.id;
                                 bootbox.confirm("保存成功，你要打印吗？", function (sure) {
-                                    if (sure)
-                                    {
+                                    if (sure) {
                                         _self.print();
+                                    }
+                                    else {
+                                        window.location.href = "/TransferOrder/Create";
                                     }
                                 });
                                
@@ -522,7 +524,8 @@
                             $("#printDiv").html("");
 
                             // 清空当前记录信息
-                            _self.clearItems();
+                            window.location.href = "/TransferOrder/Create";
+                           // _self.clearItems();
                             //_self.model.statusName = "";
                             //_self.model.code = "";
                             //_self.model.id = 0;

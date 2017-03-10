@@ -44,7 +44,8 @@ namespace EBS.Query.Service
 
         IEnumerable<ProductStorePriceSync> IPosSyncQuery.QueryProductStorePriceSync(int storeId)
         {
-            string sql = @"SELECT Id,StoreId,ProductId,SalePrice FROM ProductStorePrice where StoreId=@StoreId";
+           // string sql = @"SELECT Id,StoreId,ProductId,SalePrice FROM ProductStorePrice where StoreId=@StoreId";
+            string sql = @"SELECT Id,StoreId,ProductId,StoreSalePrice as SalePrice FROM storeinventory where StoreId=@StoreId and StoreSalePrice>0 ";
             var rows = this._query.FindAll<ProductStorePriceSync>(sql, new { StoreId = storeId });
             return rows;
         }
