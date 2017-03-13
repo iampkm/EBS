@@ -83,8 +83,9 @@ namespace EBS.Application.Facade
             _db.Update(entity);
             _processHistoryService.Track(entity.UpdatedBy, editByName, (int)entity.Status, entity.Id, BillIdentity.TransferOrder.ToString(), reason);
             _inventoryService.CheckIsExists(entity.Code);
-            _inventoryService.TransaferOutInventory(entity);
-            _inventoryService.TransaferInInventory(entity);
+           // _inventoryService.TransaferOutInventory(entity);
+           // _inventoryService.TransaferInInventory(entity);
+            _inventoryService.TransaferInventory(entity);
            _db.SaveChange();
         }
 
