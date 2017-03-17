@@ -11,6 +11,8 @@ namespace EBS.Query
        IEnumerable<TransferOrderDto> GetPageList(Pager page, SearchTransferOrder condition);
 
        TransaferOrderItemDto QueryProduct(string productCodeOrBarCode, int storeId);
+
+       IEnumerable<TransaferOrderItemDto> ImportProducts(int storeId, string inputBarCodes);
        List<TransaferOrderItemDto> QueryProductBatch(string productCodeOrBarCode, int storeId);
 
         TransferOrderDto GetById(int id);

@@ -35,17 +35,7 @@ namespace EBS.Application.Facade
             entity.CreatedBy = model.EditBy;
             entity.CreatedByName = model.EditByName;
             entity.UpdatedBy = model.EditBy;
-            if (string.IsNullOrEmpty(entity.Code))
-            {
-                entity.Code = _sequenceService.GenerateNewCode(BillIdentity.TransferOrder);
-            }
-            else {
-                if (_db.Table.Exists<TransferOrder>(n => n.Code == entity.Code))
-                {
-                    throw new Exception("单据已经存在");
-                }
-            }
-           
+            entity.Code = _sequenceService.GenerateNewCode(BillIdentity.TransferOrder);           
             // 明细
             var items = JsonConvert.DeserializeObject<List<TransferOrderItem>>(model.ItemsJson);
             entity.Items = items;
@@ -62,14 +52,7 @@ namespace EBS.Application.Facade
             model.Code = entity.Code;
             model.StatusName = entity.Status.Description();
             entity.Id = modelEntity.Id;
-            // 如果调入库存商品不存在，创建商品信息
-            var notExistsProduct = _inventoryService.CheckNotExistsProduct(entity);
-            if (notExistsProduct.Count()>0)
-            {
-                _db.Insert(notExistsProduct.ToArray());
-                _db.SaveChange();
-            }           
-
+            
         }
 
 
@@ -83,8 +66,6 @@ namespace EBS.Application.Facade
             _db.Update(entity);
             _processHistoryService.Track(entity.UpdatedBy, editByName, (int)entity.Status, entity.Id, BillIdentity.TransferOrder.ToString(), reason);
             _inventoryService.CheckIsExists(entity.Code);
-           // _inventoryService.TransaferOutInventory(entity);
-           // _inventoryService.TransaferInInventory(entity);
             _inventoryService.TransaferInventory(entity);
            _db.SaveChange();
         }
@@ -101,12 +82,48 @@ namespace EBS.Application.Facade
 
         public void Edit(TransferOrderModel model)
         {
-            TransferOrder entity = _db.Table.Find<TransferOrder>(model.Id);       
+            var entity = _db.Table.Find<TransferOrder>(model.Id);       
             entity = model.MapTo<TransferOrder>(entity);
-
             entity.UpdatedBy = model.EditBy;
             entity.UpdatedOn = DateTime.Now;
             _db.Update(entity);
+
+            var items = JsonConvert.DeserializeObject<List<TransferOrderItem>>(model.ItemsJson);
+            items.ForEach(n => n.TransferOrderId = entity.Id);
+            entity.Items = items;
+            _service.EditItem(entity);
+
+            _db.SaveChange();
+        }
+
+        public void Submit(int id, int editBy, string editByName)
+        {
+            var entity = _db.Table.Find<TransferOrder>(id);
+            if (entity == null) { throw new Exception("单据不存在"); }
+            entity.Items = _db.Table.FindAll<TransferOrderItem>(n => n.TransferOrderId == id).ToList();
+            // 修改单据状态
+            entity.Submit(editBy,editByName);
+            _db.Update(entity);
+            var reason = "提交调拨单";
+            _processHistoryService.Track(editBy, editByName, (int)entity.Status, entity.Id, BillIdentity.TransferOrder.ToString(), reason);
+
+            // 如果调入库存商品不存在，创建商品信息
+            var notExistsProduct = _inventoryService.CheckNotExistsProduct(entity);
+            if (notExistsProduct.Count() > 0)
+            {
+                _db.Insert(notExistsProduct.ToArray());
+               
+            }
+            _db.SaveChange();
+        }
+
+        public void Reject(int id, int editBy, string editByName)
+        {
+            var entity = _db.Table.Find<TransferOrder>(id);
+            entity.Reject(editBy, editByName);
+            _db.Update(entity);
+            var reason = "驳回调拨单";
+            _processHistoryService.Track(editBy, editByName, (int)entity.Status, entity.Id, BillIdentity.TransferOrder.ToString(), reason);
             _db.SaveChange();
         }
     }

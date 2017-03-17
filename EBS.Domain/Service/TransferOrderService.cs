@@ -16,6 +16,15 @@ namespace EBS.Domain.Service
             this._db = dbcontext;
         }
 
-        
+        public void EditItem(TransferOrder entity)
+        {
+            //明细
+            if (_db.Table.Exists<TransferOrderItem>(n => n.TransferOrderId == entity.Id))
+            {
+                _db.Delete<TransferOrderItem>(n => n.TransferOrderId == entity.Id);
+            }
+
+            _db.Insert(entity.Items.ToArray());
+        }
     }
 }

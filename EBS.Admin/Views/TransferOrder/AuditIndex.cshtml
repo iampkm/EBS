@@ -2,12 +2,24 @@
     ViewBag.Title = "Index";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
+@section styles{
+    <link href="~/Content/zTree.min.css" rel="stylesheet" />
+    <style>
+        .ztree li span {
+            font-size: 14px;
+        }
+
+        .dataRow div {
+            margin-bottom: 0px;
+        }
+    </style>
+}
 <!-- demo root element -->
 <div id="app">
     <div class="box box-primary">
         <div class="box-header">
             <ol class="breadcrumb" style="padding:0px;margin:1px;">
-                <li><a href="/TransferOrder/AuditIndex"><i class="fa fa-dashboard"></i>审核调拨单</a></li>
+                <li><a href="/TransferOrder/AuditIndex"><i class="fa fa-dashboard"></i>调拨单-审核</a></li>
             </ol>
         </div>
         <div class="box-body">
@@ -17,26 +29,137 @@
                 <div class="row" style="margin-bottom:10px;" slot="customSearch">
                     <div class="col-xs-3 col-sm-2">
                         <input class="form-control" v-model="searchArgs.code" placeholder="调拨单号" debounce="500" />
-                    </div>                   
+                    </div>
+                    <div class="form-group col-sm-2 col-xs-3">
+                        <div class="input-group date" data-provide="datepicker" data-date-format="yyyy-mm-dd"
+                             data-date-language="zh-CN" data-date-clear-btn="true" data-date-autoclose="true">
+                            <div class="input-group-addon">
+                                <i class="fa fa-calendar"></i>
+                                <span></span>
+                            </div>
+                            <input type="text" class="form-control" v-model="searchArgs.startDate" placeholder="开始日期" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-2 col-xs-3">
+                        <div class="input-group date " data-provide="datepicker" data-date-format="yyyy-mm-dd"
+                             data-date-language="zh-CN" data-date-clear-btn="true" data-date-autoclose="true">
+                            <div class="input-group-addon">
+                                <i class="fa fa-calendar"></i>
+                                <span></span>
+                            </div>
+                            <input type="text" class="form-control" v-model="searchArgs.endDate" placeholder="结束日期" readonly>
+                        </div>
+                    </div>  
+                    <div class="col-sm-2 col-xs-3" v-show="selectStore.view">
+                        <div class="input-group ">
+                            <input type="hidden" class="form-control" v-model="searchArgs.storeId">
+                            <input type="text" class="form-control" v-model="selectStore.name" placeholder="选择门店" readonly>
+                            <span class="input-group-btn">
+                                <button class="btn btn-flat btn-default" type="button" v-on:click="showStore"><i class="fa fa-search"></i></button>
+                                <button class="btn btn-flat btn-default" type="button" v-on:click="clearStore"><i class="fa fa-eraser"></i></button>
+                            </span>
+                        </div>
+                    </div>                    
+                    <div class="col-sm-2 col-xs-3">
+                        <div class="row">
+                            <div class="col-sm-4 col-xs-4 ">
+                                <v-checkbox v-bind:checked.sync="searchArgs.to" type="success">调入</v-checkbox>  
+                            </div>
+                            <div class="col-sm-4 col-xs-4 ">
+                                <v-checkbox v-bind:checked.sync="searchArgs.from" type="success">调出</v-checkbox>
+                            </div>
+                        </div>
+                    </div>
+                   
+                                     
                 </div>
-                <span class="input-group-btn" slot="customButtons">
-                    <button type="button" class="btn btn-success btn-flat" v-on:click="audit()" v-bind:disabled="isSubmit">审 核</button>
+                <span class="input-group-btn" slot="customButtons">                  
+                    <button type="button" class="btn btn-success btn-flat" v-on:click="showDetail()">审 核</button>
+                    <button type="button" class="btn btn-primary btn-flat" v-on:click="reject()">驳 回</button>
+                    <button type="button" class="btn btn-danger btn-flat" v-on:click="remove()">作 废</button>
                 </span>
             </vue-table>
         </div>
         <!-- /.box-body -->
     </div>
-    <div class="clearfix"></div>    
+    <div class="clearfix"></div>
+    <v-modal title="选择门店" ok-text="确 定" cancel-text="取 消" v-bind:callback="getStore" v-bind:show.sync="selectStore.modal" v-bind:effect="fade" width="60%">
+        <div slot="modal-body" class="modal-body">
+            <div style="min-height:350px;max-height:500px;overflow:auto;"><ul id="ztree" class="ztree"></ul></div>
+        </div>
+    </v-modal>    
+    <v-modal title="审阅明细" ok-text="审核通过" cancel-text="取 消" v-bind:callback="submitAudit" v-bind:show.sync="selectDetail.modal" v-bind:effect="fade" width="60%">
+        <div slot="modal-body" class="modal-body">            
+            <div class="row">
+                <div class="col-xs-4 col-sm-4">
+                    <span>调出门店：{{selectDetail.model.FromStoreName}}</span>
+                </div>
+                <div class="col-xs-4 col-sm-4 text-center">
+                </div>
+                <div class="col-xs-4 col-sm-4 ">
+                    <span>单据号：{{selectDetail.model.Code}}</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-4 col-sm-4">
+                    <span>调入门店：{{selectDetail.model.ToStoreName}}</span>
+                </div>
+                <div class="col-xs-4 col-sm-4 text-center">
+                    单据状态：{{selectDetail.model.StatusName}}
+                </div>
+                <div class="col-xs-4 col-sm-4">
+                    <span>制单日期：{{selectDetail.model.CreatedTime}}</span>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered table-printfontsize">
+                    <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>商品编码</th>
+                            <th>条码</th>
+                            <th>品名</th>
+                            <th>规格</th>
+                            <th>单位</th>
+                            <th>进价</th>
+                            <th>数量</th>
+                            <th>金额</th>
+                            <th>批次</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody">
+                        <tr v-for="(index,item) in selectDetail.items">
+                            <td class="text-center">{{index+1}}</td>
+                            <td>
+                                {{item.ProductCode}}
+                            </td>
+                            <td>{{item.BarCode}}</td>
+                            <td>{{item.ProductName}}</td>
+                            <td>{{item.Specification}}</td>
+                            <td>{{item.Unit}}</td>
+                            <td>{{item.Price.toFixed(4)}}</td>                           
+                            <td>
+                                <span class="text-primary"><strong>{{item.Quantity}}</strong></span>
+                            </td>
+                            <td>{{item.Amount.toFixed(2)}}</td>
+                            <td>{{item.BatchNo}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </v-modal>    
 </div>
 @{Html.RenderPartial("VueTableTemplate");}
 @section scripts{
     <script src="~/Content/Vue/vuetable/vuetable.js"></script>
+<script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
     <script>
-
         var vue = new Vue({
             components: {
                 'v-modal': VueStrap.modal,
-                'v-input': VueStrap.input
+                'v-input': VueStrap.input,
+                'v-checkbox': VueStrap.checkbox,
             },
             el: '#app',
             data: {
@@ -44,22 +167,64 @@
                 selectedId: 0,
                 searchQuery: '',
                 gridColumns: [
-                    { name: 'Code', localName: '调拨单号', style: "<a href='/TransferOrder/Detail/{id}'>{column}</a>" },
+                    { name: 'Code', localName: '调拨单号' },
                     { name: 'FromStoreName', localName: '调出门店' },
                     { name: 'ToStoreName', localName: '调入门店' },
                     { name: 'TotalQuantity', localName: '数量', width: '80' },
                     { name: 'TotalAmount', localName: '金额' },
-                     { name: 'StatusName', localName: '状态' },
-                    { name: 'CreatedTime', localName: '创建日期' },
-                    { name: 'CreatedByName', localName: '创建人', width: '80' }
+                    { name: 'StatusName', localName: '状态', width: '80' },
+                    { name: 'CreatedTime', localName: '创建日期', width: '160'  },
+                    { name: 'CreatedByName', localName: '创建人' }
                 ],
                 url: "/TransferOrder/LoadData",
-                searchArgs: { code: '',status:1 },
+                searchArgs: { code: '', status: 2, storeId: '@ViewBag.StoreId',from:null,to:null, startDate: '', endDate: '' },
                 rows: [],
                 isSubmit: false,
+                selectDetail: {
+                    modal: false,
+                    items: [],
+                    model: {}
+                },
+                selectStore: {
+                    modal: false,
+                    name: '@ViewBag.StoreName',
+                    view: @ViewBag.View,
+                },               
+
             },
             methods: {
-                audit: function () {
+                showDetail: function () {
+                    var selectRow = this.rows.filter(function (item, index) {
+                        if (item.checked) {
+                            return true;
+                        }
+                    });
+                    if (selectRow.length == 0) {
+                        bootbox.alert("请选择一条记录");
+                        return;
+                    }
+                    this.selectedId = selectRow[0].Id;
+                    var v_self = this;
+                    //加载明细
+                    $.post("/TransferOrder/GetDetail", { id: v_self.selectedId }, function (result) {
+                        if (result.success) {
+                            v_self.selectDetail.items = [];
+                            v_self.selectDetail.model = result.data;
+                            result.data.Items.forEach(function (item) {
+                                v_self.selectDetail.items.push(item);
+                            })
+                            v_self.selectDetail.modal = true;
+                        }
+                        else {
+                            bootbox.alert(result.error);
+                        }
+                    }, "json");
+
+                },
+                closeDetail: function () {
+                    this.selectDetail.modal = false;
+                },
+                submitAudit: function () {
                     var selectRow = this.rows.filter(function (item, index) {
                         if (item.checked) {
                             return true;
@@ -72,24 +237,125 @@
                     var selectId = selectRow[0].Id;
                     var _self = this;
                     _self.isSubmit = true;
-                    bootbox.confirm("您确定审核该记录？", function (result) {
+                    $.post("/TransferOrder/Audit", { id: selectId }, function (result) {
+                        if (result.success) {
+                            bootbox.alert("审核成功!", function () {
+                                _self.$refs.vtable.loadData();
+                                _self.closeDetail();
+                            });                                   
+                        }
+                        else {
+                            bootbox.alert(result.error);
+                        }
+                        _self.isSubmit = false;
+                    }, "json");
+                },
+                reject:function(){
+                    var selectRow = this.rows.filter(function (item, index) {
+                        if (item.checked) {
+                            return true;
+                        }
+                    });
+                    if (selectRow.length == 0) {
+                        bootbox.alert("请选择一条记录");
+                        return;
+                    }
+                    this.selectedId = selectRow[0].Id;
+                    var v_self = this;
+                    bootbox.confirm("您确定驳回该单据？", function (result) {
                         if (result) {
-                            $.post("/TransferOrder/Audit", { id: selectId }, function (result) {
+                            $.post("/TransferOrder/Reject", { id: v_self.selectedId }, function (result) {
                                 if (result.success) {
-                                    bootbox.alert("审核成功!", function () {
-                                        _self.$refs.vtable.loadData();
-                                    });                                   
+                                    v_self.$refs.vtable.loadData();
                                 }
                                 else {
                                     bootbox.alert(result.error);
                                 }
-                                _self.isSubmit = false;
                             }, "json");
                         }
+                    });                    
+                },
+                remove: function () {
+                    var selectRow = this.rows.filter(function (item, index) {
+                        if (item.checked) {
+                            return true;
+                        }
                     });
-                }                
+                    if (selectRow.length == 0) {
+                        bootbox.alert("请选择一条记录");
+                        return;
+                    }
+                    this.selectedId = selectRow[0].Id;
+                    var v_self = this;
+                    bootbox.confirm("您确定作废该记录？", function (result) {
+                        $.post("/TransferOrder/Cancel", { id: this.selectedId }, function (result) {
+                            if (result.success) {
+                                v_self.$refs.vtable.loadData();                          
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");                        
+                    });
+                },    
+                showStore: function () {
+                    this.selectStore.modal = true;
+                },
+                clearStore: function () {
+                    this.searchArgs.storeId = 0;
+                    this.selectStore.name = "";
+                    this.searchArgs.from = null;
+                    this.searchArgs.to = null;
+                },
+                getStore: function () {
+                    var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                    var selecteds= treeObj.getCheckedNodes(true);
+                    if (selecteds) {
+                        var idArray = new Array();
+                        var nameArray = new Array();
+                        selecteds.forEach(function(item){
+                            if(item.level==1){
+                                idArray.push(item.id);
+                                nameArray.push(item.name);
+                            }
+                        })
+                        if(idArray.length>0){
+                            this.searchArgs.storeId = idArray.join();
+                            this.selectStore.name = nameArray.join();
+                            this.selectStore.modal = false;
+                        }
+                        else
+                        {
+                            bootbox.alert("请选择一个门店");
+                        }
+                    }
+                },                
             }
-        })
+        });
+
+    //加载调出门店
+    var zTreeObj;
+    var setting = {
+        check: {
+            enable:true
+        },
+        async: {
+            enable: true,
+            url: "/Store/LoadStore",
+            //autoParam: ["id", "name"]
+        },
+        callback:{
+            onClick:function(event, treeId, treeNode){
+                //点击展开/折叠节点
+                var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                var open = !treeNode.open;
+                treeObj.expandNode(treeNode, open, false, false);
+                // vue.searchArgs.categoryId =treeNode.id;
+            }
+        }
+    };
+    zTreeObj = $.fn.zTree.init($("#ztree"), setting);
+   
 
     </script>
 }

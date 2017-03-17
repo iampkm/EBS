@@ -55,7 +55,7 @@
                     </div>                   
                 </div>
                 <span class="input-group-btn" slot="customButtons">
-                    <button type="button" class="btn btn-warning btn-flat" v-on:click="submitAudit()">审 核</button>
+                    <button type="button" class="btn btn-warning btn-flat" v-on:click="submitAudit()" v-bind:disabled="isSubmit">审 核</button>
                     <button type="button" class="btn btn-primary btn-flat" v-on:click="print()">打 印</button>
                 </span>
             </vue-table>
@@ -142,7 +142,8 @@
                     modal: false,
                     name: '@ViewBag.StoreName',
                     view: @ViewBag.View,
-                }
+                },
+                isSubmit:false
             },
             methods: {
                 remove: function () {
@@ -184,13 +185,17 @@
                     }
                     var selectId = selectRow[0].Id;
                     var _self = this;
+                    _self.isSubmit = true;
                     $.post("/StorePurchaseOrder/FinanceAuditd", { id:selectId }, function (result) {
                         if (result.success) {
-                            v_self.$refs.vtable.loadData();
+                            bootbox.alert("审核成功",function(){
+                                _self.$refs.vtable.loadData();
+                            });                           
                         }
                         else {
                             bootbox.alert(result.error);
                         }
+                        _self.isSubmit = false;
                     }, "json");
 
                 },

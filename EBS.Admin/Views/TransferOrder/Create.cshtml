@@ -16,7 +16,8 @@
 <div id="app" class="box box-primary">
     <div class="box-header with-border">
         <ol class="breadcrumb" style="padding:0px;margin:1px;">
-            <li><a href="/TransferOrder/Create"><i class="fa fa-dashboard"></i>新增调拨单</a></li>            
+            <li><a href="/TransferOrder/Index"><i class="fa fa-dashboard"></i>调拨单录入</a></li>
+            <li><a href="/TransferOrder/Create">新增调拨单</a></li>            
         </ol>
     </div>
     <!-- /.box-header -->
@@ -28,8 +29,8 @@
                     <button type="button" id="btnSave" class="btn btn-warning btn-flat" v-on:click="onSubmit" v-bind:disabled="isSubmit">保 存</button>
                     <button type="button" class="btn btn-primary btn-flat" v-on:click="print">打 印</button>
                     @*<button type="button" class="btn btn-success btn-flat" v-on:click="showModal()">导入商品</button>*@
-                    <button type="button" class="btn btn-default btn-flat" v-on:click="clearItems">清 空</button>
-                    @*<a class="btn btn-default btn-flat" href="/TransferOrder/Index">清 空</a>*@
+                    @*<button type="button" class="btn btn-default btn-flat" v-on:click="clearItems">清 空</button>*@
+                    <a class="btn btn-default btn-flat" href="javascript:history.back()">取 消</a>
                     <input type="hidden" v-model="model.id" />
                 </div>
             </div>
@@ -118,7 +119,7 @@
                                     <td>{{item.Specification}}</td>
                                     <td>{{item.Unit}}</td>
                                     <td>{{item.Price.toFixed(4)}}</td> 
-                                    <td>{{item.InventoryQuantity}}</td>          
+                                    <td><span class="text-primary"><strong>{{item.InventoryQuantity}}</strong></span></td>          
                                     <td>
                                         <select class="form-control" v-model="item.SpecificationQuantity">
                                             <option v-for="option in item.SpecificationQuantitys" v-bind:value="option">
@@ -216,7 +217,7 @@
                             <td>{{item.ProductName}}</td>
                             <td>{{item.Specification}}</td>
                             <td>{{item.Unit}}</td>
-                            <td>{{item.BatchQuantity}}</td>
+                            <td><span class="text-primary"><strong>{{item.BatchQuantity}}</strong></span></td>
                             <td>{{item.SupplierName}}</td>
                             <td>{{item.Price}}</td>
                             <td>{{item.BatchNo}}</td>

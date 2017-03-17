@@ -1,0 +1,662 @@
+﻿@model EBS.Query.DTO.TransferOrderDto
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+@section styles{
+    <link href="~/Content/zTree.min.css" rel="stylesheet" />
+    <style>
+        .ztree li span {
+            font-size: 14px;
+        }
+
+        .dataRow div {
+            margin-bottom: 0px;
+        }
+    </style>
+}
+<!-- demo root element -->
+<div id="app" class="box box-primary">
+    <div class="box-header with-border">
+        <ol class="breadcrumb" style="padding:0px;margin:1px;">
+            <li><a href="/TransferOrder/Index"><i class="fa fa-dashboard"></i>调拨单录入</a></li>
+            <li><a href="/TransferOrder/Edit/{{model.id}}">修改调拨单</a></li>
+        </ol>
+    </div>
+    <!-- /.box-header -->
+    <!-- form start -->
+    <form>
+        <div class="box-body">
+            <div class="row">
+                <div class="form-group col-sm-4 col-xs-6">
+                    <button type="button" id="btnSave" class="btn btn-warning btn-flat" v-on:click="onSubmit" v-bind:disabled="isSubmit">保 存</button>
+                    <button type="button" class="btn btn-primary btn-flat" v-on:click="print">打 印</button>
+                    @*<button type="button" class="btn btn-success btn-flat" v-on:click="showModal()">导入商品</button>*@
+                    @*<button type="button" class="btn btn-default btn-flat" v-on:click="clearItems">清 空</button>*@
+                    <a class="btn btn-default btn-flat" href="javascript:history.back()">取 消</a>
+                    <input type="hidden" v-model="model.id" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-2 col-xs-3">
+                    <div class="input-group ">
+                        <input type="hidden" class="form-control" v-model="model.fromStoreId">
+                        <input type="text" class="form-control" v-model="model.fromStoreName" placeholder="调出门店" readonly>
+                        <span class="input-group-btn">
+                            <button class="btn btn-flat btn-default" type="button" v-on:click="showStore"><i class="fa fa-search"></i></button>
+                            <button class="btn btn-flat btn-default" type="button" v-on:click="clearStore"><i class="fa fa-eraser"></i></button>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-sm-2 col-xs-3">
+                    <div class="input-group ">
+                        <input type="hidden" class="form-control" v-model="model.toStoreId">
+                        <input type="text" class="form-control" v-model="model.toStoreName" placeholder="调入门店" readonly>
+                        <span class="input-group-btn">
+                            <button class="btn btn-flat btn-default" type="button" v-on:click="showStore2"><i class="fa fa-search"></i></button>
+                            <button class="btn btn-flat btn-default" type="button" v-on:click="clearStore2"><i class="fa fa-eraser"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-4 col-sm-4"></div>
+                <div class="col-xs-4 col-sm-4"><h3 class="text-center text-danger" style="border-bottom:2px solid;padding-bottom:1px;"><b>调 拨 单</b></h3></div>
+                <div class="col-xs-4 col-sm-4"></div>
+            </div>
+            <div class="row">
+                <div class="col-xs-4 col-sm-4">
+                    <span>调出门店：{{model.fromStoreName}}</span>
+                </div>
+                <div class="col-xs-4 col-sm-4 text-center">
+                </div>
+                <div class="col-xs-4 col-sm-4 ">
+                    <span>单据号：{{model.code}}</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-4 col-sm-4">
+                    <span>调入门店：{{model.toStoreName}}</span>
+                </div>
+                <div class="col-xs-4 col-sm-4 text-center">
+                    单据状态：{{model.statusName}}
+                </div>
+                <div class="col-xs-4 col-sm-4">
+                    <span>制单日期：@DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>序号</th>
+                                    <th>商品编码</th>
+                                    <th>条码</th>
+                                    <th>品名</th>
+                                    <th>规格</th>
+                                    <th>单位</th>
+                                    <th>进价</th>
+                                    <th>库存</th>
+                                    <th>件规</th>
+                                    <th>件数</th>
+                                    <th>数量</th>
+                                    <th>金额</th>
+                                    <th>批次</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody">
+                                <tr v-for="(index,item) in products">
+                                    <td>
+                                        <button type="button" class="btn btn-flat  btn-sm" title="添加行" v-on:click="addRow($event)"><span class="fa fa-plus"></span></button>
+                                        <button type="button" class="btn btn-flat  btn-sm" v-show="index>0" title="删除行" v-on:click="removeRow(index)"><span class="fa fa-trash"></span></button>
+                                    </td>
+                                    <td class="text-center">{{index+1}}</td>
+                                    <td>
+                                        <input type="text" class="form-control productCode" v-model="item.ProductCode" v-on:keyup.enter="inputProduct(item.ProductCode,index)" placeholder="录入编码或扫码" />
+                                    </td>
+                                    <td>{{item.BarCode}}</td>
+                                    <td>{{item.ProductName}}</td>
+                                    <td>{{item.Specification}}</td>
+                                    <td>{{item.Unit}}</td>
+                                    <td>{{item.Price.toFixed(4)}}</td>
+                                    <td><span class="text-primary"><strong>{{item.InventoryQuantity}}</strong></span></td>    
+                                    <td>
+                                        <select class="form-control" v-model="item.SpecificationQuantity">
+                                            <option v-for="option in item.SpecificationQuantitys" v-bind:value="option">
+                                                1 × {{ option }}
+                                            </option>
+                                        </select>
+                                    </td>
+                                    <td>{{item.PackageQuantity}}</td>
+                                    <td>
+                                        <input type="number" class="form-control quantity" v-model="item.Quantity" v-on:keyup.enter="inputNext($event)" v-on:keyup.right="showBatch(index)" />
+                                    </td>
+                                    <td>{{item.Amount.toFixed(2)}}</td>
+                                    <td>{{item.BatchNo}}</td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td>合计：</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>{{totalQuantity}}</td>
+                                    <td>{{countTotal.toFixed(2)}}</td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-3 col-sm-3">
+                    <span>制单人： @Model.CreatedByName</span>
+                </div>
+                <div class="col-xs-3 col-sm-3">
+                    <span></span>
+                </div>
+                <div class="col-xs-3 col-sm-3">
+                    <span>审核人：</span>
+                </div>
+                <div class="col-xs-3 col-sm-3">
+                    <span></span>
+                </div>
+            </div>
+        </div>
+        <br />
+        <p class="text-danger">友情提示：数量处按 -> 右方向键，可以更换商品批次。</p>
+    </form>
+    <!-- modal -->
+    <v-modal title="导入商品" ok-text="确 定" cancel-text="取 消" v-bind:callback="importProduct" v-bind:show.sync="modal" v-bind:effect="fade" width="300">
+        <div slot="modal-body" class="modal-body">
+            <v-input type="textarea" help="请将excel中商品编号和数量两列粘贴到文本框中" v-bind:value.sync="inputProducts" placeholder="输入商品" required icon></v-input>
+        </div>
+    </v-modal>
+    <v-modal title="调出门店" ok-text="确 定" cancel-text="取 消" v-bind:callback="getStore" v-bind:show.sync="selectStore.modal" v-bind:effect="fade" width="60%">
+        <div slot="modal-body" class="modal-body">
+            <div style="min-height:350px;max-height:500px;overflow:auto;"><ul id="ztree" class="ztree"></ul></div>
+        </div>
+    </v-modal>
+    <v-modal title="调入门店" ok-text="确 定" cancel-text="取 消" v-bind:callback="getStore2" v-bind:show.sync="selectStore2.modal" v-bind:effect="fade" width="60%">
+        <div slot="modal-body" class="modal-body">
+            <div style="min-height:350px;max-height:500px;overflow:auto;"><ul id="ztree2" class="ztree"></ul></div>
+        </div>
+    </v-modal>
+    <v-modal title="选择商品批次" ok-text="确 定" cancel-text="取 消" v-bind:callback="getBatch" v-bind:show.sync="selectBatch.modal" v-bind:effect="fade" width="60%">
+        <div slot="modal-body" class="modal-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>编码</th>
+                            <th>条码</th>
+                            <th>品名</th>
+                            <th>规格</th>
+                            <th>单位</th>
+                            <th>库存</th>
+                            <th>供应商</th>
+                            <th>进价</th>
+                            <th>批次</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(index,item) in selectBatch.products" v-on:click="checkBatch(index)" style="cursor:pointer">
+                            <td><input type="checkbox" v-model="item.Checked" />{{index+1}}</td>
+                            <td>{{item.ProductCode}}</td>
+                            <td>{{item.BarCode}}</td>
+                            <td>{{item.ProductName}}</td>
+                            <td>{{item.Specification}}</td>
+                            <td>{{item.Unit}}</td>
+                            <td><span class="text-primary"><strong>{{item.BatchQuantity}}</strong></span></td>
+                            <td>{{item.SupplierName}}</td>
+                            <td>{{item.Price}}</td>
+                            <td>{{item.BatchNo}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </v-modal>
+    <div id="printDiv"></div>
+</div>
+@section scripts{
+    <script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
+    <script src="~/Scripts/jquery.PrintArea.js"></script>
+    <script>
+        $("doucument").ready(function () {
+            var demo = new Vue({
+                components: {
+                    'v-modal': VueStrap.modal,
+                    'v-input': VueStrap.input,
+                    'v-form': VueStrap.formGroup,
+                    'v-checkbox': VueStrap.checkbox
+                },
+                el: '#app',
+                data: {
+                    valid: false,
+                    modal: false,
+                    model: {
+                        id: @Model.Id,
+                        code: '@Model.Code',
+                        fromStoreId: @Model.FromStoreId,
+                        fromStoreName: '@Model.FromStoreName',
+                        toStoreId: @Model.ToStoreId,
+                        toStoreName: '@Model.ToStoreName',
+                        ItemsJson: '',
+                        statusName: '@ViewBag.Status'
+                    },
+                    products: @Html.Raw(ViewBag.TransferOrderItems),
+                    totalQuantity: 0,
+                    inputProducts: '',
+                    selectSupplier: {
+                        modal: false,
+                        name: ''
+                    },
+                    selectStore: {
+                        modal: false,
+                        name: ''
+                    },
+                    selectStore2: {
+                        modal: false,
+                        name: ''
+                    },
+                    selectBatch: {
+                        modal: false,
+                        products: []
+                    },
+                    inputIndex: 0,
+                    isSubmit: false,
+                },
+                methods: {
+                    onSubmit: function () {
+                        //获取选择节点
+                        var _self = this;
+                        var data = "";
+                        for (var i = 0; i < _self.products.length; i++) {
+                            var item = _self.products[i];
+                            //商品存在，商品数量为负，商品退货数绝对值小于库存数
+                            var inputQuantity = parseInt(item.Quantity);
+                            if (item.ProductId > 0 && inputQuantity > 0) {
+                                if (inputQuantity > item.InventoryQuantity) {
+                                    bootbox.alert("商品" + item.ProductCode + "调拨数超过库存数");
+                                    return;
+                                }
+
+                                if (item.ProductionDate == null) {
+                                    item.ProductionDate = "";
+                                }
+                                data += "{\"ProductId\":" + item.ProductId + ",\"ContractPrice\":" + item.ContractPrice
+                                     + ",\"Price\":" + item.Price + ",\"Quantity\":" + item.Quantity + ",\"SupplierId\":" + item.SupplierId
+                                     + ",\"BatchNo\":" + item.BatchNo + ",\"ProductionDate\":\"" + item.ProductionDate + "\",\"ShelfLife\":" + item.ShelfLife + "},";
+                            }
+                        }
+                        if (data == "") {
+                            bootbox.alert("请录入商品或检查商品数量");
+                            return;
+                        }
+                        data = data.substring(0, data.length - 1);
+                        data = "[" + data + "]";
+                        _self.model.ItemsJson = data;
+                        var v_data = _self.model;
+                        _self.isSubmit = true;
+                        $.post("/TransferOrder/Edit", v_data, function (result) {
+                            if (result.success) {
+                                _self.model.code = result.code;
+                                _self.model.statusName = result.statusName;
+                                _self.model.id = result.id;
+                                bootbox.confirm("保存成功，你要打印吗？", function (sure) {
+                                    if (sure) {
+                                        _self.print();
+                                    }
+                                    else {
+                                        window.location.href = "/TransferOrder/Index";
+                                    }
+                                });
+
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                            _self.isSubmit = false;
+                        }, "json");
+                    },
+                    importProduct: function () {
+                        var inputItems = this.inputProducts;
+                        var _self = this;
+                        if (inputItems == "") { return; }
+                        if (_self.model.storeId == 0) { bootbox.alert("请选择门店"); return; }
+                        var data = {
+                            inputProducts: inputItems,
+                            storeId: _self.model.storeId
+                        }
+                        $.post("/TransferOrder/ImportRefundProduct", data, function (result) {
+                            if (result.success) {
+                                _self.products = [];
+                                for (var i = 0; i < result.data.length; i++) {
+                                    var item = result.data[i];
+                                    if (_self.model.supplierId == 0) {
+                                        _self.model.supplierId = item.SupplierId;
+                                        _self.selectSupplier.name = item.SupplierName;
+                                    }
+                                    else {
+                                        //同一个单子，供应商应该一致
+                                        if (_self.model.supplierId != item.SupplierId) {
+                                            bootbox.alert("录入的商品供应商不一致"); break;
+                                        }
+                                    }
+                                    _self.products.push(item);
+                                }
+
+                                _self.modal = false;
+                                //设置焦点,延迟500，等待vue.js 渲染完毕
+                                setTimeout(function () {
+                                    var selector = "tr:eq(0)";
+                                    var row = $("#tbody").find(selector);
+                                    row.find("input.quantity").focus().select();
+                                }, 300);
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
+                    },
+                    showModal: function () {
+                        this.modal = true;
+                    },
+                    addRow: function (event) {
+                        if (this.products.length == 10) {
+                            $("#btnSave").focus();
+                            return;
+                        }
+                        this.products.push({
+                            ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', ContractPrice: 0, Price: 0,
+                            PackageQuantity: 0, SpecificationQuantity: 1, SpecificationQuantitys: [1], Quantity: 1, Amount: 0,
+                            ProductionDate: '', ShelfLife: 0, BatchNo: 0, InventoryQuantity: 0
+                        });
+                        //设置焦点
+                        var target = event.srcElement || event.target;
+                        var row = target.localName == "span" ? $(target).parent().parent().parent() : $(target).parent().parent();
+                        setfocus();
+                        function setfocus() {
+                            setTimeout(function () {
+                                var nextRow = row.next();
+                                if (nextRow) { // 等待 vue.js 渲染完成后，才设置
+                                    nextRow.find("input.productCode").focus().select();
+                                }
+                                else {
+                                    setfocus();
+                                }
+                            }, 200);
+                        }
+                    },
+                    removeRow: function (index) {
+                        this.products.splice(index, 1);
+                    },
+                    inputProduct: function (codeOrBarCode, index) {
+                        var _self = this;
+                        _self.inputIndex = index;
+                        if (codeOrBarCode == "") { return; }
+                        if (_self.model.fromStoreId == 0) { bootbox.alert("请选择门店"); return; }
+                        var data = {
+                            productCodeOrBarCode: codeOrBarCode,
+                            storeId: _self.model.fromStoreId,
+                        }
+                        //设置焦点
+                        $.get("/TransferOrder/QueryProduct", data, function (result) {
+                            if (result.success) {
+                                _self.products.$set(index, result.data);
+                                //设置焦点,延迟500，等待vue.js 渲染完毕
+                                setTimeout(function () {
+                                    var selector = "tr:eq(" + index + ")";
+                                    var row = $("#tbody").find(selector);
+                                    row.find("input.quantity").focus().select();
+                                }, 300);
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
+
+                    },
+                    inputNext: function (event) {
+                        var target = event.target;
+                        var row = $(target).parent().parent();
+                        if (row.next().length > 0) {
+                            row.next().find("input.quantity").focus().select();
+                        }
+                        else {
+                            this.addRow(event);
+                        }
+                    },
+                    showStore: function () {
+                        this.selectStore.modal = true;
+                    },
+                    clearStore: function () {
+                        this.model.fromStoreId = 0;
+                        this.model.fromStoreName = "";
+                    },
+                    getStore: function () {
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                        var selecteds = treeObj.getCheckedNodes(true);
+                        if (selecteds) {
+                            var idArray = new Array();
+                            var nameArray = new Array();
+                            selecteds.forEach(function (item) {
+                                if (item.level == 1) {
+                                    idArray.push(item.id);
+                                    nameArray.push(item.name);
+                                }
+                            })
+                            if (idArray.length > 0) {
+                                this.model.fromStoreId = idArray[0];
+                                this.model.fromStoreName = nameArray[0];
+                                this.selectStore.modal = false;
+                                this.clearItems();
+                            }
+                            else {
+                                bootbox.alert("请选择一个门店");
+                            }
+
+                        }
+                    },
+                    showStore2: function () {
+                        this.selectStore2.modal = true;
+                    },
+                    clearStore2: function () {
+                        this.model.toStoreId = 0;
+                        this.model.toStoreName = "";
+                    },
+                    getStore2: function () {
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree2");
+                        var selecteds = treeObj.getCheckedNodes(true);
+                        if (selecteds) {
+                            var idArray = new Array();
+                            var nameArray = new Array();
+                            selecteds.forEach(function (item) {
+                                if (item.level == 1) {
+                                    idArray.push(item.id);
+                                    nameArray.push(item.name);
+                                }
+                            })
+                            if (idArray.length > 0) {
+
+                                if (this.model.fromStoreId == idArray[0]) {
+                                    bootbox.alert("调出门店不能与调入店一样"); return;
+                                }
+
+                                this.model.toStoreId = idArray[0];
+                                this.model.toStoreName = nameArray[0];
+                                this.selectStore2.modal = false;
+                            }
+                            else {
+                                bootbox.alert("请选择一个门店");
+                            }
+
+                        }
+                    },
+                    print: function () {
+                        var _self = this;
+                        if (_self.model.id == 0) { bootbox.alert("请先保存单据再打印"); return; }
+                        var data = { id: _self.model.id };
+                        $.get("/TransferOrder/Print", data, function (result) {
+                            $("#printDiv").html(result);
+                            $("#printTemplate").printArea();
+                            $("#printDiv").html("");
+
+                            // 清空当前记录信息
+                            window.location.href = "/TransferOrder/Index";
+                            // _self.clearItems();
+                            //_self.model.statusName = "";
+                            //_self.model.code = "";
+                            //_self.model.id = 0;
+                        });
+                    },
+                    clearItems: function () {
+                        if (this.products.length > 0) {
+                            this.products = [{
+                                ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', ContractPrice: 0, Price: 0,
+                                PackageQuantity: 0, SpecificationQuantity: 1, SpecificationQuantitys: [1], Quantity: 1, Amount: 0,
+                                ProductionDate: '', ShelfLife: 0, BatchNo: 0, InventoryQuantity: 0
+                            }];
+                        }
+                        _self.model.statusName = "";
+                        _self.model.code = "";
+                        _self.model.id = 0;
+                    },
+                    showBatch: function (index) {
+
+                        // 查询批次数据
+                        var _self = this;
+                        _self.inputIndex = index;
+                        var codeOrBarCode = _self.products[index].ProductCode;
+                        if (codeOrBarCode == "") { return; }
+                        if (_self.model.fromStoreId == 0) { bootbox.alert("请选择门店"); return; }
+                        var data = {
+                            productCodeOrBarCode: codeOrBarCode,
+                            storeId: _self.model.fromStoreId,
+                        }
+                        //设置焦点
+                        $.get("/TransferOrder/QueryProductBatch", data, function (result) {
+                            if (result.success) {
+                                //设置批次数据
+                                _self.selectBatch.products = [];
+                                result.data.forEach(function (item) {
+                                    _self.selectBatch.products.push(item);
+                                });
+                                //设置焦点,延迟500，等待vue.js 渲染完毕
+                                setTimeout(function () {
+                                    var selector = "tr:eq(" + index + ")";
+                                    var row = $("#tbody").find(selector);
+                                    row.find("input.quantity").focus().select();
+
+                                    _self.selectBatch.modal = true;
+                                }, 300);
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
+
+                    },
+                    checkBatch: function (index) {
+                        this.selectBatch.products[index].Checked = !this.selectBatch.products[index].Checked
+                        this.getBatch();
+                    },
+                    getBatch: function () {
+                        var selectRow = this.selectBatch.products.filter(function (item, index) {
+                            if (item.Checked) {
+                                return true;
+                            }
+                        });
+                        if (selectRow) {
+                            var index = this.inputIndex;
+                            var selectItem = selectRow[0];
+                            var productItem = this.products[index];
+                            productItem.BatchNo = selectItem.BatchNo;  //替换批次
+                            productItem.ContractPrice = selectItem.ContractPrice;
+                            this.products.$set(index, productItem);  //替换录入行数据
+                            //设置焦点
+                            setTimeout(function () {
+                                var selector = "tr:eq(" + index + ")";
+                                var row = $("#tbody").find(selector);
+                                row.find("input.quantity").focus().select();
+                            }, 300);
+
+                            this.selectBatch.modal = false;
+                        }
+                        else {
+                            bootbox.alert("请选择一个记录");
+                        }
+                    }
+                },
+                computed: {
+                    countTotal: function () {
+                        var total = 0;
+                        var bookQty = 0;
+                        var _self = this;
+                        this.products.forEach(function (item) {
+                            if (item.Quantity == undefined || item.Quantity == "" || item.Quantity == null) {
+                                item.Quantity = 0;
+                            }
+                            var qty = parseInt(item.Quantity);
+                            var price = _self.model.isGift ? 0 : item.ContractPrice;
+                            item.Amount = price * qty;
+                            item.Amount = parseFloat(item.Amount.toFixed(2));
+                            bookQty += qty;
+                            total += item.Amount;
+                            item.PackageQuantity = item.SpecificationQuantity == 1 ? 0 : parseInt(qty / item.SpecificationQuantity);
+                        })
+                        _self.totalQuantity = bookQty;
+                        return total;
+                    }
+                }
+            });
+
+            //加载门店tree
+            var zTreeObj;
+            var setting = {
+                check: {
+                    enable: true
+                },
+                async: {
+                    enable: true,
+                    url: "/Store/LoadStore",
+                    //autoParam: ["id", "name"]
+                },
+                callback: {
+                    onClick: function (event, treeId, treeNode) {
+                        //点击展开/折叠节点
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                        var open = !treeNode.open;
+                        treeObj.expandNode(treeNode, open, false, false);
+                        // vue.searchArgs.categoryId =treeNode.id;
+                    }
+                }
+            };
+            zTreeObj = $.fn.zTree.init($("#ztree"), setting);
+            zTreeObj = $.fn.zTree.init($("#ztree2"), setting);
+
+        });
+
+
+    </script>
+}
+
+
+
+
+
+
+

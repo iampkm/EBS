@@ -1308,6 +1308,8 @@
     <Content Include="Views\AdjustStorePrice\Detail.cshtml" />
     <Content Include="Views\AdjustStorePrice\AuditIndex.cshtml" />
     <Content Include="Views\AdjustStorePrice\Finish.cshtml" />
+    <Content Include="Views\TransferOrder\Edit.cshtml" />
+    <Content Include="Views\TransferOrder\Finish.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">

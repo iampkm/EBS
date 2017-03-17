@@ -11,6 +11,7 @@ using EBS.Query;
 using EBS.Query.DTO;
 using Newtonsoft.Json;
 using EBS.Admin.Services;
+using EBS.Infrastructure.Extension;
 namespace EBS.Admin.Controllers
 {
     [Permission]
@@ -31,6 +32,7 @@ namespace EBS.Admin.Controllers
 
         public ActionResult Index()
         {
+            SetUserAuthention();
             return View();
         }
 
@@ -48,7 +50,21 @@ namespace EBS.Admin.Controllers
 
         public ActionResult AuditIndex()
         {
+            SetUserAuthention();
             return View();
+        }
+
+        public ActionResult Finish()
+        {
+            SetUserAuthention();
+            return View();
+        }
+
+        private void SetUserAuthention()
+        {
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+            ViewBag.StoreId = _context.CurrentAccount.StoreId;
+            ViewBag.StoreName = _context.CurrentAccount.StoreName;
         }
 
         public JsonResult LoadData(Pager page, SearchTransferOrder conditon)
@@ -66,6 +82,24 @@ namespace EBS.Admin.Controllers
             _transaferFacade.Create(model);
             return Json(new { success = true, code=model.Code,statusName = model.StatusName,id=model.Id});
         }
+
+        public ActionResult Edit(int id)
+        {
+            var model = _transaferQuery.GetById(id);
+            ViewBag.TransferOrderItems = JsonConvert.SerializeObject(model.Items.ToArray());        
+            ViewBag.Status = model.Status.Description();
+            return View(model);
+        }
+
+        [HttpPost]
+        public JsonResult Edit(TransferOrderModel model)
+        {
+            model.EditBy = _context.CurrentAccount.AccountId;
+            model.EditByName = _context.CurrentAccount.NickName;
+            _transaferFacade.Edit(model);
+            return Json(new { success = true });
+        }
+
          [HttpPost]
         public JsonResult Audit(int id)
         {
@@ -78,6 +112,18 @@ namespace EBS.Admin.Controllers
             _transaferFacade.Cancel(id, _context.CurrentAccount.AccountId, _context.CurrentAccount.NickName);
             return Json(new { success = true });
         }
+
+         public JsonResult Submit(int id)
+         {
+             _transaferFacade.Submit(id, _context.CurrentAccount.AccountId, _context.CurrentAccount.NickName);
+             return Json(new { success = true });
+         }
+
+         public JsonResult Reject(int id)
+         {
+             _transaferFacade.Reject(id, _context.CurrentAccount.AccountId, _context.CurrentAccount.NickName);
+             return Json(new { success = true });
+         }
 
          public JsonResult QueryProduct(string productCodeOrBarCode, int storeId)
          {
@@ -97,5 +143,11 @@ namespace EBS.Admin.Controllers
             
             return PartialView("TransaferOrderTemplate", model);
         }
+
+         public JsonResult GetDetail(int id)
+         {
+             var model = _transaferQuery.GetById(id);
+             return Json(new { success = true, data = model });
+         }
 	}
 }

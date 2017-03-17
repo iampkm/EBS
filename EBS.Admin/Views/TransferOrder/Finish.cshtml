@@ -19,7 +19,7 @@
     <div class="box box-primary">
         <div class="box-header">
             <ol class="breadcrumb" style="padding:0px;margin:1px;">
-                <li><a href="/TransferOrder/Index"><i class="fa fa-dashboard"></i>调拨单</a></li>
+                <li><a href="/TransferOrder/Finish"><i class="fa fa-dashboard"></i>调拨单-已审</a></li>
             </ol>
         </div>
         <div class="box-body">
@@ -70,11 +70,11 @@
                             </div>
                         </div>
                     </div>
-                </div>                
+                </div>
                 <span class="input-group-btn" slot="customButtons">
-                    <a class="btn btn-warning btn-flat" href="/TransferOrder/Create">新 增</a>
-                    <button type="button" class="btn btn-success btn-flat" v-on:click="submit()">提交待审</button>
-                    <button type="button" class="btn btn-danger btn-flat" v-on:click="remove()">作 废</button>
+                    @*<a class="btn btn-warning btn-flat" href="/TransferOrder/Create">新 增</a>
+                    <button type="button" class="btn btn-success btn-flat" v-on:click="submitAudit()">提交待审</button>
+                    <button type="button" class="btn btn-danger btn-flat" v-on:click="remove()">作 废</button>*@
                 </span>
             </vue-table>
         </div>
@@ -85,13 +85,12 @@
         <div slot="modal-body" class="modal-body">
             <div style="min-height:350px;max-height:500px;overflow:auto;"><ul id="ztree" class="ztree"></ul></div>
         </div>
-    </v-modal>
+    </v-modal>    
 </div>
-
 @{Html.RenderPartial("VueTableTemplate");}
 @section scripts{
     <script src="~/Content/Vue/vuetable/vuetable.js"></script>
-<script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
+    <script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
     <script>
         $("doucument").ready(function () {
             var vue = new Vue({
@@ -106,7 +105,7 @@
                     selectedId: 0,
                     searchQuery: '',
                     gridColumns: [
-                        { name: 'Code', localName: '调拨单号', style: "<a href='/TransferOrder/Edit/{id}'>{column}</a>" },
+                        { name: 'Code', localName: '调拨单号', style: "<a href='/TransferOrder/Detail/{id}'>{column}</a>" },
                         { name: 'FromStoreName', localName: '调出门店' },
                         { name: 'ToStoreName', localName: '调入门店' },
                         { name: 'TotalQuantity', localName: '数量', width: '80' },
@@ -116,17 +115,16 @@
                         { name: 'CreatedByName', localName: '创建人' }
                     ],
                     url: "/TransferOrder/LoadData",
-                    searchArgs: { code: '',status:1,storeId: '@ViewBag.StoreId',from:null,to:null, startDate: '', endDate: ''},
+                    searchArgs: { code: '',status:3,storeId: '@ViewBag.StoreId',from:null,to:null, startDate: '', endDate: ''  },
                     rows: [],
                     selectStore: {
                         modal: false,
                         name: '@ViewBag.StoreName',
                         view: @ViewBag.View,
-                    },
-
+                    },                    
                 },
                 methods: {
-                    submit: function () {
+                    submitAudit: function () {
                         var selectRow = this.rows.filter(function (item, index) {
                             if (item.checked) {
                                 return true;
@@ -140,11 +138,9 @@
                         var v_self = this;
                         bootbox.confirm("您确定提交该记录？", function (result) {
                             if (result) {
-                                $.post("/TransferOrder/Submit", { id: selectId }, function (result) {
+                                $.post("/TransferOrder/Audit", { id: selectId }, function (result) {
                                     if (result.success) {
-                                        bootbox.alert("提交成功!",function(){
-                                            v_self.$refs.vtable.loadData(); 
-                                        });                                       
+                                        v_self.$refs.vtable.loadData();
                                     }
                                     else {
                                         bootbox.alert(result.error);
@@ -166,18 +162,16 @@
                         this.selectedId = selectRow[0].Id;
                         var v_self = this;
                         bootbox.confirm("您确定作废该记录？", function (result) {
-                            $.post("/TransferOrder/Cancel", { id: v_self.selectedId }, function (result) {
+                            $.post("/TransferOrder/Cancel", { id: this.selectedId }, function (result) {
                                 if (result.success) {
-                                    bootbox.alert("作废成功!",function(){
-                                        v_self.$refs.vtable.loadData(); 
-                                    });                         
+                                    v_self.$refs.vtable.loadData();
                                 }
                                 else {
                                     bootbox.alert(result.error);
                                 }
-                            }, "json");                        
+                            }, "json");
                         });
-                    },                   
+                    },
                     showStore: function () {
                         this.selectStore.modal = true;
                     },
@@ -235,33 +229,12 @@
                 }
             };
             zTreeObj = $.fn.zTree.init($("#ztree"), setting);
-
-            //加载调入门店
-            var zTreeObj2;
-            var setting2 = {
-                check: {
-                    enable:true
-                },
-                async: {
-                    enable: true,
-                    url: "/Store/LoadStore",
-                    //autoParam: ["id", "name"]
-                },
-                callback:{
-                    onClick:function(event, treeId, treeNode){
-                        //点击展开/折叠节点
-                        var treeObj = $.fn.zTree.getZTreeObj("ztree2");
-                        var open = !treeNode.open;
-                        treeObj.expandNode(treeNode, open, false, false);
-                        // vue.searchArgs.categoryId =treeNode.id;
-                    }
-                }
-            };
-            zTreeObj2 = $.fn.zTree.init($("#ztree2"), setting2);
+            
 
         });
     </script>
 }
+
 
 
 

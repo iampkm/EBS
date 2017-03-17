@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2017-03-08 15:59:09                          */
+/* Created on:     2017-03-16 09:53:55                          */
 /*==============================================================*/
 
 
@@ -67,10 +67,6 @@ drop table if exists ProductCodeSequence;
 drop table if exists ProductDetails;
 
 drop table if exists ProductPicture;
-
-drop index idx_ProductStorePrice_pid on ProductStorePrice;
-
-drop table if exists ProductStorePrice;
 
 drop index idx_purcontract_code on PurchaseContract;
 
@@ -625,30 +621,6 @@ create table ProductPicture
 );
 
 /*==============================================================*/
-/* Table: ProductStorePrice                                     */
-/*==============================================================*/
-create table ProductStorePrice
-(
-   Id                   int not null auto_increment,
-   ProductId            int,
-   StoreId              int,
-   SalePrice            decimal(8,2),
-   Status               int comment '状态',
-   primary key (Id)
-);
-
-alter table ProductStorePrice comment '商品门店价； 此表不再使用，属性与库存表重合，用库存表代替';
-
-/*==============================================================*/
-/* Index: idx_ProductStorePrice_pid                             */
-/*==============================================================*/
-create unique index idx_ProductStorePrice_pid on ProductStorePrice
-(
-   ProductId,
-   StoreId
-);
-
-/*==============================================================*/
 /* Table: PurchaseContract                                      */
 /*==============================================================*/
 create table PurchaseContract
@@ -923,9 +895,11 @@ create table SaleSync
 /*==============================================================*/
 /* Index: idx_SaleSync                                          */
 /*==============================================================*/
-create index idx_SaleSync on SaleSync
+create unique index idx_SaleSync on SaleSync
 (
-   SaleDate
+   SaleDate,
+   StoreId,
+   PosId
 );
 
 /*==============================================================*/

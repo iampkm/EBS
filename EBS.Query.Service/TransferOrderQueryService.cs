@@ -12,7 +12,7 @@ using System.Dynamic;
 using EBS.Infrastructure.Extension;
 namespace EBS.Query.Service
 {
-   public class TransferOrderQueryService:ITransferOrderQuery
+    public class TransferOrderQueryService : ITransferOrderQuery
     {
         IQuery _query;
         public TransferOrderQueryService(IQuery query)
@@ -27,13 +27,45 @@ namespace EBS.Query.Service
             {
                 where += "and o.Code=@Code ";
                 param.Code = condition.Code;
-            }            
+            }
             if (condition.Status != 0)
             {
                 where += "and o.Status=@Status ";
                 param.Status = condition.Status;
             }
-                   
+            if (!string.IsNullOrEmpty(condition.StoreId) && condition.StoreId != "0")
+            {
+                if (condition.From.HasValue && condition.To.HasValue && condition.From.Value && condition.To.Value || !condition.From.HasValue && !condition.To.HasValue)
+                {
+                    where += "and ( o.FromStoreId in @StoreId or o.ToStoreId in @StoreId ) ";
+                    param.StoreId = condition.StoreId.Split(',').ToIntArray();
+                }
+                else
+                {
+                    if (condition.From.HasValue && condition.From.Value)
+                    {
+                        where += "and o.FromStoreId in @StoreId ";
+                        param.StoreId = condition.StoreId.Split(',').ToIntArray();
+                    }
+                    if (condition.To.HasValue && condition.To.Value)
+                    {
+                        where += "and o.ToStoreId in @StoreId ";
+                        param.StoreId = condition.StoreId.Split(',').ToIntArray();
+                    }  
+                }
+            }
+
+            if (condition.StartDate.HasValue)
+            {
+                where += "and o.CreatedOn >=@StartDate ";
+                param.StartDate = condition.StartDate.Value;
+            }
+            if (condition.EndDate.HasValue)
+            {
+                where += "and o.CreatedOn < @EndDate ";
+                param.EndDate = condition.EndDate.Value.AddDays(1);
+            }
+
             string sql = @"select o.Id,o.Code,o.FromStoreName,o.ToStoreName,o.Status,o.CreatedByName,o.UpdatedByName,o.CreatedOn, t.TotalQuantity,t.TotalAmount
 from transferorder o left join 
 (select i.TransferOrderId,sum(i.Quantity) as TotalQuantity ,sum(i.price* i.Quantity) as TotalAmount 
@@ -84,20 +116,45 @@ ORDER BY b.Id Limit 1";
             return model;
         }
 
+        public IEnumerable<TransaferOrderItemDto> ImportProducts(int storeId, string inputBarCodes)
+        {
+            if (string.IsNullOrEmpty(inputBarCodes)) throw new Exception("商品明细为空");
+            // var dic = GetProductDic(inputProducts);
+            var dic = inputBarCodes.ToIntDic();
+            string sql = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.BarCode,p.Specification,
+p.Unit,p.SalePrice,s.LastCostPrice ,s.StoreSalePrice
+from storeinventory s left join product  p on p.Id = s.ProductId
+where p.`BarCode` in @BarCode and s.StoreId =@StoreId ";
+            var productItems = _query.FindAll<TransaferOrderItemDto>(sql, new { BarCode = dic.Keys.ToArray(), StoreId = storeId });
+            foreach (var product in productItems)
+            {
+                if (dic.ContainsKey(product.BarCode))
+                {
+                    product.Quantity = dic[product.BarCode];
+                }
+                product.SetSpecificationQuantity();
+            }
+            return productItems;
+        }
+
         public TransferOrderDto GetById(int id)
         {
             string sql = "select * from transferorder where Id=@Id";
-           var model=  _query.Find<TransferOrderDto>(sql, new { Id = id });
+            var model = _query.Find<TransferOrderDto>(sql, new { Id = id });
             if (model == null)
             {
                 throw new Exception("单据不存在");
             }
-            string sqlItem = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.Specification,p.BarCode,p.Unit,p.SpecificationQuantity as ProductSpecificationQuantity, 
- i.ContractPrice,i.Price,i.Quantity,i.BatchNo
-from transferorderitem i left join  product p on p.Id = i.ProductId
+            string sqlItem = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.Specification,p.BarCode,p.Unit,p.SpecificationQuantity as ProductSpecificationQuantity, i.SupplierId,i.ContractPrice,i.Price,i.Quantity,i.BatchNo,s.Quantity as InventoryQuantity 
+from transferorderitem i left join  product p on p.Id = i.ProductId 
+left join storeinventory s on s.productid = i.productid and s.storeId =@FromStoreId  
 where i.TransferOrderId=@TransferOrderId";
-            var items = _query.FindAll<TransaferOrderItemDto>(sqlItem, new { TransferOrderId = model.Id }).ToList();
+            var items = _query.FindAll<TransaferOrderItemDto>(sqlItem, new { TransferOrderId = model.Id, FromStoreId = model.FromStoreId }).ToList();
             model.Items = items;
+            foreach (var product in model.Items)
+            {
+                product.SetSpecificationQuantity();
+            }
             return model;
 
         }

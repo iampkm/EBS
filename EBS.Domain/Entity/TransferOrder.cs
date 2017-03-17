@@ -17,7 +17,7 @@ namespace EBS.Domain.Entity
        {
            this.CreatedOn = DateTime.Now;
            this.UpdatedOn = DateTime.Now;
-           this.Status = TransferOrderStatus.WaitAudit;
+           this.Status = TransferOrderStatus.Create;
        }
 
         public int FromStoreId { get; set; }
@@ -44,9 +44,7 @@ namespace EBS.Domain.Entity
                 throw new Exception("必须是待审调拨单");
             }
             this.Status = TransferOrderStatus.Audited;
-            this.UpdatedBy = editBy;
-            this.UpdatedByName = editByName;
-            this.UpdatedOn = DateTime.Now;
+            EditBy(editBy, editByName);
         }
 
         public void Cancel(int editBy,string editByName)
@@ -56,6 +54,31 @@ namespace EBS.Domain.Entity
                 throw new Exception("已审调拨单不能作废");
             }
             this.Status = TransferOrderStatus.Cancel;
+            EditBy(editBy, editByName);
+        }
+
+        public void Submit(int editBy, string editByName)
+        {
+            if (this.Status != TransferOrderStatus.Create)
+            {
+                throw new Exception("只能提交初始状态的单据");
+            }
+            this.Status = TransferOrderStatus.WaitAudit;
+            EditBy(editBy, editByName);
+        }
+
+        public void Reject(int editBy, string editByName)
+        {
+            if (this.Status != TransferOrderStatus.WaitAudit)
+            {
+                throw new Exception("只能驳回待审单据");
+            }
+            this.Status = TransferOrderStatus.Create;
+            EditBy(editBy, editByName);
+        }
+
+        private void EditBy(int editBy, string editByName)
+        {
             this.UpdatedBy = editBy;
             this.UpdatedByName = editByName;
             this.UpdatedOn = DateTime.Now;
