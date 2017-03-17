@@ -33,14 +33,14 @@ namespace EBS.Query.Service
                 where += "and t0.SupplierId=@SupplierId ";
                 param.SupplierId = condition.SupplierId;
             }
-            if (condition.StoreId > 0)
+            if (!string.IsNullOrEmpty(condition.StoreId) && condition.StoreId != "0")
             {
-                where += "and t0.StoreId=@StoreId ";
-                param.StoreId = condition.StoreId;
+                where += "and t0.StoreId in @StoreId ";
+                param.StoreId = condition.StoreId.Split(',').ToIntArray(); ;
             }
             if (!string.IsNullOrEmpty(condition.Status))
             {
-                where += "and t0.Status in ("+condition.Status+")";
+                where += "and t0.Status in ("+condition.Status+") ";
                // param.Status = condition.Status;
             }
             string pwhere="";
@@ -48,13 +48,25 @@ namespace EBS.Query.Service
             {
                 //where += "and t3.ProductId in (select Id from Product where Code=@ProductCodeOrBarCode or BarCode=@ProductCodeOrBarCode) ";
                 //param.Code = condition.Code;
-                pwhere = string.Format("left join product p on p.Id = i.productid  where p.Code='{0}' or p.BarCode='{0}'", condition.ProductCodeOrBarCode);
+                pwhere = string.Format("left join product p on p.Id = i.productid  where p.Code='{0}' or p.BarCode='{0}' ", condition.ProductCodeOrBarCode);
             }
             if (condition.OrderType > 0)
             {
-                where += " and t0.OrderType=@OrderType";
+                where += " and t0.OrderType=@OrderType ";
                 param.OrderType = condition.OrderType;
             }
+
+            if (condition.StartDate.HasValue)
+            {
+                where += "and t0.CreatedOn >=@StartDate ";
+                param.StartDate = condition.StartDate.Value;
+            }
+            if (condition.EndDate.HasValue)
+            {
+                where += "and t0.CreatedOn < @EndDate ";
+                param.EndDate = condition.EndDate.Value.AddDays(1);
+            }
+
             string sql = @"select t0.Id,t0.Code,t0.SupplierId,t0.CreatedOn,t0.CreatedByName,t0.Status,t0.SupplierBill,t1.Code as SupplierCode,t1.Name as SupplierName,t2.Name as StoreName,t3.Quantity,t3.ActualQuantity,t3.Amount  
 from  (select i.StorePurchaseOrderId,SUM(i.Quantity) as Quantity,SUM(i.ActualQuantity) as ActualQuantity,SUM(i.Price* i.ActualQuantity ) as Amount 
 from  storepurchaseorderitem i {3} GROUP BY i.StorePurchaseOrderId) t3 left join 
@@ -66,7 +78,16 @@ from  storepurchaseorderitem i {3} GROUP BY i.StorePurchaseOrderId) t3 left join
  storepurchaseorder t0 on t0.Id = t3.StorePurchaseOrderId left join supplier t1 on t0.SupplierId = t1.Id left join store t2 on t0.StoreId = t2.Id where 1=1 {0} ";
             sqlCount = string.Format(sqlCount, where, pwhere);
             page.Total = this._query.Context.ExecuteScalar<int>(sqlCount, param);
-
+            // 统计列
+            string sqlSum = @"select sum(t3.Quantity) as Quantity ,sum(t3.ActualQuantity) as ActualQuantity ,sum(t3.Amount) as Amount  
+from  (select i.StorePurchaseOrderId,SUM(i.Quantity) as Quantity,SUM(i.ActualQuantity) as ActualQuantity,SUM(i.Price* i.ActualQuantity ) as Amount 
+from  storepurchaseorderitem i {1} GROUP BY i.StorePurchaseOrderId) t3 left join 
+ storepurchaseorder t0 on t0.Id = t3.StorePurchaseOrderId left join supplier t1 on t0.SupplierId = t1.Id left join store t2 on t0.StoreId = t2.Id where 1=1 {0} ";
+            sqlSum = string.Format(sqlSum, where, pwhere);
+            var sumStoreInventory = this._query.Find<SumStorePurchaseOrder>(sqlSum, param) as SumStorePurchaseOrder;
+            page.SumColumns.Add(new SumColumn("Quantity", sumStoreInventory.Quantity.ToString()));
+            page.SumColumns.Add(new SumColumn("ActualQuantity", sumStoreInventory.ActualQuantity.ToString()));
+            page.SumColumns.Add(new SumColumn("Amount", sumStoreInventory.Amount.ToString("F4")));
             return rows;
         }
 

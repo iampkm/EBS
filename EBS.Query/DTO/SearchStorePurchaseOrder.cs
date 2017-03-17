@@ -12,7 +12,7 @@ namespace EBS.Query.DTO
 
        public int SupplierId { get; set; }
 
-       public int StoreId { get;set; }
+       public string StoreId { get;set; }
 
        public string ProductCodeOrBarCode { get; set; }
 
@@ -22,5 +22,9 @@ namespace EBS.Query.DTO
        public string Status { get; set; }
 
        public int OrderType { get; set; }
+
+       public DateTime? StartDate { get; set; }
+
+       public DateTime? EndDate { get; set; }
     }
 }

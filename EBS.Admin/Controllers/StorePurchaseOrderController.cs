@@ -54,7 +54,7 @@ namespace EBS.Admin.Controllers
         {
              var rows = _storePurchaseOrderQuery.GetPageList(page, condition);
 
-            return Json(new { success = true, data = rows, total = page.Total }, JsonRequestBehavior.AllowGet);
+             return Json(new { success = true, data = rows, total = page.Total, sum = page.SumColumns });
         }
         /// <summary>
         /// 待收货列表
@@ -99,6 +99,8 @@ namespace EBS.Admin.Controllers
         {
             SetUserAuthention();
             ViewBag.ShowStatus = string.Format("{0},{1}", (int)PurchaseOrderStatus.Finished, (int)PurchaseOrderStatus.FinanceAuditd);
+            ViewBag.FinishedStatus = (int)PurchaseOrderStatus.Finished;
+            ViewBag.FinanceAuditd = (int)PurchaseOrderStatus.FinanceAuditd;
             ViewBag.ShowType = (int)OrderType.Order;
             return View();
         }

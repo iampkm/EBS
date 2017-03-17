@@ -54,7 +54,7 @@
                 </div>
                 <div class="row">
                     <div class="col-sm-4 col-xs-4">
-                        <v-input type="text" label="排序：" v-bind:value.sync="model.dispalyOrder" placeholder="输入排序：" v-bind:mask="checkOrder" pattern="^[0-9]+$" icon></v-input>
+                        <v-input type="text" label="排序：" v-bind:value.sync="model.displayOrder" placeholder="输入排序：" v-bind:mask="checkOrder" pattern="^[0-9]+$" icon></v-input>
                     </div>
                 </div>
             </v-form>
@@ -104,7 +104,7 @@
                     parentName: '',
                     url: '',
                     icon: 'fa-folder', //文件夹
-                    dispalyOrder: 0,
+                    displayOrder: 0,
                     urlType: 1,
                 },               
                 //表格组件
