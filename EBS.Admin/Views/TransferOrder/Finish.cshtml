@@ -176,7 +176,7 @@
                         this.selectStore.modal = true;
                     },
                     clearStore: function () {
-                        this.searchArgs.fromStoreId = 0;
+                        this.searchArgs.storeId = 0;
                         this.selectStore.name = "";
                         this.searchArgs.from = null;
                         this.searchArgs.to = null;
@@ -194,7 +194,7 @@
                                 }
                             })
                             if(idArray.length>0){
-                                this.searchArgs.fromStoreId = idArray.join();
+                                this.searchArgs.storeId = idArray.join();
                                 this.selectStore.name = nameArray.join();
                                 this.selectStore.modal = false;
                             }
