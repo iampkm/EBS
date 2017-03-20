@@ -23,17 +23,12 @@ namespace EBS.Query.Service
         {
             dynamic param = new ExpandoObject();
             string where = "";           
-            //if (condition.SupplierId > 0)
-            //{
-            //    where += "and t3.SupplierId=@SupplierId ";
-            //    param.SupplierId = condition.SupplierId;
-            //}
-            if (condition.StoreId > 0)
+            
+            if (!string.IsNullOrEmpty(condition.StoreId) && condition.StoreId != "0")
             {
-                where += "and t0.StoreId=@StoreId ";
-                param.StoreId = condition.StoreId;
+                where += "and t0.StoreId in @StoreId ";
+                param.StoreId = condition.StoreId.Split(',').ToIntArray(); ;
             }
-           
             if (!string.IsNullOrEmpty(condition.ProductCodeOrBarCode))
             {
                 where += "and (t1.Code=@ProductCodeOrBarCode or t1.BarCode=@ProductCodeOrBarCode) ";
@@ -174,11 +169,11 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
                 where += "and p.Name like @ProductName ";
                 param.ProductName = string.Format("%{0}%", condition.ProductName);
             }
-            if (condition.StoreId > 0)
-            {
-                where += "and t.Id=@StoreId ";
-                param.StoreId = condition.StoreId;
-            }
+            //if (condition.StoreId > 0)
+            //{
+            //    where += "and t.Id=@StoreId ";
+            //    param.StoreId = condition.StoreId;
+            //}
             string sql = @"select b.ProductId, p.`Name` as ProductName,p.`Code` as ProductCode,p.BarCode,p.Specification,p.Unit,p.SalePrice,
 b.Quantity as BatchQuantity,s.Name as supplierName,t.`Name` as StoreName,b.Price,sp.StoreSalePrice,v.SalePrice as VipSalePrice
 from ( select i.storeid,i.supplierId,i.productId,i.Price,sum(i.quantity) as Quantity from storeinventorybatch i group by  i.storeid,i.supplierId,i.productId,i.Price ) b 

@@ -26,7 +26,7 @@
                     <div class="col-xs-3 col-sm-2">
                         <input class="form-control" v-model="searchArgs.code" placeholder="单编号" debounce="500" />
                     </div>
-                    <div class="form-group col-sm-2 col-xs-3">
+                    <div class="col-sm-2 col-xs-3">
                         @*<label for="inputPassword3" class="control-label">盘点日期：</label>*@
                         <div class="input-group date" data-provide="datepicker" data-date-format="yyyy-mm-dd"
                              data-date-language="zh-CN" data-date-clear-btn="true" data-date-autoclose="true">
@@ -46,7 +46,12 @@
                                 <button class="btn btn-flat btn-default" type="button" v-on:click="clearStore"><i class="fa fa-eraser"></i></button>
                             </span>
                         </div>
-                    </div>                   
+                    </div> 
+                    <div class="col-sm-2 col-xs-3" style="display:inline-block">
+                        <v-radio button v-bind:checked.sync="searchArgs.method" value="1" type="info">大盘</v-radio>
+                        <v-radio button v-bind:checked.sync="searchArgs.method" value="2" type="info">小盘</v-radio>
+                        <v-radio button v-bind:checked.sync="searchArgs.method" value="0" type="info">所有</v-radio>
+                    </div>                  
                 </div>
                 <span class="input-group-btn" slot="customButtons">                   
                     <button type="button" class="btn btn-warning btn-flat" v-on:click="mergeDetial()">合并盘点</button>
@@ -85,7 +90,8 @@
             var vue = new Vue({
                 components: {
                     'v-modal': VueStrap.modal,
-                    'v-input': VueStrap.input
+                    'v-input': VueStrap.input,
+                    'v-radio':VueStrap.radio
                 },
                 el: '#app',
                 data: {
@@ -106,7 +112,7 @@
                     { name: 'SaleAmoutDifferent', localName: '售价差异金额', width: '120',style: "<strong class='text-danger'>{column}</strong>" },
                     ],
                     url: "/StocktakingPlan/LoadSummaryData",
-                    searchArgs: { code: '', stocktakingDate: '', storeId:@ViewBag.StoreId, status: '2,3' },
+                    searchArgs: { code: '', stocktakingDate: '', storeId:'@ViewBag.StoreId', status: '2,3',method:0, },
                     rows: [],
                     selectStore: {
                         modal: false,
@@ -214,8 +220,8 @@
                                 }
                             })
                             if(idArray.length>0){
-                                this.searchArgs.storeId = idArray[0];
-                                this.selectStore.name = nameArray[0];
+                                this.searchArgs.storeId = idArray.join();
+                                this.selectStore.name = nameArray.join();
                                 this.selectStore.modal = false;
                             }
                             else

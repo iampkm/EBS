@@ -55,6 +55,10 @@ namespace EBS.Query.DTO
 
         public DateTime? StocktakingDate { get; set; }
 
-        public int StoreId { get; set; }
+        public string StoreId { get; set; }
+        /// <summary>
+        /// 盘点方式：大盘，小盘
+        /// </summary>
+        public int Method { get; set; }
     }
 }

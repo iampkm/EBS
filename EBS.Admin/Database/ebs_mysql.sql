@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2017-03-16 09:53:55                          */
+/* Created on:     2017-03-20 10:11:19                          */
 /*==============================================================*/
 
 
@@ -79,6 +79,8 @@ drop index idx_PurchaseOrder_code on PurchaseOrder;
 drop table if exists PurchaseOrder;
 
 drop table if exists PurchaseOrderItem;
+
+drop index idx_purchasesaleinventory_pk on PurchaseSaleInventory;
 
 drop table if exists PurchaseSaleInventory;
 
@@ -720,8 +722,8 @@ alter table PurchaseOrderItem comment '采购订单明细';
 /*==============================================================*/
 create table PurchaseSaleInventory
 (
-   YearMonth            int not null comment '年',
-   StoreId              int not null comment '门店',
+   YearMonth            int comment '年',
+   StoreId              int comment '门店',
    StoreName            varchar(100) comment '门店名',
    PreInventoryQuantity int comment '期初库存',
    PreInventoryAmount   decimal(12,4) comment '期初库存金额',
@@ -732,11 +734,19 @@ create table PurchaseSaleInventory
    SaleAmount           decimal(12,2) comment '本期销售金额',
    EndInventoryQuantity int comment '期末库存数',
    EndInventoryAmount   decimal(12,4) comment '期末库存金额',
-   UpdatedOn            datetime comment '更新时间',
-   primary key (YearMonth, StoreId)
+   UpdatedOn            datetime comment '更新时间'
 );
 
 alter table PurchaseSaleInventory comment '进销存报表';
+
+/*==============================================================*/
+/* Index: idx_purchasesaleinventory_pk                          */
+/*==============================================================*/
+create unique index idx_purchasesaleinventory_pk on PurchaseSaleInventory
+(
+   YearMonth,
+   StoreId
+);
 
 /*==============================================================*/
 /* Table: PurchaseSaleInventoryDetail                           */

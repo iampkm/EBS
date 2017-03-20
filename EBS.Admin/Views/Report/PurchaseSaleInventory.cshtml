@@ -25,7 +25,7 @@
         <div class="box-body">
             <vue-table v-ref:vtable v-bind:columns="gridColumns"
                        v-bind:url="url"
-                       v-bind:args="searchArgs" v-bind:data.sync="rows" v-bind:show-toolbar="isAdmin">
+                       v-bind:args="searchArgs" v-bind:data.sync="rows" v-bind:show-toolbar="isAdmin" v-bind:show-sum="true">
                 <div class="row" style="margin-bottom:10px;" slot="customSearch">
                     <div class="col-sm-2 col-xs-3" v-show="selectStore.view">
                         <div class="input-group ">
@@ -40,7 +40,7 @@
                     <div class="form-group col-sm-2 col-xs-3">
                         <div class="input-group">
                             <span class="input-group-addon">年</span>
-                            <select name="brand" class="form-control" v-model="searchArgs.year">                           
+                            <select name="brand" class="form-control" v-model="searchArgs.year">
                                 @foreach (var year in ViewBag.Years)
                                 {
                                     <option value="@year">@year</option>
@@ -60,8 +60,8 @@
                         </div>
                     </div>
                 </div>
-                <span class="input-group-btn" slot="customButtons">               
-                    <button type="button" class="btn btn-success btn-flat" v-show="isAdmin" v-bind:disabled="enabled" v-on:click="execute()">生成进销存报表</button>                   
+                <span class="input-group-btn" slot="customButtons">
+                    <button type="button" class="btn btn-success btn-flat" v-show="isAdmin" v-bind:disabled="enabled" v-on:click="execute()">生成进销存报表</button>
                 </span>
             </vue-table>
         </div>
@@ -90,17 +90,17 @@
             data: {
                 gridColumns: [
                     { name: 'StoreName', localName: '门店', style: "<a href='/Report/PurchaseSaleInventoryDetail/{StoreId}?yearMonth={YearMonth}'>{column}</a>"  },
-                    { name: 'PreInventoryQuantity', localName: '期初库存' ,width:100},
-                    { name: 'PreInventoryAmount', localName: '期初库存金额'},
-                    { name: 'PurchaseQuantity', localName: '本期入库',width:120 },
-                    { name: 'PurchaseAmount', localName: '本期入库金额' },
-                    { name: 'SaleQuantity', localName: '本期销售数',width:120  },
-                    { name: 'SaleCostAmount', localName: '本期销售成本金额' },
-                    { name: 'SaleAmount', localName: '本期销售金额' },
-                    { name: 'ProfitAmount', localName: '毛利额',width:100 },
-                    { name: 'ProfitPercent', localName: '毛利率',width:100,style:'{column}%'  },
-                    { name: 'EndInventoryQuantity', localName: '期末库存',width:100 },
-                    { name: 'EndInventoryAmount', localName: '期末库存金额' },
+                    { name: 'PreInventoryQuantity', localName: '期初库存' ,width:100,sum:''},
+                    { name: 'PreInventoryAmount', localName: '期初库存金额',sum:''},
+                    { name: 'PurchaseQuantity', localName: '本期入库',width:120 ,sum:''},
+                    { name: 'PurchaseAmount', localName: '本期入库金额',sum:'' },
+                    { name: 'SaleQuantity', localName: '本期销售数',width:120 ,sum:'' },
+                    { name: 'SaleCostAmount', localName: '本期销售成本金额' ,sum:''},
+                    { name: 'SaleAmount', localName: '本期销售金额' ,sum:''},
+                    { name: 'ProfitAmount', localName: '毛利额',width:100 ,sum:''},
+                    { name: 'ProfitPercent', localName: '毛利率',width:100,style:'{column}%' ,sum:'' },
+                    { name: 'EndInventoryQuantity', localName: '期末库存',width:100 ,sum:''},
+                    { name: 'EndInventoryAmount', localName: '期末库存金额',sum:'' },
                 ],
                 url: "/Report/QueryPurchaseSaleInventorySummary",
                 searchArgs: { storeId:'@ViewBag.StoreId', year: @DateTime.Now.Year,month:@DateTime.Now.Month },

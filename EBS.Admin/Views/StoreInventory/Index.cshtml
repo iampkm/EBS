@@ -82,7 +82,7 @@
                 { name: 'SaleAmount', localName: '售价金额',sum:'' ,width: '120'},
                 ],
                 url: "/StoreInventory/LoadData",
-                searchArgs: { supplierId: 0, storeId: @ViewBag.StoreId, productCodeOrBarCode: '',productName:'' },
+                searchArgs: { supplierId: 0, storeId: '@ViewBag.StoreId', productCodeOrBarCode: '',productName:'' },
                 rows: [],
                 selectStore: {
                     modal: false,
@@ -111,8 +111,8 @@
                             }
                         })
                         if(idArray.length>0){
-                            this.searchArgs.storeId = idArray[0];
-                            this.selectStore.name = nameArray[0];
+                            this.searchArgs.storeId = idArray.join();
+                            this.selectStore.name = nameArray.join();
                             this.selectStore.modal = false;
                             this.clearItems();
                         }

@@ -64,16 +64,21 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             {
                 where += "and t0.Code=@Code ";
                 param.Code = condition.Code;
-            }
-            if (condition.StoreId > 0)
+            }           
+            if (!string.IsNullOrEmpty(condition.StoreId) && condition.StoreId != "0")
             {
-                where += "and t0.StoreId=@StoreId ";
-                param.StoreId = condition.StoreId;
+                where += "and t0.StoreId in @StoreId ";
+                param.StoreId = condition.StoreId.Split(',').ToIntArray(); ;
             }
             if (!string.IsNullOrEmpty(condition.Status))
             {
                 where += string.Format("and t0.Status in({0}) ",condition.Status);
                // param.Status = condition.Status;
+            }
+            if (condition.Method != 0)
+            {
+                where += "and t0.Method=@Method ";
+                param.Method = condition.Method;
             }
             if (condition.StocktakingDate.HasValue)
             {

@@ -112,6 +112,8 @@ namespace EBS.Admin.Controllers
         {
             SetUserAuthention();
             ViewBag.ShowStatus = string.Format("{0},{1}", (int)PurchaseOrderStatus.Finished, (int)PurchaseOrderStatus.FinanceAuditd);
+            ViewBag.FinishedStatus = (int)PurchaseOrderStatus.Finished;
+            ViewBag.FinanceAuditd = (int)PurchaseOrderStatus.FinanceAuditd;
             ViewBag.ShowType = (int)OrderType.Refund;
             return View();
         }
@@ -169,6 +171,15 @@ namespace EBS.Admin.Controllers
             model.CreatedByName = _context.CurrentAccount.NickName;
             _storePurchaseOrderFacade.Create(model);
             return Json(new { success = true });
+        }
+
+        public JsonResult GetDetail(int id)
+        {
+            var model = _storePurchaseOrderQuery.GetById(id);
+           // var logs = _query.FindAll<ProcessHistory>(n => n.FormId == id && n.FormType == FormType.StorePurchaseOrder);
+           // ViewBag.Logs = logs;
+           // ViewBag.Audit = audit;
+            return Json(new { success = true,data = model});
         }
        
         public ActionResult Details(int id,string audit="false")

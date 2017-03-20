@@ -40,6 +40,21 @@ where YearMonth=@YearMonth {0} LIMIT {1},{2}";
 where YearMonth=@YearMonth {0} ";
             sqlCount = string.Format(sqlCount, where);
             page.Total = this._query.Context.ExecuteScalar<int>(sqlCount,param);
+            //求和
+            string sqlSum = @"select sum(PreInventoryQuantity) as PreInventoryQuantity,sum(PreInventoryAmount) as PreInventoryAmount,sum(PurchaseQuantity) as PurchaseQuantity,sum(PurchaseAmount) as PurchaseAmount,sum(SaleQuantity) as SaleQuantity,sum(SaleCostAmount) as SaleCostAmount,sum(SaleAmount) as SaleAmount,sum(EndInventoryQuantity) as EndInventoryQuantity,sum(EndInventoryAmount) as EndInventoryAmount from purchasesaleinventory t where YearMonth=@YearMonth {0}";
+            sqlSum = string.Format(sqlSum, where);
+            var sumStoreInventory = this._query.Find<SumPurchaseSaleInventory>(sqlSum, param) as SumPurchaseSaleInventory;
+            page.SumColumns.Add(new SumColumn("PreInventoryQuantity", sumStoreInventory.PreInventoryQuantity.ToString()));
+            page.SumColumns.Add(new SumColumn("PreInventoryAmount", sumStoreInventory.PreInventoryAmount.ToString("F4")));
+            page.SumColumns.Add(new SumColumn("PurchaseQuantity", sumStoreInventory.PurchaseQuantity.ToString()));
+            page.SumColumns.Add(new SumColumn("PurchaseAmount", sumStoreInventory.PurchaseAmount.ToString("F4")));
+            page.SumColumns.Add(new SumColumn("SaleQuantity", sumStoreInventory.SaleQuantity.ToString()));
+            page.SumColumns.Add(new SumColumn("SaleCostAmount", sumStoreInventory.SaleCostAmount.ToString("F4")));
+            page.SumColumns.Add(new SumColumn("SaleAmount", sumStoreInventory.SaleAmount.ToString("F2")));
+            page.SumColumns.Add(new SumColumn("EndInventoryQuantity", sumStoreInventory.EndInventoryQuantity.ToString()));
+            page.SumColumns.Add(new SumColumn("EndInventoryAmount", sumStoreInventory.EndInventoryAmount.ToString("F4")));
+            page.SumColumns.Add(new SumColumn("ProfitAmount", sumStoreInventory.ProfitAmount.ToString()));
+            page.SumColumns.Add(new SumColumn("ProfitPercent", sumStoreInventory.ProfitPercent.ToString("F2")+"%"));
             return rows;
         }
 

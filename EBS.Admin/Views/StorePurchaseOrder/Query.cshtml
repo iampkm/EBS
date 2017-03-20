@@ -43,7 +43,7 @@
                             </span>
                         </div>
                     </div>
-                    <div class="form-group col-sm-2 col-xs-3">
+                    <div class="col-sm-2 col-xs-3">
                         <div class="input-group date" data-provide="datepicker" data-date-format="yyyy-mm-dd"
                              data-date-language="zh-CN" data-date-clear-btn="true" data-date-autoclose="true">
                             <div class="input-group-addon">
@@ -53,7 +53,7 @@
                             <input type="text" class="form-control" v-model="searchArgs.startDate" placeholder="开始日期" readonly>
                         </div>
                     </div>
-                    <div class="form-group col-sm-2 col-xs-3">
+                    <div class="col-sm-2 col-xs-3">
                         <div class="input-group date " data-provide="datepicker" data-date-format="yyyy-mm-dd"
                              data-date-language="zh-CN" data-date-clear-btn="true" data-date-autoclose="true">
                             <div class="input-group-addon">
@@ -74,18 +74,14 @@
                         </div>
                     </div>
                     <div class="col-sm-2 col-xs-3">
-                        @*<div class="row">
-                            <div class="col-sm-4 col-xs-4 ">
+                        <div class="row">
+                            <div class="col-sm-6 col-xs-6 ">
                                 <v-checkbox v-bind:checked.sync="checkFinished" type="success" value="@ViewBag.FinishedStatus">已完成</v-checkbox>
                             </div>
-                            <div class="col-sm-4 col-xs-4 ">
-                                <v-checkbox v-bind:checked.sync="check" type="success" value="@ViewBag.FinanceAuditd">财务已审</v-checkbox>
+                            <div class="col-sm-6 col-xs-6 ">
+                                <v-checkbox v-bind:checked.sync="checkFinanceAuditd" type="success" value="@ViewBag.FinanceAuditd">财务已审</v-checkbox>
                             </div>
-                        </div>*@
-                        @*<button-group v-bind:value.sync="checkStatus" buttons="false" class="btn-group">
-                            <checkbox value="@ViewBag.FinishedStatus" type="success">已完成</checkbox>
-                            <checkbox value="@ViewBag.FinanceAuditd" type="success">财务已审</checkbox>
-                        </button-group>*@
+                        </div>                       
                     </div>
                 </div>
                 <span class="input-group-btn" slot="customButtons">
@@ -136,7 +132,7 @@
             'v-modal': VueStrap.modal,
             'v-input': VueStrap.input,
             'button-group':VueStrap.buttonGroup,
-            'checkbox':VueStrap.checkbox
+            'v-checkbox':VueStrap.checkbox
         },
         el: '#app',
         data: {
@@ -177,7 +173,8 @@
                 name: '@ViewBag.StoreName',
                 view: @ViewBag.View,
             },
-            checkStatus:[]
+            checkFinished:null,
+            checkFinanceAuditd:null,
             },
         methods: {
             remove: function () {
@@ -277,11 +274,32 @@
                 }
             },            
         },
-        computed:{
-            checkStatus:function(){
-                this.searchArgs.status = this.checkStatus.join();
-                console.log(this.searchArgs.status);
-                return checkStatus;
+        watch:{
+            checkFinanceAuditd:function(newVal,oldVal){
+                var statusArray =[];
+                if(newVal!=null){
+                    statusArray.push(newVal);
+                }
+                if(this.checkFinished!=null){
+                    statusArray.push(this.checkFinished); 
+                }
+                this.searchArgs.status = statusArray.join();
+                if(this.searchArgs.status==""){
+                    this.searchArgs.status="@ViewBag.ShowStatus";
+                }
+            },
+            checkFinished:function(newVal,oldVal){
+                var statusArray =[];
+                if(newVal!=null){
+                    statusArray.push(newVal);
+                }
+                if(this.checkFinanceAuditd!=null){
+                    statusArray.push(this.checkFinanceAuditd); 
+                }
+                this.searchArgs.status = statusArray.join();
+                if(this.searchArgs.status==""){
+                    this.searchArgs.status="@ViewBag.ShowStatus";
+                }
             }
         }
     });
