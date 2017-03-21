@@ -29,7 +29,10 @@
                 <div class="row" style="margin-bottom:10px;" slot="customSearch">
                     <div class="col-xs-3 col-sm-2">
                         <input class="form-control" v-model="searchArgs.code" placeholder="调拨单号" debounce="500" />
-                    </div>                    
+                    </div>
+                    <div class="col-xs-3 col-sm-2">
+                        <input class="form-control" v-model="searchArgs.productCodeOrBarCode" placeholder="商品编码/条码" debounce="500" />
+                    </div>                     
                     <div class="form-group col-sm-2 col-xs-3">
                         <div class="input-group date" data-provide="datepicker" data-date-format="yyyy-mm-dd"
                              data-date-language="zh-CN" data-date-clear-btn="true" data-date-autoclose="true">
@@ -115,7 +118,7 @@
                         { name: 'CreatedByName', localName: '创建人' }
                     ],
                     url: "/TransferOrder/LoadData",
-                    searchArgs: { code: '',status:3,storeId: '@ViewBag.StoreId',from:null,to:null, startDate: '', endDate: ''  },
+                    searchArgs: { code: '',status:3,storeId: '@ViewBag.StoreId',from:null,to:null, startDate: '', endDate: '',productCodeOrBarCode:''  },
                     rows: [],
                     selectStore: {
                         modal: false,

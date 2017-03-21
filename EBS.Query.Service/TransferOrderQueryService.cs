@@ -65,6 +65,11 @@ namespace EBS.Query.Service
                 where += "and o.CreatedOn < @EndDate ";
                 param.EndDate = condition.EndDate.Value.AddDays(1);
             }
+            if (!string.IsNullOrEmpty(condition.ProductCodeOrBarCode))
+            {
+                where += @"and o.Id in (select d.transferOrderId from transferorderitem d left join product p on p.id = d.productid  where p.code=@ProductCodeOrBarCode or p.barcode =@ProductCodeOrBarCode  ) ";
+                param.ProductCodeOrBarCode = condition.ProductCodeOrBarCode;
+            }
 
             string sql = @"select o.Id,o.Code,o.FromStoreName,o.ToStoreName,o.Status,o.CreatedByName,o.UpdatedByName,o.CreatedOn, t.TotalQuantity,t.TotalAmount
 from transferorder o left join 
