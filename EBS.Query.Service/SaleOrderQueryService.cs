@@ -80,22 +80,39 @@ product p on i.ProductId=p.Id where i.SaleOrderId=@OrderId";
                 where += " and o.UpdatedOn<@To";
                 param.To = condition.To.Value.AddDays(1);
             }
-
-            string sql = @"select  o.Id, o.`Code`,o.PosId,o.OrderType,o.`Status`,o.OrderAmount,o.PayAmount,o.OnlinePayAmount,o.PaymentWay,o.PaidDate,o.UpdatedOn,a.NickName,s.Name as StoreName 
- from saleorder o 
-inner join store s on s.Id= o.StoreId 
-inner join account a on a.Id = o.CreatedBy
-inner join workschedule w on o.WorkScheduleCode = w.Code
-where 1=1 {0}";
+            if (condition.OrderLevel > 0)
+            {
+                where += " and o.OrderLevel=@OrderLevel ";
+                param.OrderLevel = condition.OrderLevel;
+            }
+            if (condition.PaymentWay > 0)
+            {
+                where += " and o.PaymentWay=@PaymentWay ";
+                param.PaymentWay = condition.PaymentWay;
+            }
+            string sql = @"select  o.Id, o.`Code`,o.PosId,o.OrderType,o.`Status`,o.OrderAmount,o.PayAmount,o.OnlinePayAmount,o.PaymentWay,o.PaidDate,o.UpdatedOn,o.OrderLevel,
+a.NickName,s.Name as StoreName from saleorder o 
+left join store s on s.Id= o.StoreId 
+left join account a on a.Id = o.CreatedBy
+left join workschedule w on o.WorkScheduleCode = w.Code
+where 1=1 {0} ORDER BY o.Id desc LIMIT {1},{2}";
             //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<Product>(where, param);
             if (string.IsNullOrEmpty(where))
             {
                 page.Total = 0;
                 return new List<SaleOrderDto>();
             }
-            sql = string.Format(sql, where);
+            //sql = string.Format(sql, where);
+            sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
             var rows = this._query.FindAll<SaleOrderDto>(sql, param) as IEnumerable<SaleOrderDto>;
-            page.Total = rows.Count();
+
+            string sqlCount = @"select count(*) from saleorder o 
+left join store s on s.Id= o.StoreId 
+left join account a on a.Id = o.CreatedBy
+left join workschedule w on o.WorkScheduleCode = w.Code
+where 1=1 {0} ORDER BY o.Id desc ";
+            sqlCount = string.Format(sqlCount, where);
+            page.Total = this._query.Context.ExecuteScalar<int>(sqlCount, param);
 
             return rows;
         }
@@ -123,13 +140,23 @@ where 1=1 {0}";
             }
             if (condition.From.HasValue)
             {
-                owhere += " and o.UpdatedOn>=@From";
+                owhere += " and o.UpdatedOn>=@From ";
                 param.From = condition.From.Value;
             }
             if (condition.To.HasValue)
             {
-                owhere += " and o.UpdatedOn<@To";
+                owhere += " and o.UpdatedOn<@To ";
                 param.To = condition.To.Value.AddDays(1);
+            }
+            if (condition.OrderLevel > 0)
+            {
+                owhere += " and o.OrderLevel=@OrderLevel ";
+                param.OrderLevel = condition.OrderLevel;
+            }
+            if (condition.PaymentWay > 0)
+            {
+                owhere += " and o.PaymentWay=@PaymentWay ";
+                param.PaymentWay = condition.PaymentWay;
             }
             if (!string.IsNullOrEmpty(condition.NickName))
             {
@@ -153,16 +180,24 @@ select o.WorkScheduleCode,sum(OrderAmount) as TotalAmount,sum(OnlinePayAmount) a
 where o.Status = 3 {1} group by o.WorkScheduleCode,o.paymentWay
 ) t on t.WorkScheduleCode = w.Code
 inner join Store s on s.Id = w.StoreId
-where 1=1 {0}";
+where 1=1 {0} ORDER BY w.Id desc LIMIT {2},{3}";
             //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<Product>(where, param);
             if (string.IsNullOrEmpty(where)&&string.IsNullOrEmpty(owhere))
             {
                 page.Total = 0;
                 return new List<SaleSummaryDto>();
             }
-            sql = string.Format(sql, where,owhere);
+            sql = string.Format(sql, where, owhere, page.PageIndex, page.PageSize);
             var rows = this._query.FindAll<SaleSummaryDto>(sql, param) as IEnumerable<SaleSummaryDto>;
-            page.Total = rows.Count();
+
+            string sqlCount = @"select count(*) from WorkSchedule w inner join (
+select o.WorkScheduleCode,sum(OrderAmount) as TotalAmount,sum(OnlinePayAmount) as TotalOnlineAmount,paymentWay from  saleorder o 
+where o.Status = 3 {1} group by o.WorkScheduleCode,o.paymentWay
+) t on t.WorkScheduleCode = w.Code
+inner join Store s on s.Id = w.StoreId
+where 1=1 {0}";
+            sqlCount = string.Format(sqlCount, where,owhere);
+            page.Total = this._query.Context.ExecuteScalar<int>(sqlCount, param);
             //汇总
             string sqlSum = @"select sum(w.CashAmount) as CashAmount,sum(t.TotalAmount) as TotalAmount,sum(t.TotalOnlineAmount) as TotalOnlineAmount from WorkSchedule w inner join (
 select o.WorkScheduleCode,sum(OrderAmount) as TotalAmount,sum(OnlinePayAmount) as TotalOnlineAmount,paymentWay from  saleorder o 
@@ -297,6 +332,66 @@ where 1=1 {0}";
             sql = string.Format(sql, where);
             var rows = this._query.FindAll<SaleOrderDto>(sql, param) as IEnumerable<SaleOrderDto>;
             page.Total = rows.Count();
+            return rows;
+        }
+
+
+        public IEnumerable<SingleProductSaleDto> QuerySingleProductSale(Pager page, SearchSingleProductSale condition)
+        {
+            dynamic param = new ExpandoObject();
+            string where = "";
+            string pwhere = "";
+            //单品查询，必须输入编码或条码，否则立即返回空
+            if (!string.IsNullOrEmpty(condition.ProductCodeOrBarCode))
+            {
+                pwhere += @"and ( p.code=@ProductCodeOrBarCode or p.barcode =@ProductCodeOrBarCode  ) ";
+                param.ProductCodeOrBarCode = condition.ProductCodeOrBarCode;
+            }
+            else
+            {
+                return new List<SingleProductSaleDto>();
+            }
+            
+            if (condition.StartDate.HasValue)
+            {
+                where += "and o.UpdatedOn >=@StartDate ";
+                param.StartDate = condition.StartDate.Value;
+            }
+            if (condition.EndDate.HasValue)
+            {
+                where += "and o.UpdatedOn < @EndDate ";
+                param.EndDate = condition.EndDate.Value.AddDays(1);
+            }           
+
+            if (!string.IsNullOrEmpty(condition.StoreId) && condition.StoreId != "0")
+            {
+                where += "and o.StoreId in @StoreId ";
+                param.StoreId = condition.StoreId.Split(',').ToIntArray(); 
+            }
+
+            
+
+            string sql = @"select s.name as StoreName,p.Id as ProductId, p.`Name` as ProductName,p.`Code` as ProductCode,p.BarCode,SaleQuantity,SaleCostAmount,SaleAmount from (
+select o.StoreId,i.ProductId,sum(i.Quantity) as SaleQuantity,sum(i.AvgCostPrice* i.Quantity) as SaleCostAmount,sum(i.RealPrice* i.Quantity) as SaleAmount
+ from saleorder o inner join saleorderitem i on o.id =i.SaleOrderId
+where o.`Status` = 3 {0}
+GROUP BY o.StoreId,i.ProductId ) t
+left join product p on p.id = t.ProductId
+left join store s on s.id = t.storeid where 1=1 {3} LIMIT {1},{2}";
+           
+            //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<Product>(where, param);
+            sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize,pwhere);
+            var rows = this._query.FindAll<SingleProductSaleDto>(sql, param);
+            string sqlCount = @"select count(*) from (
+select o.StoreId,i.ProductId,sum(i.Quantity) as SaleQuantity,sum(i.AvgCostPrice* i.Quantity) as SaleCostAmount,sum(i.RealPrice* i.Quantity) as SaleAmount
+ from saleorder o inner join saleorderitem i on o.id =i.SaleOrderId
+where o.`Status` = 3 {0}
+GROUP BY o.StoreId,i.ProductId ) t
+left join product p on p.id = t.ProductId
+left join store s on s.id = t.storeid where 1=1 {1}";
+            sqlCount = string.Format(sqlCount, where,pwhere);
+            page.Total = this._query.Context.ExecuteScalar<int>(sqlCount, param);
+
             return rows;
         }
     }

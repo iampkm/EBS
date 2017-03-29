@@ -170,7 +170,7 @@
                         var data = "";
                         for (var i = 0; i < _self.products.length; i++) {
                             var item = _self.products[i];
-                            if (item.ProductId > 0 && item.ContractPrice > 0) {
+                            if (item.ProductId > 0 && item.AdjustPrice > 0) {
                                 data += "{\"ProductId\":" + item.ProductId + ",\"AdjustPrice\":" + item.AdjustPrice
                                      + ",\"SalePrice\":" + item.SalePrice + "},";
                             }

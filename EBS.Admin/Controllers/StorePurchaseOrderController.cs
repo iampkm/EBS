@@ -277,15 +277,15 @@ namespace EBS.Admin.Controllers
             return Json(new { success = true, data = result });
         }
 
-        public JsonResult GetRefundOrderItem(string productCodeOrBarCode, int storeId, long batchNo = 0)
+        public JsonResult GetRefundOrderItem(string productCodeOrBarCode, int storeId, int supplierId)
         {
-            var result = _storePurchaseOrderQuery.GetRefundOrderItem(productCodeOrBarCode, storeId, batchNo);
+            var result = _storePurchaseOrderQuery.GetRefundOrderItem(productCodeOrBarCode, storeId, supplierId);
             return Json(new { success = true, data = result });
         }
 
-        public JsonResult ImportRefundProduct(string inputProducts, int storeId)
+        public JsonResult ImportRefundProduct(string inputProducts, int storeId, int supplierId)
         {
-            var result = _storePurchaseOrderQuery.GetRefundOrderItemList(inputProducts, storeId);
+            var result = _storePurchaseOrderQuery.GetRefundOrderItemList(inputProducts, storeId, supplierId);
             return Json(new { success = true, data = result });
         }
 

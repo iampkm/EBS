@@ -173,46 +173,50 @@ where i.storepurchaseorderid= @Id";
 
 
         //退单按照先进先出原则从库存查询
-        public StorePurchaseOrderItemDto GetRefundOrderItem(string productCodeOrBarCode, int storeId,long batchNo = 0)
+        public StorePurchaseOrderItemDto GetRefundOrderItem(string productCodeOrBarCode, int storeId,int supplierId)
         {
             if (string.IsNullOrEmpty(productCodeOrBarCode)) { throw new Exception("请输入商品编码或条码"); }
-            // 有调整价，有先使用最新的调整价；无才使用合同价
-            string sql = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.Specification,p.BarCode,p.Unit,p.SpecificationQuantity as ProductSpecificationQuantity, 
- i.ContractPrice,i.Price,i.SupplierId,s.`Name` as SupplierName,i.ProductionDate,i.ShelfLife,i.BatchNo,si.Quantity as inventoryQuantity
-from storeinventorybatch i inner join product p on p.Id = i.ProductId
-left join supplier s on s.Id = i.SupplierId
-left join (select productid,quantity from storeinventory where storeid=@StoreId)  si on si.ProductId = p.Id
-where (p.`Code`=@productCodeOrBarCode or p.BarCode=@productCodeOrBarCode) and i.Quantity>0 and i.StoreId=@StoreId {0} LIMIT 1";
-            string whereBatch = "";
-            if (batchNo>0)
-            {
-                whereBatch = string.Format(" and i.BatchNo={0} ", batchNo);
-            }
-            sql = string.Format(sql, whereBatch);
-            var item = _query.Find<StorePurchaseOrderItemDto>(sql, new { ProductCodeOrBarCode = productCodeOrBarCode, StoreId = storeId });
-            //设置当前件规            
-            if (item == null) { throw new Exception("查无商品，请检查供应商合同"); }
-            // 查询是否有调整价格
 
+            string sql = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.Specification,p.BarCode,p.Unit,p.SpecificationQuantity as ProductSpecificationQuantity,  
+i.LastCostPrice as ContractPrice,i.LastCostPrice as Price,i.Quantity as inventoryQuantity
+from storeinventory i 
+left join product p on p.id = i.ProductId
+left join 
+(
+select b.StoreId,b.SupplierId,b.ProductId,sum(b.Quantity)
+ from storeinventorybatch b group by b.StoreId,b.SupplierId,b.ProductId) t
+on t.StoreId = i.StoreId and t.ProductId = i.ProductId
+where (p.`Code`=@ProductCodeOrBarCode or p.BarCode=@ProductCodeOrBarCode) and i.StoreId=@StoreId and t.SupplierId=@SupplierId LIMIT 1";
+
+            var item = _query.Find<StorePurchaseOrderItemDto>(sql, new { ProductCodeOrBarCode = productCodeOrBarCode, StoreId = storeId, SupplierId = supplierId });
+            //设置当前件规            
+            if (item == null) { throw new Exception("查无商品，请检查供应商合同"); }           
             item.SetSpecificationQuantity();
             return item;
         }
 
-        public IEnumerable<StorePurchaseOrderItemDto> GetRefundOrderItemList(string inputProducts, int storeId)
+        public IEnumerable<StorePurchaseOrderItemDto> GetRefundOrderItemList(string inputProducts, int storeId, int supplierId)
         {
             if (string.IsNullOrEmpty(inputProducts)) throw new Exception("商品明细为空");
             var dic = inputProducts.ToIntDic();
-            // 有调整价，有先使用最新的调整价；无才使用合同价
-            string sql = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.Specification,p.BarCode,p.Unit,p.SpecificationQuantity as ProductSpecificationQuantity, 
- i.ContractPrice,i.Price,i.SupplierId,s.`Name` as SupplierName,i.ProductionDate,i.ShelfLife,i.BatchNo
-from storeinventorybatch i inner join product p on p.Id = i.ProductId
-left join supplier s on s.Id = i.SupplierId
-where p.`Code` in @ProductCode   and i.Quantity>0 and StoreId=@StoreId ";
-            var productItems = _query.FindAll<StorePurchaseOrderItemDto>(sql, new { ProductCode = dic.Keys.ToArray(), StoreId = storeId});
+            string sql = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.Specification,p.BarCode,p.Unit,p.SpecificationQuantity as ProductSpecificationQuantity,  
+i.LastCostPrice as ContractPrice,i.LastCostPrice as Price,i.Quantity as inventoryQuantity
+from storeinventory i 
+left join product p on p.id = i.ProductId
+left join 
+(
+select b.StoreId,b.SupplierId,b.ProductId,sum(b.Quantity)
+ from storeinventorybatch b group by b.StoreId,b.SupplierId,b.ProductId) t
+on t.StoreId = i.StoreId and t.ProductId = i.ProductId
+where p.BarCode in @BarCode  and i.StoreId=@StoreId and t.SupplierId=@SupplierId ";
+            var productItems = _query.FindAll<StorePurchaseOrderItemDto>(sql, new { BarCode = dic.Keys.ToArray(), StoreId = storeId, SupplierId = supplierId });
             if (!productItems.Any()) { throw new Exception("查无商品，请检查供应商合同"); }
             foreach (var product in productItems)
             {
-                product.Quantity = dic[product.ProductCode];
+                if (dic.ContainsKey(product.BarCode))
+                {
+                    product.Quantity = dic[product.BarCode];
+                }
                 product.SetSpecificationQuantity();
             }
             return productItems;
@@ -225,19 +229,13 @@ where p.`Code` in @ProductCode   and i.Quantity>0 and StoreId=@StoreId ";
             if (string.IsNullOrEmpty(productCodeOrBarCode)||storeId==0) {
                 return new List<StorePurchaseOrderItemDto>();   //查批次必须输入条件，有一个条件为空都返回空记录
             }
-            // 有调整价，有先使用最新的调整价；无才使用合同价
             string sql = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.Specification,p.BarCode,p.Unit,p.SpecificationQuantity as ProductSpecificationQuantity, 
  i.ContractPrice,i.Price,i.SupplierId,s.`Name` as SupplierName,i.ProductionDate,i.ShelfLife,i.BatchNo,i.Quantity 
 from storeinventorybatch i inner join product p on p.Id = i.ProductId
 left join supplier s on s.Id = i.SupplierId
 where (p.`Code`=@productCodeOrBarCode or p.BarCode=@productCodeOrBarCode) and i.Quantity>0 and i.StoreId=@StoreId ";
             var productItems = _query.FindAll<StorePurchaseOrderItemDto>(sql, new { ProductCodeOrBarCode = productCodeOrBarCode, StoreId = storeId });
-            //设置当前件规            
 
-            //foreach (var product in productItems)
-            //{
-            //    product.SetSpecificationQuantity();
-            //}
             return productItems;
         }
     }

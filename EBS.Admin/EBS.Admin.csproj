@@ -332,6 +332,7 @@
     <Content Include="Scripts\bootbox.min.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Scripts\echarts.common.min.js" />
     <Content Include="Scripts\jquery-2.1.3.js" />
     <Content Include="Scripts\jquery-2.1.3.min.js" />
     <Content Include="Scripts\jquery.PrintArea.js" />
@@ -1310,6 +1311,8 @@
     <Content Include="Views\AdjustStorePrice\Finish.cshtml" />
     <Content Include="Views\TransferOrder\Edit.cshtml" />
     <Content Include="Views\TransferOrder\Finish.cshtml" />
+    <Content Include="Views\SaleOrder\SingleProductSale.cshtml" />
+    <Content Include="Views\SaleOrder\SaleAnalysis.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">

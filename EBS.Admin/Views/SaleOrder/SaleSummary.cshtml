@@ -25,8 +25,8 @@
         <div class="box-body">
             <vue-table v-ref:vtable v-bind:columns="gridColumns"
                        v-bind:url="url"
-                       v-bind:args="searchArgs" v-bind:data.sync="rows" show-pagination="false" 
-                       show-toolbar="false" v-bind:show-sum="true">
+                       v-bind:args="searchArgs" v-bind:data.sync="rows" v-bind:show-pagination="true"
+                       v-bind:show-toolbar="true" v-bind:show-sum="true">
                 <div class="row" style="margin-bottom:10px;" slot="customSearch">
                     <div class="col-xs-3 col-sm-2">
                         <input class="form-control" v-model="searchArgs.nickName" placeholder="收银员姓名" debounce="500" />
@@ -49,7 +49,7 @@
                     </div>
                     <div class="form-group col-sm-2 col-xs-3">
                         <div class="input-group date" data-provide="datepicker" data-date-format="yyyy-mm-dd"
-                             data-date-language="zh-CN" data-date-clear-Btn="true" data-date-autoclose="true">
+                             data-date-language="zh-CN" data-date-clear-btn="true" data-date-autoclose="true">
                             <div class="input-group-addon">
                                 <i class="fa fa-calendar"></i>
                                 <span>班次时间从</span>
@@ -59,7 +59,7 @@
                     </div>
                     <div class="form-group col-sm-2 col-xs-3">
                         <div class="input-group date " data-provide="datepicker" data-date-format="yyyy-mm-dd"
-                             data-date-language="zh-CN" data-date-clear-Btn="true" data-date-autoclose="true">
+                             data-date-language="zh-CN" data-date-clear-btn="true" data-date-autoclose="true">
                             <div class="input-group-addon">
                                 <i class="fa fa-calendar"></i>
                                 <span>到</span>
@@ -69,7 +69,7 @@
                     </div>
                     <div class="form-group col-sm-2 col-xs-3">
                         <div class="input-group date" data-provide="datepicker" data-date-format="yyyy-mm-dd"
-                             data-date-language="zh-CN" data-date-clear-Btn="true" data-date-autoclose="true">
+                             data-date-language="zh-CN" data-date-clear-btn="true" data-date-autoclose="true">
                             <div class="input-group-addon">
                                 <i class="fa fa-calendar"></i>
                                 <span>自然日从</span>
@@ -79,7 +79,7 @@
                     </div>
                     <div class="form-group col-sm-2 col-xs-3">
                         <div class="input-group date " data-provide="datepicker" data-date-format="yyyy-mm-dd"
-                             data-date-language="zh-CN" data-date-clear-Btn="true" data-date-autoclose="true">
+                             data-date-language="zh-CN" data-date-clear-btn="true" data-date-autoclose="true">
                             <div class="input-group-addon">
                                 <i class="fa fa-calendar"></i>
                                 <span>到</span>
@@ -87,13 +87,28 @@
                             <input type="text" class="form-control" v-model="searchArgs.to" readonly debounce="500">
                         </div>
                     </div>
+                    <div class="col-sm-2 col-xs-3">
+                        <button-group v-bind:value.sync="searchArgs.orderLevel" type="success" buttons="true">
+                            <v-radio value="0">所有</v-radio>
+                            <v-radio value="1">普通订单</v-radio>
+                            <v-radio value="2">会员订单</v-radio>
+                        </button-group>
+                    </div>
+                    <div class="col-sm-4 col-xs-6">
+                        <button-group v-bind:value.sync="searchArgs.paymentWay" type="primary" buttons="true">
+                            <v-radio value="0">所有支付</v-radio>
+                            <v-radio value="1">现金</v-radio>
+                            <v-radio value="2">支付宝</v-radio>
+                            <v-radio value="2">微信</v-radio>
+                        </button-group>
+                    </div>
                 </div>
                 @*<span class="input-group-btn" slot="customButtons">
-                        <a class="btn btn-warning btn-flat" href="/SaleOrder/Create">新 增</a>
-                        <a class="btn btn-primary btn-flat" href="/SaleOrder/CreateGift">新增赠品单</a>
-                        <button type="button" class="btn btn-success btn-flat" v-on:click="submitAudit()">收货</button>
-                        <button type="button" class="btn btn-danger btn-flat" v-on:click="remove()">作 废</button>
-                    </span>*@
+                <a class="btn btn-warning btn-flat" href="/SaleOrder/Create">新 增</a>
+                <a class="btn btn-primary btn-flat" href="/SaleOrder/CreateGift">新增赠品单</a>
+                <button type="button" class="btn btn-success btn-flat" v-on:click="submitAudit()">收货</button>
+                <button type="button" class="btn btn-danger btn-flat" v-on:click="remove()">作 废</button>
+            </span>*@
             </vue-table>
         </div>
         <!-- /.box-body -->
@@ -115,7 +130,9 @@
         var vue = new Vue({
             components: {
                 'v-modal': VueStrap.modal,
-                'v-input': VueStrap.input
+                'v-input': VueStrap.input,
+                'v-radio': VueStrap.radio,
+                'button-group': VueStrap.buttonGroup,
             },
             el: '#app',
             data: {
@@ -135,7 +152,7 @@
                     { name: 'PaymentWayName', localName: '付款方式' },
                 ],
                 url: "/SaleOrder/QuerySaleSummary",
-                searchArgs: { code: '', nickName: '', storeId: 0, wrokFrom: '',workTo:'',from:'@ViewBag.today',to:'@ViewBag.today' ,posId:null},
+                searchArgs: { code: '', nickName: '', storeId: 0, wrokFrom: '',workTo:'',from:'@ViewBag.today',to:'@ViewBag.today' ,posId:null,orderLevel:0,paymentWay:0},
                 rows: [],
                 selectStore: {
                     modal: false,

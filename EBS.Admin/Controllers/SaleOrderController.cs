@@ -24,7 +24,7 @@ namespace EBS.Admin.Controllers
         public ActionResult Index()
         {
             ViewBag.today = DateTime.Now.ToString("yyyy-MM-dd");
-            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+            SetUserAuthention();
             return View();
         }
 
@@ -116,5 +116,42 @@ namespace EBS.Admin.Controllers
 
             return Json(new { success = true, data = rows, total = page.Total });
         }
+
+        private void SetUserAuthention()
+        {
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+            ViewBag.StoreId = _context.CurrentAccount.StoreId;
+            ViewBag.StoreName = _context.CurrentAccount.StoreName;
+        }
+        /// <summary>
+        /// 单品销售汇总：门店员工用
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult SingleProductSale()
+        {
+            SetUserAuthention();
+            ViewBag.Today = DateTime.Now.ToString("yyyy-MM-dd");
+            return View();
+        }
+
+        public JsonResult QuerySingleProductSale(Pager page, SearchSingleProductSale condition)
+        {
+            var rows = _saleOrderQuery.QuerySingleProductSale(page, condition);
+
+            return Json(new { success = true, data = rows, total = page.Total });
+        }
+
+        public ActionResult SaleAnalysis()
+        {
+            SetUserAuthention();
+            ViewBag.Today = DateTime.Now.ToString("yyyy-MM-dd");
+            return View();
+        }
+
+        //public JsonResult QuerySaleAnalysis()
+        //{
+           
+        //    return Json(new { success = true, data = 0, total =0 });
+        //}
     }
 }

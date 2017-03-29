@@ -125,6 +125,7 @@
     <Compile Include="ValueObject\AdjustSalePriceStatus.cs" />
     <Compile Include="ValueObject\AdjustStorePriceStatus.cs" />
     <Compile Include="ValueObject\OrderType.cs" />
+    <Compile Include="ValueObject\SaleOrderLevel.cs" />
     <Compile Include="ValueObject\SaleOrderStatus.cs" />
     <Compile Include="ValueObject\PurchaseOrderStatus.cs" />
     <Compile Include="Service\StoreService.cs" />

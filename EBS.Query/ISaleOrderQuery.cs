@@ -19,5 +19,9 @@ namespace EBS.Query
 
         IEnumerable<SaleOrderDto> QuerySaleOrder(Pager page, int wrokScheduleId, int status, int orderType);
 
+        IEnumerable<SingleProductSaleDto> QuerySingleProductSale(Pager page, SearchSingleProductSale condition);
+
+        //IEnumerable<SingleProductSaleDto> QuerySaleAnalysis(Pager page, SearchSingleProductSale condition);
+
     }
 }

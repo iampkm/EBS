@@ -32,6 +32,14 @@ namespace EBS.Query.DTO
         /// </summary>
         public DateTime? From { get; set; }
         public DateTime? To { get; set; }
+        /// <summary>
+        /// 订单级别
+        /// </summary>
+        public int OrderLevel { get; set; }
+        /// <summary>
+        /// 支付方式
+        /// </summary>
+        public int PaymentWay { get; set; }
 
     }
 }

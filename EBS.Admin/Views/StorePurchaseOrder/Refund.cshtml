@@ -34,6 +34,15 @@
                 </div>
             </div>
             <div class="row">
+                <div class="form-group col-sm-2 col-xs-3">
+                    <div class="input-group ">
+                        <input type="hidden" class="form-control" v-model="model.supplierId">
+                        <input type="text" class="form-control" v-model="selectSupplier.name" placeholder="选择供应商" readonly>
+                        <span class="input-group-btn">
+                            <button class="btn btn-flat btn-default" type="button" v-on:click="showSupplier"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </div>
                 <div class="col-sm-2 col-xs-3" v-show="selectStore.view">
                     <div class="input-group ">
                         <input type="hidden" class="form-control" v-model="model.storeId">
@@ -184,7 +193,7 @@
     <!-- modal -->
     <v-modal title="导入商品" ok-text="确 定" cancel-text="取 消" v-bind:callback="importProduct" v-bind:show.sync="modal" v-bind:effect="fade" width="300">
         <div slot="modal-body" class="modal-body">
-            <v-input type="textarea" help="请将excel中商品编号和数量两列粘贴到文本框中" v-bind:value.sync="inputProducts" placeholder="输入商品" required icon></v-input>
+            <v-input type="textarea" help="请将excel中商品条码和数量两列粘贴到文本框中" v-bind:value.sync="inputProducts" placeholder="输入商品" required icon></v-input>
         </div>
     </v-modal>
     <v-modal title="选择门店" ok-text="确 定" cancel-text="取 消" v-bind:callback="getStore" v-bind:show.sync="selectStore.modal" v-bind:effect="fade" width="60%">
@@ -204,6 +213,22 @@
                     <div class="col-xs-4 col-sm-3">
                         <input class="form-control" v-model="selectBatch.searchArgs.name" placeholder="输入供应商名" debounce="300" />
                     </div>*@
+                </div>
+            </vue-table>
+        </div>
+    </v-modal>
+    <v-modal title="选择供应商" ok-text="确 定" cancel-text="取 消" v-bind:callback="getSupplier" v-bind:show.sync="selectSupplier.modal" v-bind:effect="fade" width="50%">
+        <div slot="modal-body" class="modal-body">
+            <vue-table v-bind:columns="selectSupplier.gridColumns"
+                       v-bind:url="selectSupplier.url" v-bind:show-toolbar="false"
+                       v-bind:args="selectSupplier.searchArgs" v-bind:data.sync="selectSupplier.rows">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                    <div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="selectSupplier.searchArgs.code" placeholder="输入供应编码" debounce="300" />
+                    </div>
+                    <div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="selectSupplier.searchArgs.name" placeholder="输入供应商名" debounce="300" />
+                    </div>
                 </div>
             </vue-table>
         </div>
@@ -267,6 +292,18 @@
                         index:0
                     },
                     isSubmit:false,
+                    selectSupplier: {
+                        modal: false,
+                        name: '',
+                        gridColumns: [
+                            { name: 'Code', localName: '编码', width: '100' },
+                            { name: 'Name', localName: '供应商名', width: '300' },
+                            { name: 'SupplierType', localName: '类型', width: '100' },
+                        ],
+                        url: "/Supplier/LoadData",
+                        searchArgs: { name: '', code: '' },
+                        rows: []
+                    },
                 },
                 methods: {
                     onSubmit: function () {
@@ -298,7 +335,7 @@
                         $.post("/StorePurchaseOrder/Create", v_data, function (result) {
                             if (result.success) {
                                 bootbox.alert("保存成功！", function () {
-                                    window.location.href = "/StorePurchaseOrder/RefundIndex";
+                                    window.location.href = "/StorePurchaseOrder/Refund";
                                 });
                             }
                             else {
@@ -314,25 +351,15 @@
                         if (_self.model.storeId == 0) { bootbox.alert("请选择门店"); return; }
                         var data = {
                             inputProducts: inputItems,
-                            storeId: _self.model.storeId
+                            storeId: _self.model.storeId,
+                            supplierId:_self.model.supplierId
                         }
                         $.post("/StorePurchaseOrder/ImportRefundProduct", data, function (result) {
                             if (result.success) {
                                 _self.products = [];
                                 for(var i=0;i<result.data.length;i++)
                                 {
-                                    var item = result.data[i];
-                                    if(_self.model.supplierId==0){
-                                        _self.model.supplierId = item.SupplierId;
-                                        _self.selectSupplier.name = item.SupplierName;
-                                    }
-                                    else{
-                                        //同一个单子，供应商应该一致
-                                        if(_self.model.supplierId!=item.SupplierId)
-                                        {
-                                            bootbox.alert("录入的商品供应商不一致");break;
-                                        }
-                                    }
+                                    var item = result.data[i];                                    
                                     _self.products.push(item);
                                 }
 
@@ -385,22 +412,11 @@
                         var data = {
                             productCodeOrBarCode: codeOrBarCode,
                             storeId: _self.model.storeId,
-                            batchNo:batch
+                            supplierId:_self.model.supplierId
                         }
                         //设置焦点
                         $.get("/StorePurchaseOrder/GetRefundOrderItem", data, function (result) {
-                            if (result.success) {
-                                if(_self.model.supplierId==0){
-                                    _self.model.supplierId = result.data.SupplierId;
-                                    _self.selectSupplier.name = result.data.SupplierName;
-                                }
-                                else{
-                                    //同一个单子，供应商应该一致
-                                    if(_self.model.supplierId!=result.data.SupplierId)
-                                    {
-                                        bootbox.alert("录入的商品供应商不一致");return;
-                                    }
-                                }
+                            if (result.success) {                                
                                 _self.products.$set(index, result.data);
 
                                 //设置焦点,延迟500，等待vue.js 渲染完毕
@@ -458,6 +474,23 @@
 
                         }
                     },
+                    showSupplier: function () {
+                        this.selectSupplier.modal = true;
+                    },
+                    getSupplier: function () {
+                        this.clearItems();
+                        var selecteds = this.selectSupplier.rows.filter(function (item) {
+                            return item.checked;
+                        });
+                        if (selecteds) {
+                            this.model.supplierId = selecteds[0].Id;
+                            this.selectSupplier.name = selecteds[0].Name;
+                            this.selectSupplier.modal = false;
+
+                            //清空选择项
+                            this.clearItems();
+                        }
+                    },
                     print: function () {
 
                     },
@@ -486,7 +519,10 @@
                         if(selectRow)
                         {
                             var selectItem = selectRow[0];
-                            this.inputProduct(selectItem.ProductCode, this.selectBatch.index,selectItem.BatchNo);
+                            this.products[this.selectBatch.index].BatchNo = selectItem.BatchNo;
+                            this.products[this.selectBatch.index].ContractPrice = selectItem.ContractPrice;
+                            this.products[this.selectBatch.index].Price = selectItem.Price;
+                           // this.inputProduct(selectItem.ProductCode, this.selectBatch.index,selectItem.BatchNo);
                             this.selectBatch.modal = false;
                         }
                         else{

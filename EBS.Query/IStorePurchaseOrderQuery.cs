@@ -13,9 +13,11 @@ namespace EBS.Query
        Dictionary<int, string> GetStorePurchaseOrderStatus();
        StorePurchaseOrderItemDto GetPurchaseOrderItem(string productCodeOrBarCode,int storeId, int supplierId);
 
-       StorePurchaseOrderItemDto GetRefundOrderItem(string productCodeOrBarCode, int storeId, long batchNo = 0);
        IEnumerable<StorePurchaseOrderItemDto> GetPurchaseOrderItemList(string inputProducts, int storeId, int supplierId);
-        IEnumerable<StorePurchaseOrderItemDto> GetRefundOrderItemList(string inputProducts, int storeId);
+
+       StorePurchaseOrderItemDto GetRefundOrderItem(string productCodeOrBarCode, int storeId, int supplierId);
+
+       IEnumerable<StorePurchaseOrderItemDto> GetRefundOrderItemList(string inputProducts, int storeId, int supplierId);
         /// <summary>
         /// 查询商品的所有批次记录
         /// </summary>

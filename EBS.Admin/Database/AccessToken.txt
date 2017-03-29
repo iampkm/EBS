@@ -7,4 +7,5 @@
 石柱店:        posid=101,storeid=17  ,cdkeySource =20170307@rfv,cdkey =c2bd66c0995a94789212bb2616efe7d8    服务端cdkey=52ce7e72cdf3cdeba2855d95064bbf0f
 成都4店:      posid=401,storeid=5  ,cdkeySource =20170307@tgb,cdkey = 1fe64f60ee142b8a5659448476079d18   服务端cdkey=d1d88298e3bf9f3ad3653868c46ef157
 成都6店:       posid=601,storeid=7  ,cdkeySource =20170307@yhn,cdkey =62af0bf2aee4cfa1038143b90c09ddff    服务端cdkey=7fd6eb69513afd79a407afeef7729f5b
-                     
+青城山1店内:   posid =101,storeid=11,cdkeysoource=20170322@ujm,cdkey=d833224a00f196e494047586774544b7   服务端cdkey=749985d777bcdab0a5643febf4fd38e5
+青城山2店外:   posid =201,storeid=12,cdkeysoource=20170322@ujm2,cdkey= 7337c09cc854bfedab48cc91cdea2416   服务端cdkey=a2cefd7f7c1287808cd8a274c59772df                 

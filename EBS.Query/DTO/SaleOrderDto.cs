@@ -28,6 +28,16 @@ namespace EBS.Query.DTO
             }
         }
 
+        public string OrderLevelName
+        {
+            get
+            {
+                return OrderLevel.Description();
+            }
+        }
+
+        public SaleOrderLevel OrderLevel { get; set; }
+
         public decimal OrderAmount { get; set; }
 
         public decimal PayAmount { get; set; }

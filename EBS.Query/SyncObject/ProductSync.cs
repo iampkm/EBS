@@ -30,5 +30,9 @@ namespace EBS.Query.SyncObject
         public decimal SalePrice { get; set; }
 
         public DateTime UpdatedOn { get; set; }
+        /// <summary>
+        /// 单位
+        /// </summary>
+        public string Unit { get; set; }
     }
 }

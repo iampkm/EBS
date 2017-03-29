@@ -116,6 +116,6 @@ namespace EBS.Query.DTO
        /// </summary>
        public int InventoryQuantity { get; set; }
 
-       public string BatchNo { get; set; }
+       public long BatchNo { get; set; }
     }
 }

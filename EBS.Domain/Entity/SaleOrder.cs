@@ -12,6 +12,7 @@ namespace EBS.Domain.Entity
             this.CreatedOn = DateTime.Now;
             this.UpdatedOn = DateTime.Now;
             this.Status = SaleOrderStatus.Create;
+            this.OrderLevel = SaleOrderLevel.General;
         }
         /// <summary>
         /// 订单编号 ： 单据类型 2 + 账号4位+ （日期20160101） 3位+ 下单的秒数（86400，5位）+ 2位随机
@@ -69,6 +70,8 @@ namespace EBS.Domain.Entity
         /// 班次代码
         /// </summary>
         public string WorkScheduleCode { get; set; }
+
+        public SaleOrderLevel OrderLevel { get; set; }
 
         
 
