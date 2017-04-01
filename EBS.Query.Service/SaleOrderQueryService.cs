@@ -394,5 +394,128 @@ left join store s on s.id = t.storeid where 1=1 {1}";
 
             return rows;
         }
+
+
+        public IEnumerable<SaleReportDto> QuerySaleReport(Pager page, SearchSaleReport condition)
+        {
+                  var  result = QuerySaleReportGroupByStore(page, condition);
+
+            return result;
+        }
+
+        private IEnumerable<SaleReportDto> QuerySaleReportGroupByStore(Pager page, SearchSaleReport condition)
+        {
+            IEnumerable<SaleReportDto> result = new List<SaleReportDto>();
+            if ((int)condition.GroupBy == 0)
+            {
+                return result;
+            }
+            
+
+            dynamic param = new ExpandoObject();
+            string where = "";
+
+            if (!string.IsNullOrEmpty(condition.ProductCodeOrBarCode))
+            {
+                where += @"and ( p.code=@ProductCodeOrBarCode or p.barcode =@ProductCodeOrBarCode  ) ";
+                param.ProductCodeOrBarCode = condition.ProductCodeOrBarCode;
+            }           
+
+            if (condition.StartDate.HasValue)
+            {
+                where += "and r.CreatedOn >=@StartDate ";
+                param.StartDate = condition.StartDate.Value;
+            }
+            if (condition.EndDate.HasValue)
+            {
+                where += "and r.CreatedOn < @EndDate ";
+                param.EndDate = condition.EndDate.Value.AddDays(1);
+            }
+
+            if (!string.IsNullOrEmpty(condition.StoreId) && condition.StoreId != "0")
+            {
+                where += "and r.StoreId in @StoreId ";
+                param.StoreId = condition.StoreId.Split(',').ToIntArray();
+            }
+            if (!string.IsNullOrEmpty(condition.CategoryId))
+            {
+                where += "and c.CategoryId = @CategoryId ";
+                param.CategoryId = condition.CategoryId; 
+            }
+            if (condition.BrandId > 0) {
+                where += "and b.BrandId = @BrandId ";
+                param.BrandId = condition.BrandId; 
+            }
+
+            //按分组组装sql
+            var sql = "";
+            var sqlCount = "";
+            switch (condition.GroupBy)
+            {
+                case GroupByMethod.Store:
+                    sql = @"select s.`name`,OrderCount,SaleQuantity,SaleCostAmount,SaleAmount from (
+select r.storeId,count(DISTINCT r.saleorderId) as OrderCount,sum(r.Quantity) as SaleQuantity,sum(r.CostPrice*r.Quantity) as SaleCostAmount,sum(r.SalePrice*r.Quantity) as SaleAmount 
+from salereport r left join product p on p.id = r.productId 
+left join category c on c.Id = p.CategoryId
+left join brand b on b.Id = p.BrandId
+where 1=1 {0} GROUP BY r.StoreId LIMIT {1},{2}  ) t
+LEFT JOIN store s on s.id = t.StoreId";
+                    sqlCount = @"select count(*) from (
+select r.storeId,count(DISTINCT r.saleorderId) as OrderCount,sum(r.Quantity) as SaleQuantity,sum(r.CostPrice*r.Quantity) as SaleCostAmount,sum(r.SalePrice*r.Quantity) as SaleAmount 
+from salereport r left join product p on p.id = r.productId 
+left join category c on c.Id = p.CategoryId
+left join brand b on b.Id = p.BrandId
+where 1=1 {0} GROUP BY r.StoreId ) t
+LEFT JOIN store s on s.id = t.StoreId";
+
+                    break;
+                case GroupByMethod.Product:
+                    sql = @"select s.`name`,OrderCount,SaleQuantity,SaleCostAmount,SaleAmount from (
+select r.productId,count(DISTINCT r.saleorderId) as OrderCount,sum(r.Quantity) as SaleQuantity,sum(r.CostPrice*r.Quantity) as SaleCostAmount,sum(r.SalePrice*r.Quantity) as SaleAmount 
+from salereport r left join product p on p.id = r.productId 
+left join category c on c.Id = p.CategoryId
+left join brand b on b.Id = p.BrandId
+where 1=1 {0} GROUP BY r.productId LIMIT {1},{2}  ) t
+LEFT JOIN product s on s.id = t.productId";
+                    sqlCount = @"select count(*) from (
+select r.productId,count(DISTINCT r.saleorderId) as OrderCount,sum(r.Quantity) as SaleQuantity,sum(r.CostPrice*r.Quantity) as SaleCostAmount,sum(r.SalePrice*r.Quantity) as SaleAmount 
+from salereport r left join product p on p.id = r.productId 
+left join category c on c.Id = p.CategoryId
+left join brand b on b.Id = p.BrandId
+where 1=1 {0} GROUP BY r.productId ) t
+LEFT JOIN product s on s.id = t.productId";
+                    break;
+                case GroupByMethod.Category:                  
+                      param.CategoryLevel = condition.CategoryLevel <= 0 ? 1 : condition.CategoryLevel; 
+                                     
+                     sql = @"select s.`FullName` as Name ,OrderCount,SaleQuantity,SaleCostAmount,SaleAmount from (
+select left(c.Id,2*@CategoryLevel) as CategoryId,count(DISTINCT r.saleorderId) as OrderCount,sum(r.Quantity) as SaleQuantity,sum(r.CostPrice*r.Quantity) as SaleCostAmount,sum(r.SalePrice*r.Quantity) as SaleAmount 
+from salereport r left join product p on p.id = r.productId 
+left join category c on c.Id = p.CategoryId
+left join brand b on b.Id = p.BrandId
+where 1=1 {0} GROUP BY left(c.Id,2*@CategoryLevel) LIMIT {1},{2}  ) t
+LEFT JOIN Category s on s.id = t.CategoryId";
+                    sqlCount = @"select count(*) from (
+select c.Id CategoryId,count(DISTINCT r.saleorderId) as OrderCount,sum(r.Quantity) as SaleQuantity,sum(r.CostPrice*r.Quantity) as SaleCostAmount,sum(r.SalePrice*r.Quantity) as SaleAmount 
+from salereport r left join product p on p.id = r.productId 
+left join category c on c.Id = p.CategoryId
+left join brand b on b.Id = p.BrandId
+where 1=1 {0} GROUP BY left(c.Id,2*@CategoryLevel) ) t
+LEFT JOIN Category s on s.id = t.CategoryId";
+                    break;
+                default:
+                    break;
+            }
+            
+
+            //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<Product>(where, param);
+            sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
+            var rows = this._query.FindAll<SaleReportDto>(sql, param);
+
+            sqlCount = string.Format(sqlCount, where);
+            page.Total = this._query.Context.ExecuteScalar<int>(sqlCount, param);
+
+            return rows;
+        }
     }
 }

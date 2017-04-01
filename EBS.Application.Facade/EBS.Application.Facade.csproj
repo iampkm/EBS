@@ -68,6 +68,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PurchaseContractFacade.cs" />
     <Compile Include="RoleFacade.cs" />
+    <Compile Include="SaleReportFacade.cs" />
     <Compile Include="ShelfFacade.cs" />
     <Compile Include="StocktakingFacade.cs" />
     <Compile Include="StocktakingPlanFacade.cs" />

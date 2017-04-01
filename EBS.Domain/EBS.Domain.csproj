@@ -71,6 +71,7 @@
     <Compile Include="Entity\PurchaseContractItem.cs" />
     <Compile Include="Entity\PurchaseSaleInventoryDetail.cs" />
     <Compile Include="Entity\RoleMenu.cs" />
+    <Compile Include="Entity\SaleReport.cs" />
     <Compile Include="Entity\SaleSync.cs" />
     <Compile Include="Entity\Shelf.cs" />
     <Compile Include="Entity\ShelfLayer.cs" />
@@ -112,6 +113,8 @@
     <Compile Include="Service\PurchaseSaleInventoryDetailTask.cs" />
     <Compile Include="Service\PurchaseSaleInventoryTask.cs" />
     <Compile Include="Service\RoleService.cs" />
+    <Compile Include="Service\SaleReportService.cs" />
+    <Compile Include="Service\SaleReportTask.cs" />
     <Compile Include="Service\ShelfService.cs" />
     <Compile Include="Service\StocktakingPlanService.cs" />
     <Compile Include="Service\StocktakingService.cs" />

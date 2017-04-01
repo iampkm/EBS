@@ -10,7 +10,7 @@ namespace EBS.Domain.Entity
     {
         public StoreInventoryHistory() { }
         public StoreInventoryHistory(int productId, int storeId, int quantity, int changeQuantity, decimal price, long batchNo,
-            int billId, string billCode,BillIdentity billType,int createdBy)
+            int billId, string billCode,BillIdentity billType,int createdBy,int supplierId)
         {
             this.ProductId = productId;
             this.StoreId = storeId;
@@ -23,9 +23,10 @@ namespace EBS.Domain.Entity
             this.BillType = billType;
             this.CreatedBy = createdBy;
             this.CreatedOn = DateTime.Now;
+            this.SupplierId = supplierId;
         }
         public StoreInventoryHistory(int productId, int storeId, int quantity, int changeQuantity, decimal price, long batchNo,
-            int billId, string billCode, BillIdentity billType, int createdBy, DateTime createdOn )
+            int billId, string billCode, BillIdentity billType, int createdBy, DateTime createdOn,int supplierId )
         {
             this.ProductId = productId;
             this.StoreId = storeId;
@@ -38,6 +39,7 @@ namespace EBS.Domain.Entity
             this.BillType = billType;
             this.CreatedBy = createdBy;
             this.CreatedOn = createdOn;
+            this.SupplierId = supplierId;
         }
         /// <summary>
         /// 商品SKUID
@@ -74,7 +76,9 @@ namespace EBS.Domain.Entity
          public BillIdentity BillType { get; set; }
          public DateTime CreatedOn { get; set; }
          public int CreatedBy { get; set; }
-
-       
+         /// <summary>
+         /// 供应商
+         /// </summary>
+         public int SupplierId { get; set; }
     }
 }

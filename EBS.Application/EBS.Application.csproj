@@ -79,6 +79,7 @@
     <Compile Include="IProductFacade.cs" />
     <Compile Include="IPurchaseContractFacade.cs" />
     <Compile Include="IRoleFacade.cs" />
+    <Compile Include="ISaleReportFacade.cs" />
     <Compile Include="IShelfFacade.cs" />
     <Compile Include="IStocktakingFacade.cs" />
     <Compile Include="IStocktakingPlanFacade.cs" />

@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2017-03-24 10:14:17                          */
+/* Created on:     2017-04-01 16:40:14                          */
 /*==============================================================*/
 
 
@@ -101,6 +101,12 @@ drop index idx_saleorderitem_productid on SaleOrderItem;
 drop index idx_saleorderitem_saleorderid on SaleOrderItem;
 
 drop table if exists SaleOrderItem;
+
+drop index idx_saleReport_productId on SaleReport;
+
+drop index idx_saleReport_CreatedOn on SaleReport;
+
+drop table if exists SaleReport;
 
 drop index idx_SaleSync on SaleSync;
 
@@ -879,6 +885,47 @@ create index idx_saleorderitem_productid on SaleOrderItem
 );
 
 /*==============================================================*/
+/* Table: SaleReport                                            */
+/*==============================================================*/
+create table SaleReport
+(
+   StoreInventoryHistoryId int not null comment '库存流水Id',
+   SaleOrderId          int comment '销售编码',
+   ProductId            int comment '商品Id',
+   OrderType            int comment '订单类型',
+   PaymentWay           int comment '支付方式',
+   OrderLevel           int comment '订单级别：1 普通订单，2 Vip订单',
+   StoreId              int comment '门店',
+   SupplierId           int comment '供应商Id',
+   CostPrice            decimal(8,4) comment '成本价',
+   SalePrice            decimal(8,2) comment '销售价',
+   RealPrice            decimal(8,2) comment '实际售价',
+   Quantity             int comment '数量',
+   CreatedOn            datetime comment '创建时间',
+   CreatedBy            int comment '创建人',
+   UpdatedOn            datetime comment '修改时间',
+   primary key (StoreInventoryHistoryId)
+);
+
+alter table SaleReport comment '从 storeinventoryHistory  中提取的销售数据，报表用';
+
+/*==============================================================*/
+/* Index: idx_saleReport_CreatedOn                              */
+/*==============================================================*/
+create index idx_saleReport_CreatedOn on SaleReport
+(
+   CreatedOn
+);
+
+/*==============================================================*/
+/* Index: idx_saleReport_productId                              */
+/*==============================================================*/
+create index idx_saleReport_productId on SaleReport
+(
+   ProductId
+);
+
+/*==============================================================*/
 /* Table: SaleSync                                              */
 /*==============================================================*/
 create table SaleSync
@@ -1148,6 +1195,7 @@ create table StoreInventoryHistory
    BillType             int comment '单据类型',
    BatchNo              bigint comment '批次号',
    Price                decimal(8,4) comment '进价',
+   SupplierId           int comment '供应商Id',
    primary key (Id)
 );
 

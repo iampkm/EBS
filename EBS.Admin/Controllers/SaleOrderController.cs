@@ -6,6 +6,8 @@ using System.Web.Mvc;
 using EBS.Query;
 using EBS.Query.DTO;
 using EBS.Admin.Services;
+using Newtonsoft.Json;
+using EBS.Application;
 namespace EBS.Admin.Controllers
 {
     [Permission]
@@ -13,11 +15,14 @@ namespace EBS.Admin.Controllers
     {
         ISaleOrderQuery _saleOrderQuery;
         IContextService _context;
-
-        public SaleOrderController(IContextService contextService, ISaleOrderQuery saleQuery)
+        ICategoryQuery _categoryQuery;
+        ISaleReportFacade _saleReportFacade;
+        public SaleOrderController(IContextService contextService, ISaleOrderQuery saleQuery,ICategoryQuery categoryQuery,ISaleReportFacade saleReportFacade)
         {
             _saleOrderQuery = saleQuery;
             this._context = contextService;
+             this._categoryQuery = categoryQuery;
+             _saleReportFacade = saleReportFacade;
         }
         //
         // GET: /SaleOrder/
@@ -141,17 +146,33 @@ namespace EBS.Admin.Controllers
             return Json(new { success = true, data = rows, total = page.Total });
         }
 
-        public ActionResult SaleAnalysis()
+        public ActionResult SaleReport()
         {
             SetUserAuthention();
-            ViewBag.Today = DateTime.Now.ToString("yyyy-MM-dd");
+            ViewBag.Today = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd");
+            LoadCategory();
             return View();
         }
 
-        //public JsonResult QuerySaleAnalysis()
-        //{
-           
-        //    return Json(new { success = true, data = 0, total =0 });
-        //}
+        private void LoadCategory()
+        {
+            var treeNodes = _categoryQuery.GetCategoryTree();
+            var tree = JsonConvert.SerializeObject(treeNodes);
+            ViewBag.Tree = tree;
+        }
+
+        public JsonResult QuerySaleReport(Pager page, SearchSaleReport condition)
+        {
+
+            var rows = _saleOrderQuery.QuerySaleReport(page, condition);
+
+            return Json(new { success = true, data = rows, total = page.Total });
+        }
+
+        public JsonResult GenerateSaleReport(DateTime beginDate, DateTime endDate)
+        {
+            _saleReportFacade.Create(beginDate, endDate);
+            return Json(new { success = true });
+        }
     }
 }

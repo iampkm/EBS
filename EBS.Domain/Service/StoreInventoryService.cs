@@ -62,7 +62,7 @@ namespace EBS.Domain.Service
 
                 //记录库存流水
                 var history = new StoreInventoryHistory(item.ProductId, entity.StoreId, inventoryItem.Quantity, item.ActualQuantity,
-                    item.Price, item.BatchNo, entity.Id, entity.Code, BillIdentity.StorePurchaseOrder, entity.StoragedBy);
+                    item.Price, item.BatchNo, entity.Id, entity.Code, BillIdentity.StorePurchaseOrder, entity.StoragedBy,entity.SupplierId);
                 inventoryHistorys.Add(history);
                 //记录库存批次
                 var batchQuantity = CalculatedBatchQuantity(inventoryItem.Quantity, item.ActualQuantity);
@@ -138,7 +138,7 @@ namespace EBS.Domain.Service
                         {
                             inventoryBatchUpdates.Add(new StoreInventoryBatchUpdate(batchProduct.Id, -purchaseOrderItem.ActualQuantity));
                             var history = new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventory.Quantity, -purchaseOrderItem.ActualQuantity,
-                        batchProduct.Price, purchaseOrderItem.BatchNo, entity.Id, entity.Code, BillIdentity.StorePurchaseRefundOrder, entity.StoragedBy);
+                        batchProduct.Price, purchaseOrderItem.BatchNo, entity.Id, entity.Code, BillIdentity.StorePurchaseRefundOrder, entity.StoragedBy,entity.SupplierId);
                             inventoryHistorys.Add(history);
                             continue;
                         }
@@ -148,7 +148,7 @@ namespace EBS.Domain.Service
                             inventoryBatchUpdates.Add(new StoreInventoryBatchUpdate(batchProduct.Id, -batchProduct.Quantity));
 
                             var history = new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventory.Quantity, -batchProduct.Quantity,
-                        batchProduct.Price, purchaseOrderItem.BatchNo, entity.Id, entity.Code, BillIdentity.StorePurchaseRefundOrder, entity.StoragedBy);
+                        batchProduct.Price, purchaseOrderItem.BatchNo, entity.Id, entity.Code, BillIdentity.StorePurchaseRefundOrder, entity.StoragedBy, entity.SupplierId);
                             inventoryHistorys.Add(history);
                             // 总库存  
                             inventory.Quantity = inventory.Quantity - batchProduct.Quantity;  // 第一次扣减后总库存
@@ -167,14 +167,14 @@ namespace EBS.Domain.Service
                             inventoryBatchUpdates.Add(new StoreInventoryBatchUpdate(batchItem.Id, -leftQuantity));
                             //记录修改历史
                             inventoryHistorys.Add(new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventory.Quantity, -leftQuantity,
-                                batchItem.Price, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.StorePurchaseRefundOrder, entity.CreatedBy));
+                                batchItem.Price, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.StorePurchaseRefundOrder, entity.CreatedBy, entity.SupplierId));
                             break;
                         }
                         else
                         {
                             inventoryBatchUpdates.Add(new StoreInventoryBatchUpdate(batchItem.Id, -batchItem.Quantity));
                             inventoryHistorys.Add(new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventory.Quantity, -batchItem.Quantity,
-                                                         batchItem.Price, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.StorePurchaseRefundOrder, entity.CreatedBy));
+                                                         batchItem.Price, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.StorePurchaseRefundOrder, entity.CreatedBy, entity.SupplierId));
                             // 剩余扣减数
                             inventory.Quantity = inventory.Quantity - batchItem.Quantity;  // 第1+N次扣减后总库存
                             leftQuantity = leftQuantity - batchItem.Quantity;
@@ -262,7 +262,7 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
                             inventoryBatchUpdates.Add(new StoreInventoryBatchUpdate(batchItem.Id, -leftQuantity));
                             //记录修改历史
                             inventoryHistorys.Add(new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventory.Quantity, -leftQuantity,
-                                batchItem.Price, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.SaleOrder, entity.CreatedBy, entity.UpdatedOn));
+                                batchItem.Price, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.SaleOrder, entity.CreatedBy, entity.UpdatedOn,batchItem.SupplierId));
                             leftQuantity = 0; //扣完
                             break;
                         }
@@ -272,7 +272,7 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
                             inventoryBatchUpdates.Add(new StoreInventoryBatchUpdate(batchItem.Id, -batchItem.Quantity));
                             // 记录流水
                             inventoryHistorys.Add(new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventory.Quantity, -batchItem.Quantity,
-                                                        batchItem.Price, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.SaleOrder, entity.CreatedBy, entity.UpdatedOn));
+                                                        batchItem.Price, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.SaleOrder, entity.CreatedBy, entity.UpdatedOn, batchItem.SupplierId));
                             //扣减库存
                             inventory.Quantity = inventory.Quantity - batchItem.Quantity;
                             leftQuantity = leftQuantity - batchItem.Quantity;
@@ -287,7 +287,7 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
                         {
                             var lastItem = inventoryBatchs.Where(n => n.ProductId == inventory.ProductId).OrderBy(n => n.BatchNo).LastOrDefault();
                             inventoryHistorys.Add(new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventory.Quantity, -leftQuantity,
-                                                           lastItem.Price, lastItem.BatchNo, entity.Id, entity.Code, BillIdentity.SaleOrder, entity.CreatedBy, entity.UpdatedOn));
+                                                           lastItem.Price, lastItem.BatchNo, entity.Id, entity.Code, BillIdentity.SaleOrder, entity.CreatedBy, entity.UpdatedOn, lastItem.SupplierId));
                         }
                         else
                         {
@@ -295,15 +295,17 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
                             if (lastItem != null) // 只收货，不入库，会为空
                             {
                                 inventoryHistorys.Add(new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventory.Quantity, -leftQuantity,
-                                                          lastItem.Price, lastItem.BatchNo, entity.Id, entity.Code, BillIdentity.SaleOrder, entity.CreatedBy, entity.UpdatedOn));
+                                                          lastItem.Price, lastItem.BatchNo, entity.Id, entity.Code, BillIdentity.SaleOrder, entity.CreatedBy, entity.UpdatedOn, lastItem.SupplierId));
                             }
                             else
                             {
                                 //当无批次库存数据时，用最新的合同商品价来记录
-                                // 查询商品合同价
-                                var contract = _db.Table.Find<PurchaseContractItem>(@"SELECT i.ContractPrice from purchasecontract c inner join purchasecontractitem i on c.id = i.PurchaseContractId where FIND_IN_SET(@StoreId,c.StoreIds) and c.`Status`=3 and i.ProductId = @productId order by c.Id desc", new { StoreId = entity.StoreId, ProductId = inventory.ProductId });
+                                // 退货商品按照最新的合同进行入库，查询商品合同价
+                                var contract = _db.Table.Find<PurchaseContract>(@"SELECT c.Id,c.SupplierId from purchasecontract c inner join purchasecontractitem i on c.id = i.PurchaseContractId where FIND_IN_SET(@StoreId,c.StoreIds) and c.`Status`=3 and i.ProductId = @productId order by c.Id desc", new { StoreId = entity.StoreId, ProductId = inventory.ProductId });
+                                var contractItem = _db.Table.Find<PurchaseContractItem>("select * from purchasecontractitem where PurchaseContractId=@PurchaseContractId and ProductId=@ProductId", new { PurchaseContractId = contract.Id, ProductId = inventory.ProductId });
+                                //var contract = _db.Table.Find<PurchaseContractItem>(@"SELECT i.ContractPrice from purchasecontract c inner join purchasecontractitem i on c.id = i.PurchaseContractId where FIND_IN_SET(@StoreId,c.StoreIds) and c.`Status`=3 and i.ProductId = @productId order by c.Id desc", new { StoreId = entity.StoreId, ProductId = inventory.ProductId });
                                 inventoryHistorys.Add(new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventory.Quantity, -leftQuantity,
-                                                         contract.ContractPrice, 0, entity.Id, entity.Code, BillIdentity.SaleOrder, entity.CreatedBy, entity.UpdatedOn));
+                                                         contractItem.ContractPrice, 0, entity.Id, entity.Code, BillIdentity.SaleOrder, entity.CreatedBy, entity.UpdatedOn, contract.SupplierId));
                             }
 
                         }
@@ -359,7 +361,7 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
 
                 //记录库存流水
                 var history = new StoreInventoryHistory(item.ProductId, entity.StoreId, inventoryItem.Quantity, returnQuantity,
-                        contractItem.ContractPrice, batchNo, entity.Id, entity.Code, BillIdentity.SaleRefund, entity.UpdatedBy, entity.UpdatedOn);
+                        contractItem.ContractPrice, batchNo, entity.Id, entity.Code, BillIdentity.SaleRefund, entity.UpdatedBy, entity.UpdatedOn, contract.SupplierId);
                 inventoryHistorys.Add(history);
                 //记录库存批次
                 var batchQuantity = CalculatedBatchQuantity(inventoryItem.Quantity, returnQuantity);
@@ -441,7 +443,7 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
                     // 出库                   
                     inventoryBatchUpdates.Add(new StoreInventoryBatchUpdate(batchProduct.Id, -transaferQuantity));
                     var fromHistory = new StoreInventoryHistory(item.ProductId, entity.FromStoreId, fromInventoryItem.Quantity, -transaferQuantity,
-                batchProduct.Price, batchProduct.BatchNo, entity.Id, entity.Code, BillIdentity.TransferOrder, entity.UpdatedBy);
+                batchProduct.Price, batchProduct.BatchNo, entity.Id, entity.Code, BillIdentity.TransferOrder, entity.UpdatedBy,batchProduct.SupplierId);
                     inventoryHistorys.Add(fromHistory);
                     // 入库                    
                     // 记录入库价格, // 修改最后一次进价,如果是赠品，不修改价格
@@ -451,13 +453,13 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
 
                     //记录库存流水
                     var toHistory = new StoreInventoryHistory(item.ProductId, entity.ToStoreId, toInventoryItem.Quantity, transaferQuantity,
-                   batchProduct.Price, toBatchNo, entity.Id, entity.Code, BillIdentity.TransferOrder, entity.UpdatedBy);
+                   batchProduct.Price, toBatchNo, entity.Id, entity.Code, BillIdentity.TransferOrder, entity.UpdatedBy,batchProduct.SupplierId);
                     inventoryHistorys.Add(toHistory);
                     // 入库批次时，先检查总库存是否为负库存，有负库存先抵扣负库存。抵扣后库存依然为0，入库批次数量为0，抵扣后有剩余，按剩余数记录入库批次库存                    
                     var batchQuantity = CalculatedBatchQuantity(toInventoryItem.Quantity, transaferQuantity);
 
-                    var batch = new StoreInventoryBatch(item.ProductId, entity.ToStoreId, item.SupplierId, batchQuantity,
-                 item.ContractPrice, batchProduct.Price, toBatchNo, item.ProductionDate, item.ShelfLife, entity.UpdatedBy);
+                    var batch = new StoreInventoryBatch(item.ProductId, entity.ToStoreId, batchProduct.SupplierId, batchQuantity,
+                batchProduct.ContractPrice, batchProduct.Price, toBatchNo, item.ProductionDate, item.ShelfLife, entity.UpdatedBy);
                     inventoryBatchInserts.Add(batch);
 
                     //总库存
@@ -612,7 +614,7 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
 
                         //入库历史记录
                         var history = new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventoryQuantity, differenceQuantity,
-                            contractItem.ContractPrice, batchNo, entity.Id, entity.Code, ValueObject.BillIdentity.StoreStocktakingPlan, entity.UpdatedBy);
+                            contractItem.ContractPrice, batchNo, entity.Id, entity.Code, ValueObject.BillIdentity.StoreStocktakingPlan, entity.UpdatedBy,contract.SupplierId);
                         inventoryHistorys.Add(history);
                         continue;
                     }
@@ -628,7 +630,7 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
                             inventoryBatchUpdates.Add(new StoreInventoryBatchUpdate(batchItem.Id, -leftQuantity));
                             //记录修改历史
                             inventoryHistorys.Add(new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventory.Quantity, -leftQuantity,
-                                batchItem.Price, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.StoreStocktakingPlan, entity.UpdatedBy));
+                                batchItem.Price, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.StoreStocktakingPlan, entity.UpdatedBy,batchItem.SupplierId));
                             break;
                         }
                         else
@@ -636,7 +638,7 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
                             inventoryBatchUpdates.Add(new StoreInventoryBatchUpdate(batchItem.Id, -batchItem.Quantity));
 
                             inventoryHistorys.Add(new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventory.Quantity, -batchItem.Quantity,
-                                                         batchItem.Price, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.StoreStocktakingPlan, entity.UpdatedBy));
+                                                         batchItem.Price, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.StoreStocktakingPlan, entity.UpdatedBy,batchItem.SupplierId));
                             // 剩余扣减数
                             inventory.Quantity = inventory.Quantity - batchItem.Quantity;  // 第1+N次扣减后总库存
                             leftQuantity = leftQuantity - batchItem.Quantity;

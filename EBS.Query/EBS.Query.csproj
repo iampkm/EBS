@@ -72,6 +72,7 @@
     <Compile Include="DTO\SaleCheckDto.cs" />
     <Compile Include="DTO\SaleOrderDto.cs" />
     <Compile Include="DTO\SaleOrderItemDto.cs" />
+    <Compile Include="DTO\SaleReportDto.cs" />
     <Compile Include="DTO\SaleSummaryDto.cs" />
     <Compile Include="DTO\SaleSyncDto.cs" />
     <Compile Include="DTO\SearchAdjustContractPrice.cs" />
@@ -79,6 +80,7 @@
     <Compile Include="DTO\SearchAdjustStorePrice.cs" />
     <Compile Include="DTO\SearchSaleAnalysis.cs" />
     <Compile Include="DTO\SearchSaleOrder.cs" />
+    <Compile Include="DTO\SearchSaleReport.cs" />
     <Compile Include="DTO\SearchSingleProductSale.cs" />
     <Compile Include="DTO\SearchStocktaking.cs" />
     <Compile Include="DTO\SearchStoreInventory.cs" />
