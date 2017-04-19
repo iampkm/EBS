@@ -76,6 +76,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="update_v2017.04.19\sql.txt" />
     <None Include="App.config" />
     <Content Include="NLog.config">
       <SubType>Designer</SubType>
