@@ -96,13 +96,13 @@ namespace EBS.Admin.Controllers
         public ActionResult SaleSync()
         {
             ViewBag.saleDate = DateTime.Now.ToString("yyyy-MM-dd");
-            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+            SetUserAuthention();
             return View();
         }
 
-        public JsonResult QuerySaleSync(Pager page, DateTime saleDate)
+        public JsonResult QuerySaleSync(Pager page, DateTime saleDate,string storeId)
         {
-            var rows = _saleOrderQuery.QuerySaleSync(page, saleDate);
+            var rows = _saleOrderQuery.QuerySaleSync(page, saleDate,storeId);
 
             return Json(new { success = true, data = rows, total = page.Total });
         }
@@ -151,6 +151,7 @@ namespace EBS.Admin.Controllers
             SetUserAuthention();
             ViewBag.Today = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd");
             LoadCategory();
+            ViewBag.IsAdmin = _context.CurrentAccount.AccountId == 1 ? "true" : "false";
             return View();
         }
 
@@ -166,7 +167,7 @@ namespace EBS.Admin.Controllers
 
             var rows = _saleOrderQuery.QuerySaleReport(page, condition);
 
-            return Json(new { success = true, data = rows, total = page.Total });
+            return Json(new { success = true, data = rows, total = page.Total,sum = page.SumColumns });
         }
 
         public JsonResult GenerateSaleReport(DateTime beginDate, DateTime endDate)

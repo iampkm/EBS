@@ -111,6 +111,7 @@
     <Compile Include="Service\ProductService.cs" />
     <Compile Include="Service\PurchaseContractService.cs" />
     <Compile Include="Service\PurchaseSaleInventoryDetailTask.cs" />
+    <Compile Include="Service\PurchaseSaleInventoryService.cs" />
     <Compile Include="Service\PurchaseSaleInventoryTask.cs" />
     <Compile Include="Service\RoleService.cs" />
     <Compile Include="Service\SaleReportService.cs" />

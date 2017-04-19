@@ -12,28 +12,26 @@ namespace EBS.Domain.Service
 {
     public class SaleReportTask : ITask
     {
-         IDBContext _db;
+        IDBContext _db;
         ILogger _log;
-        DateTime _currentDate;
         SaleReportService _saleReportService;
         public SaleReportTask()
         {
             _db = AppContext.Current.Resolve<IDBContext>();
             _log = AppContext.Current.Resolve<ILogger>();
-             _currentDate = DateTime.Now;
-             _saleReportService = new SaleReportService(this._db);
+            _saleReportService = new SaleReportService(this._db);
 
         }
 
         public void Execute()
         {
             //自动任务跑前一天的销售数据
-            DateTime endDate = _currentDate.Date;
+            DateTime endDate = DateTime.Now.Date;
             DateTime beginDate = endDate.AddDays(-1);
             _log.Info("开始生成{0}~{1} 的销售报表", beginDate.ToString("yyyy-MM-dd"), endDate.ToString("yyyy-MM-dd"));
             _saleReportService.CreateSaleReport(beginDate, endDate);
             _log.Info("生成{0}~{1} 的销售报表结束", beginDate.ToString("yyyy-MM-dd"), endDate.ToString("yyyy-MM-dd"));
-            _log.Info("=========================");           
+            _log.Info("=========================");
         }
     }
 }

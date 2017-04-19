@@ -1,0 +1,353 @@
+﻿
+
+select p.`Code`,p.BarCode,b.`Name`,c.FullName,sum(i.Quantity) quantity,sum(i.RealPrice*i.Quantity) as amount ,sum(t.Quantity) as inventoryQuantity
+from saleorderitem i inner join saleorder o on i.SaleOrderId = o.Id
+left join product p on i.ProductId = p.Id
+inner join category c on p.CategoryId = c.Id
+inner join brand b on b.Id = p.BrandId
+INNER JOIN storeinventory t on t.ProductId = p.Id
+where o.`Status`=3
+group by p.`Code`,p.BarCode,b.`Name`,c.FullName
+
+
+
+select p.`Name`,p.`Code`,p.BarCode,c.FullName,sum(i.Quantity),sum(i.RealPrice* i.Quantity) as total  from saleorder s inner join saleorderitem i on s.Id=i.SaleOrderId
+LEFT JOIN product p on i.ProductId = p.Id
+left join category c on p.CategoryId= c.Id
+where s.StoreId =2 and s.`Status` = 3
+group by p.`Name`,p.`Code`,p.BarCode,c.FullName
+
+
+1 价格检查
+2 营业额核对加合计，追加班次录入金额
+3 区域价和门店价 按门店过滤查询
+5 总部售价，区域售价，门店售价
+4 价签打印
+
+
+select p.Id,p.`Name`,p.`Code`,p.BarCode,p.Specification,p.Unit,p.SalePrice,
+ap.AreaId,a.Name as areaName,ap.SalePrice as AreaSalePrice,
+s.Name as StoreName,sp.SalePrice as StoreSalePrice
+
+ from product p 
+left JOIN productareaprice ap on p.Id = ap.ProductId
+left join productstoreprice sp on p.Id = sp.ProductId
+left join Area a on a.Id = ap.AreaId
+left join Store s on sp.StoreId = s.Id
+LIMIT 1
+
+
+==============
+select p.`Code`,p.BarCode,p.`Name`,p.SalePrice,t.AvgCostPrice,p.SalePrice-t.AvgCostPrice as 毛利,(p.SalePrice-t.AvgCostPrice)/p.SalePrice*100 from product p right JOIN
+storeinventory t on p.Id = t.ProductId
+where t.StoreId =2
+
+=================
+select p.`Code`,p.BarCode,b.`Name`,c.FullName,sum(i.Quantity) as quantity,sum(i.RealPrice*i.Quantity) as amount ,sum(t.AvgCostPrice* i.Quantity) as costAmount, 
+sum(i.RealPrice*i.Quantity)-sum(t.AvgCostPrice* i.Quantity) as 毛利,sum(i.RealPrice*i.Quantity-t.AvgCostPrice* i.Quantity)/sum(i.RealPrice* i.Quantity)*100 as 毛利额
+from saleorderitem i inner join saleorder o on i.SaleOrderId = o.Id
+left join product p on i.ProductId = p.Id
+left join category c on p.CategoryId = c.Id
+left join brand b on b.Id = p.BrandId
+left JOIN storeinventory t on t.ProductId = p.Id
+where o.`Status`=3 and t.storeid=2
+group by p.`Code`,p.BarCode,b.`Name`,c.FullName
+
+================库存
+select p.`Code`,p.`Name`,p.BarCode,p.Specification,p.unit,s.Quantity from storeinventory s left join product p on p.id= s.productid
+where  s.StoreId =1 
+--------------------------------------
+商品资料
+
+select p.`Code`,p.`Name`,p.BarCode,p.Specification,i.AvgCostPrice,i.Quantity,s.`Name` as SupplierName from storeinventory i
+left join product p on i.ProductId=p.Id
+left join purchasecontractitem  t on t.ProductId = p.Id
+left join purchasecontract c on c.Id = t.PurchaseContractId
+left join supplier s on s.Id = c.SupplierId
+where i.StoreId =2 and c.`Status` =3
+
+=============================  销售统计 == 按门店
+select s.`Name`, p.`Code`,p.`Name`,p.BarCode,p.Specification,p.unit,c.FullName,d.Quantity,t.SaleQty,t.SaleAmount  from (
+select i.ProductId,o.StoreId,sum(i.Quantity) as SaleQty,sum(i.Quantity*i.RealPrice) as SaleAmount from saleorder o inner join saleorderitem i
+on o.Id = i.SaleOrderId
+where o.UpdatedOn BETWEEN '2017-01-14' and '2017-01-15 23:59:59' and o.StoreId in (1,6)  and o.`Status` = 3
+group by i.ProductId,o.StoreId ) t
+left join product p on t.ProductId = p.Id
+left join category c on c.Id = p.CategoryId
+left join storeinventory d on d.ProductId = t.ProductId
+ left join store s on s.Id = t.StoreId
+where d.storeid = t.storeid
+order by s.Id
+
+============================销售统计，非门店
+select s.`Name`, p.`Code`,p.`Name`,p.BarCode,p.Specification,p.unit,c.FullName,d.Quantity,t.SaleQty,t.SaleAmount,t.costAmount  from (
+select i.ProductId,o.StoreId,sum(i.Quantity) as SaleQty,sum(i.Quantity*i.RealPrice) as SaleAmount,sum(i.AvgCostPrice*i.Quantity) as costAmount from saleorder o inner join saleorderitem i
+on o.Id = i.SaleOrderId
+where o.UpdatedOn BETWEEN '2017-01-13' and '2017-02-02 23:59:59'  and o.`Status` = 3
+group by i.ProductId,o.StoreId ) t
+left join product p on t.ProductId = p.Id
+left join category c on c.Id = p.CategoryId
+left join storeinventory d on d.ProductId = t.ProductId
+ left join store s on s.Id = t.StoreId
+where d.storeid = t.storeid
+order by s.Id
+
+
+============================月末库存
+insert into StoreInventoryMonthly (Monthly,StoreId,ProductId,Quantity,AvgCostPrice)
+select '2017-01', t.storeid,t.productid,t.qty,s.avgcostprice from (
+select storeid,productid,SUM(changequantity) as qty from storeinventoryhistory
+where createdOn <'2017-02-01'
+group by productid,storeid ) t left join StoreInventory s on s.productid = t.productid
+where s.storeid = t.storeid order by t.storeid;
+
+========================== 库存没实现销售商品
+
+select t.name as storename, p.code,p.barcode,p.name,i.quantity from storeinventory i left join product p on p.id = i.productid left join store t on t.id = i.storeid where not exists(
+	select si.productid from saleorder s inner join saleorderitem si on s.id = si.SaleOrderId
+where s.status = 3  and i.productid = si.productid
+) and storeid in (1,2,6)
+
+
+=================门店进销存sql
+
+select t.name as storename,p.`code`,p.`name`,s.quantity,IFNULL(xs.qty,0),ifnull(xs.amount,0),ifnull(j.qty,0) as jq,ifnull(j.amount,0) as jamount  from storeinventory  s left join product p
+on s.productid = p.id
+left join store t on t.id=s.storeid
+left join (
+	select s.storeid,i.ProductId,sum(i.Quantity) qty,sum(i.realprice*i.Quantity) amount from saleorder s inner join saleorderitem i 
+on s.id= i.saleorderid
+where s.`Status` = 3 and s.storeid=2
+group by s.storeid,i.productid
+) xs on xs.productid = s.productid
+left join (
+			select x.storeid,x.productid,sum(x.qty) as qty,sum(amount) as amount   from 
+		(
+		select s.storeid,i.productid,sum(i.actualQuantity) qty,sum(i.price*i.actualQuantity) amount from storepurchaseorder s inner join storepurchaseorderitem i
+		on s.id = i.storepurchaseorderid 
+		where s.`Status`>=4 and s.ordertype=1 and s.StoreId = 2
+		group by s.storeid,i.productid
+		union 
+		select s.storeid,i.productid,sum(-i.actualQuantity) qty,sum(i.price*-i.actualQuantity) amount from storepurchaseorder s inner join storepurchaseorderitem i
+		on s.id = i.storepurchaseorderid 
+		where s.`Status`>=4 and s.ordertype=2 and s.StoreId = 2
+		group by s.storeid,i.productid
+		union
+		select d.storeid,d.productid,sum(d.qty) as qty,sum(amount) as amount from (
+	select t.toStoreId as storeid,i.productid,sum(i.quantity) qty,sum(i.price*i.quantity) amount
+	 from transferorder t inner join transferorderitem i on t.id = i.transferorderid where t.toStoreId=2 and t.`status` = 2
+	 group by t.toStoreId,i.productid
+	UNION
+	select t.fromStoreId as storeid,i.productid,sum(-i.quantity) qty,sum(i.price*-i.quantity) amount
+	 from transferorder t inner join transferorderitem i on t.id = i.transferorderid where t.fromStoreId=2 and t.`status` = 2
+	 group by t.toStoreId,i.productid
+	) d group by d.storeid,d.productid
+		) x
+		group by x.storeid,x.productid
+) j on j.productid = s.productid
+
+WHERE  s.storeid =2
+
+======================
+门店分组进销存 原始销售单 2 
+select t.name as StoreName,ifnull(t1.qty,0) as PreInventoryQuantity,ifnull(t1.amount,0) as PreInventoryAmount,
+ifnull(t2.qty,0) as ThisPurchaseQuantity,ifnull(t2.amount,0) as ThisPurchaseAmount,
+ifnull(t4.qty,0) as ThisSaleQuantity,ifnull(t4.amount,0) as ThisSaleAmount,
+ifnull(t3.qty,0) as EndInventoryQuantity ,ifnull(t3.amount,0) as EndInventoryAmount from 
+store t LEFT JOIN 
+ (
+	select storeid,SUM(changequantity) as qty,sum(changequantity*price) as amount from storeinventoryhistory
+where createdOn <'2017-02-01'
+group by storeid
+) t1 on t.Id = t1.storeid left join 
+(
+select d.storeid,sum(d.qty) as qty,sum(d.amount) as amount from 
+		(
+		select s.storeid,sum(i.actualQuantity) qty,sum(i.price*i.actualQuantity) amount from storepurchaseorder s inner join storepurchaseorderitem i
+		on s.id = i.storepurchaseorderid 
+		where s.`Status`>=4 and s.ordertype=1 and  s.StoragedOn BETWEEN '2017-02-01' and '2017-03-01' 
+		group by s.storeid
+		union 
+		select s.storeid,sum(-i.actualQuantity) qty,sum(i.price*-i.actualQuantity) amount from storepurchaseorder s inner join storepurchaseorderitem i
+		on s.id = i.storepurchaseorderid 
+		where s.`Status`>=4 and s.ordertype=2 and s.StoragedOn BETWEEN '2017-02-01' and '2017-03-01' 
+		group by s.storeid
+		union	
+	select t.toStoreId as storeid,sum(i.quantity) qty,sum(i.price*i.quantity) amount
+	 from transferorder t inner join transferorderitem i on t.id = i.transferorderid  and t.`status` = 2
+   where t.UpdatedOn BETWEEN '2017-02-01' and '2017-03-01' 
+	 group by t.toStoreId
+	UNION
+	select t.fromStoreId as storeid,sum(-i.quantity) qty,sum(i.price*-i.quantity) amount
+	 from transferorder t inner join transferorderitem i on t.id = i.transferorderid  and t.`status` = 2
+   where t.UpdatedOn BETWEEN '2017-02-01' and '2017-03-01'  
+	 group by t.fromStoreId
+	) d group by d.storeid
+) t2 on t.Id = t2.storeid
+left  join 
+(
+select storeid,SUM(changequantity) as qty,sum(changequantity*price) as amount from storeinventoryhistory
+where createdOn <'2017-03-01'
+group by storeid
+) t3 on t.Id = t3.storeid
+left join 
+(
+	select s.storeid,sum(i.Quantity) qty,sum(i.realprice*i.Quantity) amount from saleorder s inner join saleorderitem i 
+on s.id= i.saleorderid
+where s.`Status` = 3 and s.UpdatedOn BETWEEN '2017-02-01' and '2017-03-01' 
+group by s.storeid
+) t4 on t.Id = t4.StoreId
+
+=========================================
+ 销售单采用 流水数据才能平成本金额
+
+select t.Id,t.name as StoreName,ifnull(t1.qty,0) as PreInventoryQuantity,ifnull(t1.amount,0) as PreInventoryAmount,
+ifnull(t2.qty,0) as PurchaseQuantity,ifnull(t2.amount,0) as PurchaseAmount,
+ifnull(t4.qty,0) as SaleQuantity,ifnull(t4.amount,0) as SaleCostAmount,
+ifnull(t5.amount,0) as SaleAmount,
+ifnull(t3.qty,0) as EndInventoryQuantity ,ifnull(t3.amount,0) as EndInventoryAmount from 
+store t LEFT JOIN 
+ (
+	select storeid,SUM(changequantity) as qty,sum(changequantity*price) as amount from storeinventoryhistory
+where createdOn <'2017-01-01'
+group by storeid
+) t1 on t.Id = t1.storeid left join 
+(
+		select storeid,SUM(changequantity) as qty,sum(changequantity*price) as amount from storeinventoryhistory
+where createdOn BETWEEN '2017-01-01' and '2017-02-01'   and BillType in (51,52,60)
+group by storeid
+) t2 on t.Id = t2.storeid
+left  join 
+(
+select storeid,SUM(changequantity) as qty,sum(changequantity*price) as amount from storeinventoryhistory
+where createdOn <'2017-02-01'
+group by storeid
+) t3 on t.Id = t3.storeid
+left join 
+(
+	select storeid,abs(SUM(changequantity)) as qty,abs(sum(changequantity*price)) as amount from storeinventoryhistory 
+where createdOn BETWEEN '2017-01-01' and '2017-02-01'     and BillType in (1,2)
+group by storeid
+) t4 on t.Id = t4.StoreId
+left join 
+(
+	select s.storeid,sum(i.Quantity) qty,sum(i.realprice*i.Quantity) amount from saleorder s inner join saleorderitem i 
+on s.id= i.saleorderid
+where s.`Status` = 3 and s.UpdatedOn BETWEEN '2017-02-01' and '2017-03-01' 
+group by s.storeid
+) t5 on t.Id = t5.StoreId
+
+====================== 单店进销存明细
+select t.`code` as productCode,t.BarCode, t.name as ProductName,ifnull(t1.qty,0) as PreInventoryQuantity,ifnull(t1.amount,0) as PreInventoryAmount,
+ifnull(t2.qty,0) as PurchaseQuantity,ifnull(t2.amount,0) as PurchaseAmount,
+ifnull(t4.qty,0) as SaleQuantity,ifnull(t4.amount,0) as SaleCostAmount,
+ifnull(t5.amount,0) as SaleAmount,
+ifnull(t3.qty,0) as EndInventoryQuantity ,ifnull(t3.amount,0) as EndInventoryAmount from 
+storeinventory s left join product t on t.Id = s.ProductId
+ LEFT JOIN 
+ (
+	select productid,SUM(changequantity) as qty,sum(changequantity*price) as amount from storeinventoryhistory
+where storeid=2 and  createdOn <'2017-01-01'
+group by productid
+) t1 on t.Id = t1.productid left join 
+(
+		select productid,SUM(changequantity) as qty,sum(changequantity*price) as amount from storeinventoryhistory
+where storeid=2 and createdOn BETWEEN '2017-01-01' and '2017-02-01'   and BillType in (51,52,60)
+group by productid
+) t2 on t.Id = t2.productid
+left  join 
+(
+select productid,SUM(changequantity) as qty,sum(changequantity*price) as amount from storeinventoryhistory
+where storeid=2 and createdOn <'2017-02-01'
+group by productid
+) t3 on t.Id = t3.productid
+left join 
+(
+	select productid,abs(SUM(changequantity)) as qty,abs(sum(changequantity*price)) as amount from storeinventoryhistory 
+where storeid=2 and createdOn BETWEEN '2017-01-01' and '2017-02-01'     and BillType in (1,2)
+group by productid
+) t4 on t.Id = t4.productid
+left join 
+(
+	select i.productid,sum(i.Quantity) qty,sum(i.realprice*i.Quantity) amount from saleorder s inner join saleorderitem i 
+on s.id= i.saleorderid
+where storeid=2 and s.`Status` = 3 and s.UpdatedOn BETWEEN '2017-01-01' and '2017-02-01' 
+group by i.productid
+) t5 on t.Id = t5.productid
+where s.storeid = 2
+
+========================库存流水记录 ，查重复单据
+select * from (
+select abs(sum(i.quantity)) oqty,o.code from saleorder o inner join saleorderitem i on o.id= i.saleorderid 
+where o.status = 3
+group by o.code 
+) t1 left join (
+select h.billcode,abs(sum(h.changeQuantity))  hqty from storeinventoryhistory h where billType in (1,2)
+group by h.billcode
+)
+t2 on t1.code = t2.billcode
+where t1.oqty<>t2.hqty
+
+==================== 未扣减库存销售单
+
+select o.storeid,o.code,o.ordertype,o.updatedOn from saleorder o 
+where o.status =3 and not exists(select * from storeinventoryhistory h  where h.billcode=o.`code`)
+
+
+========================== 修复库存流水日期
+select o.storeid,o.code,o.ordertype,o.updatedOn from saleorder o 
+where o.status =3 and o.UpdatedOn <'2017-01-01' and not exists(select * from storeinventoryhistory h  where h.billcode=o.`code` and h.CreatedOn <'2017-01-01')  -- 271
+
+
+select h.id,h.billcode,h.CreatedOn  from  storeinventoryhistory h
+where exists (select * from saleorder o where o.code = h.billcode and o.status =3 and o.UpdatedOn <'2017-01-01') and h.CreatedOn >'2017-01-01'
+
+select h.billcode,h.createdOn,o.code,o.updatedOn from storeinventoryhistory h inner join 
+saleorder o on h.billcode = o.code  where MONTH(h.CreatedOn)<>MONTH( o.UpdatedOn) 
+
+update storeinventoryhistory h inner join 
+saleorder o on h.billcode = o.code
+set h.CreatedOn = o.updatedOn
+ where MONTH(h.CreatedOn)<>MONTH( o.UpdatedOn) 
+
+
+======================合同商品
+select p.BarCode,p.`Name`,p.Specification,p.Unit,i.ContractPrice,s.`Name` as suppliername from purchasecontract c inner join purchasecontractitem i
+on c.Id = i.PurchaseContractId
+left join product p on p.Id = i.ProductId
+left join supplier s on s.Id = c.SupplierId
+where c.`Status` = 3 and ( FIND_IN_SET(1,c.StoreIds) or FIND_IN_SET(2,c.StoreIds) or FIND_IN_SET(6,c.StoreIds) or FIND_IN_SET(8,c.StoreIds) )
+
+
+======= 无销售商品
+select t.name,p.code,p.barcode,p.name,p.Specification,s.Quantity from storeinventory s 
+left join product p on s.ProductId = p.Id
+left join store t on t.id = s.StoreId
+where not EXISTS
+(select * from saleorder s inner join saleorderitem i on s.id=i.saleorderid where s.`Status` =3
+and i.productid = s.productid)
+
+
+================ 库存，库存历史，库存批次 ====三方比对
+select p.id,p.`Code`,p.BarCode,s.StoreId,s.Quantity,t.Quantity as bqty,c.Quantity as hqty from storeinventory s left JOIN
+(select b.StoreId,b.ProductId,sum(b.Quantity) as Quantity from storeinventorybatch b group by b.StoreId,b.ProductId) t
+on s.StoreId = t.StoreId and s.ProductId = t.ProductId
+left join 
+(select h.StoreId,h.ProductId,sum( h.ChangeQuantity) as Quantity from storeinventoryhistory h GROUP BY h.StoreId,h.ProductId ) c
+on  s.StoreId = c.StoreId and s.ProductId = c.ProductId
+left join product p on p.id = s.ProductId
+where s.Quantity<>c.Quantity or c.Quantity<>t.Quantity or s.Quantity<>t.Quantity
+
+================================================
+ 自动任务销售sql   把销售数据跑到报表格式里去，查询的时候，查报表
+select s.`Name` as StoreName,h.StoreId,h.ProductId,h.ChangeQuantity,h.BillCode as SaleOrderCode,h.Price as CostPrice,h.CreatedOn,b.Id as BrandId,b.`Name` as BrandName,
+e.Id as SupplierId,e.`Name` as SupplierName,c.Id as CategoryId,c.FullName ,p.`Code` as ProductCode,p.BarCode 
+ from storeinventoryhistory h
+left join product p on p.id = h.productid
+left join category c on c.id = p.CategoryId
+left join brand b on b.id = p.BrandId
+left join storeinventorybatch sb on sb.StoreId = h.StoreId and sb.ProductId = h.ProductId and sb.BatchNo = h.BatchNo
+left join supplier e on e.Id = sb.SupplierId
+left join store s on s.id = h.StoreId
+where billtype in(1,2) and h.CreatedOn BETWEEN '2017-02-01' and '2017-03-01' 
+===================================

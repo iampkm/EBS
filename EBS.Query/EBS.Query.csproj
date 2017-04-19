@@ -108,6 +108,7 @@
     <Compile Include="DTO\StorePurchaseOrderQueryDto.cs" />
     <Compile Include="DTO\StoreTreeNode.cs" />
     <Compile Include="DTO\SumPurchaseSaleInventory.cs" />
+    <Compile Include="DTO\SumSaleReport.cs" />
     <Compile Include="DTO\SumStoreInventory.cs" />
     <Compile Include="DTO\SumStorePurchaseOrder.cs" />
     <Compile Include="DTO\SumWorkSchedule.cs" />

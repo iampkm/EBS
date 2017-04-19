@@ -280,16 +280,36 @@ where 1=1 {0}";
             return rows;
         }
 
-        public IEnumerable<SaleSyncDto> QuerySaleSync(Pager page, DateTime saleDate)
+        public IEnumerable<SaleSyncDto> QuerySaleSync(Pager page, DateTime saleDate, string storeId)
         {
+            dynamic param = new ExpandoObject();
+            string where = "";
             //客户端数据
             string csql = @"select s.`Name` as StoreName ,y.*,t.ServerOrderCount,t.ServerOrderTotalAmount from (
 select o.StoreId,o.PosId,date_format(o.CreatedOn,'%Y-%m-%d') as SaleDate,count(*) ServerOrderCount,sum(OrderAmount) ServerOrderTotalAmount
- from saleorder o where o.`Status` in (-1,3) and o.UpdatedOn >= @BeginDate and o.UpdatedOn < @EndDate GROUP BY o.StoreId,o.PosId,date_format(o.UpdatedOn, '%Y-%m-%d')
+ from saleorder o where o.`Status` in (-1,3) and o.UpdatedOn >= @BeginDate and o.UpdatedOn < @EndDate {0} GROUP BY o.StoreId,o.PosId,date_format(o.UpdatedOn, '%Y-%m-%d')
 ) t RIGHT JOIN Store s on s.Id = t.StoreId
 LEFT JOIN salesync y on s.Id = y.StoreId
 where t.PosId= y.PosId and y.SaleDate=@SaleDate";
-            var rows = _query.FindAll<SaleSyncDto>(csql, new { BeginDate = saleDate, EndDate = saleDate.Date.AddDays(1), SaleDate = saleDate.Date.ToString("yyyy-MM-dd") }).ToList();
+            if (!string.IsNullOrEmpty(storeId) && storeId != "0")
+            {
+                var storeArray = storeId.Split(',').ToIntArray();
+                where = " and o.StoreId in @StoreId ";
+                param.StoreId = storeArray;               
+            }
+            csql = string.Format(csql, where);
+            param.BeginDate = saleDate;
+            param.EndDate = saleDate.Date.AddDays(1);
+            param.SaleDate = saleDate.Date.ToString("yyyy-MM-dd");
+            var rows = _query.FindAll<SaleSyncDto>(csql, param);
+            string sqlCount = @"select count(*) from (
+select o.StoreId,o.PosId,date_format(o.CreatedOn,'%Y-%m-%d') as SaleDate,count(*) ServerOrderCount,sum(OrderAmount) ServerOrderTotalAmount
+ from saleorder o where o.`Status` in (-1,3) and o.UpdatedOn >= @BeginDate and o.UpdatedOn < @EndDate {0} GROUP BY o.StoreId,o.PosId,date_format(o.UpdatedOn, '%Y-%m-%d')
+) t RIGHT JOIN Store s on s.Id = t.StoreId
+LEFT JOIN salesync y on s.Id = y.StoreId
+where t.PosId= y.PosId and y.SaleDate=@SaleDate";
+            sqlCount = string.Format(sqlCount, where);
+            page.Total = this._query.Context.ExecuteScalar<int>(sqlCount, param);
             return rows;
 
         }
@@ -439,17 +459,23 @@ left join store s on s.id = t.storeid where 1=1 {1}";
             }
             if (!string.IsNullOrEmpty(condition.CategoryId))
             {
-                where += "and c.CategoryId = @CategoryId ";
-                param.CategoryId = condition.CategoryId; 
+                where += "and c.Id like @CategoryId ";
+                param.CategoryId = condition.CategoryId+"%"; 
             }
             if (condition.BrandId > 0) {
-                where += "and b.BrandId = @BrandId ";
+                where += "and b.Id = @BrandId ";
                 param.BrandId = condition.BrandId; 
+            }
+            if (condition.OrderLevel > 0)
+            {
+                where += "and r.OrderLevel = @OrderLevel ";
+                param.OrderLevel = condition.OrderLevel;
             }
 
             //按分组组装sql
             var sql = "";
             var sqlCount = "";
+            var sqlSum = "";
             switch (condition.GroupBy)
             {
                 case GroupByMethod.Store:
@@ -467,6 +493,13 @@ left join category c on c.Id = p.CategoryId
 left join brand b on b.Id = p.BrandId
 where 1=1 {0} GROUP BY r.StoreId ) t
 LEFT JOIN store s on s.id = t.StoreId";
+                    sqlSum = @"select sum(OrderCount) as OrderCount ,sum(SaleQuantity) as SaleQuantity,sum(SaleCostAmount) as SaleCostAmount,sum(SaleAmount) as SaleAmount from (
+select r.storeId,count(DISTINCT r.saleorderId) as OrderCount,sum(r.Quantity) as SaleQuantity,sum(r.CostPrice*r.Quantity) as SaleCostAmount,sum(r.SalePrice*r.Quantity) as SaleAmount 
+from salereport r left join product p on p.id = r.productId 
+left join category c on c.Id = p.CategoryId
+left join brand b on b.Id = p.BrandId
+where 1=1 {0} GROUP BY r.StoreId  ) t
+LEFT JOIN store s on s.id = t.StoreId";
 
                     break;
                 case GroupByMethod.Product:
@@ -483,6 +516,13 @@ from salereport r left join product p on p.id = r.productId
 left join category c on c.Id = p.CategoryId
 left join brand b on b.Id = p.BrandId
 where 1=1 {0} GROUP BY r.productId ) t
+LEFT JOIN product s on s.id = t.productId";
+                    sqlSum = @"select sum(OrderCount) as OrderCount ,sum(SaleQuantity) as SaleQuantity,sum(SaleCostAmount) as SaleCostAmount,sum(SaleAmount) as SaleAmount  from (
+select r.productId,count(DISTINCT r.saleorderId) as OrderCount,sum(r.Quantity) as SaleQuantity,sum(r.CostPrice*r.Quantity) as SaleCostAmount,sum(r.SalePrice*r.Quantity) as SaleAmount 
+from salereport r left join product p on p.id = r.productId 
+left join category c on c.Id = p.CategoryId
+left join brand b on b.Id = p.BrandId
+where 1=1 {0} GROUP BY r.productId  ) t
 LEFT JOIN product s on s.id = t.productId";
                     break;
                 case GroupByMethod.Category:                  
@@ -502,6 +542,79 @@ left join category c on c.Id = p.CategoryId
 left join brand b on b.Id = p.BrandId
 where 1=1 {0} GROUP BY left(c.Id,2*@CategoryLevel) ) t
 LEFT JOIN Category s on s.id = t.CategoryId";
+                    sqlSum = @"select sum(OrderCount) as OrderCount ,sum(SaleQuantity) as SaleQuantity,sum(SaleCostAmount) as SaleCostAmount,sum(SaleAmount) as SaleAmount from (
+select left(c.Id,2*@CategoryLevel) as CategoryId,count(DISTINCT r.saleorderId) as OrderCount,sum(r.Quantity) as SaleQuantity,sum(r.CostPrice*r.Quantity) as SaleCostAmount,sum(r.SalePrice*r.Quantity) as SaleAmount 
+from salereport r left join product p on p.id = r.productId 
+left join category c on c.Id = p.CategoryId
+left join brand b on b.Id = p.BrandId
+where 1=1 {0} GROUP BY left(c.Id,2*@CategoryLevel) ) t
+LEFT JOIN Category s on s.id = t.CategoryId";
+                    break;
+                case GroupByMethod.Supplier:
+                    sql = @"select s.`name`,OrderCount,SaleQuantity,SaleCostAmount,SaleAmount from (
+select r.SupplierId,count(DISTINCT r.saleorderId) as OrderCount,sum(r.Quantity) as SaleQuantity,sum(r.CostPrice*r.Quantity) as SaleCostAmount,sum(r.SalePrice*r.Quantity) as SaleAmount 
+from salereport r left join product p on p.id = r.productId 
+left join category c on c.Id = p.CategoryId
+left join brand b on b.Id = p.BrandId
+where 1=1 {0} GROUP BY r.SupplierId LIMIT {1},{2}  ) t
+LEFT JOIN supplier s on s.id = t.SupplierId";
+                    sqlCount = @"select count(*) from (
+select r.SupplierId,count(DISTINCT r.saleorderId) as OrderCount,sum(r.Quantity) as SaleQuantity,sum(r.CostPrice*r.Quantity) as SaleCostAmount,sum(r.SalePrice*r.Quantity) as SaleAmount 
+from salereport r left join product p on p.id = r.productId 
+left join category c on c.Id = p.CategoryId
+left join brand b on b.Id = p.BrandId
+where 1=1 {0} GROUP BY r.SupplierId  ) t
+LEFT JOIN supplier s on s.id = t.SupplierId";
+                    sqlSum = @"select sum(OrderCount) as OrderCount ,sum(SaleQuantity) as SaleQuantity,sum(SaleCostAmount) as SaleCostAmount,sum(SaleAmount) as SaleAmount from (
+select r.SupplierId,count(DISTINCT r.saleorderId) as OrderCount,sum(r.Quantity) as SaleQuantity,sum(r.CostPrice*r.Quantity) as SaleCostAmount,sum(r.SalePrice*r.Quantity) as SaleAmount 
+from salereport r left join product p on p.id = r.productId 
+left join category c on c.Id = p.CategoryId
+left join brand b on b.Id = p.BrandId
+where 1=1 {0} GROUP BY r.SupplierId ) t
+LEFT JOIN supplier s on s.id = t.SupplierId";
+                    break;
+                case GroupByMethod.Creator:
+                    sql = @"select CONCAT(s.NickName,'(',s.`UserName`,')')  as `Name`,OrderCount,SaleQuantity,SaleCostAmount,SaleAmount from (
+select r.createdBy,count(DISTINCT r.saleorderId) as OrderCount,sum(r.Quantity) as SaleQuantity,sum(r.CostPrice*r.Quantity) as SaleCostAmount,sum(r.SalePrice*r.Quantity) as SaleAmount 
+from salereport r left join product p on p.id = r.productId 
+left join category c on c.Id = p.CategoryId
+left join brand b on b.Id = p.BrandId
+where 1=1 {0} GROUP BY r.createdBy LIMIT {1},{2}  ) t
+LEFT JOIN account s on s.id = t.createdBy";
+                    sqlCount = @"select count(*) from (
+select r.createdBy,count(DISTINCT r.saleorderId) as OrderCount,sum(r.Quantity) as SaleQuantity,sum(r.CostPrice*r.Quantity) as SaleCostAmount,sum(r.SalePrice*r.Quantity) as SaleAmount 
+from salereport r left join product p on p.id = r.productId 
+left join category c on c.Id = p.CategoryId
+left join brand b on b.Id = p.BrandId
+where 1=1 {0} GROUP BY r.createdBy   ) t
+LEFT JOIN account s on s.id = t.createdBy";
+                    sqlSum = @"select sum(OrderCount) as OrderCount ,sum(SaleQuantity) as SaleQuantity,sum(SaleCostAmount) as SaleCostAmount,sum(SaleAmount) as SaleAmount from (
+select r.createdBy,count(DISTINCT r.saleorderId) as OrderCount,sum(r.Quantity) as SaleQuantity,sum(r.CostPrice*r.Quantity) as SaleCostAmount,sum(r.SalePrice*r.Quantity) as SaleAmount 
+from salereport r left join product p on p.id = r.productId 
+left join category c on c.Id = p.CategoryId
+left join brand b on b.Id = p.BrandId
+where 1=1 {0} GROUP BY r.createdBy ) t
+LEFT JOIN account s on s.id = t.createdBy";
+                    break;
+                case GroupByMethod.Day:
+                    sql = @"select t.`Name`,OrderCount,SaleQuantity,SaleCostAmount,SaleAmount from (
+select DATE_FORMAT(r.createdOn,'%Y-%m-%d') as `Name`,count(DISTINCT r.saleorderId) as OrderCount,sum(r.Quantity) as SaleQuantity,sum(r.CostPrice*r.Quantity) as SaleCostAmount,sum(r.SalePrice*r.Quantity) as SaleAmount 
+from salereport r left join product p on p.id = r.productId 
+left join category c on c.Id = p.CategoryId
+left join brand b on b.Id = p.BrandId
+where 1=1 {0} GROUP BY DATE_FORMAT(r.createdOn,'%Y-%m-%d')  LIMIT {1},{2}  ) t";
+                    sqlCount = @"select count(*) from (
+select DATE_FORMAT(r.createdOn,'%Y-%m-%d') as `Name`,count(DISTINCT r.saleorderId) as OrderCount,sum(r.Quantity) as SaleQuantity,sum(r.CostPrice*r.Quantity) as SaleCostAmount,sum(r.SalePrice*r.Quantity) as SaleAmount 
+from salereport r left join product p on p.id = r.productId 
+left join category c on c.Id = p.CategoryId
+left join brand b on b.Id = p.BrandId
+where 1=1 {0} GROUP BY DATE_FORMAT(r.createdOn,'%Y-%m-%d')  ) t";
+                    sqlSum = @"select sum(OrderCount) as OrderCount ,sum(SaleQuantity) as SaleQuantity,sum(SaleCostAmount) as SaleCostAmount,sum(SaleAmount) as SaleAmount from (
+select DATE_FORMAT(r.createdOn,'%Y-%m-%d') as `Name`,count(DISTINCT r.saleorderId) as OrderCount,sum(r.Quantity) as SaleQuantity,sum(r.CostPrice*r.Quantity) as SaleCostAmount,sum(r.SalePrice*r.Quantity) as SaleAmount 
+from salereport r left join product p on p.id = r.productId 
+left join category c on c.Id = p.CategoryId
+left join brand b on b.Id = p.BrandId
+where 1=1 {0} GROUP BY DATE_FORMAT(r.createdOn,'%Y-%m-%d')  ) t"; 
                     break;
                 default:
                     break;
@@ -515,6 +628,15 @@ LEFT JOIN Category s on s.id = t.CategoryId";
             sqlCount = string.Format(sqlCount, where);
             page.Total = this._query.Context.ExecuteScalar<int>(sqlCount, param);
 
+            //汇总数据
+            sqlSum = string.Format(sqlSum, where);
+            var sumStoreInventory = this._query.Find<SumSaleReport>(sqlSum, param) as SumSaleReport;
+            page.SumColumns.Add(new SumColumn("OrderCount", sumStoreInventory.OrderCount.ToString()));
+            page.SumColumns.Add(new SumColumn("SaleQuantity", sumStoreInventory.SaleQuantity.ToString()));
+            page.SumColumns.Add(new SumColumn("SaleCostAmount", sumStoreInventory.SaleCostAmount.ToString("F4")));
+            page.SumColumns.Add(new SumColumn("SaleAmount", sumStoreInventory.SaleAmount.ToString("F2")));
+            page.SumColumns.Add(new SumColumn("ProfitAmount", sumStoreInventory.ProfitAmount.ToString("F2")));
+            page.SumColumns.Add(new SumColumn("ProfitPercent", sumStoreInventory.ProfitPercent.ToString("F2")+"%"));
             return rows;
         }
     }

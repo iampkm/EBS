@@ -304,6 +304,7 @@
     <Content Include="Database\ebs.sql" />
     <Content Include="Database\ebs_mysql.sql" />
     <Content Include="Database\menu.sql" />
+    <Content Include="Database\日常维护sql.txt" />
     <Content Include="favicon.ico" />
     <Content Include="Content\bootstrap\fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />

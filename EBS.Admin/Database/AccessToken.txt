@@ -8,4 +8,9 @@
 成都4店:      posid=401,storeid=5  ,cdkeySource =20170307@tgb,cdkey = 1fe64f60ee142b8a5659448476079d18   服务端cdkey=d1d88298e3bf9f3ad3653868c46ef157
 成都6店:       posid=601,storeid=7  ,cdkeySource =20170307@yhn,cdkey =62af0bf2aee4cfa1038143b90c09ddff    服务端cdkey=7fd6eb69513afd79a407afeef7729f5b
 青城山1店内:   posid =101,storeid=11,cdkeysoource=20170322@ujm,cdkey=d833224a00f196e494047586774544b7   服务端cdkey=749985d777bcdab0a5643febf4fd38e5
-青城山2店外:   posid =201,storeid=12,cdkeysoource=20170322@ujm2,cdkey= 7337c09cc854bfedab48cc91cdea2416   服务端cdkey=a2cefd7f7c1287808cd8a274c59772df                 
+青城山2店外:   posid =201,storeid=12,cdkeysoource=20170322@ujm2,cdkey= 7337c09cc854bfedab48cc91cdea2416   服务端cdkey=a2cefd7f7c1287808cd8a274c59772df  
+贵阳北-出站口店:门店编号：19,pos编号：101,sourcekey：20170411@321 ,cdkey：22edcd53638441ceb4be0e208a57f979     服务key：401b9ac6ffa5ffcc0e502550984079c4
+贵阳富和店:门店编号：18,pos编号：101,sourcekey：20170411@123 ,cdkey：2e1497055e2a919d4a0b40802b4b43bd         服务key：855425ddff7cfed2c577801caa236739
+贵阳富和店:门店编号：18,pos编号：102,sourcekey：20170417@222 ,cdkey：3ba8e4b71cf47a730705fb2675e7d6e0         服务key：9a30f7df69553b4465caed403fad491b
+贵阳富和店:门店编号：18,pos编号：103,sourcekey：20170417@333 ,cdkey：53dce61eaa5448e6433416b2a8b872e2         服务key：551558e46b8d0ead1d5f49e71c778714
+           
