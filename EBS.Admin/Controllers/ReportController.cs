@@ -9,7 +9,7 @@ using EBS.Admin.Services;
 using EBS.Infrastructure;
 using Dapper.DBContext;
 using EBS.Domain.Entity;
-using EBS.Domain.Service;
+using EBS.Application;
 namespace EBS.Admin.Controllers
 {
     [Permission]
@@ -21,11 +21,13 @@ namespace EBS.Admin.Controllers
         IReportQuery _reportQuery;
         IContextService _context;
         IQuery _query;
-        public ReportController(IContextService contextService, IReportQuery reportQuery,IQuery query)
+        IPurchaseSaleInventoryFacade _purchaseSaleInventoryFacade;
+        public ReportController(IContextService contextService, IReportQuery reportQuery,IQuery query, IPurchaseSaleInventoryFacade psiFacade)
         {
             _reportQuery = reportQuery;
             this._context = contextService;
             _query = query;
+            _purchaseSaleInventoryFacade = psiFacade;
         }
            
         /// <summary>
@@ -79,16 +81,14 @@ namespace EBS.Admin.Controllers
         public JsonResult Generate(int year, int month)
         {            
             var selectDate = new DateTime(year, month, 1);
-            PurchaseSaleInventoryTask task = new PurchaseSaleInventoryTask(selectDate);
-            task.Execute();
+            _purchaseSaleInventoryFacade.Generate(selectDate);
             return Json(new { success = true });
         }
 
         public JsonResult GenerateDetail(int year, int month)
         {
             var selectDate = new DateTime(year, month, 1);
-            PurchaseSaleInventoryDetailTask task = new PurchaseSaleInventoryDetailTask(selectDate);
-            task.Execute();
+            _purchaseSaleInventoryFacade.GenerateDetail(selectDate);
             return Json(new { success = true });
         }
 
