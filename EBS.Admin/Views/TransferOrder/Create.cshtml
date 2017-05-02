@@ -285,6 +285,14 @@
                     onSubmit: function () {
                         //获取选择节点
                         var _self = this;
+                        if (_self.model.fromStoreId == 0) {
+                            bootbox.alert("请选择调出门店");
+                            return;
+                        }
+                        if (_self.model.toStoreId == 0) {
+                            bootbox.alert("请选择调入门店");
+                            return;
+                        }
                         var data = "";
                         for (var i = 0; i < _self.products.length; i++) {
                             var item = _self.products[i];
@@ -309,7 +317,7 @@
                         if (data == "") {
                             bootbox.alert("请录入商品或检查商品数量");
                             return;
-                        }
+                        }                        
                         data = data.substring(0, data.length - 1);
                         data = "[" + data + "]";
                         _self.model.ItemsJson = data;
