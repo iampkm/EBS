@@ -351,3 +351,22 @@ left join supplier e on e.Id = sb.SupplierId
 left join store s on s.id = h.StoreId
 where billtype in(1,2) and h.CreatedOn BETWEEN '2017-02-01' and '2017-03-01' 
 ===================================
+
+============调拨入库
+select s.`Name`,t.* from ( 
+select StoreId,sum(ChangeQuantity) Quantity,sum(price* ChangeQuantity) amount from storeinventoryhistory 
+where BillType=60 and CreatedOn BETWEEN '2017-04-01' and '2017-05-01'
+and StoreId in (1,2,3,5,6,7,8) and ChangeQuantity>=0 
+GROUP BY storeid
+) t
+left join store s on s.id = t.storeid
+
+
+============调拨出库
+select s.`Name`,t.* from ( 
+select StoreId,sum(ChangeQuantity) Quantity,sum(price* ChangeQuantity) amount from storeinventoryhistory 
+where BillType=60 and CreatedOn BETWEEN '2017-04-01' and '2017-05-01'
+and StoreId in (1,2,3,5,6,7,8) and ChangeQuantity<0 
+GROUP BY storeid
+) t
+left join store s on s.id = t.storeid
