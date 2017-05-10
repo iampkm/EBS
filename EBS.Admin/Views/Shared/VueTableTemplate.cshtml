@@ -15,7 +15,7 @@
             margin-bottom: 10px;
         }
         .table-fixed-body {
-            overflow-x: auto;
+            /*overflow-x: auto;*/
             overflow-y: auto;          
         }
         .fixed-table-pagination .pagination-detail, .fixed-table-pagination div.pagination {
@@ -41,6 +41,12 @@
             padding: 2px 4px 2px 4px;
             text-align: center;
             font-weight: 700;
+        }
+        .table-fixed {
+            table-layout: fixed;
+        }
+        .table-fixed td {
+            text-overflow: ellipsis;
         }
     </style>
     <div class="table-container">
@@ -73,13 +79,14 @@
                 </div>
             </div>
         </div>
-        <div class="table-fixed-data">           
+        <div class="table-fixed-data ">
             <div id="tbHeader" class="table-fixed-header">
-                <table class="table table-bordered table-hover ">
+                <table class="table table-bordered table-hover table-fixed">
                     <thead>
                         <tr>
                             <th class="text-center" width="{{indexWidth}}"></th>
-                            <th v-show="showCheckbox" width="30px"><input v-on:click="checkAll($event.target.checked)" type="checkbox" /></th>
+                            <th v-if="showallcheckbox" width="30px"><input v-on:click="checkAll($event.target.checked)" type="checkbox" /></th>
+                            <th v-else width="30px"></th>
                             <template v-for="key in columns">
                                 <template v-if="key.visible">
                                     <th v-on:click="sortBy(key.name)" v-bind:class="{active: sortKey == key.name}" v-bind:style="{width:key.width}">
@@ -95,10 +102,10 @@
                     </thead>
                 </table>
             </div>
-            <div id="tbBody" class="table-fixed-body table-responsive" style="max-height:450px" @*v-bind:style="{height:100%}"*@>
-                <table class="table table-bordered table-hover">
+            <div id="tbBody" class="table-fixed-body " style="max-height:450px" @*v-bind:style="{height:100%}"*@>
+                <table class="table table-bordered table-hover table-fixed">
                     <tbody>
-                        <tr v-for="(index,entry) in data | filterBy filterKey | orderBy sortKey sortOrders[sortKey]"  v-on:click="selectRow(index)" style="cursor: pointer">
+                        <tr v-for="(index,entry) in data | filterBy filterKey | orderBy sortKey sortOrders[sortKey]" v-on:click="selectRow(index)" style="cursor: pointer">
                             <td class="text-center" width="{{indexWidth}}">{{index+1}}</td>
                             <td v-show="showCheckbox" width="30px"><input type="checkbox" v-model="data[index].checked" /></td>
                             <template v-for="key in columns">
@@ -109,10 +116,22 @@
                             <td><slot name="customColumn"></slot></td>
                         </tr>
                     </tbody>
+                    <tfoot v-show="showSum">
+                        <tr>
+                            <td width="{{indexWidth}}"></td>
+                            <td v-show="showCheckbox" width="30px"></td>
+                            <template v-for="key in columns">
+                                <template v-if="key.visible">
+                                    <td v-bind:style="{width:key.width}"><b class="text-danger">{{key.sum}}</b></td>
+                                </template>
+                            </template>
+                            <td></td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
-            <div v-show="showSum">
-                <table class="table table-bordered table-hover">
+            @*<div v-show="showSum">
+                <table class="table table-bordered table-hover table-fixed">
                     <tr>
                         <td width="{{indexWidth}}"></td>
                         <td v-show="showCheckbox" width="30px"></td>
@@ -124,7 +143,7 @@
                         <td></td>
                     </tr>
                 </table>
-            </div>
+            </div>*@
             <div class="fixed-table-pagination" v-if="showPagination">
                 <div class="pull-left pagination-detail">
                     <span class="pagination-info">总共<span class="text-red"> {{total}} </span>条记录 每页 </span>
