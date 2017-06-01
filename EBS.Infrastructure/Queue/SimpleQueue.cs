@@ -27,8 +27,7 @@ namespace EBS.Infrastructure.Queue
             _log.Info("启动队列");
             System.Threading.Tasks.Task.Factory.StartNew(() =>
               {
-                  var list = _requestOrderQueue.GetConsumingEnumerable();
-                  _log.Info("队列数据：{0},本次处理{1}",_requestOrderQueue.Count,list.Count());
+                  var list = _requestOrderQueue.GetConsumingEnumerable();                 
                   foreach (var item in list)
                   {
                       // 处理订单
