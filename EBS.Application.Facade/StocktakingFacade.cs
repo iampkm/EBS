@@ -29,6 +29,10 @@ namespace EBS.Application.Facade
             entity.Status = StocktakingStatus.Audited;
             entity.StocktakingType = StocktakingType.Stocktaking;
             entity.Items = JsonConvert.DeserializeObject<List<StocktakingItem>>(model.ItemsJson);
+            if (entity.Items.Sum(n => n.CountQuantity) == 0)
+            {
+                throw new Exception("盘点数不能都为0");
+            }
             entity.Code = _billService.GenerateNewCode(BillIdentity.StoreStocktaking);
             _db.Insert(entity);
             _db.SaveChange();

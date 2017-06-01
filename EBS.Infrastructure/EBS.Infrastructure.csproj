@@ -73,6 +73,7 @@
     <Compile Include="Extension\EnumExtension.cs" />
     <Compile Include="Extension\MD5Extension.cs" />
     <Compile Include="Extension\stringExtension.cs" />
+    <Compile Include="FriendlyException.cs" />
     <Compile Include="IoC\AutofacContainer.cs" />
     <Compile Include="IoC\DefaultTypeFinder.cs" />
     <Compile Include="IoC\IContainerManager.cs" />

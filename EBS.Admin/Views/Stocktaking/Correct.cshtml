@@ -182,7 +182,7 @@
                         for (var i = 0; i < _self.products.length; i++) {
                             var item = _self.products[i];
                             if (item.ProductId > 0 ) {
-                                var countQuantity = item.CorectQuantity-item.CountQuantity;
+                                var countQuantity =parseInt(item.CorectQuantity)-item.CountQuantity;
                                 data += "{\"ProductId\":" + item.ProductId + ",\"CountQuantity\":" + countQuantity + ",\"Quantity\":" + item.Quantity
                                     + ",\"CostPrice\":" + item.CostPrice +",\"SalePrice\":" + item.SalePrice+ ",\"CorectQuantity\":" + item.CorectQuantity
                                     +",\"CorectReason\":'" + item.CorectReason+ "'},";

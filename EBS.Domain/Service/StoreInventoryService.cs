@@ -7,6 +7,7 @@ using Dapper.DBContext;
 using EBS.Domain.Entity;
 using EBS.Infrastructure.Extension;
 using EBS.Domain.ValueObject;
+using EBS.Infrastructure;
 namespace EBS.Domain.Service
 {
     public class StoreInventoryService
@@ -224,8 +225,8 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
         /// <param name="entity"></param>
         public void StockOutSaleOrder(SaleOrder entity)
         {
-            if (entity == null) { throw new Exception("单据不存在"); }
-            if (entity.Items.Count == 0) { throw new Exception("单据明细为空"); }
+            if (entity == null) { throw new FriendlyException("单据不存在"); }
+            if (entity.Items.Count == 0) { throw new FriendlyException("单据明细为空"); }
             var entityItems = entity.Items;
             Dictionary<int, SaleOrderItem> productQuantityDic = new Dictionary<int, SaleOrderItem>();
             entityItems.ForEach(item => productQuantityDic.Add(item.ProductId, item));
@@ -333,8 +334,8 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
         /// <param name="entity"></param>
         public void StockInRefundOrder(SaleOrder entity)
         {
-            if (entity == null) { throw new Exception("单据不存在"); }
-            if (entity.Items.Count() == 0) { throw new Exception("单据明细为空"); }
+            if (entity == null) { throw new FriendlyException("单据不存在"); }
+            if (entity.Items.Count() == 0) { throw new FriendlyException("单据明细为空"); }
             //记录库存批次
             var productIdArray = entity.Items.Select(n => n.ProductId).ToArray();
             var inventorys = _db.Table.FindAll<StoreInventory>("select * from storeinventory where productId in @ProductIds and StoreId=@StoreId", new { ProductIds = productIdArray, StoreId = entity.StoreId });
@@ -345,7 +346,7 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
             foreach (var item in entity.Items)
             {
                 var inventoryItem = inventorys.FirstOrDefault(n => n.ProductId == item.ProductId);
-                if (inventoryItem == null) throw new Exception(string.Format("商品{0}不存在", item.ProductId));
+                if (inventoryItem == null) throw new FriendlyException(string.Format("商品{0}不存在", item.ProductId));
                 var returnQuantity = Math.Abs(item.Quantity); //  销售退单的数量，前端用负数记录               
                 // 退货商品按照最新的合同进行入库，查询商品合同价
                 var contract = _db.Table.Find<PurchaseContract>(@"SELECT c.Id,c.SupplierId from purchasecontract c inner join purchasecontractitem i on c.id = i.PurchaseContractId where FIND_IN_SET(@StoreId,c.StoreIds) and c.`Status`=3 and i.ProductId = @productId order by c.Id desc", new { StoreId = entity.StoreId, ProductId = item.ProductId });

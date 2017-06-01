@@ -12,6 +12,7 @@ using EBS.Domain.Service;
 using EBS.Domain.ValueObject;
 using EBS.Infrastructure.Log;
 using EBS.Infrastructure.Queue;
+using EBS.Infrastructure;
 namespace EBS.Application.Facade
 {
     public class PosSyncFacade : IPosSyncFacade, IQueueHander<string>
@@ -37,7 +38,7 @@ namespace EBS.Application.Facade
             model.Hour = model.CreatedOn.Hour; //设置订单时段
             if (model.Items.Count == 0) {
                 _log.Info("订单{0}明细为空", model.Code);
-                throw new Exception(string.Format("订单{0}明细为空", model.Code));
+                throw new FriendlyException(string.Format("订单{0}明细为空", model.Code));
             }
             if (_db.Table.Exists<SaleOrder>(n => n.Code == model.Code))
             {
@@ -56,7 +57,7 @@ namespace EBS.Application.Facade
                 if (_db.Table.Exists<StoreInventoryHistory>(n => n.BillCode == model.Code))
                 {
                     _log.Info("订单{0}库存流水已存在", model.Code);
-                    throw new Exception(string.Format("订单{0}库存流水已存在", model.Code));
+                    throw new FriendlyException(string.Format("订单{0}库存流水已存在", model.Code));
                 }
 
                 var entity = _db.Table.Find<SaleOrder>(n => n.Code == model.Code);
@@ -72,7 +73,8 @@ namespace EBS.Application.Facade
                 }
 
                 _db.SaveChange();
-                _log.Info("订单{0}库存已增减", model.Code);
+                _log.Info("订单{0}库存扣减库存成功", model.Code);
+                _log.Info("===================");
             }
            
         }
