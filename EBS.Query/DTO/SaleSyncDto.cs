@@ -33,5 +33,9 @@ namespace EBS.Query.DTO
         /// 服务端销售总金额
         /// </summary>
         public decimal ServerOrderTotalAmount { get; set; }
+
+        public string Difference {
+            get { return this.OrderCount == this.ServerOrderCount ? "一致" : "<span class='text-danger'>有差异</span>"; }
+        }
     }
 }
