@@ -370,3 +370,19 @@ and StoreId in (1,2,3,5,6,7,8) and ChangeQuantity<0
 GROUP BY storeid
 ) t
 left join store s on s.id = t.storeid
+
+
+================= 进销存明细sql
+ select h.storeid,h.productid,
+-- IFNULL(sum(case when h.CreatedOn < '2017-05-01' then h.ChangeQuantity end),0) as PreInventoryQuantity, 
+-- IFNULL(sum(case when h.CreatedOn < '2017-05-01' then h.ChangeQuantity*h.Price end),0)  as PreInventoryAmount, 
+IFNULL(sum(case when h.BillType in (51,52,53,60) and h.CreatedOn BETWEEN '2017-05-01' and '2017-06-01' then h.ChangeQuantity end),0)  as PurchaseQuantity, 
+IFNULL(sum(case when  h.BillType in (51,52,53,60) and h.CreatedOn BETWEEN '2017-05-01' and '2017-06-01' then h.ChangeQuantity*h.Price end),0)  as PurchaseAmount, 
+IFNULL(sum(case when h.BillType in (1,2) and h.CreatedOn BETWEEN '2017-05-01' and '2017-06-01' then h.ChangeQuantity end),0)  as SaleQuantity, 
+IFNULL(sum(case when  h.BillType in (1,2) and h.CreatedOn BETWEEN '2017-05-01' and '2017-06-01' then h.ChangeQuantity*h.Price end),0)  as SaleCostAmount 
+-- IFNULL(sum(case when h.CreatedOn < '2017-06-01' then h.ChangeQuantity end),0)  as EndInventoryQuantity, 
+-- IFNULL(sum(case when h.CreatedOn < '2017-06-01' then h.ChangeQuantity*h.Price end),0)  as EndInventoryAmount
+from StoreInventoryHistory h 
+-- where h.storeid=2
+group by h.storeid,h.productid 
+LIMIT 10;
