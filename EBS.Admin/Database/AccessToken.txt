@@ -14,4 +14,6 @@
 贵阳富和店:门店编号：18,pos编号：102,sourcekey：20170417@222 ,cdkey：3ba8e4b71cf47a730705fb2675e7d6e0         服务key：9a30f7df69553b4465caed403fad491b
 贵阳富和店:门店编号：18,pos编号：103,sourcekey：20170417@333 ,cdkey：53dce61eaa5448e6433416b2a8b872e2         服务key：551558e46b8d0ead1d5f49e71c778714
 成都东站4店： 门店编号：5,pos编号：401,sourcekey：20170420@401 ,cdkey：61e247d43d3d139e71bbcc463793a75b         服务key：8d0ae46c73a8443f6ac415230d05a71b
-成都东站4店：门店编号：5,pos编号：402,sourcekey：20170420@402 ,cdkey：687c221c5d43a7323566a250ff0cb1fa         服务key：beb9879ca6f876c8b86a9a54ebc31529        
+成都东站4店：门店编号：5,pos编号：402,sourcekey：20170420@402 ,cdkey：687c221c5d43a7323566a250ff0cb1fa         服务key：beb9879ca6f876c8b86a9a54ebc31529 
+都江堰1店：门店编号：9,pos编号：101,sourcekey：20170606@101 ,cdkey：39d2da90e368acc3d8106b15eac5ea52         服务key：6e2d7e0168ef65955d9d7ee1c2602971	 
+都江堰1店：门店编号：9,pos编号：102,sourcekey：20170606@102 ,cdkey：b807505af95315b7fc9362b9714292e5         服务key：3c44ab7706a0c80ce768559728d722ca       
