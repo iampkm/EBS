@@ -1,7 +1,7 @@
 ﻿<template id="grid-template">
     <style>
         .table-fixed-data {
-            height: 510px;
+            height: 550px;
             overflow-x: auto;
             overflow-y: hidden;
             table-layout: fixed;
@@ -35,13 +35,14 @@
             left: 0px;
         }
 
-        .table-fixed-foot table {
-            /*position: absolute;           
+        .table-fixed-foot  {
+            position: absolute;           
             left: 0px;
-            bottom: 0px;*/
-            margin-bottom:2px;
+            bottom: 0px;
         }
-
+        .table-fixed-foot table {
+            margin-bottom: 2px;
+        }
         .fixed-table-pagination .pagination-detail, .fixed-table-pagination div.pagination {
             margin-top: 10px;
             margin-bottom: 10px;
@@ -162,24 +163,24 @@
                     </tfoot>*@
                 </table>
             </div>
-                      
-        </div>
-        <div v-show="showSum" class="table-fixed-foot">
-            <div class="table-Sum">
-                <table class="table table-bordered table-hover table-fixed">
-                    <tr>
-                        <td width="{{indexWidth}}"></td>
-                        <td v-show="showCheckbox" width="30px"></td>
-                        <template v-for="key in columns">
-                            <template v-if="key.visible">
-                                <td v-bind:style="{width:key.width}"><b class="text-danger">{{key.sum}}</b></td>
+            <div v-show="showSum" class="table-fixed-foot">
+                <div class="table-Sum">
+                    <table class="table table-bordered table-hover table-fixed">
+                        <tr>
+                            <td width="{{indexWidth}}"></td>
+                            <td v-show="showCheckbox" width="30px"></td>
+                            <template v-for="key in columns">
+                                <template v-if="key.visible">
+                                    <td v-bind:style="{width:key.width}"><b class="text-danger">{{key.sum}}</b></td>
+                                </template>
                             </template>
-                        </template>
-                        <td></td>
-                    </tr>
-                </table>
-            </div>
-        </div> 
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>          
+        </div>
+        
         <div class="fixed-table-pagination" v-if="showPagination">
             <div class="pull-left pagination-detail">
                 <span class="pagination-info">总共<span class="text-red"> {{total}} </span>条记录 每页 </span>

@@ -70,11 +70,11 @@ where 1=1 {0}";
         public IEnumerable<StoreInventoryHistoryQueryDto> GetPageList(Pager page, SearchStoreInventoryHistory condition)
         {
             dynamic param = new ExpandoObject();
-            string where = "";           
-            if (condition.StoreId > 0)
+            string where = "";
+            if (!string.IsNullOrEmpty(condition.StoreId) && condition.StoreId!="0")
             {
-                where += "and t0.StoreId=@StoreId ";
-                param.StoreId = condition.StoreId;
+                where += "and t0.StoreId in @StoreId ";
+                param.StoreId = condition.StoreId.Split(',').ToIntArray(); ;
             }
             if (!string.IsNullOrEmpty(condition.BillCode))
             {
@@ -86,10 +86,20 @@ where 1=1 {0}";
                 where += "and t0.BatchNo=@BatchNo ";
                 param.BatchNo = condition.BatchNo;
             }
-            if (condition.BillType > 0)
+            if (!string.IsNullOrEmpty(condition.BillType))
             {
-                where += "and t0.BillType=@BillType ";
-                param.BillType = condition.BillType;
+                where += "and t0.BillType in @BillType ";
+                param.BillType = condition.BillType.Split(',').ToIntArray();
+            }
+            if (condition.StartDate.HasValue)
+            {
+                where += "and t0.CreatedOn >=@StartDate ";
+                param.StartDate = condition.StartDate.Value;
+            }
+            if (condition.EndDate.HasValue)
+            {
+                where += "and t0.CreatedOn < @EndDate ";
+                param.EndDate = condition.EndDate.Value.AddDays(1);
             }
 
             if (!string.IsNullOrEmpty(condition.ProductCodeOrBarCode))
@@ -97,20 +107,33 @@ where 1=1 {0}";
                 where += "and (t1.Code=@ProductCodeOrBarCode or t1.BarCode=@ProductCodeOrBarCode) ";
                 param.ProductCodeOrBarCode = condition.ProductCodeOrBarCode;
             }
-            string sql = @"select t0.*,t1.`Code` as ProductCode ,t1.`Name` as ProductName,t1.BarCode,t1.Specification,t2.`name` as StoreName
+            string sql = @"select t0.CreatedOn,t2.`name` as StoreName,t1.`Code` as ProductCode ,t1.`Name` as ProductName,t1.BarCode,t1.Specification,t0.BillType,t0.BillCode,t0.BatchNo, t0.Quantity,t0.Price,
+IFNULL(case when t0.ChangeQuantity<0 then t0.ChangeQuantity end ,0) as OutQuantity,
+IFNULL(case when t0.ChangeQuantity<0 then t0.ChangeQuantity*t0.Price end ,0) as OutAmount,
+IFNULL(case when t0.ChangeQuantity>=0 then t0.ChangeQuantity  end,0) as InQuantity,
+IFNULL(case when t0.ChangeQuantity>=0 then t0.ChangeQuantity*t0.Price end ,0) as InAmount
 from storeinventoryhistory t0 left join product t1 on t0.productId = t1.Id
 inner join store t2 on t2.Id = t0.StoreId 
 where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";          
             sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
             var rows = this._query.FindAll<StoreInventoryHistoryQueryDto>(sql, param);
 
-            string sqlCount = @"select count(*) from storeinventoryhistory t0 left join product t1 on t0.productId = t1.Id
-inner join store t2 on t2.Id = t0.StoreId 
+            string sqlCount = @"select count(*) as rowCount ,
+sum(IFNULL(case when t0.ChangeQuantity<0 then t0.ChangeQuantity end ,0)) as OutQuantity,
+sum(IFNULL(case when t0.ChangeQuantity<0 then t0.ChangeQuantity*t0.Price end ,0)) as OutAmount,
+sum(IFNULL(case when t0.ChangeQuantity>=0 then t0.ChangeQuantity  end,0)) as InQuantity,
+sum(IFNULL(case when t0.ChangeQuantity>=0 then t0.ChangeQuantity*t0.Price end ,0)) as InAmount
+from storeinventoryhistory t0 left join product t1 on t0.productId = t1.Id
+inner join store t2 on t2.Id = t0.StoreId  
 where 1=1 {0} ";
             sqlCount = string.Format(sqlCount, where);
-            int rowCount= this._query.Context.ExecuteScalar<int>(sqlCount, param);
-            page.Total = rowCount;
-
+            var sumModel = this._query.Find<SumStoreInventoryHistory>(sqlCount, param) as SumStoreInventoryHistory;
+            page.Total = sumModel.RowCount;
+            page.SumColumns.Add(new SumColumn("InQuantity", sumModel.InQuantity.ToString()));
+            page.SumColumns.Add(new SumColumn("OutAmount", sumModel.OutAmount.ToString("F4")));
+            page.SumColumns.Add(new SumColumn("OutQuantity", sumModel.OutQuantity.ToString()));
+            page.SumColumns.Add(new SumColumn("InAmount", sumModel.InAmount.ToString("F4")));
+            //page.SumColumns.Add(new SumColumn("CurrentQuantity", sumModel.CurrentQuantity.ToString()));
             return rows;
         }
 

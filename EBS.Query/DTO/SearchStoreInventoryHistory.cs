@@ -10,12 +10,15 @@ namespace EBS.Query.DTO
     {
        public string BillCode { get; set; }
 
-        public int BillType { get; set; }
+        public string BillType { get; set; }
 
-        public int StoreId { get; set; }
+        public string StoreId { get; set; }
 
         public string ProductCodeOrBarCode { get; set; }
 
         public string BatchNo { get; set; }
+
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
     }
 }

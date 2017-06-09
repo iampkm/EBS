@@ -25,14 +25,21 @@ namespace EBS.Query.DTO
         /// </summary>
         public int Quantity { get; set; }
         /// <summary>
-        /// 变动数
+        /// 入库数合计
         /// </summary>
-        public int ChangeQuantity { get; set; }
+        public int InQuantity { get; set; }
+
+        public int InAmount { get; set; }
+        /// <summary>
+        /// 出库数合计
+        /// </summary>
+        public int OutQuantity { get; set; }
+        public int OutAmount { get; set; }
         /// <summary>
         /// 剩余库存
         /// </summary>
         public int CurrentQuantity { get {
-                return Quantity + ChangeQuantity;
+            return Quantity + InQuantity + OutQuantity;
             } }
         /// <summary>
         /// 批次价格
@@ -58,6 +65,12 @@ namespace EBS.Query.DTO
             }
         }
         public DateTime CreatedOn { get; set; }
+
+        public string CreateOnString {
+            get {
+                return this.CreatedOn.ToString("yyyy-MM-dd HH:mm:ss");
+            }
+        }
         public int CreatedBy { get; set; }
 
         /// <summary>
@@ -74,5 +87,30 @@ namespace EBS.Query.DTO
         public string Specification { get; set; }
 
         public string SupplierName { get; set; }
+    }
+
+
+    public class SumStoreInventoryHistory
+    {
+        public int RowCount { get; set; }
+        
+        /// <summary>
+        /// 入库数合计
+        /// </summary>
+        public int InQuantity { get; set; }
+
+        public decimal InAmount { get; set; }
+        /// <summary>
+        /// 出库数合计
+        /// </summary>
+        public int OutQuantity { get; set; }
+        public decimal OutAmount { get; set; }
+
+        /// <summary>
+        /// 当前剩余库存合计
+        /// </summary>
+        public int CurrentQuantity { get {
+            return InQuantity + OutQuantity;
+        } }
     }
 }

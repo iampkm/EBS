@@ -25,14 +25,14 @@
         <div class="box-body">
             <vue-table v-ref:vtable v-bind:columns="gridColumns"
                        v-bind:url="url"
-                       v-bind:args="searchArgs" v-bind:data.sync="rows">
+                       v-bind:args="searchArgs" v-bind:data.sync="rows" v-bind:show-sum="true">
                 <div class="row" style="margin-bottom:10px;" slot="customSearch">
                     <div class="col-xs-3 col-sm-2">
-                            <input class="form-control" v-model="searchArgs.billCode" placeholder="单据号" debounce="500" />
-                        </div>
+                        <input class="form-control" v-model="searchArgs.billCode" placeholder="单据号" debounce="500" />
+                    </div>
                     <div class="col-xs-3 col-sm-2">
                         <input class="form-control" v-model="searchArgs.productCodeOrBarCode" placeholder="商品编码/条码" debounce="500" />
-                    </div>                    
+                    </div>
                     <div class="col-sm-2 col-xs-3" v-show="selectStore.view">
                         <div class="input-group ">
                             <input type="hidden" class="form-control" v-model="model.storeId">
@@ -42,26 +42,51 @@
                                 <button class="btn btn-flat btn-default" type="button" v-on:click="clearStore"><i class="fa fa-eraser"></i></button>
                             </span>
                         </div>
-                    </div>  
-                    @*<div class="form-group col-sm-2 col-xs-3">
-                            <div class="input-group">
-                                <span class="input-group-addon">状态</span>
-                                <select name="brand" class="form-control" v-model="searchArgs.status">
-                                    <option value="0">-请选择-</option>
-                                    @foreach (var item in ViewBag.Status)
-                                    {
-                                        <option value="@item.Key">@item.Value</option>
-                                    }
-                                </select>
+                    </div>
+                    <div class="form-group col-sm-2 col-xs-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">单据类型</span>
+                            <select name="brand" class="form-control" v-model="searchArgs.billType">
+                                <option value="">-请选择-</option>
+                                @*@foreach (var item in ViewBag.BillTypes)
+                                {
+                                    <option value="@item.Key">@item.Value</option>
+                                }*@
+                                <option value="1,2">销售单(退)</option>
+                                <option value="51,52">采购单(退)</option>
+                                <option value="53">门店盘点</option>
+                                <option value="60">调拨单</option>
+                                @*<option value="61">其他出入库</option>*@
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-2 col-xs-3">
+                        <div class="input-group date" data-provide="datepicker" data-date-format="yyyy-mm-dd"
+                             data-date-language="zh-CN" data-date-clear-btn="true" data-date-autoclose="true">
+                            <div class="input-group-addon">
+                                <i class="fa fa-calendar"></i>
+                                <span></span>
                             </div>
-                        </div>*@
+                            <input type="text" class="form-control" v-model="searchArgs.startDate" placeholder="开始日期" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-2 col-xs-3">
+                        <div class="input-group date " data-provide="datepicker" data-date-format="yyyy-mm-dd"
+                             data-date-language="zh-CN" data-date-clear-btn="true" data-date-autoclose="true">
+                            <div class="input-group-addon">
+                                <i class="fa fa-calendar"></i>
+                                <span></span>
+                            </div>
+                            <input type="text" class="form-control" v-model="searchArgs.endDate" placeholder="结束日期" readonly>
+                        </div>
+                    </div>
                 </div>
                 @*<span class="input-group-btn" slot="customButtons">
-                        <a class="btn btn-warning btn-flat" href="/StoreInventory/Create">新 增</a>
-                        <a class="btn btn-primary btn-flat" href="/StoreInventory/CreateGift">新增赠品单</a>
-                        <button type="button" class="btn btn-success btn-flat" v-on:click="submitAudit()">提交审核</button>
-                        <button type="button" class="btn btn-danger btn-flat" v-on:click="remove()">作 废</button>
-                    </span>*@
+                <a class="btn btn-warning btn-flat" href="/StoreInventory/Create">新 增</a>
+                <a class="btn btn-primary btn-flat" href="/StoreInventory/CreateGift">新增赠品单</a>
+                <button type="button" class="btn btn-success btn-flat" v-on:click="submitAudit()">提交审核</button>
+                <button type="button" class="btn btn-danger btn-flat" v-on:click="remove()">作 废</button>
+            </span>*@
             </vue-table>
         </div>
         <!-- /.box-body -->
@@ -92,21 +117,25 @@
                 removeReason: '',
                 searchQuery: '',
                 gridColumns: [
-                { name: 'StoreName', localName: '门店' },
-                { name: 'ProductCode', localName: '商品编码', width: '100' },
-                { name: 'BarCode', localName: '条码' },
-                { name: 'ProductName', localName: '品名', width: '200' },
-                { name: 'Specification', localName: '规格', width: '100' },
-                { name: 'Quantity', localName: '初始库存', width: '100' },
-                { name: 'ChangeQuantity', localName: '增减数', width: '100' },
-                { name: 'CurrentQuantity', localName: '剩余库存', width: '100' },
+                { name: 'CreateOnString', localName: '日期', width: '170' },
+                { name: 'StoreName', localName: '门店',  },
+                { name: 'ProductCode', localName: '商品编码', width: '100' },                
+                { name: 'ProductName', localName: '品名', width: '200' },               
+                { name: 'Quantity', localName: '初始库存', width: '100', },
                 { name: 'Price', localName: '进价', width: '100' },
+                { name: 'InQuantity', localName: '入库数', width: '100',sum:'',style:"<span class='text-green'>{column}<span>"  },
+                { name: 'InAmount', localName: '入库金额', width: '120',sum:'',style:"<span class='text-green'>{column}<span>"  },
+                { name: 'OutQuantity', localName: '出库数', width: '100',sum:'' ,style:"<span class='text-primary'>{column}<span>" },
+                { name: 'OutAmount', localName: '出库金额', width: '120',sum:'',style:"<span class='text-primary'>{column}<span>"  },
+                { name: 'CurrentQuantity', localName: '剩余库存', width: '100' },
+                { name: 'BillTypeName', localName: '单据类型', width: '100' },
+                { name: 'BillCode', localName: '单据', width: '180' },                
+                { name: 'Specification', localName: '规格', width: '100' },                
+                { name: 'BarCode', localName: '条码' },
                 { name: 'BatchNo', localName: '批次号', width: '100' },
-                 { name: 'BillCode', localName: '单据', width: '180' },
-                  { name: 'BillTypeName', localName: '单据类型' }
                 ],
                 url: "/StoreInventory/LoadDataHistory",
-                searchArgs: {billCode:'', storeId:@ViewBag.StoreId, productCodeOrBarCode: '' },
+                searchArgs: {billCode:'', storeId:'@ViewBag.StoreId', productCodeOrBarCode: '',billType:'',startDate:'',endDate:'' },
                 rows: [],                
                 selectStore: {
                     modal: false,

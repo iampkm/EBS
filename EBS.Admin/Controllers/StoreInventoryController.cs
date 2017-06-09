@@ -56,13 +56,14 @@ namespace EBS.Admin.Controllers
             ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
             ViewBag.StoreId = _context.CurrentAccount.StoreId;
             ViewBag.StoreName = _context.CurrentAccount.StoreName;
+            //ViewBag.BillTypes = typeof(BillIdentity).GetValueToDescription();
             return View();
         }
         public JsonResult LoadDataHistory(Pager page, SearchStoreInventoryHistory condition)
         {
             var rows = _storeInventoryQuery.GetPageList(page, condition);
 
-            return Json(new { success = true, data = rows, total = page.Total });
+            return Json(new { success = true, data = rows, total = page.Total, sum = page.SumColumns });
         }
         public ActionResult Batch()
         {
