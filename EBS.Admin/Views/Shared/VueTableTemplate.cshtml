@@ -1,37 +1,65 @@
 ﻿<template id="grid-template">
     <style>
         .table-fixed-data {
-            width: 100%;
-            /*border-right: 1px solid #cccccc;
-            border-bottom: 1px solid #cccccc;*/
+            height: 510px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            table-layout: fixed;
+            position: relative;
+            border: 1px solid #CCC;
         }
-        .table-fixed-data table {
-            margin: 0px;
-        }
+
+            .table-fixed-data table {
+                margin: 0px;
+            }
+
         .table-fixed-hidden {
             margin-top: -40px !important;
         }
+
         #search {
             margin-bottom: 10px;
         }
+
         .table-fixed-body {
-            /*overflow-x: auto;*/
-            overflow-y: auto;          
+            position: absolute;
+            top: 40px;
+            left: 0px;
+            height: 450px;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
+
+        .table-fixed-header {
+            position: absolute;
+            left: 0px;
+        }
+
+        .table-fixed-foot table {
+            /*position: absolute;           
+            left: 0px;
+            bottom: 0px;*/
+            margin-bottom:2px;
+        }
+
         .fixed-table-pagination .pagination-detail, .fixed-table-pagination div.pagination {
             margin-top: 10px;
             margin-bottom: 10px;
         }
+
         .fixed-table-pagination .pagination-info {
             line-height: 34px;
             margin-right: 5px;
         }
+
         .fixed-table-pagination .page-list {
             display: inline-block;
         }
+
         .fixed-table-pagination div.pagination .pagination {
             margin: 0;
         }
+
         .loading {
             position: absolute;
             top: 60%;
@@ -42,12 +70,15 @@
             text-align: center;
             font-weight: 700;
         }
+
         .table-fixed {
             table-layout: fixed;
+
         }
-        .table-fixed td {
-            text-overflow: ellipsis;
-        }
+
+            .table-fixed td {
+                text-overflow: ellipsis;
+            }
     </style>
     <div class="table-container">
         <slot name="customSearch"></slot>
@@ -56,7 +87,7 @@
                 <div class="input-group">
                     <span class="input-group-addon" v-if="showSearch"><i class="fa fa-search"></i></span>
                     <input name="query" class="form-control" placeholder="表内搜索" v-model="filterKey" v-if="showSearch">
-                    <slot name="customButtons"></slot>                    
+                    <slot name="customButtons"></slot>
                 </div>
             </div>
             <div class="col-xs-2 col-md-2">
@@ -102,9 +133,10 @@
                     </thead>
                 </table>
             </div>
-            <div id="tbBody" class="table-fixed-body " style="max-height:450px" @*v-bind:style="{height:100%}"*@>
+            <div id="tbBody" class="table-fixed-body " >
                 <table class="table table-bordered table-hover table-fixed">
                     <tbody>
+                        <tr v-show="data.length==0"><td class="text-center text-danger">暂无数据</td></tr>
                         <tr v-for="(index,entry) in data | filterBy filterKey | orderBy sortKey sortOrders[sortKey]" v-on:click="selectRow(index)" style="cursor: pointer">
                             <td class="text-center" width="{{indexWidth}}">{{index+1}}</td>
                             <td v-show="showCheckbox" width="30px"><input type="checkbox" v-model="data[index].checked" /></td>
@@ -116,7 +148,7 @@
                             <td><slot name="customColumn"></slot></td>
                         </tr>
                     </tbody>
-                    <tfoot v-show="showSum">
+                    @*<tfoot v-show="showSum">
                         <tr>
                             <td width="{{indexWidth}}"></td>
                             <td v-show="showCheckbox" width="30px"></td>
@@ -127,10 +159,13 @@
                             </template>
                             <td></td>
                         </tr>
-                    </tfoot>
+                    </tfoot>*@
                 </table>
             </div>
-            @*<div v-show="showSum">
+                      
+        </div>
+        <div v-show="showSum" class="table-fixed-foot">
+            <div class="table-Sum">
                 <table class="table table-bordered table-hover table-fixed">
                     <tr>
                         <td width="{{indexWidth}}"></td>
@@ -143,33 +178,33 @@
                         <td></td>
                     </tr>
                 </table>
-            </div>*@
-            <div class="fixed-table-pagination" v-if="showPagination">
-                <div class="pull-left pagination-detail">
-                    <span class="pagination-info">总共<span class="text-red"> {{total}} </span>条记录 每页 </span>
-                    <div class="page-list">
-                        <div class="btn-group dropup">
-                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                <span class="page-size">{{pageSize}}</span> <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu" role="menu">
-                                <li v-for="page in pageSizes"><a v-on:click.prevent="changePageSize(page)">{{page}}</a></li>
-                            </ul>
-                        </div> 记录
-                    </div>
+            </div>
+        </div> 
+        <div class="fixed-table-pagination" v-if="showPagination">
+            <div class="pull-left pagination-detail">
+                <span class="pagination-info">总共<span class="text-red"> {{total}} </span>条记录 每页 </span>
+                <div class="page-list">
+                    <div class="btn-group dropup">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                            <span class="page-size">{{pageSize}}</span> <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li v-for="page in pageSizes"><a v-on:click.prevent="changePageSize(page)">{{page}}</a></li>
+                        </ul>
+                    </div> 记录
                 </div>
-                <div class="pull-right pagination">
-                    <ul class="pagination" style="cursor:pointer">
-                        <li><a v-on:click.prevent="goFirst()">首页</a></li>
-                        <li><a v-on:click.prevent="goPrevious()">上一页</a></li>
-                        <li v-for="page in maxPageNumber" v-bind:class="{active:getPageNumber(page) == pageIndex}"><a v-on:click.prevent="gotoPage(getPageNumber(page))">{{getPageNumber(page)}}</a></li>
-                        <li><a title="下{{pageNumber}}页" v-on:click.prevent="gotoPage(getNextPitchNumber())">...</a></li>
-                        <li><a v-on:click.prevent="goLast()">{{pages}}</a></li>
-                        <li><a v-on:click.prevent="goNext()">下一页</a></li>
-                    </ul>
-                </div>
+            </div>
+            <div class="pull-right pagination">
+                <ul class="pagination" style="cursor:pointer">
+                    <li><a v-on:click.prevent="goFirst()">首页</a></li>
+                    <li><a v-on:click.prevent="goPrevious()">上一页</a></li>
+                    <li v-for="page in maxPageNumber" v-bind:class="{active:getPageNumber(page) == pageIndex}"><a v-on:click.prevent="gotoPage(getPageNumber(page))">{{getPageNumber(page)}}</a></li>
+                    <li><a title="下{{pageNumber}}页" v-on:click.prevent="gotoPage(getNextPitchNumber())">...</a></li>
+                    <li><a v-on:click.prevent="goLast()">{{pages}}</a></li>
+                    <li><a v-on:click.prevent="goNext()">下一页</a></li>
+                </ul>
             </div>
         </div>
     </div>
-    <div class="clearfix"></div> 
+    <div class="clearfix"></div>
 </template>

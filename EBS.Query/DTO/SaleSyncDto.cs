@@ -35,7 +35,7 @@ namespace EBS.Query.DTO
         public decimal ServerOrderTotalAmount { get; set; }
 
         public string Difference {
-            get { return this.OrderCount == this.ServerOrderCount ? "一致" : "<span class='text-danger'>有差异</span>"; }
+            get { return this.OrderCount == this.ServerOrderCount ? "一致" : string.Format("<span class='text-danger'>差异{0}</span>",Math.Abs(this.OrderCount-this.ServerOrderCount)); }
         }
     }
 }
