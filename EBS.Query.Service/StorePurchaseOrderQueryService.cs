@@ -66,8 +66,18 @@ namespace EBS.Query.Service
                 where += "and t0.CreatedOn < @EndDate ";
                 param.EndDate = condition.EndDate.Value.AddDays(1);
             }
+            if (condition.StoragedBegin.HasValue)
+            {
+                where += "and t0.StoragedOn >=@StoragedBegin ";
+                param.StoragedBegin = condition.StoragedBegin.Value;
+            }
+            if (condition.StoragedEnd.HasValue)
+            {
+                where += "and t0.StoragedOn < @StoragedEnd ";
+                param.StoragedEnd = condition.StoragedEnd.Value.AddDays(1);
+            }
 
-            string sql = @"select t0.Id,t0.Code,t0.SupplierId,t0.CreatedOn,t0.CreatedByName,t0.Status,t0.SupplierBill,t1.Code as SupplierCode,t1.Name as SupplierName,t2.Name as StoreName,t3.Quantity,t3.ActualQuantity,t3.Amount  
+            string sql = @"select t0.Id,t0.Code,t0.SupplierId,t0.CreatedOn,t0.CreatedByName,t0.Status,t0.SupplierBill,t1.Code as SupplierCode,t1.Name as SupplierName,t2.Name as StoreName,t3.Quantity,t3.ActualQuantity,t3.Amount,t0.StoragedOn  
 from  (select i.StorePurchaseOrderId,SUM(i.Quantity) as Quantity,SUM(i.ActualQuantity) as ActualQuantity,SUM(i.Price* i.ActualQuantity ) as Amount 
 from  storepurchaseorderitem i {3} GROUP BY i.StorePurchaseOrderId) t3 left join 
  storepurchaseorder t0 on t0.Id = t3.StorePurchaseOrderId left join supplier t1 on t0.SupplierId = t1.Id left join store t2 on t0.StoreId = t2.Id where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";

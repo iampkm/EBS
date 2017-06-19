@@ -26,5 +26,14 @@ namespace EBS.Query.DTO
        public DateTime? StartDate { get; set; }
 
        public DateTime? EndDate { get; set; }
+
+       /// <summary>
+       /// 入库开始日期
+       /// </summary>
+       public DateTime? StoragedBegin { get; set; }
+       /// <summary>
+       /// 入库结束日期
+       /// </summary>
+       public DateTime? StoragedEnd { get; set; }
     }
 }

@@ -63,7 +63,7 @@
                             <input type="text" class="form-control" v-model="searchArgs.endDate" placeholder="结束日期" readonly>
                         </div>
                     </div>
-                    <div class="col-sm-2 col-xs-3">
+                    <div class="form-group  col-sm-2 col-xs-3">
                         <div class="input-group ">
                             <input type="hidden" class="form-control" v-model="searchArgs.supplierId">
                             <input type="text" class="form-control" v-model="selectSupplier.name" placeholder="选择供应商" readonly>
@@ -71,6 +71,26 @@
                                 <button class="btn btn-flat btn-default" type="button" v-on:click="showSupplier"><i class="fa fa-search"></i></button>
                                 <button class="btn btn-flat btn-default" type="button" v-on:click="clearSupplier"><i class="fa fa-eraser"></i></button>
                             </span>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-2 col-xs-3">
+                        <div class="input-group date" data-provide="datepicker" data-date-format="yyyy-mm-dd"
+                             data-date-language="zh-CN" data-date-clear-btn="true" data-date-autoclose="true">
+                            <div class="input-group-addon">
+                                <i class="fa fa-calendar"></i>
+                                <span></span>
+                            </div>
+                            <input type="text" class="form-control" v-model="searchArgs.storagedBegin" debounce="500" placeholder="入库日期起" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-2 col-xs-3">
+                        <div class="input-group date " data-provide="datepicker" data-date-format="yyyy-mm-dd"
+                             data-date-language="zh-CN" data-date-clear-btn="true" data-date-autoclose="true">
+                            <div class="input-group-addon">
+                                <i class="fa fa-calendar"></i>
+                                <span></span>
+                            </div>
+                            <input type="text" class="form-control" v-model="searchArgs.storagedEnd" placeholder="入库日期止" readonly>
                         </div>
                     </div>
                     <div class="col-sm-2 col-xs-3">
@@ -150,11 +170,12 @@
             { name: 'PurchaseOrderStatus', localName: '状态', width: '80' },
             { name: 'CreatedByName', localName: '创建人' },
             { name: 'CreatedTime', localName: '创建时间' },
+             { name: 'StoragedTime', localName: '入库时间' },
             { name: 'SupplierBill', localName: '备注', width: '250' }
             ],
             url: "/StorePurchaseOrder/LoadData",
             searchArgs: { code: '', supplierId: 0, storeId: '@ViewBag.StoreId', status: '@ViewBag.ShowStatus' ,
-                productCodeOrBarCode:'',orderType:@ViewBag.ShowType,startDate: '', endDate: '' },
+                productCodeOrBarCode:'',orderType:@ViewBag.ShowType,startDate: '', endDate: '',storagedBegin:'',storagedEnd:'' },
             rows: [],
             selectSupplier: {
                 modal: false,

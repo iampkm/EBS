@@ -39,7 +39,7 @@ namespace EBS.Query.DTO
         {
             get
             {
-                return CreatedOn.ToString("yyyy-MM-dd");
+                return CreatedOn.ToString("yyyy-MM-dd HH:mm");
             }
         }
 
@@ -55,6 +55,16 @@ namespace EBS.Query.DTO
         /// 供应商备注：可以备注单号，其他信息
         /// </summary>
         public string SupplierBill { get; set; }
+
+
+        public DateTime StoragedOn { get; set; }
+        public string StoragedTime
+        {
+            get
+            {
+                return StoragedOn.ToString("yyyy-MM-dd HH:mm");
+            }
+        }
 
 
     }
