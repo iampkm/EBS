@@ -15,5 +15,17 @@ namespace EBS.Query.DTO
         public string ProductCodeOrBarCode { get; set; }
 
         public string ProductName { get; set; }
+
+        public string CategoryId { get; set; }
+        
+       /// <summary>
+       /// 库存数
+       /// </summary>
+        public int Quantity { get; set; }
+        
+        /// <summary>
+        /// 操作
+        /// </summary>
+        public string Operate { get; set; }
     }
 }

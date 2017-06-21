@@ -187,7 +187,7 @@ where 1=1 {0} ORDER BY w.Id desc LIMIT {2},{3}";
                 page.Total = 0;
                 return new List<SaleSummaryDto>();
             }
-            sql = string.Format(sql, where, owhere, page.PageIndex, page.PageSize);
+            sql = string.Format(sql, where, owhere, (page.PageIndex - 1) * page.PageSize, page.PageSize);
             var rows = this._query.FindAll<SaleSummaryDto>(sql, param) as IEnumerable<SaleSummaryDto>;
 
             string sqlCount = @"select count(*) from WorkSchedule w inner join (

@@ -23,26 +23,22 @@ namespace EBS.Admin.Controllers
        // IStoreInventoryFacade _StoreInventoryFacade;
         IAreaQuery _areaQuery;
         IContextService _context;
-        public StoreInventoryController(IContextService contextService, IQuery query, IStoreInventoryQuery storeInventoryQuery, IAreaQuery areaQuery)
+        ICategoryQuery _categoryQuery;
+        public StoreInventoryController(IContextService contextService, IQuery query, IStoreInventoryQuery storeInventoryQuery, IAreaQuery areaQuery,ICategoryQuery categoryQuery)
         {
             this._query = query;
             this._storeInventoryQuery = storeInventoryQuery;
             this._areaQuery = areaQuery;
             this._context = contextService;
+            this._categoryQuery = categoryQuery;
         }
 
         public ActionResult Index()
         {
-            SetCurrentStore();
+            SetUserAuthention();
+            LoadCategory();
             return View();
-        }
-
-        private void SetCurrentStore()
-        {
-            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
-            ViewBag.StoreId = _context.CurrentAccount.StoreId;
-            ViewBag.StoreName = _context.CurrentAccount.StoreName;
-        }
+        }       
 
         public JsonResult LoadData(Pager page, SearchStoreInventory condition)
         {
@@ -53,10 +49,12 @@ namespace EBS.Admin.Controllers
 
         public ActionResult History()
         {
-            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
-            ViewBag.StoreId = _context.CurrentAccount.StoreId;
-            ViewBag.StoreName = _context.CurrentAccount.StoreName;
-            //ViewBag.BillTypes = typeof(BillIdentity).GetValueToDescription();
+            SetUserAuthention();
+            DateTime now = DateTime.Now;
+            DateTime monthBegin = new DateTime(now.Year, now.Month, 1);
+            DateTime monthEnd = monthBegin.AddMonths(1).AddDays(-1);
+            ViewBag.BeginDate = monthBegin.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = monthEnd.ToString("yyyy-MM-dd");
             return View();
         }
         public JsonResult LoadDataHistory(Pager page, SearchStoreInventoryHistory condition)
@@ -67,9 +65,8 @@ namespace EBS.Admin.Controllers
         }
         public ActionResult Batch()
         {
-            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
-            ViewBag.StoreId = _context.CurrentAccount.StoreId;
-            ViewBag.StoreName = _context.CurrentAccount.StoreName;
+            SetUserAuthention();
+            LoadCategory();
             return View();
         }
         public JsonResult LoadDataBatch(Pager page, SearchStoreInventoryBatch condition)
@@ -85,9 +82,7 @@ namespace EBS.Admin.Controllers
         /// <returns></returns>
         public ActionResult Product()
         {
-            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
-            ViewBag.StoreId = _context.CurrentAccount.StoreId;
-            ViewBag.StoreName = _context.CurrentAccount.StoreName;
+            SetUserAuthention();
             return View();
         }
 
@@ -95,6 +90,20 @@ namespace EBS.Admin.Controllers
         {
             var rows = _storeInventoryQuery.QueryProduct(condition).ToList();           
             return Json(new { success = true, data = rows, total = rows.Count });
+        }
+
+        private void LoadCategory()
+        {
+            var treeNodes = _categoryQuery.GetCategoryTree();
+            var tree = JsonConvert.SerializeObject(treeNodes);
+            ViewBag.Tree = tree;
+        }
+
+        private void SetUserAuthention()
+        {
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+            ViewBag.StoreId = _context.CurrentAccount.StoreId;
+            ViewBag.StoreName = _context.CurrentAccount.StoreName;
         }
     }
 }

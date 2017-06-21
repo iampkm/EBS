@@ -13,5 +13,7 @@ namespace EBS.Query.DTO
        public decimal Amount { get; set; }
 
        public decimal SaleAmount { get; set; }
+
+       public int TotalCount { get; set; }
     }
 }

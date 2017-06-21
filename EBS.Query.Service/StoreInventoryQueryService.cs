@@ -40,27 +40,40 @@ namespace EBS.Query.Service
                 where += "and t1.Name like @ProductName ";
                 param.ProductName = string.Format("%{0}%", condition.ProductName); 
             }
+            if (!string.IsNullOrEmpty(condition.CategoryId))
+            {
+                where += "and t3.Id like @CategoryId ";
+                param.CategoryId = string.Format("{0}%", condition.CategoryId);
+            }
+            if (!string.IsNullOrEmpty(condition.Operate))
+            {
+                where +=string.Format("and t0.Quantity {0} @Quantity ",condition.Operate);
+                param.Quantity = condition.Quantity; 
+            }
 
-            string sql = @"select t0.*,t1.`Code` as ProductCode ,t1.`Name` as ProductName,t1.BarCode,t1.Specification,t1.SalePrice,t2.`name` as StoreName
+            string sql = @"select t0.*,t1.`Code` as ProductCode ,t1.`Name` as ProductName,t1.BarCode,t1.Specification,t1.SalePrice,t2.`name` as StoreName,t3.FullName as CategoryName 
 from storeinventory t0 left join product t1 on t0.productId = t1.Id
-inner join store t2 on t2.Id = t0.StoreId
+left join store t2 on t2.Id = t0.StoreId
+left join category t3 on t1.CategoryId = t3.Id
 where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<Product>(where, param);
             sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
             var rows = this._query.FindAll<StoreInventoryQueryDto>(sql, param);
-            string sqlCount = @"select count(*) from storeinventory t0 left join product t1 on t0.productId = t1.Id
-inner join store t2 on t2.Id = t0.StoreId
-where 1=1 {0} ";
-            sqlCount = string.Format(sqlCount, where);
-            page.Total = this._query.Context.ExecuteScalar<int>(sqlCount, param);
+//            string sqlCount = @"select count(*) from storeinventory t0 left join product t1 on t0.productId = t1.Id
+//inner join store t2 on t2.Id = t0.StoreId
+//where 1=1 {0} ";
+//            sqlCount = string.Format(sqlCount, where);
+//            page.Total = this._query.Context.ExecuteScalar<int>(sqlCount, param);
 
             // 查询统计列数据
-            string sqlSum = @"select sum(t0.Quantity) as Quantity,sum(t0.AvgCostPrice*t0.Quantity) as Amount,sum(t1.SalePrice*t0.Quantity) as SaleAmount
+            string sqlSum = @"select count(*) as TotalCount, sum(t0.Quantity) as Quantity,sum(t0.AvgCostPrice*t0.Quantity) as Amount,sum(t1.SalePrice*t0.Quantity) as SaleAmount
 from storeinventory t0 left join product t1 on t0.productId = t1.Id
-inner join store t2 on t2.Id = t0.StoreId
+left join store t2 on t2.Id = t0.StoreId
+left join category t3 on t1.CategoryId = t3.Id
 where 1=1 {0}";
             sqlSum = string.Format(sqlSum, where);
-            var sumStoreInventory= this._query.Find<SumStoreInventory>(sqlSum, param) as SumStoreInventory;             
+            var sumStoreInventory= this._query.Find<SumStoreInventory>(sqlSum, param) as SumStoreInventory;
+            page.Total = sumStoreInventory.TotalCount;
             page.SumColumns.Add(new SumColumn("Quantity",sumStoreInventory.Quantity.ToString()));
             page.SumColumns.Add(new SumColumn("Amount", sumStoreInventory.Amount.ToString("F4")));
             page.SumColumns.Add(new SumColumn("SaleAmount", sumStoreInventory.SaleAmount.ToString("F2")));
@@ -164,10 +177,21 @@ where 1=1 {0} ";
                 where += "and (t1.Code=@ProductCodeOrBarCode or t1.BarCode=@ProductCodeOrBarCode) ";
                 param.ProductCodeOrBarCode = condition.ProductCodeOrBarCode;
             }
-            string sql = @"select t0.*,t1.`Code` as ProductCode ,t1.`Name` as ProductName,t1.BarCode,t1.Specification,t2.`name` as StoreName,t3.`Name` as SupplierName
-from storeinventorybatch t0 left join product t1 on t0.productId = t1.Id
-inner join store t2 on t2.Id = t0.StoreId
-left join supplier t3 on t3.Id = t0.SupplierId 
+            if (!string.IsNullOrEmpty(condition.CategoryId))
+            {
+                where += "and t4.Id like @CategoryId ";
+                param.CategoryId = string.Format("{0}%", condition.CategoryId);
+            }
+            if (!string.IsNullOrEmpty(condition.Operate))
+            {
+                where += string.Format("and t0.Quantity {0} @Quantity ", condition.Operate);
+                param.Quantity = condition.Quantity;
+            }
+            string sql = @"select t0.*,t1.`Code` as ProductCode ,t1.`Name` as ProductName,t1.BarCode,t1.Specification,t2.`name` as StoreName,t3.`Name` as SupplierName,t4.FullName as CategoryName 
+from storeinventorybatch t0 left join product t1 on t0.productId = t1.Id 
+left join store t2 on t2.Id = t0.StoreId 
+left join supplier t3 on t3.Id = t0.SupplierId  
+left join category t4 on t4.Id = t1.CategoryId  
 where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<Product>(where, param);
             sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);

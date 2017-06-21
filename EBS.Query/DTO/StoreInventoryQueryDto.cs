@@ -64,5 +64,7 @@ namespace EBS.Query.DTO
         public string Specification { get; set; }
 
         public string SupplierName { get; set; }
+
+        public string CategoryName { get; set; }
     }
 }

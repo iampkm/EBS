@@ -134,11 +134,11 @@
                     { name: 'StatusName', localName: '状态' },                    
                 ],
                 url: "/SaleOrder/QuerySaleCheck",
-                searchArgs: { code: '', nickName: '', storeId: 0, wrokFrom: '',workTo:'',from:'@ViewBag.today',to:'@ViewBag.today' ,posId:null},
+                searchArgs: { code: '', nickName: '', storeId: @ViewBag.StoreId, wrokFrom: '',workTo:'',from:'@ViewBag.today',to:'@ViewBag.today' ,posId:null},
                 rows: [],
                 selectStore: {
                     modal: false,
-                    name: '',
+                    name: '@ViewBag.StoreName',
                     view: @ViewBag.View,
                 }
             },

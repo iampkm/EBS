@@ -152,11 +152,11 @@
                     { name: 'PaymentWayName', localName: '付款方式' },
                 ],
                 url: "/SaleOrder/QuerySaleSummary",
-                searchArgs: { code: '', nickName: '', storeId: 0, wrokFrom: '',workTo:'',from:'@ViewBag.today',to:'@ViewBag.today' ,posId:null,orderLevel:0,paymentWay:0},
+                searchArgs: { code: '', nickName: '', storeId: @ViewBag.StoreId, wrokFrom: '',workTo:'',from:'@ViewBag.today',to:'@ViewBag.today' ,posId:null,orderLevel:0,paymentWay:0},
                 rows: [],
                 selectStore: {
                     modal: false,
-                    name: '',
+                    name: '@ViewBag.StoreName',
                     view: @ViewBag.View,
                 }
             },

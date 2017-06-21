@@ -45,7 +45,7 @@ namespace EBS.Admin.Controllers
         /// <returns></returns>
         public ActionResult SaleOrderItems()
         {
-            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+            SetUserAuthention();
             return View();
         }
 
@@ -63,7 +63,7 @@ namespace EBS.Admin.Controllers
         public ActionResult SaleSummary()
         {
             ViewBag.today = DateTime.Now.ToString("yyyy-MM-dd");
-            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+            SetUserAuthention();
             return View();
         }
 
@@ -81,7 +81,7 @@ namespace EBS.Admin.Controllers
         public ActionResult SaleCheck()
         {
             ViewBag.today = DateTime.Now.ToString("yyyy-MM-dd");
-            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+            SetUserAuthention();
             return View();
         }
 

@@ -135,7 +135,7 @@
                 { name: 'BatchNo', localName: '批次号', width: '100' },
                 ],
                 url: "/StoreInventory/LoadDataHistory",
-                searchArgs: {billCode:'', storeId:'@ViewBag.StoreId', productCodeOrBarCode: '',billType:'',startDate:'',endDate:'' },
+                searchArgs: {billCode:'', storeId:'@ViewBag.StoreId', productCodeOrBarCode: '',billType:'',startDate:'@ViewBag.BeginDate',endDate:'@ViewBag.EndDate' },
                 rows: [],                
                 selectStore: {
                     modal: false,
