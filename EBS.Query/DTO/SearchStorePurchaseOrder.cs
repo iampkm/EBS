@@ -35,5 +35,8 @@ namespace EBS.Query.DTO
        /// 入库结束日期
        /// </summary>
        public DateTime? StoragedEnd { get; set; }
+
+       public string ProductName { get; set; }
+
     }
 }

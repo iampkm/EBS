@@ -25,5 +25,9 @@ namespace EBS.Query
         /// <returns></returns>
         IEnumerable<StorePurchaseOrderItemDto> GetProductBatchs(string productCodeOrBarCode,int storeId);
         StorePurchaseOrderDto GetById(int id);
+
+        IEnumerable<StorePurchaseOrderListDto> GetFinishList(Pager page, SearchStorePurchaseOrder condition);
+
+
     }
 }

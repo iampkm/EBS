@@ -248,5 +248,95 @@ where (p.`Code`=@productCodeOrBarCode or p.BarCode=@productCodeOrBarCode) and i.
 
             return productItems;
         }
+
+
+        public IEnumerable<StorePurchaseOrderListDto> GetFinishList(Pager page, SearchStorePurchaseOrder condition)
+        {
+            dynamic param = new ExpandoObject();
+            string where = "";
+            if (!string.IsNullOrEmpty(condition.Code))
+            {
+                where += "and t0.Code=@Code ";
+                param.Code = condition.Code;
+            }
+            if (condition.SupplierId > 0)
+            {
+                where += "and t0.SupplierId=@SupplierId ";
+                param.SupplierId = condition.SupplierId;
+            }
+            if (!string.IsNullOrEmpty(condition.StoreId) && condition.StoreId != "0")
+            {
+                where += "and t0.StoreId in @StoreId ";
+                param.StoreId = condition.StoreId.Split(',').ToIntArray(); ;
+            }
+            if (!string.IsNullOrEmpty(condition.Status))
+            {
+                where += "and t0.Status in (" + condition.Status + ") ";               
+            }
+           
+            if (!string.IsNullOrEmpty(condition.ProductCodeOrBarCode))
+            {               
+                where += string.Format("and (p.Code=@ProductCodeOrBarCode or p.BarCode=@ProductCodeOrBarCode) ", condition.ProductCodeOrBarCode);
+                param.ProductCodeOrBarCode = condition.ProductCodeOrBarCode;
+            }
+            if (condition.OrderType > 0)
+            {
+                where += " and t0.OrderType=@OrderType ";
+                param.OrderType = condition.OrderType;
+            }
+
+            if (condition.StartDate.HasValue)
+            {
+                where += "and t0.CreatedOn >=@StartDate ";
+                param.StartDate = condition.StartDate.Value;
+            }
+            if (condition.EndDate.HasValue)
+            {
+                where += "and t0.CreatedOn < @EndDate ";
+                param.EndDate = condition.EndDate.Value.AddDays(1);
+            }
+            if (condition.StoragedBegin.HasValue)
+            {
+                where += "and t0.StoragedOn >=@StoragedBegin ";
+                param.StoragedBegin = condition.StoragedBegin.Value;
+            }
+            if (condition.StoragedEnd.HasValue)
+            {
+                where += "and t0.StoragedOn < @StoragedEnd ";
+                param.StoragedEnd = condition.StoragedEnd.Value.AddDays(1);
+            }
+            if (!string.IsNullOrEmpty(condition.ProductName))
+            {
+                where += "and p.Name like @ProductName ";
+                param.ProductName = string.Format("%{0}%", condition.ProductName);
+            }
+            string sql = @"select t0.Id,t0.Code,t0.CreatedOn,t0.CreatedByName,t0.Status,t0.SupplierBill,t0.IsGift,t1.Code as SupplierCode,t1.Name as SupplierName,t2.Name as StoreName,i.Quantity,i.ActualQuantity,t0.StoragedOn,i.Price,i.ContractPrice,
+p.code as ProductCode,p.BarCode,p.`Name` as ProductName,p.Specification,i.Price* i.ActualQuantity as Amount  
+from storepurchaseorder t0 
+inner join storepurchaseorderitem i on t0.Id = i.storepurchaseOrderId
+left join product p on p.Id = i.ProductId
+left join supplier t1 on t0.SupplierId = t1.Id 
+left join store t2 on t0.StoreId = t2.Id 
+where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
+
+            sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
+            var rows = this._query.FindAll<StorePurchaseOrderListDto>(sql, param);
+
+            // 统计列
+            string sqlSum = @"select count(*) as TotalCount, sum(i.Quantity) as Quantity ,sum(i.ActualQuantity) as ActualQuantity ,sum(i.Price* i.ActualQuantity) as Amount  
+from storepurchaseorder t0 
+inner join storepurchaseorderitem i on t0.Id = i.storepurchaseOrderId
+left join product p on p.Id = i.ProductId
+left join supplier t1 on t0.SupplierId = t1.Id 
+left join store t2 on t0.StoreId = t2.Id 
+where 1=1 {0} ";
+            sqlSum = string.Format(sqlSum, where);
+            var sumStoreInventory = this._query.Find<SumStorePurchaseOrder>(sqlSum, param) as SumStorePurchaseOrder;
+            page.Total = sumStoreInventory.TotalCount;
+            page.SumColumns.Add(new SumColumn("Quantity", sumStoreInventory.Quantity.ToString()));
+            page.SumColumns.Add(new SumColumn("ActualQuantity", sumStoreInventory.ActualQuantity.ToString()));
+            page.SumColumns.Add(new SumColumn("Amount", sumStoreInventory.Amount.ToString("F4")));
+            return rows;
+        }
     }
 }

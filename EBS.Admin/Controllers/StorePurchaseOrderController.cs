@@ -56,6 +56,13 @@ namespace EBS.Admin.Controllers
 
              return Json(new { success = true, data = rows, total = page.Total, sum = page.SumColumns });
         }
+
+        public JsonResult LoadFinishData(Pager page, SearchStorePurchaseOrder condition)
+        {
+            var rows = _storePurchaseOrderQuery.GetFinishList(page, condition);
+
+            return Json(new { success = true, data = rows, total = page.Total, sum = page.SumColumns });
+        }
         /// <summary>
         /// 待收货列表
         /// </summary>

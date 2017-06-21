@@ -20,5 +20,10 @@ namespace EBS.Query.DTO
        /// 实收金额合计
        /// </summary>
        public decimal Amount { get; set; }
+
+       /// <summary>
+       /// 总记录数
+       /// </summary>
+       public int TotalCount { get; set; }
     }
 }
