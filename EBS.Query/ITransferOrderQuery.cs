@@ -16,5 +16,10 @@ namespace EBS.Query
        List<TransaferOrderItemDto> QueryProductBatch(string productCodeOrBarCode, int storeId);
 
         TransferOrderDto GetById(int id);
+
+        IEnumerable<TransferOrderListDto> GetFinishList(Pager page, SearchTransferOrder condition);
+
+        IEnumerable<TransferOrderSummaryDto> GetSummaryList(Pager page, SearchTransferOrder condition);
+       
     }
 }

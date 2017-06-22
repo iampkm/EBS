@@ -69,9 +69,16 @@ namespace EBS.Admin.Controllers
 
         public JsonResult LoadData(Pager page, SearchTransferOrder conditon)
         {
-            var rows = _transaferQuery.GetPageList(page, conditon);
+            var rows = _transaferQuery.GetFinishList(page, conditon);
 
             return Json(new { success = true, data = rows, total = page.Total });
+        }
+
+        public JsonResult LoadFinishData(Pager page, SearchTransferOrder conditon)
+        {
+            var rows = _transaferQuery.GetFinishList(page, conditon);
+
+            return Json(new { success = true, data = rows, total = page.Total, sum = page.SumColumns });
         }
 
         [HttpPost]
@@ -149,5 +156,20 @@ namespace EBS.Admin.Controllers
              var model = _transaferQuery.GetById(id);
              return Json(new { success = true, data = model });
          }
+
+
+         public ActionResult Summary() 
+         {
+             return View();
+         }
+
+         public JsonResult LoadSummaryData(Pager page, SearchTransferOrder conditon)
+         {
+             var rows = _transaferQuery.GetSummaryList(page, conditon);
+
+             return Json(new { success = true, data = rows, total = page.Total, sum = page.SumColumns });
+         }
+
+        
 	}
 }

@@ -338,5 +338,115 @@ where 1=1 {0} ";
             page.SumColumns.Add(new SumColumn("Amount", sumStoreInventory.Amount.ToString("F4")));
             return rows;
         }
+
+
+        public IEnumerable<StorePurchaseOrderSummaryDto> GetSummaryList(Pager page, SearchStorePurchaseOrder condition)
+        {
+            dynamic param = new ExpandoObject();
+            string where = "";
+            if (!string.IsNullOrEmpty(condition.Code))
+            {
+                where += "and t0.Code=@Code ";
+                param.Code = condition.Code;
+            }
+            if (condition.SupplierId > 0)
+            {
+                where += "and t0.SupplierId=@SupplierId ";
+                param.SupplierId = condition.SupplierId;
+            }
+            if (!string.IsNullOrEmpty(condition.StoreId) && condition.StoreId != "0")
+            {
+                where += "and t0.StoreId in @StoreId ";
+                param.StoreId = condition.StoreId.Split(',').ToIntArray(); ;
+            }
+            if (!string.IsNullOrEmpty(condition.Status))
+            {
+                where += "and t0.Status in (" + condition.Status + ") ";
+            }
+
+            if (!string.IsNullOrEmpty(condition.ProductCodeOrBarCode))
+            {
+                where += string.Format("and (p.Code=@ProductCodeOrBarCode or p.BarCode=@ProductCodeOrBarCode) ", condition.ProductCodeOrBarCode);
+                param.ProductCodeOrBarCode = condition.ProductCodeOrBarCode;
+            }
+            if (condition.OrderType > 0)
+            {
+                where += " and t0.OrderType=@OrderType ";
+                param.OrderType = condition.OrderType;
+            }
+
+            if (condition.StartDate.HasValue)
+            {
+                where += "and t0.CreatedOn >=@StartDate ";
+                param.StartDate = condition.StartDate.Value;
+            }
+            if (condition.EndDate.HasValue)
+            {
+                where += "and t0.CreatedOn < @EndDate ";
+                param.EndDate = condition.EndDate.Value.AddDays(1);
+            }
+            if (condition.StoragedBegin.HasValue)
+            {
+                where += "and t0.StoragedOn >=@StoragedBegin ";
+                param.StoragedBegin = condition.StoragedBegin.Value;
+            }
+            if (condition.StoragedEnd.HasValue)
+            {
+                where += "and t0.StoragedOn < @StoragedEnd ";
+                param.StoragedEnd = condition.StoragedEnd.Value.AddDays(1);
+            }
+            if (!string.IsNullOrEmpty(condition.ProductName))
+            {
+                where += "and p.Name like @ProductName ";
+                param.ProductName = string.Format("%{0}%", condition.ProductName);
+            }
+            string sql = @"select t2.Name AS StoreName,t.* from (
+select t0.StoreId,
+sum(case when t0.OrderType=2 then  -i.Quantity
+         when t0.OrderType=1 then i.Quantity end) as Quantity ,
+sum(case when t0.OrderType=2 then  -i.ActualQuantity
+         when t0.OrderType=1 then i.ActualQuantity end ) as ActualQuantity ,
+sum(case when t0.OrderType=2 then  i.Price* -i.ActualQuantity
+         when t0.OrderType=1 then i.Price* i.ActualQuantity end 
+) as Amount  
+from storepurchaseorder t0 
+inner join storepurchaseorderitem i on t0.Id = i.storepurchaseOrderId
+left join product p on p.Id = i.ProductId
+left join supplier t1 on t0.SupplierId = t1.Id 
+where 1=1 {0} 
+GROUP BY t0.StoreId  ORDER BY t0.Id desc 
+ ) t
+LEFT JOIN store t2 on t2.Id = t.StoreId  LIMIT {1},{2} ";
+
+            sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
+            var rows = this._query.FindAll<StorePurchaseOrderSummaryDto>(sql, param);
+
+            // 统计列
+            string sqlSum = @"select count(*) as TotalCount,sum(t.Quantity) as Quantity,sum(t.ActualQuantity) as ActualQuantity,sum(t.Amount) as Amount from (
+select t0.StoreId,
+sum(case when t0.OrderType=2 then  -i.Quantity
+         when t0.OrderType=1 then i.Quantity end) as Quantity ,
+sum(case when t0.OrderType=2 then  -i.ActualQuantity
+         when t0.OrderType=1 then i.ActualQuantity end ) as ActualQuantity ,
+sum(case when t0.OrderType=2 then  i.Price* -i.ActualQuantity
+         when t0.OrderType=1 then i.Price* i.ActualQuantity end 
+) as Amount  
+from storepurchaseorder t0 
+inner join storepurchaseorderitem i on t0.Id = i.storepurchaseOrderId
+left join product p on p.Id = i.ProductId
+left join supplier t1 on t0.SupplierId = t1.Id 
+where 1=1 {0} 
+GROUP BY t0.StoreId 
+ ) t
+LEFT JOIN store t2 on t2.Id = t.StoreId
+";
+            sqlSum = string.Format(sqlSum, where);
+            var sumStoreInventory = this._query.Find<SumStorePurchaseOrder>(sqlSum, param) as SumStorePurchaseOrder;
+            page.Total = sumStoreInventory.TotalCount;
+            page.SumColumns.Add(new SumColumn("Quantity", sumStoreInventory.Quantity.ToString()));
+            page.SumColumns.Add(new SumColumn("ActualQuantity", sumStoreInventory.ActualQuantity.ToString()));
+            page.SumColumns.Add(new SumColumn("Amount", sumStoreInventory.Amount.ToString("F4")));
+            return rows;
+        }
     }
 }

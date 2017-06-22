@@ -30,5 +30,7 @@ namespace EBS.Query.DTO
        public DateTime? EndDate { get; set; }
 
        public string ProductCodeOrBarCode { get; set; }
+
+       public string ProductName { get; set; }
     }
 }

@@ -29,12 +29,12 @@ namespace EBS.Query.DTO
         /// </summary>
         public int InQuantity { get; set; }
 
-        public int InAmount { get; set; }
+        public decimal InAmount { get; set; }
         /// <summary>
         /// 出库数合计
         /// </summary>
         public int OutQuantity { get; set; }
-        public int OutAmount { get; set; }
+        public decimal OutAmount { get; set; }
         /// <summary>
         /// 剩余库存
         /// </summary>

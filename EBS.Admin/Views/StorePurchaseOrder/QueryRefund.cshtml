@@ -25,13 +25,16 @@
         <div class="box-body">
             <vue-table v-ref:vtable v-bind:columns="gridColumns"
                        v-bind:url="url"
-                       v-bind:args="searchArgs" v-bind:data.sync="rows" v-bind:show-toolbar="false" v-bind:show-sum="true">
+                       v-bind:args="searchArgs" v-bind:data.sync="rows" @*v-bind:show-toolbar="false"*@ v-bind:show-sum="true">
                 <div class="row" style="margin-bottom:10px;" slot="customSearch">
                     <div class="col-xs-3 col-sm-2">
                         <input class="form-control" v-model="searchArgs.code" placeholder="单编号" debounce="500" />
                     </div>
                     <div class="col-xs-3 col-sm-2">
                         <input class="form-control" v-model="searchArgs.productCodeOrBarCode" placeholder="商品编码/条码" debounce="500" />
+                    </div>
+                    <div class="col-xs-3 col-sm-2">
+                        <input class="form-control" v-model="searchArgs.productName" placeholder="商品名称" debounce="100" />
                     </div>
                     <div class="col-sm-2 col-xs-3" v-show="selectStore.view">
                         <div class="input-group ">
@@ -53,7 +56,7 @@
                             <input type="text" class="form-control" v-model="searchArgs.startDate" placeholder="开始日期" readonly>
                         </div>
                     </div>
-                    <div class="col-sm-2 col-xs-3">
+                    <div class="form-group col-sm-2 col-xs-3">
                         <div class="input-group date " data-provide="datepicker" data-date-format="yyyy-mm-dd"
                              data-date-language="zh-CN" data-date-clear-btn="true" data-date-autoclose="true">
                             <div class="input-group-addon">
@@ -160,21 +163,26 @@
                 removeReason: '',
                 searchQuery: '',
                 gridColumns: [
-                { name: 'Code', localName: '采购单号', style: "<a href='/StorePurchaseOrder/RefundDetails/{id}'>{column}</a>" },
+                { name: 'Code', localName: '采购单号', style: "<a href='/StorePurchaseOrder/Details/{id}'>{column}</a>" , width: '100'},
                 { name: 'StoreName', localName: '门店' },
-                { name: 'Supplier', localName: '供应商', width: '250' },
-                { name: 'Quantity', localName: '订货数', width: '100',sum:'' },
-                { name: 'ActualQuantity', localName: '实收数', width: '100',sum:'' },
-                { name: 'Amount', localName: '实收金额', width: '100',sum:'' },
-                { name: 'PurchaseOrderStatus', localName: '状态', width: '80' },
-                { name: 'CreatedByName', localName: '创建人' },
+                { name: 'Supplier', localName: '供应商', width: '200' },
+                { name: 'ProductCodeAndBarCode', localName: '编码/条码', width: '130'  },
+                { name: 'ProductNameAndGift', localName: '品名', width: '200' },
+                { name: 'Specification', localName: '规格', width: '80'  },
+                { name: 'Quantity', localName: '订货数', width: '80',sum:'' },
+                { name: 'ContractPrice', localName: '合同价', width: '80',sum:'' },
+                { name: 'ActualQuantity', localName: '实退数', width: '80',sum:'',style:"<span class='text-primary'><strong>{column}</strong></span>" },
+                { name: 'Price', localName: '进价', width: '80',sum:'' },
+                { name: 'Amount', localName: '实退金额', width: '100',sum:'' },
+                { name: 'StoragedTime', localName: '出库时间' },
+                { name: 'CreatedByName', localName: '创建人', width: '100' },
                 { name: 'CreatedTime', localName: '创建时间' },
-                 { name: 'StoragedTime', localName: '出库时间' },
-                { name: 'SupplierBill', localName: '备注', width: '250' }
-                ],
-                url: "/StorePurchaseOrder/LoadData",
+                { name: 'PurchaseOrderStatus', localName: '状态', width: '80' },
+                { name: 'SupplierBill', localName: '备注', width: '250' },
+                 ],
+                url: "/StorePurchaseOrder/LoadFinishData",
                 searchArgs: { code: '', supplierId: 0, storeId: '@ViewBag.StoreId', status: '@ViewBag.ShowStatus' ,
-                    productCodeOrBarCode:'',orderType:@ViewBag.ShowType,startDate: '', endDate: '',storagedBegin:'',storagedEnd:'' },
+                    productCodeOrBarCode:'',orderType:@ViewBag.ShowType,startDate: '', endDate: '',storagedBegin:'',storagedEnd:'',productName:'' },
                 rows: [],
                 selectSupplier: {
                     modal: false,
@@ -301,7 +309,7 @@
                         statusArray.push(newVal);
                     }
                     if(this.checkFinished!=null){
-                        statusArray.push(this.checkFinished); 
+                        statusArray.push(this.checkFinished);
                     }
                     this.searchArgs.status = statusArray.join();
                     if(this.searchArgs.status==""){
@@ -314,7 +322,7 @@
                         statusArray.push(newVal);
                     }
                     if(this.checkFinanceAuditd!=null){
-                        statusArray.push(this.checkFinanceAuditd); 
+                        statusArray.push(this.checkFinanceAuditd);
                     }
                     this.searchArgs.status = statusArray.join();
                     if(this.searchArgs.status==""){
@@ -346,7 +354,7 @@
         };
         zTreeObj = $.fn.zTree.init($("#ztree"), setting);
 
-    </script>
+</script>
 }
 
 

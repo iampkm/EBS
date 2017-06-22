@@ -28,6 +28,8 @@ namespace EBS.Query
 
         IEnumerable<StorePurchaseOrderListDto> GetFinishList(Pager page, SearchStorePurchaseOrder condition);
 
+        IEnumerable<StorePurchaseOrderSummaryDto> GetSummaryList(Pager page, SearchStorePurchaseOrder condition);
+
 
     }
 }

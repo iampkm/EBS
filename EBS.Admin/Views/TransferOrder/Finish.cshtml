@@ -25,14 +25,17 @@
         <div class="box-body">
             <vue-table v-ref:vtable v-bind:columns="gridColumns"
                        v-bind:url="url"
-                       v-bind:args="searchArgs" v-bind:data.sync="rows">
+                       v-bind:args="searchArgs" v-bind:data.sync="rows" v-bind:show-sum="true">
                 <div class="row" style="margin-bottom:10px;" slot="customSearch">
                     <div class="col-xs-3 col-sm-2">
                         <input class="form-control" v-model="searchArgs.code" placeholder="调拨单号" debounce="500" />
                     </div>
                     <div class="col-xs-3 col-sm-2">
                         <input class="form-control" v-model="searchArgs.productCodeOrBarCode" placeholder="商品编码/条码" debounce="500" />
-                    </div>                     
+                    </div>
+                    <div class="col-xs-3 col-sm-2">
+                        <input class="form-control" v-model="searchArgs.productName" placeholder="商品名称" debounce="100" />
+                    </div>
                     <div class="form-group col-sm-2 col-xs-3">
                         <div class="input-group date" data-provide="datepicker" data-date-format="yyyy-mm-dd"
                              data-date-language="zh-CN" data-date-clear-btn="true" data-date-autoclose="true">
@@ -53,7 +56,7 @@
                             <input type="text" class="form-control" v-model="searchArgs.endDate" placeholder="结束日期" readonly>
                         </div>
                     </div>
-                    <div class="col-sm-2 col-xs-3" v-show="selectStore.view">
+                    <div class="form-group col-sm-2 col-xs-3" v-show="selectStore.view">
                         <div class="input-group ">
                             <input type="hidden" class="form-control" v-model="searchArgs.storeId">
                             <input type="text" class="form-control" v-model="selectStore.name" placeholder="选择门店" readonly>
@@ -76,8 +79,8 @@
                 </div>
                 <span class="input-group-btn" slot="customButtons">
                     @*<a class="btn btn-warning btn-flat" href="/TransferOrder/Create">新 增</a>
-                    <button type="button" class="btn btn-success btn-flat" v-on:click="submitAudit()">提交待审</button>
-                    <button type="button" class="btn btn-danger btn-flat" v-on:click="remove()">作 废</button>*@
+                <button type="button" class="btn btn-success btn-flat" v-on:click="submitAudit()">提交待审</button>
+                <button type="button" class="btn btn-danger btn-flat" v-on:click="remove()">作 废</button>*@
                 </span>
             </vue-table>
         </div>
@@ -108,17 +111,23 @@
                     selectedId: 0,
                     searchQuery: '',
                     gridColumns: [
-                        { name: 'Code', localName: '调拨单号', style: "<a href='/TransferOrder/Detail/{id}'>{column}</a>" },
+                        { name: 'Code', localName: '调拨单号',width: '100', style: "<a href='/TransferOrder/Detail/{id}'>{column}</a>" },
                         { name: 'FromStoreName', localName: '调出门店' },
                         { name: 'ToStoreName', localName: '调入门店' },
-                        { name: 'TotalQuantity', localName: '数量', width: '80' },
-                        { name: 'TotalAmount', localName: '金额' },
-                         { name: 'StatusName', localName: '状态', width: '80' },
-                        { name: 'CreatedTime', localName: '创建日期', width: '160'  },
+                        { name: 'ProductCode', localName: '商品编码', width: '130'  },
+                        { name: 'BarCode', localName: '条码', width: '130'  },
+                        { name: 'ProductName', localName: '品名', width: '200' },
+                        { name: 'Specification', localName: '规格', width: '80'  },
+                        { name: 'Quantity', localName: '数量', width: '80' },
+                        { name: 'Price', localName: '进价', width: '80',sum:'' },
+                        { name: 'Amount', localName: '金额',width: '120',sum:'' },
+                        { name: 'StatusName', localName: '状态', width: '80' },
+                        { name: 'UpdatedTime', localName: '出/入库日期' },
+                        //{ name: 'CreatedTime', localName: '创建日期' },
                         { name: 'CreatedByName', localName: '创建人' }
                     ],
-                    url: "/TransferOrder/LoadData",
-                    searchArgs: { code: '',status:3,storeId: '@ViewBag.StoreId',from:null,to:null, startDate: '', endDate: '',productCodeOrBarCode:''  },
+                    url: "/TransferOrder/LoadFinishData",
+                    searchArgs: { code: '',status:3,storeId: '@ViewBag.StoreId',from:null,to:null, startDate: '', endDate: '',productCodeOrBarCode:'',productName:''  },
                     rows: [],
                     selectStore: {
                         modal: false,

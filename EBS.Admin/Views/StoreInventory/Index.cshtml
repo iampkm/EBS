@@ -61,6 +61,7 @@
                                     <span class="fa fa-caret-down"></span>
                                 </button>
                                 <ul class="dropdown-menu">
+                                    <li><a href="#" v-on:click.prevent="setOperate('')">All</a></li>
                                     <li><a href="#" v-on:click.prevent="setOperate('>')">></a></li>
                                     <li><a href="#" v-on:click.prevent="setOperate('=')">=</a></li>
                                     <li><a href="#" v-on:click.prevent="setOperate('>=')">>=</a></li>
@@ -117,7 +118,7 @@
                 { name: 'SaleAmount', localName: '售价金额',sum:'' ,width: '120'},
                 ],
                 url: "/StoreInventory/LoadData",
-                searchArgs: { supplierId: 0, storeId: '@ViewBag.StoreId', productCodeOrBarCode: '',productName:'',categoryId:'',quantity:0 ,operate:'>'},
+                searchArgs: { supplierId: 0, storeId: '@ViewBag.StoreId', productCodeOrBarCode: '',productName:'',categoryId:'',quantity:0 ,operate:''},
                 rows: [],
                 selectStore: {
                     modal: false,

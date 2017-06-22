@@ -392,5 +392,24 @@ namespace EBS.Admin.Controllers
             return Json(new { success = true });
         }
 
+
+        public ActionResult Summary()
+        {
+            SetUserAuthention();
+            ViewBag.ShowStatus = string.Format("{0},{1}", (int)PurchaseOrderStatus.Finished, (int)PurchaseOrderStatus.FinanceAuditd);
+            ViewBag.OrderTypes = typeof(OrderType).GetValueToDescription();
+            ViewBag.FinishedStatus = (int)PurchaseOrderStatus.Finished;
+            ViewBag.FinanceAuditd = (int)PurchaseOrderStatus.FinanceAuditd;
+            return View();
+        }
+
+        public JsonResult LoadSummayData(Pager page, SearchStorePurchaseOrder condition)
+        {
+            var rows = _storePurchaseOrderQuery.GetSummaryList(page, condition);
+
+            return Json(new { success = true, data = rows, total = page.Total, sum = page.SumColumns });
+        }
+       
+
     }
 }
