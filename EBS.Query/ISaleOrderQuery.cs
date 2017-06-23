@@ -9,7 +9,7 @@ namespace EBS.Query
    public interface ISaleOrderQuery
     {
         SaleOrderDto GetById(int id);
-        IEnumerable<SaleOrderDto> QuerySaleOrderItems(Pager page, SearchSaleOrder condition);
+        IEnumerable<SaleOrderListDto> QuerySaleOrderItems(Pager page, SearchSaleOrder condition);
 
         IEnumerable<SaleSummaryDto> QuerySaleSummary(Pager page, SearchSaleOrder condition);
 

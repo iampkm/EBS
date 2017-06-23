@@ -41,5 +41,9 @@ namespace EBS.Query.DTO
         /// </summary>
         public int PaymentWay { get; set; }
 
+        public string ProductCodeOrBarCode { get; set; }
+
+        public string ProductName { get; set; }
+
     }
 }

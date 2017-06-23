@@ -57,6 +57,7 @@ namespace EBS.Admin.Controllers
         public ActionResult Finish()
         {
             SetUserAuthention();
+            SetThisMonth();
             return View();
         }
 
@@ -77,7 +78,7 @@ namespace EBS.Admin.Controllers
         public JsonResult LoadFinishData(Pager page, SearchTransferOrder conditon)
         {
             var rows = _transaferQuery.GetFinishList(page, conditon);
-
+          
             return Json(new { success = true, data = rows, total = page.Total, sum = page.SumColumns });
         }
 
@@ -160,6 +161,8 @@ namespace EBS.Admin.Controllers
 
          public ActionResult Summary() 
          {
+             SetUserAuthention();
+             SetThisMonth();
              return View();
          }
 
@@ -168,6 +171,14 @@ namespace EBS.Admin.Controllers
              var rows = _transaferQuery.GetSummaryList(page, conditon);
 
              return Json(new { success = true, data = rows, total = page.Total, sum = page.SumColumns });
+         }
+
+         private void SetThisMonth() {
+             DateTime now = DateTime.Now;
+             DateTime monthBegin = new DateTime(now.Year, now.Month, 1);
+             DateTime monthEnd = monthBegin.AddMonths(1).AddDays(-1);
+             ViewBag.BeginDate = monthBegin.ToString("yyyy-MM-dd");
+             ViewBag.EndDate = monthEnd.ToString("yyyy-MM-dd");
          }
 
         

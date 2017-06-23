@@ -25,18 +25,24 @@
         <div class="box-body">
             <vue-table v-ref:vtable v-bind:columns="gridColumns"
                        v-bind:url="url"
-                       v-bind:args="searchArgs" v-bind:data.sync="rows" v-bind:show-pagination="true" v-bind:show-toolbar="true">
+                       v-bind:args="searchArgs" v-bind:data.sync="rows" v-bind:show-pagination="true" v-bind:show-toolbar="true" v-bind:show-sum="true" >
                 <div class="row" style="margin-bottom:10px;" slot="customSearch">
-                    <div class="col-xs-3 col-sm-2">
-                        <input class="form-control" v-model="searchArgs.nickName" placeholder="收银员姓名" debounce="500" />
-                    </div>
                     <div class="col-xs-3 col-sm-2">
                         <input class="form-control" v-model="searchArgs.code" placeholder="订单号" debounce="500" />
                     </div>
                     <div class="col-xs-3 col-sm-2">
+                        <input class="form-control" v-model="searchArgs.productCodeOrBarCode" placeholder="商品编码/条码" debounce="500" />
+                    </div>
+                    <div class="col-xs-3 col-sm-2">
+                        <input class="form-control" v-model="searchArgs.productName" placeholder="商品名称" debounce="100" />
+                    </div>
+                    <div class="col-xs-3 col-sm-2">
+                        <input class="form-control" v-model="searchArgs.nickName" placeholder="收银员姓名" debounce="500" />
+                    </div>                    
+                    <div class="form-group col-xs-3 col-sm-2">
                         <input class="form-control" v-model="searchArgs.posId" placeholder="收银机" debounce="500" />
                     </div>
-                    <div class="col-sm-2 col-xs-3" v-show="selectStore.view">
+                    <div class="form-group col-sm-2 col-xs-3" v-show="selectStore.view">
                         <div class="input-group ">
                             <input type="hidden" class="form-control" v-model="searchArgs.storeId">
                             <input type="text" class="form-control" v-model="selectStore.name" placeholder="选择门店" readonly>
@@ -46,7 +52,7 @@
                             </span>
                         </div>
                     </div>
-                    <div class="form-group col-sm-2 col-xs-3">
+                    @*<div class="form-group col-sm-2 col-xs-3">
                         <div class="input-group date" data-provide="datepicker" data-date-format="yyyy-mm-dd"
                              data-date-language="zh-CN" data-date-clear-btn="true" data-date-autoclose="true">
                             <div class="input-group-addon">
@@ -65,7 +71,7 @@
                             </div>
                             <input type="text" class="form-control" v-model="searchArgs.wrokTo" readonly debounce="500">
                         </div>
-                    </div>
+                    </div>*@
                     <div class="form-group col-sm-2 col-xs-3">
                         <div class="input-group date" data-provide="datepicker" data-date-format="yyyy-mm-dd"
                              data-date-language="zh-CN" data-date-clear-btn="true" data-date-autoclose="true">
@@ -136,20 +142,24 @@
             el: '#app',
             data: {
                 modal: false,
-                selectedId: 0,
-                removeReason: '',
-                searchQuery: '',
                 gridColumns: [
                     { name: 'NickName', localName: '收银员', width: '100' },
                     { name: 'StoreName', localName: '门店' },
                     { name: 'PosId', localName: '收银机', width: '80' },
-                    { name: 'Code', localName: '订单号', style: "<a href='/SaleOrder/Details/{id}'>{column}</a>" , width: '180'},
-                    { name: 'UpdatedOn', localName: '销售日期', width: '200' },
-                    { name: 'OrderAmount', localName: '销售金额' , width: '100' },
-                    { name: 'PaymentWayName', localName: '付款方式' },
-                    { name: 'StatusName', localName: '状态' },
-                    { name: 'OrderTypeName', localName: '订单类型' },
-                    { name: 'OrderLevelName', localName: '订单级别' },
+                    { name: 'Code', localName: '订单号', style: "<a href='/SaleOrder/Details/{id}'>{column}</a>" , width: '160'},
+                    { name: 'ProductCodeAndBarCode', localName: '编码/条码', width: '200'  },
+                    { name: 'ProductName', localName: '品名', width: '200' },
+                    { name: 'Specification', localName: '规格', width: '80'  },
+                    { name: 'Quantity', localName: '数量', width: '80',sum:''  },
+                    { name: 'AvgCostPrice', localName: '均价成本', width: '100'},
+                    { name: 'CostAmount', localName: '成本金额', width: '100',sum:'' },
+                    { name: 'RealPrice', localName: '售价', width: '80' },
+                    { name: 'Amount', localName: '售价金额',width: '100',sum:'' },
+                    { name: 'UpdatedOn', localName: '销售日期', width: '200' },                  
+                    { name: 'PaymentWayName', localName: '付款方式', width: '100'  },
+                    { name: 'StatusName', localName: '状态', width: '80'  },
+                    { name: 'OrderTypeName', localName: '订单类型', width: '100'  },
+                    { name: 'OrderLevelName', localName: '订单级别' , width: '100' },
                 ],
                 url: "/SaleOrder/QuerySaleOrderItems",
                 searchArgs: { code: '', nickName: '', storeId: @ViewBag.StoreId, wrokFrom: '',workTo:'',from:'@ViewBag.today',to:'@ViewBag.today' ,posId:null,orderLevel:0,paymentWay:0},
@@ -160,48 +170,7 @@
                     view: @ViewBag.View,
                 }
             },
-            methods: {
-                remove: function () {
-                    var selectRow = this.rows.filter(function (item, index) {
-                        if (item.checked) {
-                            return true;
-                        }
-                    });
-                    if (selectRow.length == 0) {
-                        bootbox.alert("请选择一条记录");
-                        return;
-                    }
-                    this.selectedId = selectRow[0].Id;
-                    this.modal = true;
-                },
-                callback: function () {
-                    var v_self = this;
-                    var selectId = v_self.selectedId;
-                    var remark = v_self.removeReason;
-                    $.post("/SaleOrder/Delete", { id: selectId, reason: remark }, function (result) {
-                        if (result.success) {
-                            v_self.$refs.vtable.loadData();
-                            v_self.modal = false;
-                        }
-                        else {
-                            bootbox.alert(result.error);
-                        }
-                    }, "json");
-                },
-                submitAudit: function () {
-                    var selectRow = this.rows.filter(function (item, index) {
-                        if (item.checked) {
-                            return true;
-                        }
-                    });
-                    if (selectRow.length == 0) {
-                        bootbox.alert("请选择一条记录");
-                        return;
-                    }
-                    var selectId = selectRow[0].Id;
-                    window.location.href="/SaleOrder/WaitStockIn/"+selectId;
-
-                },
+            methods: {                
                 showStore: function () {
                     this.selectStore.modal = true;
                 },

@@ -1315,6 +1315,7 @@
     <Content Include="Views\SaleOrder\SingleProductSale.cshtml" />
     <Content Include="Views\SaleOrder\SaleReport.cshtml" />
     <Content Include="Views\StorePurchaseOrder\Summary.cshtml" />
+    <Content Include="Views\TransferOrder\Summary.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">

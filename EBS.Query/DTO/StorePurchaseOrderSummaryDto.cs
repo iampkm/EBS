@@ -9,6 +9,7 @@ namespace EBS.Query.DTO
    public class StorePurchaseOrderSummaryDto
     {
        public string StoreName { get; set; }
+       public string SupplierName { get; set; }
 
        /// <summary>
        /// 订购数合计

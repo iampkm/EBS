@@ -28,7 +28,7 @@ namespace EBS.Admin.Controllers
         // GET: /SaleOrder/
         public ActionResult Index()
         {
-            ViewBag.today = DateTime.Now.ToString("yyyy-MM-dd");
+           // ViewBag.today = DateTime.Now.ToString("yyyy-MM-dd");
             SetUserAuthention();
             return View();
         }
@@ -53,7 +53,7 @@ namespace EBS.Admin.Controllers
         {
             var rows = _saleOrderQuery.QuerySaleOrderItems(page, condition);
 
-            return Json(new { success = true, data = rows, total = page.Total });
+            return Json(new { success = true, data = rows, total = page.Total, sum = page.SumColumns });
         }
 
         /// <summary>

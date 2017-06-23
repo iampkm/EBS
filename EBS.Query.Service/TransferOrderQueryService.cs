@@ -254,36 +254,11 @@ where 1=1 {0} ";
         {
             dynamic param = new ExpandoObject();
             string where = "";
-            if (!string.IsNullOrEmpty(condition.Code))
-            {
-                where += "and o.Code=@Code ";
-                param.Code = condition.Code;
-            }
-            if (condition.Status != 0)
-            {
-                where += "and o.Status=@Status ";
-                param.Status = condition.Status;
-            }
+           
             if (!string.IsNullOrEmpty(condition.StoreId) && condition.StoreId != "0")
             {
-                if (condition.From.HasValue && condition.To.HasValue && condition.From.Value && condition.To.Value || !condition.From.HasValue && !condition.To.HasValue)
-                {
-                    where += "and ( o.FromStoreId in @StoreId or o.ToStoreId in @StoreId ) ";
-                    param.StoreId = condition.StoreId.Split(',').ToIntArray();
-                }
-                else
-                {
-                    if (condition.From.HasValue && condition.From.Value)
-                    {
-                        where += "and o.FromStoreId in @StoreId ";
-                        param.StoreId = condition.StoreId.Split(',').ToIntArray();
-                    }
-                    if (condition.To.HasValue && condition.To.Value)
-                    {
-                        where += "and o.ToStoreId in @StoreId ";
-                        param.StoreId = condition.StoreId.Split(',').ToIntArray();
-                    }
-                }
+                where += "and o.StoreId in @StoreId ";
+                param.StoreId = condition.StoreId.Split(',').ToIntArray();
             }
 
             if (condition.StartDate.HasValue)
@@ -296,18 +271,18 @@ where 1=1 {0} ";
                 where += "and o.CreatedOn < @EndDate ";
                 param.EndDate = condition.EndDate.Value.AddDays(1);
             }
-            if (!string.IsNullOrEmpty(condition.ProductCodeOrBarCode))
-            {
-                where += @"and ( p.code=@ProductCodeOrBarCode or p.barcode =@ProductCodeOrBarCode  ) ";
-                param.ProductCodeOrBarCode = condition.ProductCodeOrBarCode;
-            }
-            if (!string.IsNullOrEmpty(condition.ProductName))
-            {
-                where += "and p.Name like @ProductName ";
-                param.ProductName = string.Format("%{0}%", condition.ProductName);
-            }
+            //if (!string.IsNullOrEmpty(condition.ProductCodeOrBarCode))
+            //{
+            //    where += @"and ( p.code=@ProductCodeOrBarCode or p.barcode =@ProductCodeOrBarCode  ) ";
+            //    param.ProductCodeOrBarCode = condition.ProductCodeOrBarCode;
+            //}
+            //if (!string.IsNullOrEmpty(condition.ProductName))
+            //{
+            //    where += "and p.Name like @ProductName ";
+            //    param.ProductName = string.Format("%{0}%", condition.ProductName);
+            //}
 
-            string sql = @"select s.`Name` as StoreName,t.* from ( 
+            string sql = @"select s.`Name` as StoreName,t.InQuantity,t.InAmount,t.OutQuantity,t.OutAmount,t.InQuantity+t.OutQuantity as DifferenceQuantity,t.InAmount+t.OutAmount as DifferenceAmount from ( 
 select StoreId,
 sum(case when ChangeQuantity<0 then ChangeQuantity end) OutQuantity,sum(case when ChangeQuantity<0 then price* ChangeQuantity end) OutAmount,
 sum(case when ChangeQuantity>=0 then ChangeQuantity end) InQuantity,sum(case when ChangeQuantity>=0 then price* ChangeQuantity end) InAmount from storeinventoryhistory o 
@@ -317,19 +292,26 @@ GROUP BY storeid ORDER BY o.Id desc
 left join store s on s.id = t.storeid  LIMIT {1},{2}";
             //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<Product>(where, param);
             sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
-            var rows = this._query.FindAll<TransferOrderListDto>(sql, param);
-//            string sqlSum = @"
-//select count(*) as TotalCount,sum(i.Quantity) as Quantity,sum(i.Price* i.Quantity) as Amount 
-//from transferorder o 
-//inner join transferorderitem i on o.Id = i.TransferOrderId 
-//left join product p on p.Id = i.ProductId
-//where 1=1 {0} ";
+            var rows = this._query.FindAll<TransferOrderSummaryDto>(sql, param);
+            string sqlSum = @"
+select count(*) as TotalCount,sum(t.InQuantity) as InQuantity,sum(InAmount) as InAmount, sum(t.OutQuantity) as OutQuantity,sum(OutAmount) as OutAmount,sum(t.InQuantity+t.OutQuantity) as DifferenceQuantity,sum(t.InAmount+t.OutAmount) as DifferenceAmount
+from ( 
+select 
+sum(case when ChangeQuantity<0 then ChangeQuantity end) OutQuantity,sum(case when ChangeQuantity<0 then price* ChangeQuantity end) OutAmount,
+sum(case when ChangeQuantity>=0 then ChangeQuantity end) InQuantity,sum(case when ChangeQuantity>=0 then price* ChangeQuantity end) InAmount from storeinventoryhistory o 
+where BillType=60 {0}  
+GROUP BY storeid ORDER BY o.Id desc
+) t ";
 
-            //sqlSum = string.Format(sqlSum, where);
-            //var sumStoreInventory = this._query.Find<SumTransferOrder>(sqlSum, param) as SumTransferOrder;
-            //page.Total = sumStoreInventory.TotalCount;
-            //page.SumColumns.Add(new SumColumn("Quantity", sumStoreInventory.Quantity.ToString()));
-            //page.SumColumns.Add(new SumColumn("Amount", sumStoreInventory.Amount.ToString("F4")));
+            sqlSum = string.Format(sqlSum, where);
+            var sumStoreInventory = this._query.Find<SumTransferOrderSummary>(sqlSum, param) as SumTransferOrderSummary;
+            page.Total = sumStoreInventory.TotalCount;
+            page.SumColumns.Add(new SumColumn("InQuantity", sumStoreInventory.InQuantity.ToString()));
+            page.SumColumns.Add(new SumColumn("InAmount", sumStoreInventory.InAmount.ToString("F4")));
+            page.SumColumns.Add(new SumColumn("OutQuantity", sumStoreInventory.OutQuantity.ToString()));
+            page.SumColumns.Add(new SumColumn("OutAmount", sumStoreInventory.OutAmount.ToString("F4")));
+            page.SumColumns.Add(new SumColumn("DifferenceQuantity", sumStoreInventory.DifferenceQuantity.ToString()));
+            page.SumColumns.Add(new SumColumn("DifferenceAmount", sumStoreInventory.DifferenceAmount.ToString("F4")));
             return rows;
         }
     }

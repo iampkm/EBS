@@ -72,6 +72,7 @@
     <Compile Include="DTO\SaleCheckDto.cs" />
     <Compile Include="DTO\SaleOrderDto.cs" />
     <Compile Include="DTO\SaleOrderItemDto.cs" />
+    <Compile Include="DTO\SaleOrderListDto.cs" />
     <Compile Include="DTO\SaleReportDto.cs" />
     <Compile Include="DTO\SaleSummaryDto.cs" />
     <Compile Include="DTO\SaleSyncDto.cs" />
@@ -110,10 +111,12 @@
     <Compile Include="DTO\StorePurchaseOrderSummaryDto.cs" />
     <Compile Include="DTO\StoreTreeNode.cs" />
     <Compile Include="DTO\SumPurchaseSaleInventory.cs" />
+    <Compile Include="DTO\SumSaleOrder.cs" />
     <Compile Include="DTO\SumSaleReport.cs" />
     <Compile Include="DTO\SumStoreInventory.cs" />
     <Compile Include="DTO\SumStorePurchaseOrder.cs" />
     <Compile Include="DTO\SumTransferOrder.cs" />
+    <Compile Include="DTO\SumTransferOrderSummary.cs" />
     <Compile Include="DTO\SumWorkSchedule.cs" />
     <Compile Include="DTO\SupplierDto.cs" />
     <Compile Include="DTO\SupplierProductDto.cs" />

@@ -37,6 +37,10 @@ namespace EBS.Query.DTO
        public DateTime? StoragedEnd { get; set; }
 
        public string ProductName { get; set; }
+       /// <summary>
+       /// 分组方式
+       /// </summary>
+       public string GroupBy { get; set; } 
 
     }
 }

@@ -119,6 +119,17 @@
                         </div>
                     </div>
                 </div>
+                <div class="row" slot="customSearch">
+                    <div class="col-xs-6 col-sm-6">
+                        <label>汇总方式：</label>
+                        <div class="btn-group " role="group" aria-label="..." >
+                            <button type="button" class="btn btn-success" v-on:click="setGroupBy('Store')">门店</button>
+                            <button type="button" class="btn btn-success" v-on:click="setGroupBy('Supplier')">供应商</button>
+                            <button type="button" class="btn btn-success" v-on:click="setGroupBy('StoreAndSupplier')">门店和供应商</button>
+                        </div>                       
+                    </div> 
+                                      
+                </div>
                 <span class="input-group-btn" slot="customButtons">
                     @*<button type="button" class="btn btn-warning btn-flat" v-on:click="submitAudit()">审核</button>*@
                 </span>
@@ -167,7 +178,7 @@
             'v-modal': VueStrap.modal,
             'v-input': VueStrap.input,
             'button-group':VueStrap.buttonGroup,
-            'v-checkbox':VueStrap.checkbox
+            'v-checkbox':VueStrap.checkbox,
         },
         el: '#app',
         data: {
@@ -176,14 +187,15 @@
             removeReason: '',
             searchQuery: '',
             gridColumns: [           
-            { name: 'StoreName', localName: '门店' },           
+            { name: 'StoreName', localName: '门店' },   
+            { name: 'SupplierName', localName: '供应商',width:'350' },    
             { name: 'Quantity', localName: '订货数', sum:'' },         
             { name: 'ActualQuantity', localName: '实收数',sum:'',style:"<span class='text-primary'><strong>{column}</strong></span>" },           
             { name: 'Amount', localName: '实收金额',sum:'' },
             ],
             url: "/StorePurchaseOrder/LoadSummayData",
             searchArgs: { code: '', supplierId: 0, storeId: '@ViewBag.StoreId', status:'@ViewBag.ShowStatus',
-                productCodeOrBarCode:'',orderType:0,startDate: '', endDate: '',storagedBegin:'',storagedEnd:'',productName:'' },
+                productCodeOrBarCode:'',orderType:0,startDate: '', endDate: '',storagedBegin:'',storagedEnd:'',productName:'',groupBy:'StoreAndSupplier' },
             rows: [],
             selectSupplier: {
                 modal: false,
@@ -203,57 +215,23 @@
                 view: @ViewBag.View,
             },
             checkFinished:null,
-            checkFinanceAuditd:null,
+            checkFinanceAuditd:null,            
             },
-        methods: {
-            remove: function () {
-                var selectRow = this.rows.filter(function (item, index) {
-                    if (item.checked) {
-                        return true;
+        methods: { 
+            setGroupBy:function(groupByName){
+                this.searchArgs.groupBy = groupByName;
+                this.gridColumns.forEach(function (column, i) {
+                    column.visible = true;  //先重置为true
+                    //再根据分组影藏列
+                    if(groupByName=="Store"&&column.name=="SupplierName")
+                    {
+                        column.visible = false;
+                    }
+                    if(groupByName=="Supplier"&&column.name=="StoreName")
+                    {
+                        column.visible = false;
                     }
                 });
-                if (selectRow.length == 0) {
-                    bootbox.alert("请选择一条记录");
-                    return;
-                }
-                this.selectedId = selectRow[0].Id;
-                this.modal = true;
-            },
-            callback: function () {
-                var v_self = this;
-                var selectId = v_self.selectedId;
-                var remark = v_self.removeReason;
-                $.post("/StorePurchaseOrder/Delete", { id: selectId, reason: remark }, function (result) {
-                    if (result.success) {
-                        v_self.$refs.vtable.loadData();
-                        v_self.modal = false;
-                    }
-                    else {
-                        bootbox.alert(result.error);
-                    }
-                }, "json");
-            },
-            submitAudit: function () {
-                var selectRow = this.rows.filter(function (item, index) {
-                    if (item.checked) {
-                        return true;
-                    }
-                });
-                if (selectRow.length == 0) {
-                    bootbox.alert("请选择一条记录");
-                    return;
-                }
-                var selectId = selectRow[0].Id;
-                var _self = this;
-                $.post("/StorePurchaseOrder/FinanceAuditd", { id:selectId }, function (result) {
-                    if (result.success) {
-                        v_self.$refs.vtable.loadData();
-                    }
-                    else {
-                        bootbox.alert(result.error);
-                    }
-                }, "json");
-
             },
             showSupplier: function () {
                 this.selectSupplier.modal = true;

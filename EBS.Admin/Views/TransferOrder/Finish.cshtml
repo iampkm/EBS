@@ -127,7 +127,8 @@
                         { name: 'CreatedByName', localName: '创建人' }
                     ],
                     url: "/TransferOrder/LoadFinishData",
-                    searchArgs: { code: '',status:3,storeId: '@ViewBag.StoreId',from:null,to:null, startDate: '', endDate: '',productCodeOrBarCode:'',productName:''  },
+                    searchArgs: { code: '',status:3,storeId: '@ViewBag.StoreId',from:null,to:null, startDate: '@ViewBag.BeginDate', endDate: '@ViewBag.EndDate',
+                        productCodeOrBarCode:'',productName:''  },
                     rows: [],
                     selectStore: {
                         modal: false,

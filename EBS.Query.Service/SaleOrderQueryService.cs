@@ -35,7 +35,7 @@ product p on i.ProductId=p.Id where i.SaleOrderId=@OrderId";
             return model;
         }
 
-        public IEnumerable<SaleOrderDto> QuerySaleOrderItems(Pager page, SearchSaleOrder condition)
+        public IEnumerable<SaleOrderListDto> QuerySaleOrderItems(Pager page, SearchSaleOrder condition)
         {
             dynamic param = new ExpandoObject();
             string where = "";
@@ -90,29 +90,46 @@ product p on i.ProductId=p.Id where i.SaleOrderId=@OrderId";
                 where += " and o.PaymentWay=@PaymentWay ";
                 param.PaymentWay = condition.PaymentWay;
             }
+            if (!string.IsNullOrEmpty(condition.ProductCodeOrBarCode))
+            {
+                where += string.Format("and (p.Code=@ProductCodeOrBarCode or p.BarCode=@ProductCodeOrBarCode) ", condition.ProductCodeOrBarCode);
+                param.ProductCodeOrBarCode = condition.ProductCodeOrBarCode;
+            }
+            if (!string.IsNullOrEmpty(condition.ProductName))
+            {
+                where += "and p.Name like @ProductName ";
+                param.ProductName = string.Format("%{0}%", condition.ProductName);
+            }
             string sql = @"select  o.Id, o.`Code`,o.PosId,o.OrderType,o.`Status`,o.OrderAmount,o.PayAmount,o.OnlinePayAmount,o.PaymentWay,o.PaidDate,o.UpdatedOn,o.OrderLevel,
-a.NickName,s.Name as StoreName from saleorder o 
+a.NickName,s.Name as StoreName,i.ProductCode,i.ProductName,i.ProductId,i.Quantity,i.RealPrice,i.AvgCostPrice,i.RealPrice*i.Quantity as Amount,i.AvgCostPrice*i.Quantity as CostAmount,p.BarCode,p.Specification
+from saleorder o 
+INNER JOIN saleorderitem i on o.Id = i.SaleOrderId
+left join product p on p.Id = i.ProductId
 left join store s on s.Id= o.StoreId 
 left join account a on a.Id = o.CreatedBy
-left join workschedule w on o.WorkScheduleCode = w.Code
 where 1=1 {0} ORDER BY o.Id desc LIMIT {1},{2}";
-            //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<Product>(where, param);
+
             if (string.IsNullOrEmpty(where))
             {
                 page.Total = 0;
-                return new List<SaleOrderDto>();
+                return new List<SaleOrderListDto>();
             }
-            //sql = string.Format(sql, where);
-            sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
-            var rows = this._query.FindAll<SaleOrderDto>(sql, param) as IEnumerable<SaleOrderDto>;
 
-            string sqlCount = @"select count(*) from saleorder o 
+            sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
+            var rows = this._query.FindAll<SaleOrderListDto>(sql, param) as IEnumerable<SaleOrderListDto>;
+            var sqlSum = @"select count(*) TotalCount,sum(i.Quantity) Quantity,sum(i.RealPrice*i.Quantity) Amount,sum(i.AvgCostPrice*i.Quantity) as CostAmount
+from saleorder o 
+INNER JOIN saleorderitem i on o.Id = i.SaleOrderId
+left join product p on p.Id = i.ProductId
 left join store s on s.Id= o.StoreId 
 left join account a on a.Id = o.CreatedBy
-left join workschedule w on o.WorkScheduleCode = w.Code
-where 1=1 {0} ORDER BY o.Id desc ";
-            sqlCount = string.Format(sqlCount, where);
-            page.Total = this._query.Context.ExecuteScalar<int>(sqlCount, param);
+where 1=1 {0} ";
+            sqlSum = string.Format(sqlSum, where);
+            var sumStoreInventory = this._query.Find<SumSaleOrder>(sqlSum, param) as SumSaleOrder;
+            page.Total = sumStoreInventory.TotalCount;
+            page.SumColumns.Add(new SumColumn("Quantity", sumStoreInventory.Quantity.ToString()));
+            page.SumColumns.Add(new SumColumn("CostAmount", sumStoreInventory.CostAmount.ToString("F4")));
+            page.SumColumns.Add(new SumColumn("Amount", sumStoreInventory.Amount.ToString("F2")));
 
             return rows;
         }
@@ -471,6 +488,15 @@ left join store s on s.id = t.storeid where 1=1 {1}";
                 where += "and r.OrderLevel = @OrderLevel ";
                 param.OrderLevel = condition.OrderLevel;
             }
+
+//            select s.`name`,OrderCount,SaleQuantity,SaleCostAmount,SaleAmount from (
+//select r.storeId,count(DISTINCT r.billCode) as OrderCount,sum(r.changeQuantity) as SaleQuantity,sum(r.Price*r.changeQuantity) as SaleCostAmount,sum(r.Price*r.changeQuantity) as SaleAmount 
+//from storeinventoryhistory r left join product p on p.id = r.productId 
+//left join category c on c.Id = p.CategoryId
+//left join brand b on b.Id = p.BrandId
+//where r.BillType in (1,2)  
+//GROUP BY r.StoreId  ) t
+//LEFT JOIN store s on s.id = t.StoreId  limit 0,50
 
             //按分组组装sql
             var sql = "";

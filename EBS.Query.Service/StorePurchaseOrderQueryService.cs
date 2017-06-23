@@ -400,7 +400,34 @@ where 1=1 {0} ";
                 where += "and p.Name like @ProductName ";
                 param.ProductName = string.Format("%{0}%", condition.ProductName);
             }
-            string sql = @"select t2.Name AS StoreName,t.* from (
+            if (string.IsNullOrEmpty(condition.GroupBy))
+            {
+                throw new Exception("请选择分组方式");
+            }
+            string sql = "";
+            string sqlSum = "";
+            switch (condition.GroupBy)
+            {
+                case "Store":
+                    sql = @"select t2.Name AS StoreName,t.* from (
+select t0.StoreId,
+sum(case when t0.OrderType=2 then  -i.Quantity
+         when t0.OrderType=1 then i.Quantity end) as Quantity ,
+sum(case when t0.OrderType=2 then  -i.ActualQuantity
+         when t0.OrderType=1 then i.ActualQuantity end ) as ActualQuantity ,
+sum(case when t0.OrderType=2 then  i.Price* -i.ActualQuantity
+         when t0.OrderType=1 then i.Price* i.ActualQuantity end 
+) as Amount  
+from storepurchaseorder t0 
+inner join storepurchaseorderitem i on t0.Id = i.storepurchaseOrderId
+left join product p on p.Id = i.ProductId 
+where 1=1 {0} 
+GROUP BY t0.StoreId  ORDER BY t0.Id desc 
+ ) t
+LEFT JOIN store t2 on t2.Id = t.StoreId order by t2.Id LIMIT {1},{2} ";
+
+                    // 统计列
+                    sqlSum = @"select count(*) as TotalCount,sum(t.Quantity) as Quantity,sum(t.ActualQuantity) as ActualQuantity,sum(t.Amount) as Amount from (
 select t0.StoreId,
 sum(case when t0.OrderType=2 then  -i.Quantity
          when t0.OrderType=1 then i.Quantity end) as Quantity ,
@@ -412,34 +439,92 @@ sum(case when t0.OrderType=2 then  i.Price* -i.ActualQuantity
 from storepurchaseorder t0 
 inner join storepurchaseorderitem i on t0.Id = i.storepurchaseOrderId
 left join product p on p.Id = i.ProductId
-left join supplier t1 on t0.SupplierId = t1.Id 
 where 1=1 {0} 
-GROUP BY t0.StoreId  ORDER BY t0.Id desc 
+GROUP BY t0.StoreId 
  ) t
-LEFT JOIN store t2 on t2.Id = t.StoreId  LIMIT {1},{2} ";
+LEFT JOIN store t2 on t2.Id = t.StoreId ";
+                    break;
+                case "Supplier":
+                    sql = @"select t2.Name AS SupplierName,t.* from (
+select t0.SupplierId,
+sum(case when t0.OrderType=2 then  -i.Quantity
+         when t0.OrderType=1 then i.Quantity end) as Quantity ,
+sum(case when t0.OrderType=2 then  -i.ActualQuantity
+         when t0.OrderType=1 then i.ActualQuantity end ) as ActualQuantity ,
+sum(case when t0.OrderType=2 then  i.Price* -i.ActualQuantity
+         when t0.OrderType=1 then i.Price* i.ActualQuantity end 
+) as Amount  
+from storepurchaseorder t0 
+inner join storepurchaseorderitem i on t0.Id = i.storepurchaseOrderId
+left join product p on p.Id = i.ProductId 
+where 1=1 {0} 
+GROUP BY t0.SupplierId  ORDER BY t0.Id desc 
+ ) t
+LEFT JOIN Supplier t2 on t2.Id = t.SupplierId order by t2.Id LIMIT {1},{2} ";
+
+                    // 统计列
+                    sqlSum = @"select count(*) as TotalCount,sum(t.Quantity) as Quantity,sum(t.ActualQuantity) as ActualQuantity,sum(t.Amount) as Amount from (
+select t0.SupplierId,
+sum(case when t0.OrderType=2 then  -i.Quantity
+         when t0.OrderType=1 then i.Quantity end) as Quantity ,
+sum(case when t0.OrderType=2 then  -i.ActualQuantity
+         when t0.OrderType=1 then i.ActualQuantity end ) as ActualQuantity ,
+sum(case when t0.OrderType=2 then  i.Price* -i.ActualQuantity
+         when t0.OrderType=1 then i.Price* i.ActualQuantity end 
+) as Amount  
+from storepurchaseorder t0 
+inner join storepurchaseorderitem i on t0.Id = i.storepurchaseOrderId
+left join product p on p.Id = i.ProductId
+where 1=1 {0} 
+GROUP BY t0.SupplierId 
+ ) t
+Left join Supplier t2 on t2.Id = t.SupplierId
+";
+                    break;
+                case "StoreAndSupplier":
+                    sql = @"select t2.Name as StoreName,t3.Name AS SupplierName,t.* from (
+select t0.StoreId,t0.SupplierId,
+sum(case when t0.OrderType=2 then  -i.Quantity
+         when t0.OrderType=1 then i.Quantity end) as Quantity ,
+sum(case when t0.OrderType=2 then  -i.ActualQuantity
+         when t0.OrderType=1 then i.ActualQuantity end ) as ActualQuantity ,
+sum(case when t0.OrderType=2 then  i.Price* -i.ActualQuantity
+         when t0.OrderType=1 then i.Price* i.ActualQuantity end 
+) as Amount  
+from storepurchaseorder t0 
+inner join storepurchaseorderitem i on t0.Id = i.storepurchaseOrderId
+left join product p on p.Id = i.ProductId 
+where 1=1 {0} 
+GROUP BY t0.StoreId,t0.SupplierId  
+ ) t
+LEFT JOIN Store t2 on t2.Id = t.StoreId 
+Left join Supplier t3 on t3.Id = t.SupplierId order by t2.Id,t3.Id LIMIT {1},{2} ";
+
+                    // 统计列
+                    sqlSum = @"select count(*) as TotalCount,sum(t.Quantity) as Quantity,sum(t.ActualQuantity) as ActualQuantity,sum(t.Amount) as Amount from (
+select t0.StoreId,t0.SupplierId, 
+sum(case when t0.OrderType=2 then  -i.Quantity
+         when t0.OrderType=1 then i.Quantity end) as Quantity ,
+sum(case when t0.OrderType=2 then  -i.ActualQuantity
+         when t0.OrderType=1 then i.ActualQuantity end ) as ActualQuantity ,
+sum(case when t0.OrderType=2 then  i.Price* -i.ActualQuantity
+         when t0.OrderType=1 then i.Price* i.ActualQuantity end 
+) as Amount  
+from storepurchaseorder t0 
+inner join storepurchaseorderitem i on t0.Id = i.storepurchaseOrderId
+left join product p on p.Id = i.ProductId
+where 1=1 {0} 
+GROUP BY t0.StoreId,t0.SupplierId 
+ ) t
+LEFT JOIN store t2 on t2.Id = t.StoreId
+Left join Supplier t3 on t3.Id = t.SupplierId ";
+                    break;
+            }
 
             sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
             var rows = this._query.FindAll<StorePurchaseOrderSummaryDto>(sql, param);
 
-            // 统计列
-            string sqlSum = @"select count(*) as TotalCount,sum(t.Quantity) as Quantity,sum(t.ActualQuantity) as ActualQuantity,sum(t.Amount) as Amount from (
-select t0.StoreId,
-sum(case when t0.OrderType=2 then  -i.Quantity
-         when t0.OrderType=1 then i.Quantity end) as Quantity ,
-sum(case when t0.OrderType=2 then  -i.ActualQuantity
-         when t0.OrderType=1 then i.ActualQuantity end ) as ActualQuantity ,
-sum(case when t0.OrderType=2 then  i.Price* -i.ActualQuantity
-         when t0.OrderType=1 then i.Price* i.ActualQuantity end 
-) as Amount  
-from storepurchaseorder t0 
-inner join storepurchaseorderitem i on t0.Id = i.storepurchaseOrderId
-left join product p on p.Id = i.ProductId
-left join supplier t1 on t0.SupplierId = t1.Id 
-where 1=1 {0} 
-GROUP BY t0.StoreId 
- ) t
-LEFT JOIN store t2 on t2.Id = t.StoreId
-";
+            
             sqlSum = string.Format(sqlSum, where);
             var sumStoreInventory = this._query.Find<SumStorePurchaseOrder>(sqlSum, param) as SumStorePurchaseOrder;
             page.Total = sumStoreInventory.TotalCount;
