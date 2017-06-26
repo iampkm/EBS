@@ -114,7 +114,8 @@
                             @*<a class="btn btn-warning btn-flat" href="/SaleOrder/Create">新 增</a>
                 <a class="btn btn-primary btn-flat" href="/SaleOrder/CreateGift">新增赠品单</a>
                 <button type="button" class="btn btn-danger btn-flat" v-on:click="remove()">作 废</button>*@
-                            <button type="button" class="btn btn-warning btn-flat" v-on:click="generate()" v-show="@ViewBag.IsAdmin">生成日期范围销售数据</button>
+                            <button type="button" class="btn btn-warning btn-flat" v-on:click="generate()" v-show="@ViewBag.IsAdmin" v-bind:disabled="isSubmit">生成日期范围销售数据</button>
+                            <button type="button" class="btn btn-primary btn-flat" v-on:click="proofread()">销售对账</button>
                         </span>
                     </vue-table>
                 </div>
@@ -179,7 +180,7 @@
                     { name: 'SaleCostAmount', localName: '销售成本',sum:''},
                     { name: 'SaleAmount', localName: '销售金额' ,sum:'' },
                     { name: 'ProfitAmount', localName: '毛利额',sum:'' },
-                    { name: 'ProfitPercent', localName: '毛利率',style:'{column}%',sum:'' },
+                    { name: 'ProfitPercent', localName: '毛利率',style:'{column}%',sum:'' },                   
                 ],
                 url: "/SaleOrder/QuerySaleReport",
                 searchArgs: { productCodeOrBarCode: '', storeId: '@ViewBag.StoreId', startDate: '@ViewBag.Today',endDate:'@ViewBag.Today',categoryId:'',categoryLevel:1,brandId:0,groupBy:0},
@@ -200,6 +201,7 @@
                     searchArgs: { name: '' },
                     rows: []
                 },
+                isSubmit:false
 
             },
             methods: {                
@@ -214,6 +216,7 @@
                         beginDate:beginDate,
                         endDate:endDate
                     }
+                    v_self.isSubmit = true;
                     $.post("/SaleOrder/GenerateSaleReport", posData, function (result) {
                         if (result.success) {
                             v_self.$refs.vtable.loadData();                           
@@ -221,6 +224,7 @@
                         else {
                             bootbox.alert(result.error);
                         }
+                        v_self.isSubmit = false;
                     }, "json");
                 },               
                 showStore: function () {
@@ -270,6 +274,28 @@
                         this.selectBrand.modal = false;
                     }
                 },
+                proofread:function(){
+                    var v_self = this;
+                    var beginDate =v_self.searchArgs.startDate;
+                    var endDate =v_self.searchArgs.endDate;   
+                    if(beginDate==''){ bootbox.alert("请输入开始日期");return ;}
+                    if(endDate==''){ bootbox.alert("请输入结束日期");return ;}
+                    var remark = v_self.removeReason;
+                    var posData ={
+                        beginDate:beginDate,
+                        endDate:endDate
+                    }
+                    v_self.isSubmit = true;
+                    $.post("/SaleOrder/Proofread", posData, function (result) {
+                        if (result.success) {
+                            v_self.$refs.vtable.loadData();                           
+                        }
+                        else {
+                            bootbox.alert(result.error);
+                        }
+                        v_self.isSubmit = false;
+                    }, "json");
+                }
             },
             computed: {
                 displayCategoryLevel:function(){

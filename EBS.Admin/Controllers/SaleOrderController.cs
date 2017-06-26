@@ -175,5 +175,10 @@ namespace EBS.Admin.Controllers
             _saleReportFacade.Create(beginDate, endDate);
             return Json(new { success = true });
         }
+
+        public JsonResult Proofread(DateTime beginDate, DateTime endDate)
+        {
+            return Json(new { success = true });
+        }
     }
 }
