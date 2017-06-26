@@ -28,7 +28,7 @@ namespace EBS.Admin.Controllers
         // GET: /SaleOrder/
         public ActionResult Index()
         {
-           // ViewBag.today = DateTime.Now.ToString("yyyy-MM-dd");
+            ViewBag.today = DateTime.Now.ToString("yyyy-MM-dd");
             SetUserAuthention();
             return View();
         }
