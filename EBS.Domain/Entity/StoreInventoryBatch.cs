@@ -65,5 +65,10 @@ namespace EBS.Domain.Entity
         public long BatchNo { get; set; }
         public DateTime CreatedOn { get; set; }
         public int CreatedBy { get; set; }
+
+        /// <summary>
+        /// 行版本，并发控制字段
+        /// </summary>
+        public DateTime RowVersion { get; private set; }
     }
 }

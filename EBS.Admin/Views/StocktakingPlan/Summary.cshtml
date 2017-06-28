@@ -54,8 +54,8 @@
                     </div>                  
                 </div>
                 <span class="input-group-btn" slot="customButtons">                   
-                    <button type="button" class="btn btn-warning btn-flat" v-on:click="mergeDetial()">合并盘点</button>
-                    <button type="button" class="btn btn-danger btn-flat" v-on:click="endPlan()">结束盘点</button>
+                    <button type="button" class="btn btn-warning btn-flat" v-on:click="mergeDetial()" v-bind:disabled="isSubmit">合并盘点</button>
+                    <button type="button" class="btn btn-danger btn-flat" v-on:click="endPlan()" v-bind:disabled="isSubmit">结束盘点</button>
                     <a class="btn btn-success btn-flat" href="/StocktakingPlan/Help">盘点操作流程</a>
                 </span>
             </vue-table>
@@ -123,7 +123,8 @@
                         modal:false,
                         password:'',
                         selectId:0,
-                    }
+                    },
+                    isSubmit:false
                 },
                 methods: {
                     mergeDetial: function () {
@@ -137,9 +138,10 @@
                             return;
                         }
                         var selectId = selectRow[0].Id;
-                        v_self = this;
+                        var v_self = this;                       
                         bootbox.confirm("您确定提交该记录？", function (result) {
                             if (result) {
+                                v_self.isSubmit = true;
                                 $.post("/StocktakingPlan/MergeDetial", { id: selectId }, function (result) {
                                     if (result.success) {                                       
                                         bootbox.alert("保存成功！", function () {
@@ -149,6 +151,7 @@
                                     else {
                                         bootbox.alert(result.error);
                                     }
+                                    v_self.isSubmit = false;
                                 }, "json");
                             }
                         });

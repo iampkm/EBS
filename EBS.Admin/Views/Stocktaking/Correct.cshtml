@@ -28,7 +28,7 @@
         <div class="box-body ">
             <div class="row">
                 <div class="form-group col-sm-4 col-xs-6">
-                    <button type="button" class="btn btn-warning btn-flat" v-on:click="onSubmit">保 存</button>
+                    <button type="button" class="btn btn-warning btn-flat" v-on:click="onSubmit" v-bind:disabled="isSubmit">保 存</button>
                     @*<button type="button" class="btn btn-default btn-flat" v-on:click="print">打印</button>*@
                     <a class="btn btn-default btn-flat" href="javascript:history.back()">取 消</a>
                     <input type="hidden" v-model="model.id" />
@@ -171,7 +171,8 @@
                         modal: false,
                         name: '@ViewBag.StoreName',
                         view:@ViewBag.View,
-                    }
+                    },
+                    isSubmit:false
                 },
                 methods: {
                     onSubmit: function () {
@@ -181,8 +182,12 @@
                         var data = "";
                         for (var i = 0; i < _self.products.length; i++) {
                             var item = _self.products[i];
+                            if(item.CorectReason==""||item.CorectReason==null){
+                                bootbox.alert("请输入差错原因");
+                                return;
+                            }
                             if (item.ProductId > 0 ) {
-                                var countQuantity =parseInt(item.CorectQuantity)-item.CountQuantity;
+                                var countQuantity =parseInt(item.CorectQuantity)-item.CountQuantity;                                
                                 data += "{\"ProductId\":" + item.ProductId + ",\"CountQuantity\":" + countQuantity + ",\"Quantity\":" + item.Quantity
                                     + ",\"CostPrice\":" + item.CostPrice +",\"SalePrice\":" + item.SalePrice+ ",\"CorectQuantity\":" + item.CorectQuantity
                                     +",\"CorectReason\":'" + item.CorectReason+ "'},";
@@ -196,6 +201,7 @@
                         data = "[" + data + "]";
                         _self.model.itemsJson = data;
                         var v_data = _self.model;
+                        _self.isSubmit = true;
                         $.post("/Stocktaking/Correct", v_data, function (result) {
                             if (result.success) {
                                 bootbox.alert("保存成功！", function () {
@@ -205,6 +211,7 @@
                             else {
                                 bootbox.alert(result.error);
                             }
+                            _self.isSubmit = false;
                         }, "json");
                     },                    
                     addRow: function (event) {

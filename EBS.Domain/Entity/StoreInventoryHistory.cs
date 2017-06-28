@@ -26,7 +26,7 @@ namespace EBS.Domain.Entity
             this.SupplierId = supplierId;
         }
         public StoreInventoryHistory(int productId, int storeId, int quantity, int changeQuantity, decimal price, long batchNo,
-            int billId, string billCode, BillIdentity billType, int createdBy, DateTime createdOn,int supplierId )
+            int billId, string billCode, BillIdentity billType, int createdBy, DateTime createdOn,int supplierId,decimal salePrice=0 )
         {
             this.ProductId = productId;
             this.StoreId = storeId;
@@ -40,6 +40,7 @@ namespace EBS.Domain.Entity
             this.CreatedBy = createdBy;
             this.CreatedOn = createdOn;
             this.SupplierId = supplierId;
+            this.SalePrice = salePrice;
         }
         /// <summary>
         /// 商品SKUID
@@ -80,5 +81,9 @@ namespace EBS.Domain.Entity
          /// 供应商
          /// </summary>
          public int SupplierId { get; set; }
+         /// <summary>
+         /// 售价
+         /// </summary>
+         public decimal SalePrice { get; set; }
     }
 }

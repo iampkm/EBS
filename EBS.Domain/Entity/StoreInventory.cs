@@ -58,6 +58,11 @@ namespace EBS.Domain.Entity
         /// <summary>
         /// 门店售价
         /// </summary>
-        public decimal StoreSalePrice { get; set; } 
+        public decimal StoreSalePrice { get; set; }
+
+        /// <summary>
+        /// 行版本，并发控制字段
+        /// </summary>
+        public DateTime RowVersion { get; private set; }
     }
 }
