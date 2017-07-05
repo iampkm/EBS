@@ -165,11 +165,11 @@ where 1=1 {0} ";
             {
                 where += "and t0.BatchNo=@BatchNo ";
                 param.BatchNo = condition.BatchNo;
-            }
-            if (condition.StoreId > 0)
+            }            
+            if (!string.IsNullOrEmpty(condition.StoreId) && condition.StoreId != "0")
             {
-                where += "and t0.StoreId=@StoreId ";
-                param.StoreId = condition.StoreId;
+                where += "and t0.StoreId in @StoreId ";
+                param.StoreId = condition.StoreId.Split(',').ToIntArray(); ;
             }
 
             if (!string.IsNullOrEmpty(condition.ProductCodeOrBarCode))

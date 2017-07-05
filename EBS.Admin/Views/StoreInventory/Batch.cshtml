@@ -164,7 +164,7 @@
                 { name: 'BatchNo', localName: '批次号' }
                 ],
                 url: "/StoreInventory/LoadDataBatch",
-                searchArgs: { supplierId: 0, storeId: @ViewBag.StoreId, productCodeOrBarCode: '', batchNo: '',categoryId:'' ,quantity:0 ,operate:'>'},
+                searchArgs: { supplierId: 0, storeId: '@ViewBag.StoreId', productCodeOrBarCode: '', batchNo: '',categoryId:'' ,quantity:0 ,operate:'>'},
                 rows: [],
                 selectSupplier: {
                     modal: false,
@@ -215,7 +215,7 @@
                     this.selectStore.modal = true;
                 },
                 clearStore: function () {
-                    this.searchArgs.storeId = 0;
+                    this.searchArgs.storeId = "0";
                     this.selectStore.name = "";
                 },
                 getStore: function () {
@@ -231,8 +231,8 @@
                             }
                         })
                         if(idArray.length>0){
-                            this.searchArgs.storeId = idArray[0];
-                            this.selectStore.name = nameArray[0];
+                            this.searchArgs.storeId = idArray.join();
+                            this.selectStore.name = nameArray.join();
                             this.selectStore.modal = false;
                             this.clearItems();
                         }

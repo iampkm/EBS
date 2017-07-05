@@ -10,7 +10,7 @@ namespace EBS.Query.DTO
     {
         public int SupplierId { get; set; }
 
-        public int StoreId { get; set; }
+        public string StoreId { get; set; }
 
         public string ProductCodeOrBarCode { get; set; }
 

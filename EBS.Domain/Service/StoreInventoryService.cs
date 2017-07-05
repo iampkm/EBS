@@ -73,44 +73,7 @@ namespace EBS.Domain.Service
             _db.Insert(inventoryHistorys.ToArray());
             _db.Insert(inventoryBatchs.ToArray());            
         }
-        /// <summary>
-        /// 更新库存数量和最新入库成本 （入库使用)
-        /// </summary>
-        /// <returns></returns>
-        /// 
-        private string UpdateQuantityAndLastCostPriceSql()
-        {
-            string sql = " update storeinventory set quantity =quantity+@Quantity ,saleQuantity=saleQuantity+@SaleQuantity,AvgCostPrice=@AvgCostPrice,LastCostPrice=@LastCostPrice where Id=@Id";
-            return sql;
-        }
-        private string UpdateQuantityAndAvgCostPriceSql()
-        {
-            string sql = " update storeinventory set quantity =quantity+@Quantity ,saleQuantity=saleQuantity+@SaleQuantity,AvgCostPrice=@AvgCostPrice where Id=@Id";
-            return sql;
-        }
-
-        /// <summary>
-        /// 加总库存，要计算均价和保存最后一次入库价（价格不为0）
-        /// </summary>
-        /// <returns></returns>
-        private string PlusInventoryQuantitySql()
-        {
-            string sql = @" update storeinventory set quantity =@Quantity ,saleQuantity=@SaleQuantity 
-,AvgCostPrice=@AvgCostPrice,LastCostPrice=@LastCostPrice where Id=@Id and quantity =@SourceQuantity ";
-            return sql;
-        }
-        /// <summary>
-        /// 减库存只减数量
-        /// </summary>
-        /// <returns></returns>
-
-        private string MinusInventoryQuantitySql()
-        {
-            string sql = " update storeinventory set quantity =@Quantity ,saleQuantity=@SaleQuantity where Id=@Id and quantity =@SourceQuantity ";
-            return sql;
-        }
-
-
+        
 
         /// <summary>
         /// 采购出库。 采购退单，数量为负
@@ -176,12 +139,7 @@ namespace EBS.Domain.Service
             _db.Insert(inventoryHistorys.ToArray());
             
         }
-
-        private string updateInventoryBatchQuantitySql()
-        {
-            string sql = "update StoreInventoryBatch set Quantity=@Quantity where Id=@Id and quantity =@SourceQuantity ";
-            return sql;
-        }       
+         
         public IEnumerable<StoreInventory> CheckProductNotInInventory(StorePurchaseOrder entity)
         {
             if (entity == null) { throw new Exception("单据不存在"); }

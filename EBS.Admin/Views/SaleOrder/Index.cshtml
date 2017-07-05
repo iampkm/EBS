@@ -162,7 +162,7 @@
                     { name: 'OrderLevelName', localName: '订单级别' , width: '100' },
                 ],
                 url: "/SaleOrder/QuerySaleOrderItems",
-                searchArgs: { code: '', nickName: '', storeId: @ViewBag.StoreId, wrokFrom: '',workTo:'',from:'@ViewBag.today',to:'@ViewBag.today' ,posId:null,orderLevel:0,paymentWay:0},
+                searchArgs: { code: '', nickName: '', storeId: '@ViewBag.StoreId', wrokFrom: '',workTo:'',from:'@ViewBag.today',to:'@ViewBag.today' ,posId:null,orderLevel:0,paymentWay:0},
                 rows: [],
                 selectStore: {
                     modal: false,
@@ -175,7 +175,7 @@
                     this.selectStore.modal = true;
                 },
                 clearStore: function () {
-                    this.searchArgs.storeId = 0;
+                    this.searchArgs.storeId = "0";
                     this.selectStore.name = "";
                 },
                 getStore: function () {
@@ -191,8 +191,8 @@
                             }
                         })
                         if(idArray.length>0){
-                            this.searchArgs.storeId = idArray[0];
-                            this.selectStore.name = nameArray[0];
+                            this.searchArgs.storeId = idArray.join();
+                            this.selectStore.name = nameArray.join();
                             this.selectStore.modal = false;
                         }
                         else

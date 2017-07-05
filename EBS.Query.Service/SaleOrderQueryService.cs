@@ -54,11 +54,11 @@ product p on i.ProductId=p.Id where i.SaleOrderId=@OrderId";
                 where += " and o.PosId=@PosId ";
                 param.PosId = condition.PosId.Value;
             }
-            if (condition.StoreId > 0)
+            if (!string.IsNullOrEmpty(condition.StoreId) && condition.StoreId != "0")
             {
-                where += " and s.Id=@StoreId ";
-                param.StoreId = condition.StoreId;
-            }
+                where += "and s.Id in @StoreId ";
+                param.StoreId = condition.StoreId.Split(',').ToIntArray(); ;
+            }           
 
             if (condition.WrokFrom.HasValue)
             {
@@ -150,11 +150,12 @@ where o.Status=3 {0} ";
                 owhere += " and o.PosId=@PosId ";
                 param.PosId = condition.PosId.Value;
             }
-            if (condition.StoreId > 0)
+            if (!string.IsNullOrEmpty(condition.StoreId) && condition.StoreId != "0")
             {
-                owhere += " and o.StoreId=@StoreId ";
-                param.StoreId = condition.StoreId;
+                owhere += "and o.StoreId in @StoreId ";
+                param.StoreId = condition.StoreId.Split(',').ToIntArray(); ;
             }
+            
             if (condition.From.HasValue)
             {
                 owhere += " and o.UpdatedOn>=@From ";
@@ -246,10 +247,10 @@ where 1=1 {0}";
                 owhere += " and o.PosId=@PosId ";
                 param.PosId = condition.PosId.Value;
             }
-            if (condition.StoreId > 0)
+            if (!string.IsNullOrEmpty(condition.StoreId) && condition.StoreId != "0")
             {
-                owhere += " and o.StoreId=@StoreId ";
-                param.StoreId = condition.StoreId;
+                owhere += "and o.StoreId in @StoreId ";
+                param.StoreId = condition.StoreId.Split(',').ToIntArray(); ;
             }
             if (condition.From.HasValue)
             {

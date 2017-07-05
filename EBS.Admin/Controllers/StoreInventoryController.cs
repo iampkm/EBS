@@ -42,6 +42,7 @@ namespace EBS.Admin.Controllers
 
         public JsonResult LoadData(Pager page, SearchStoreInventory condition)
         {
+            if (string.IsNullOrEmpty(condition.StoreId)||condition.StoreId=="0") { condition.StoreId = _context.CurrentAccount.CanViewStores; }
             var rows = _storeInventoryQuery.GetPageList(page, condition);
 
             return Json(new { success = true, data = rows, total = page.Total,sum = page.SumColumns });
@@ -59,6 +60,7 @@ namespace EBS.Admin.Controllers
         }
         public JsonResult LoadDataHistory(Pager page, SearchStoreInventoryHistory condition)
         {
+            if (string.IsNullOrEmpty(condition.StoreId) || condition.StoreId == "0") { condition.StoreId = _context.CurrentAccount.CanViewStores; }
             var rows = _storeInventoryQuery.GetPageList(page, condition);
 
             return Json(new { success = true, data = rows, total = page.Total, sum = page.SumColumns });
@@ -71,6 +73,7 @@ namespace EBS.Admin.Controllers
         }
         public JsonResult LoadDataBatch(Pager page, SearchStoreInventoryBatch condition)
         {
+            if (string.IsNullOrEmpty(condition.StoreId) || condition.StoreId == "0") { condition.StoreId = _context.CurrentAccount.CanViewStores; }
             var rows = _storeInventoryQuery.GetPageList(page, condition);
 
             return Json(new { success = true, data = rows, total = page.Total });

@@ -51,6 +51,7 @@ namespace EBS.Admin.Controllers
 
         public JsonResult QuerySaleOrderItems(Pager page, SearchSaleOrder condition)
         {
+            if (string.IsNullOrEmpty(condition.StoreId) || condition.StoreId == "0") { condition.StoreId = _context.CurrentAccount.CanViewStores; }
             var rows = _saleOrderQuery.QuerySaleOrderItems(page, condition);
 
             return Json(new { success = true, data = rows, total = page.Total, sum = page.SumColumns });
@@ -69,6 +70,7 @@ namespace EBS.Admin.Controllers
 
         public JsonResult QuerySaleSummary(Pager page, SearchSaleOrder condition)
         {
+            if (string.IsNullOrEmpty(condition.StoreId) || condition.StoreId == "0") { condition.StoreId = _context.CurrentAccount.CanViewStores; }
             var rows = _saleOrderQuery.QuerySaleSummary(page, condition);
 
             return Json(new { success = true, data = rows, total = page.Total, sum = page.SumColumns });
@@ -87,6 +89,7 @@ namespace EBS.Admin.Controllers
 
         public JsonResult QuerySaleCheck(Pager page, SearchSaleOrder condition)
         {
+            if (string.IsNullOrEmpty(condition.StoreId) || condition.StoreId == "0") { condition.StoreId = _context.CurrentAccount.CanViewStores; }
             var rows = _saleOrderQuery.QuerySaleCheck(page, condition);
 
             return Json(new { success = true, data = rows, total = page.Total });
@@ -102,6 +105,7 @@ namespace EBS.Admin.Controllers
 
         public JsonResult QuerySaleSync(Pager page, DateTime saleDate,string storeId)
         {
+            if (string.IsNullOrEmpty(storeId) || storeId == "0") { storeId = _context.CurrentAccount.CanViewStores; }
             var rows = _saleOrderQuery.QuerySaleSync(page, saleDate,storeId);
 
             return Json(new { success = true, data = rows, total = page.Total });

@@ -21,7 +21,7 @@ namespace EBS.Query.DTO
         /// 收银机
         /// </summary>
         public int? PosId { get; set; }
-        public int StoreId { get; set; }
+        public string StoreId { get; set; }
         /// <summary>
         /// 班次日期起
         /// </summary>

@@ -134,7 +134,7 @@
                     { name: 'StatusName', localName: '状态' },                    
                 ],
                 url: "/SaleOrder/QuerySaleCheck",
-                searchArgs: { code: '', nickName: '', storeId: @ViewBag.StoreId, wrokFrom: '',workTo:'',from:'@ViewBag.today',to:'@ViewBag.today' ,posId:null},
+                searchArgs: { code: '', nickName: '', storeId: '@ViewBag.StoreId', wrokFrom: '',workTo:'',from:'@ViewBag.today',to:'@ViewBag.today' ,posId:null},
                 rows: [],
                 selectStore: {
                     modal: false,
@@ -188,7 +188,7 @@
                     this.selectStore.modal = true;
                 },
                 clearStore: function () {
-                    this.searchArgs.storeId = 0;
+                    this.searchArgs.storeId = "0";
                     this.selectStore.name = "";
                 },
                 getStore: function () {
@@ -204,8 +204,8 @@
                             }
                         })
                         if(idArray.length>0){
-                            this.searchArgs.storeId = idArray[0];
-                            this.selectStore.name = nameArray[0];
+                            this.searchArgs.storeId = idArray.join();
+                            this.selectStore.name = nameArray.join();
                             this.selectStore.modal = false;
                         }
                         else

@@ -68,16 +68,18 @@ namespace EBS.Admin.Controllers
             ViewBag.StoreName = _context.CurrentAccount.StoreName;
         }
 
-        public JsonResult LoadData(Pager page, SearchTransferOrder conditon)
+        public JsonResult LoadData(Pager page, SearchTransferOrder condition)
         {
-            var rows = _transaferQuery.GetFinishList(page, conditon);
+            if (string.IsNullOrEmpty(condition.StoreId) || condition.StoreId == "0") { condition.StoreId = _context.CurrentAccount.CanViewStores; }
+            var rows = _transaferQuery.GetPageList(page, condition);
 
             return Json(new { success = true, data = rows, total = page.Total });
         }
 
-        public JsonResult LoadFinishData(Pager page, SearchTransferOrder conditon)
+        public JsonResult LoadFinishData(Pager page, SearchTransferOrder condition)
         {
-            var rows = _transaferQuery.GetFinishList(page, conditon);
+            if (string.IsNullOrEmpty(condition.StoreId) || condition.StoreId == "0") { condition.StoreId = _context.CurrentAccount.CanViewStores; }
+            var rows = _transaferQuery.GetFinishList(page, condition);
           
             return Json(new { success = true, data = rows, total = page.Total, sum = page.SumColumns });
         }
