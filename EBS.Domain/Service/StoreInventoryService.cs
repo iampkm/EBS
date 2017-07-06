@@ -523,6 +523,7 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
                             //记录修改历史
                             inventoryHistorys.Add(new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventoryQuantity, -leftQuantity,
                                 batchItem.Price, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.StoreStocktakingPlan, entity.UpdatedBy, batchItem.SupplierId));
+                            leftQuantity = 0;
                             break;
                         }
                         else
@@ -535,6 +536,18 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
                             batchItem.Quantity = 0;
                             inventoryLoss.Add(batchItem);
                         }
+                    }
+                    //当扣减批次后，剩余数量依然大于0，存在两种情况：1 无批次数据，2 批次数量不够扣
+                    if (leftQuantity > 0)
+                    {
+                        //用最新的合同商品价来记录
+                        var contract = _db.Table.Find<PurchaseContract>(@"SELECT c.Id,c.SupplierId from purchasecontract c inner join purchasecontractitem i on c.id = i.PurchaseContractId where FIND_IN_SET(@StoreId,c.StoreIds) and c.`Status`=3 and i.ProductId = @productId order by c.Id desc", new { StoreId = entity.StoreId, ProductId = inventory.ProductId });
+                        var contractItem = _db.Table.Find<PurchaseContractItem>("select * from purchasecontractitem where PurchaseContractId=@PurchaseContractId and ProductId=@ProductId", new { PurchaseContractId = contract.Id, ProductId = inventory.ProductId });
+
+                        inventoryHistorys.Add(new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventoryQuantity, -leftQuantity,
+                                                 contractItem.ContractPrice, 0, entity.Id, entity.Code, BillIdentity.StoreStocktakingPlan, entity.CreatedBy, entity.UpdatedOn, contract.SupplierId));
+                        // 第1+N次扣减后总库存
+                        inventoryQuantity = inventoryQuantity - leftQuantity;
                     }
 
                 }

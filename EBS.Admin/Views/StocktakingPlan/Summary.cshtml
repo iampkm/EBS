@@ -55,7 +55,7 @@
                 </div>
                 <span class="input-group-btn" slot="customButtons">                   
                     <button type="button" class="btn btn-warning btn-flat" v-on:click="mergeDetial()" v-bind:disabled="isSubmit">合并盘点</button>
-                    <button type="button" class="btn btn-danger btn-flat" v-on:click="endPlan()" v-bind:disabled="isSubmit">结束盘点</button>
+                    <button type="button" class="btn btn-danger btn-flat" v-on:click="endPlan()" v-bind:disabled="isSubmit">结束盘点</button>                  
                     <a class="btn btn-success btn-flat" href="/StocktakingPlan/Help">盘点操作流程</a>
                 </span>
             </vue-table>
@@ -78,20 +78,24 @@
             </div>            
         </div>
     </v-modal>
+    <v-alert v-bind:show.sync="isSubmit" placement="top" duration="0" type="danger" width="400px" dismissable>
+        <span class="icon-info-circled alert-icon-float-left"></span>
+        <strong>正在结转盘点差异入库...</strong>
+        <p>结转期间请勿重复点击，耐心等待，结转完毕后会自动刷新数据.</p>
+    </v-alert>   
 </div>
 @{Html.RenderPartial("VueTableTemplate");}
 @section scripts{
     <script src="~/Content/Vue/vuetable/vuetable.js"></script>
 <script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
     <script>
-        // <a  v-on:click.stop.prevent href='/StocktakingPlan/Detail/{id}'>{column}</a>
-        // <a  v-on:click.stop.prevent=\"showDetail({id},'{StocktakingPlanStatus}')\">{column}</a>"
         $("doucument").ready(function () {
             var vue = new Vue({
                 components: {
                     'v-modal': VueStrap.modal,
                     'v-input': VueStrap.input,
-                    'v-radio':VueStrap.radio
+                    'v-radio':VueStrap.radio,
+                    'v-alert':VueStrap.alert                   
                 },
                 el: '#app',
                 data: {
@@ -186,16 +190,17 @@
                             bootbox.alert("请输入登录密码");
                             return;
                         }
+                        v_self.inputBox.password = ""; //清空输入的密码，强制每次结转都重新录入密码
+                        v_self.closeInputBox();
+                        v_self.isSubmit = true;
                         $.post("/StocktakingPlan/EndPlan", { id: selectId ,loginPassword:password}, function (result) {
                             if (result.success) {
-                                bootbox.alert("保存成功！", function () {
-                                    v_self.$refs.vtable.loadData();
-                                    v_self.closeInputBox();
-                                }); 
+                                v_self.$refs.vtable.loadData();                               
                             }
                             else {
                                 bootbox.alert(result.error);
-                            }
+                            } 
+                            v_self.isSubmit = false;
                         }, "json");
                     },
                     closeInputBox:function(){
