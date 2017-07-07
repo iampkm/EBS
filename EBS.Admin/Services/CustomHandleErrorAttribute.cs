@@ -15,7 +15,14 @@ namespace EBS.Admin.Services
             if (filterContext == null)
                 throw new ArgumentNullException("filterContext");
             var log = AppContext.Current.Resolve<ILogger>();
-            log.Error(filterContext.Exception);          
+            if (filterContext.Exception is FriendlyException)
+            {
+                var friendException = filterContext.Exception as FriendlyException;
+                log.Info(friendException.Message);
+            }
+            else {
+                log.Error(filterContext.Exception);    
+            }                  
             if (filterContext.RequestContext.HttpContext.Request.IsAjaxRequest())
             {
                 filterContext.ExceptionHandled = true;

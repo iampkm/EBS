@@ -10,6 +10,7 @@ using EBS.Domain.ValueObject;
 using Dapper.DBContext;
 using System.Dynamic;
 using EBS.Infrastructure.Extension;
+using EBS.Infrastructure;
 namespace EBS.Query.Service
 {
     public class StorePurchaseOrderQueryService : IStorePurchaseOrderQuery
@@ -111,7 +112,7 @@ from  storepurchaseorderitem i {1} GROUP BY i.StorePurchaseOrderId) t3 left join
 
         public StorePurchaseOrderItemDto GetPurchaseOrderItem(string productCodeOrBarCode, int storeId, int supplierId)
         {
-            if (string.IsNullOrEmpty(productCodeOrBarCode)) { throw new Exception("请输入商品编码或条码"); }
+            if (string.IsNullOrEmpty(productCodeOrBarCode)) { throw new FriendlyException("请输入商品编码或条码"); }
             // 有调整价，有先使用最新的调整价；无才使用合同价
             string sql = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.Specification,p.BarCode,p.Unit,p.SpecificationQuantity as ProductSpecificationQuantity, 
  i.ContractPrice,c.SupplierId,s.`Name` as SupplierName
@@ -127,7 +128,7 @@ and FIND_IN_SET(@StoreId,c.StoreIds) order by c.Id desc  LIMIT 1";
             //sql = string.Format(sql, supplierWhere);
             var item = _query.Find<StorePurchaseOrderItemDto>(sql, new { ProductCodeOrBarCode = productCodeOrBarCode, StoreId = storeId,SupplierId=supplierId, Today = DateTime.Now });
             //设置当前件规            
-            if (item == null) { throw new Exception("查无商品，请检查供应商合同"); }
+            if (item == null) { throw new FriendlyException("查无商品，请检查供应商合同"); }
             // 查询是否有调整价格
 
             item.SetSpecificationQuantity();
@@ -136,7 +137,7 @@ and FIND_IN_SET(@StoreId,c.StoreIds) order by c.Id desc  LIMIT 1";
         }
         public IEnumerable<StorePurchaseOrderItemDto> GetPurchaseOrderItemList(string inputProducts, int storeId, int supplierId)
         {
-            if (string.IsNullOrEmpty(inputProducts)) throw new Exception("商品明细为空");
+            if (string.IsNullOrEmpty(inputProducts)) throw new FriendlyException("商品明细为空");
             var dic = inputProducts.ToIntDic();
             // 有调整价，有先使用最新的调整价；无才使用合同价
             string sql = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.Specification,p.BarCode,p.Unit,p.SpecificationQuantity as ProductSpecificationQuantity, 
@@ -147,7 +148,7 @@ left join supplier s on c.SupplierId = s.Id
 where p.BarCode in @ProductCode  and c.EndDate>@Today and c.`Status` = 3 and c.SupplierId=@SupplierId
 and FIND_IN_SET(@StoreId,c.StoreIds) order by c.Id desc ";
             var productItems = _query.FindAll<StorePurchaseOrderItemDto>(sql, new { ProductCode = dic.Keys.ToArray(), StoreId = storeId, SupplierId = supplierId, Today = DateTime.Now });
-            if (!productItems.Any()) { throw new Exception("查无商品，请检查供应商合同"); }
+            if (!productItems.Any()) { throw new FriendlyException("查无商品，请检查供应商合同"); }
             foreach (var product in productItems)
             {
                 if (dic.ContainsKey(product.BarCode))
@@ -185,7 +186,7 @@ where i.storepurchaseorderid= @Id";
         //退单按照先进先出原则从库存查询
         public StorePurchaseOrderItemDto GetRefundOrderItem(string productCodeOrBarCode, int storeId,int supplierId)
         {
-            if (string.IsNullOrEmpty(productCodeOrBarCode)) { throw new Exception("请输入商品编码或条码"); }
+            if (string.IsNullOrEmpty(productCodeOrBarCode)) { throw new FriendlyException("请输入商品编码或条码"); }
 
             string sql = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.Specification,p.BarCode,p.Unit,p.SpecificationQuantity as ProductSpecificationQuantity,  
 i.LastCostPrice as ContractPrice,i.LastCostPrice as Price,i.Quantity as inventoryQuantity
@@ -200,14 +201,14 @@ where (p.`Code`=@ProductCodeOrBarCode or p.BarCode=@ProductCodeOrBarCode) and i.
 
             var item = _query.Find<StorePurchaseOrderItemDto>(sql, new { ProductCodeOrBarCode = productCodeOrBarCode, StoreId = storeId, SupplierId = supplierId });
             //设置当前件规            
-            if (item == null) { throw new Exception("查无商品，请检查供应商合同"); }           
+            if (item == null) { throw new FriendlyException("查无商品，请检查供应商合同"); }           
             item.SetSpecificationQuantity();
             return item;
         }
 
         public IEnumerable<StorePurchaseOrderItemDto> GetRefundOrderItemList(string inputProducts, int storeId, int supplierId)
         {
-            if (string.IsNullOrEmpty(inputProducts)) throw new Exception("商品明细为空");
+            if (string.IsNullOrEmpty(inputProducts)) throw new FriendlyException("商品明细为空");
             var dic = inputProducts.ToIntDic();
             string sql = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.Specification,p.BarCode,p.Unit,p.SpecificationQuantity as ProductSpecificationQuantity,  
 i.LastCostPrice as ContractPrice,i.LastCostPrice as Price,i.Quantity as inventoryQuantity
@@ -220,7 +221,7 @@ select b.StoreId,b.SupplierId,b.ProductId,sum(b.Quantity)
 on t.StoreId = i.StoreId and t.ProductId = i.ProductId
 where p.BarCode in @BarCode  and i.StoreId=@StoreId and t.SupplierId=@SupplierId ";
             var productItems = _query.FindAll<StorePurchaseOrderItemDto>(sql, new { BarCode = dic.Keys.ToArray(), StoreId = storeId, SupplierId = supplierId });
-            if (!productItems.Any()) { throw new Exception("查无商品，请检查供应商合同"); }
+            if (!productItems.Any()) { throw new FriendlyException("查无商品，请检查供应商合同"); }
             foreach (var product in productItems)
             {
                 if (dic.ContainsKey(product.BarCode))
@@ -402,7 +403,7 @@ where 1=1 {0} ";
             }
             if (string.IsNullOrEmpty(condition.GroupBy))
             {
-                throw new Exception("请选择分组方式");
+                throw new FriendlyException("请选择分组方式");
             }
             string sql = "";
             string sqlSum = "";

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Dapper.DBContext;
 using EBS.Domain.Entity;
 using EBS.Infrastructure.Extension;
+using EBS.Infrastructure;
 namespace EBS.Domain.Service
 {
    public class StorePurchaseOrderService
@@ -39,12 +40,12 @@ namespace EBS.Domain.Service
                     //检查库存
                     var inventoryModel = _db.Table.Find<StoreInventory>(n => n.ProductId == item.ProductId && n.StoreId == model.StoreId);                   
                     if (item.Quantity > inventoryModel.Quantity)
-                    {                       
-                        throw new Exception(string.Format("商品{0}退货数量{1} > 库存数{2}", product.Code, item.Quantity, inventoryModel.Quantity));
+                    {
+                        throw new FriendlyException(string.Format("商品{0}退货数量{1} > 库存数{2}", product.Code, item.Quantity, inventoryModel.Quantity));
                     }
                 }
                 else {
-                    if (item.Quantity <= 0) { throw new Exception(string.Format("{0}:数量不能小于等于0", product.Code));  }
+                    if (item.Quantity <= 0) { throw new FriendlyException(string.Format("{0}:数量不能小于等于0", product.Code)); }
                 }
                 var itemProduct = items.FirstOrDefault(n => n.ProductId == item.ProductId);
                 if (itemProduct == null)

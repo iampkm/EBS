@@ -42,8 +42,7 @@ namespace EBS.Application.Facade
             }
             if (_db.Table.Exists<SaleOrder>(n => n.Code == model.Code))
             {
-                _log.Info("订单{0}已存在", model.Code);
-               // throw new Exception(string.Format("订单{0}已存在", model.Code));
+                _log.Info("订单{0}已存在", model.Code);              
             }
             else {
                 _db.Insert(model);
@@ -73,7 +72,7 @@ namespace EBS.Application.Facade
                 }
 
                 _db.SaveChange();
-                _log.Info("订单{0}库存扣减库存成功", model.Code);
+                _log.Info("订单{0}扣减库存成功", model.Code);
                 _log.Info("===================");
             }
            
@@ -129,14 +128,14 @@ namespace EBS.Application.Facade
             if (_db.Table.Exists<StoreInventoryHistory>(n => n.BillCode == saleOrderCode))
             {
                 _log.Info("订单{0}库存流水已存在", saleOrderCode);
-                throw new Exception(string.Format("订单{0}库存流水已存在", saleOrderCode));
+                throw new FriendlyException(string.Format("订单{0}库存流水已存在", saleOrderCode));
             }           
 
             var entity = _db.Table.Find<SaleOrder>(n => n.Code == saleOrderCode);
             if (entity == null) { throw new Exception(string.Format("订单{0}不存在", saleOrderCode)); }
             if (entity.Status != SaleOrderStatus.Paid)
             {
-                throw new Exception(string.Format("订单{0}非已支付状态，不能扣减库存", saleOrderCode));
+                throw new FriendlyException(string.Format("订单{0}非已支付状态，不能扣减库存", saleOrderCode));
             }
 
             var entityItems = _db.Table.FindAll<SaleOrderItem>(n => n.SaleOrderId == entity.Id).ToList();
@@ -151,7 +150,7 @@ namespace EBS.Application.Facade
             }
 
             _db.SaveChange();
-            _log.Info("订单{0}库存已增减", saleOrderCode);
+            _log.Info("订单{0}扣减库存成功", saleOrderCode);
         }
 
 

@@ -10,6 +10,7 @@ using EBS.Domain.ValueObject;
 using Dapper.DBContext;
 using System.Dynamic;
 using EBS.Infrastructure.Extension;
+using EBS.Infrastructure;
 namespace EBS.Query.Service
 {
     public class TransferOrderQueryService : ITransferOrderQuery
@@ -115,7 +116,7 @@ ORDER BY b.Id Limit 1";
             var model = this._query.Find<TransaferOrderItemDto>(sql, new { ProductCodeOrBarCode = productCodeOrBarCode, StoreId = storeId });
             if (model == null)
             {
-                throw new Exception("商品不存在");
+                throw new FriendlyException("商品不存在");
             }
             model.SetSpecificationQuantity();
             return model;
@@ -123,7 +124,7 @@ ORDER BY b.Id Limit 1";
 
         public IEnumerable<TransaferOrderItemDto> ImportProducts(int storeId, string inputBarCodes)
         {
-            if (string.IsNullOrEmpty(inputBarCodes)) throw new Exception("商品明细为空");
+            if (string.IsNullOrEmpty(inputBarCodes)) throw new FriendlyException("商品明细为空");
             // var dic = GetProductDic(inputProducts);
             var dic = inputBarCodes.ToIntDic();
             string sql = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.BarCode,p.Specification,
@@ -148,7 +149,7 @@ where p.`BarCode` in @BarCode and s.StoreId =@StoreId ";
             var model = _query.Find<TransferOrderDto>(sql, new { Id = id });
             if (model == null)
             {
-                throw new Exception("单据不存在");
+                throw new FriendlyException("单据不存在");
             }
             string sqlItem = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.Specification,p.BarCode,p.Unit,p.SpecificationQuantity as ProductSpecificationQuantity, i.SupplierId,i.ContractPrice,i.Price,i.Quantity,i.BatchNo,s.Quantity as InventoryQuantity 
 from transferorderitem i left join  product p on p.Id = i.ProductId 

@@ -24,7 +24,7 @@ namespace EBS.Domain.Service
         {
             if (_db.Table.Exists<StoreInventoryHistory>(n => n.BillCode == code))
             {
-                throw new Exception(string.Format("库存流水{0}已经存在了", code));
+                throw new FriendlyException(string.Format("库存流水{0}已经存在了", code));
             }
         }
 
@@ -34,8 +34,8 @@ namespace EBS.Domain.Service
         /// <param name="entity"></param>
         public void StockInProducts(StorePurchaseOrder entity)
         {
-            if (entity == null) { throw new Exception("单据不存在"); }
-            if (entity.Items.Count() == 0) { throw new Exception("单据明细为空"); }
+            if (entity == null) { throw new FriendlyException("单据不存在"); }
+            if (entity.Items.Count() == 0) { throw new FriendlyException("单据明细为空"); }
             //记录库存批次
             var productIdArray = entity.Items.Select(n => n.ProductId).ToArray();
             var inventorys = _db.Table.FindAll<StoreInventory>("select * from storeinventory where productId in @ProductIds and StoreId=@StoreId", new { ProductIds = productIdArray, StoreId = entity.StoreId });
@@ -49,7 +49,7 @@ namespace EBS.Domain.Service
                 if (item.ActualQuantity == 0) { continue; }
                 item.BatchNo = batchNo; //更新单据明细批次
                 var inventory = inventorys.FirstOrDefault(n => n.ProductId == item.ProductId);
-                if (inventory == null) throw new Exception(string.Format("商品{0}不存在", item.ProductId));
+                if (inventory == null) throw new FriendlyException(string.Format("商品{0}不存在", item.ProductId));
 
                 var inventoryQuantity = inventory.Quantity;
                 inventory.Quantity += item.ActualQuantity;
@@ -81,8 +81,8 @@ namespace EBS.Domain.Service
         /// <param name="entity"></param>
         public void StockOutInventory(StorePurchaseOrder entity)
         {
-            if (entity == null) { throw new Exception("单据不存在"); }
-            if (entity.Items.Count() == 0) { throw new Exception("单据明细为空"); }
+            if (entity == null) { throw new FriendlyException("单据不存在"); }
+            if (entity.Items.Count() == 0) { throw new FriendlyException("单据明细为空"); }
             var entityItems = entity.Items;           
             var productIdArray = entity.Items.Select(n=>n.ProductId).ToArray();
             var inventorys = _db.Table.FindAll<StoreInventory>("select * from storeinventory where productId in @ProductIds and StoreId=@StoreId", new { ProductIds = productIdArray, StoreId = entity.StoreId }).ToList();
@@ -92,12 +92,12 @@ namespace EBS.Domain.Service
             foreach (var item in entity.Items)
             {
                 var inventory = inventorys.FirstOrDefault(n => n.ProductId == item.ProductId);
-                if (inventory == null) { throw new Exception(string.Format("商品{0}库存记录不存在", item.ProductId)); }
+                if (inventory == null) { throw new FriendlyException(string.Format("商品{0}库存记录不存在", item.ProductId)); }
                 // 先检查总库存是否够扣减
                 if (inventory.Quantity < item.ActualQuantity)
                 {
                     var product = _db.Table.Find<Product>(inventory.ProductId);
-                    throw new Exception(string.Format("{0}库存不足！", product.Code));
+                    throw new FriendlyException(string.Format("{0}库存不足！", product.Code));
                 }
                 // 扣减总库存
                 var inventoryQuantity = inventory.Quantity;
@@ -142,8 +142,8 @@ namespace EBS.Domain.Service
          
         public IEnumerable<StoreInventory> CheckProductNotInInventory(StorePurchaseOrder entity)
         {
-            if (entity == null) { throw new Exception("单据不存在"); }
-            if (entity.Items.Count() == 0) { throw new Exception("单据明细为空"); }
+            if (entity == null) { throw new FriendlyException("单据不存在"); }
+            if (entity.Items.Count() == 0) { throw new FriendlyException("单据明细为空"); }
             //查询门店库存中不存在商品
             string sql = @"select i.ProductId ,o.StoreId from storepurchaseorderitem i inner join storepurchaseorder o on i.StorePurchaseOrderId = o.Id 
 left join (select * from storeinventory si where si.StoreId = @StoreId ) s on i.ProductId = s.ProductId 
@@ -154,8 +154,8 @@ where s.Id is null  and i.StorePurchaseOrderId = @StorePurchaseOrderId";
 
         public IEnumerable<StoreInventory> CheckNotExistsProduct(TransferOrder entity)
         {
-            if (entity == null) { throw new Exception("单据不存在"); }
-            if (entity.Items.Count() == 0) { throw new Exception("单据明细为空"); }
+            if (entity == null) { throw new FriendlyException("单据不存在"); }
+            if (entity.Items.Count() == 0) { throw new FriendlyException("单据明细为空"); }
             //查询门店库存中不存在商品
             string sql = @"select i.ProductId ,o.toStoreId as StoreId from transferorderitem i inner join transferorder o on i.transferorderId = o.Id 
 left join (select * from storeinventory si where si.StoreId = @StoreId ) s on i.ProductId = s.ProductId 
@@ -181,7 +181,7 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
             foreach (var item in entity.Items)
             {
                 var inventory = inventorys.FirstOrDefault(n => n.ProductId == item.ProductId);
-                if (inventory == null) { throw new Exception(string.Format("商品{0}库存记录不存在", item.ProductCode)); }
+                if (inventory == null) { throw new FriendlyException(string.Format("商品{0}库存记录不存在", item.ProductCode)); }
                 item.AvgCostPrice = inventory.AvgCostPrice; // 回写均价成本
                 //扣减总库存,负库存销售
                 var inventoryQuantity = inventory.Quantity;
@@ -296,8 +296,8 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
         /// <param name="entity"></param>
         public void TransaferInventory(TransferOrder entity)
         {
-            if (entity == null) { throw new Exception("单据不存在"); }
-            if (entity.Items.Count() == 0) { throw new Exception("单据明细为空"); }
+            if (entity == null) { throw new FriendlyException("单据不存在"); }
+            if (entity.Items.Count() == 0) { throw new FriendlyException("单据明细为空"); }
             var productIdArray = entity.Items.Select(n => n.ProductId).ToArray();
             //出库商品
             var fromInventorys = _db.Table.FindAll<StoreInventory>("select * from storeinventory where productId in @ProductIds and StoreId=@StoreId", new { ProductIds = productIdArray, StoreId = entity.FromStoreId });
@@ -314,15 +314,15 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
             {
 
                 var fromInventoryItem = fromInventorys.FirstOrDefault(n => n.ProductId == item.ProductId);  //fromInventoryDic[item.ProductId];
-                if (fromInventoryItem == null) throw new Exception(string.Format("调出商品{0}不存在", item.ProductId));
+                if (fromInventoryItem == null) throw new FriendlyException(string.Format("调出商品{0}不存在", item.ProductId));
                 var toInventoryItem = toInventorys.FirstOrDefault(n => n.ProductId == item.ProductId);
-                if (toInventoryItem == null) throw new Exception(string.Format("调入商品{0}不存在", item.ProductId));
+                if (toInventoryItem == null) throw new FriendlyException(string.Format("调入商品{0}不存在", item.ProductId));
                 if (item.Quantity == 0) { continue; }
                 // 先检查总库存是否够扣减
                 if (fromInventoryItem.Quantity < item.Quantity)
                 {
                     var product = _db.Table.Find<Product>(item.ProductId);
-                    throw new Exception(string.Format("商品[{0}]{1}库存不足！", product.Code, product.Name));
+                    throw new FriendlyException(string.Format("商品[{0}]{1}库存不足！", product.Code, product.Name));
                 }
                 // 出库总库存
                 var fromInventoryQuantity = fromInventoryItem.Quantity;
@@ -448,8 +448,8 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
         }
         public void FixedInventory(StocktakingPlan entity)
         {
-            if (entity == null) { throw new Exception("单据不存在"); }
-            if (entity.Items.Count() == 0) { throw new Exception("单据明细为空"); }
+            if (entity == null) { throw new FriendlyException("单据不存在"); }
+            if (entity.Items.Count() == 0) { throw new FriendlyException("单据明细为空"); }
             //小盘不结转入库
             if (entity.Method == StocktakingPlanMethod.SmallCap)
             {
@@ -476,7 +476,7 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
                 var inventory = inventorys.FirstOrDefault(n => n.ProductId == item.ProductId);
                 if (inventory == null) {
                     var product = _db.Table.Find<Product>(item.ProductId);
-                    throw new Exception(string.Format("库存商品[{0}]{1}不存在！", product.Code, product.Name));
+                    throw new FriendlyException(string.Format("库存商品[{0}]{1}不存在！", product.Code, product.Name));
                 }
                 var inventoryQuantity = inventory.Quantity;
                 // 盘点差异数量，盘盈为整数，盘亏为负数
@@ -569,7 +569,7 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
         {
             if (entity.Items.Count() == 0)
             {
-                throw new Exception("明细为空");
+                throw new FriendlyException("明细为空");
             }
             var parma = entity.Items.Select(n => new { StoreId = entity.StoreId, ProductId = n.ProductId, AdjustPrice = n.AdjustPrice }).ToArray();
             string sql = "update StoreInventory set StoreSalePrice =@AdjustPrice where StoreId=@StoreId and ProductId=@ProductId";
