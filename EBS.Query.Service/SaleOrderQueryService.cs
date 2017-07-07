@@ -72,12 +72,12 @@ product p on i.ProductId=p.Id where i.SaleOrderId=@OrderId";
             }
             if (condition.From.HasValue)
             {
-                where += " and o.UpdatedOn>=@From";
+                where += " and o.UpdatedOn>=@From ";
                 param.From = condition.From.Value;
             }
             if (condition.To.HasValue)
             {
-                where += " and o.UpdatedOn<@To";
+                where += " and o.UpdatedOn<@To ";
                 param.To = condition.To.Value.AddDays(1);
             }
             if (condition.OrderLevel > 0)
@@ -92,12 +92,12 @@ product p on i.ProductId=p.Id where i.SaleOrderId=@OrderId";
             }
             if (!string.IsNullOrEmpty(condition.ProductCodeOrBarCode))
             {
-                where += string.Format("and (p.Code=@ProductCodeOrBarCode or p.BarCode=@ProductCodeOrBarCode) ", condition.ProductCodeOrBarCode);
+                where += string.Format(" and (p.Code=@ProductCodeOrBarCode or p.BarCode=@ProductCodeOrBarCode) ", condition.ProductCodeOrBarCode);
                 param.ProductCodeOrBarCode = condition.ProductCodeOrBarCode;
             }
             if (!string.IsNullOrEmpty(condition.ProductName))
             {
-                where += "and p.Name like @ProductName ";
+                where += " and p.Name like @ProductName ";
                 param.ProductName = string.Format("%{0}%", condition.ProductName);
             }
             string sql = @"select  o.Id, o.`Code`,o.PosId,o.OrderType,o.`Status`,o.OrderAmount,o.PayAmount,o.OnlinePayAmount,o.PaymentWay,o.PaidDate,o.UpdatedOn,o.OrderLevel,
