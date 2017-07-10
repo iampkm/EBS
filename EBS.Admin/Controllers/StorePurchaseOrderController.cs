@@ -52,6 +52,7 @@ namespace EBS.Admin.Controllers
 
         public JsonResult LoadData(Pager page, SearchStorePurchaseOrder condition)
         {
+            if (string.IsNullOrEmpty(condition.StoreId) || condition.StoreId == "0") { condition.StoreId = _context.CurrentAccount.CanViewStores; }
              var rows = _storePurchaseOrderQuery.GetPageList(page, condition);
 
              return Json(new { success = true, data = rows, total = page.Total, sum = page.SumColumns });
@@ -59,6 +60,7 @@ namespace EBS.Admin.Controllers
 
         public JsonResult LoadFinishData(Pager page, SearchStorePurchaseOrder condition)
         {
+            if (string.IsNullOrEmpty(condition.StoreId) || condition.StoreId == "0") { condition.StoreId = _context.CurrentAccount.CanViewStores; }
             var rows = _storePurchaseOrderQuery.GetFinishList(page, condition);
 
             return Json(new { success = true, data = rows, total = page.Total, sum = page.SumColumns });
@@ -82,6 +84,8 @@ namespace EBS.Admin.Controllers
         {
             SetUserAuthention();
             ViewBag.ShowStatus = (int)PurchaseOrderStatus.Finished;
+            ViewBag.FinishedStatus = (int)PurchaseOrderStatus.Finished;
+            ViewBag.FinanceAuditd = (int)PurchaseOrderStatus.FinanceAuditd;
             ViewBag.ShowType = (int)OrderType.Order;
             return View();
         }
@@ -94,6 +98,8 @@ namespace EBS.Admin.Controllers
         {
             SetUserAuthention();
             ViewBag.ShowStatus = (int)PurchaseOrderStatus.Finished;
+            ViewBag.FinishedStatus = (int)PurchaseOrderStatus.Finished;
+            ViewBag.FinanceAuditd = (int)PurchaseOrderStatus.FinanceAuditd;
             ViewBag.ShowType = (int)OrderType.Refund;
             return View();
         }
@@ -316,6 +322,16 @@ namespace EBS.Admin.Controllers
             _storePurchaseOrderFacade.FinanceAuditd(id, _context.CurrentAccount.AccountId, _context.CurrentAccount.NickName);
             return Json(new { success = true });
         }
+        /// <summary>
+        /// 财务审核
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public JsonResult CancelAuditd(int id)
+        {
+            _storePurchaseOrderFacade.CancelAudit(id, _context.CurrentAccount.AccountId, _context.CurrentAccount.NickName);
+            return Json(new { success = true });
+        }
 
         public ActionResult Print(int id)
         {
@@ -398,8 +414,8 @@ namespace EBS.Admin.Controllers
             SetUserAuthention();
             ViewBag.ShowStatus = string.Format("{0},{1}", (int)PurchaseOrderStatus.Finished, (int)PurchaseOrderStatus.FinanceAuditd);
             ViewBag.OrderTypes = typeof(OrderType).GetValueToDescription();
-            ViewBag.FinishedStatus = (int)PurchaseOrderStatus.Finished;
-            ViewBag.FinanceAuditd = (int)PurchaseOrderStatus.FinanceAuditd;
+            //ViewBag.FinishedStatus = (int)PurchaseOrderStatus.Finished;
+            //ViewBag.FinanceAuditd = (int)PurchaseOrderStatus.FinanceAuditd;
             return View();
         }
 

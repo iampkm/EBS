@@ -16,5 +16,7 @@ namespace EBS.Application
         void SaveInventory(int id, int editBy, string editor);
 
         void GetOutOfInventory(int id, int editBy, string editor);
+
+        void CancelAudit(int id, int editBy, string editor);
     }
 }

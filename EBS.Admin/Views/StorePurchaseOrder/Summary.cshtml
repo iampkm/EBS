@@ -108,7 +108,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-sm-2 col-xs-3">
+                    @*<div class="col-sm-2 col-xs-3">
                         <div class="row">
                             <div class="col-sm-6 col-xs-6 ">
                                 <v-checkbox v-bind:checked.sync="checkFinished" type="success" value="@ViewBag.FinishedStatus">已完成</v-checkbox>
@@ -117,7 +117,7 @@
                                 <v-checkbox v-bind:checked.sync="checkFinanceAuditd" type="success" value="@ViewBag.FinanceAuditd">财务已审</v-checkbox>
                             </div>
                         </div>
-                    </div>
+                    </div>*@
                 </div>
                 <div class="row" slot="customSearch">
                     <div class="col-xs-6 col-sm-6">
@@ -281,7 +281,7 @@
                 }
             },
         },
-        watch:{
+        @*watch:{
             checkFinanceAuditd:function(newVal,oldVal){
                 var statusArray =[];
                 if(newVal!=null){
@@ -308,7 +308,7 @@
                     this.searchArgs.status="@ViewBag.ShowStatus";
                 }
             }
-        }
+        }*@
     });
     //加载门店tree
     var zTreeObj;

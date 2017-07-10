@@ -77,14 +77,24 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             }
             if (condition.Method != 0)
             {
-                where += "and t0.Method=@Method ";
+                where += " and t0.Method=@Method ";
                 param.Method = condition.Method;
             }
-            if (condition.StocktakingDate.HasValue)
+            //if (condition.StocktakingDate.HasValue)
+            //{
+            //    where += "and t0.StocktakingDate>=@beginDate and t0.StocktakingDate<@endDate ";
+            //    param.beginDate = condition.StocktakingDate;
+            //    param.endDate = condition.StocktakingDate.Value.AddDays(1);
+            //}
+            if (condition.StartDate.HasValue)
             {
-                where += "and t0.StocktakingDate>=@beginDate and t0.StocktakingDate<@endDate ";
-                param.beginDate = condition.StocktakingDate;
-                param.endDate = condition.StocktakingDate.Value.AddDays(1);
+                where += " and t0.StocktakingDate >=@StartDate ";
+                param.StartDate = condition.StartDate.Value;
+            }
+            if (condition.EndDate.HasValue)
+            {
+                where += " and t0.StocktakingDate < @EndDate ";
+                param.EndDate = condition.EndDate.Value.AddDays(1);
             }
             string sql = @"select t0.Id,t0.`Code`,t2.`Name` as StoreName,t0.`Status`,t0.Method,t0.StocktakingDate,t1.TotalInventoryQuantity,t1.TotalCountQuantity,
 t1.CostAmount,t1.CostCountAmount,t1.SaleAmout,t1.SaleCountAmount
@@ -103,22 +113,23 @@ where 1=1  {0} ORDER BY t0.Id desc LIMIT {1},{2}";
 
             sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
             var rows = this._query.FindAll<StocktakingSummaryDto>(sql, param);
-            string sqlCount = @"select count(*) from stocktakingplan t0
-left join
-(
-SELECT p.Id,sum(i.Quantity) as TotalInventoryQuantity,sum(i.CountQuantity) as TotalCountQuantity,
-sum(i.CostPrice*i.Quantity) as CostAmount,sum(i.CostPrice*i.CountQuantity) as CostCountAmount,
-sum(i.SalePrice*i.Quantity) as SaleAmout,sum(i.SalePrice*i.CountQuantity) as SaleCountAmount
- FROM stocktakingplan p 
-inner join stocktakingplanitem i on p.Id = i.StocktakingPlanId
-group by p.Id 
-) t1 on t0.Id = t1.Id
-inner join store t2 on t2.Id = t0.StoreId 
-where 1=1  {0}";
-            sqlCount = string.Format(sqlCount, where);
-            page.Total = this._query.Context.ExecuteScalar<int>(sqlCount, param);
-
+            string sqlSum = @"select t.TotalCount,sum(TotalDifferentQuantity) TotalDifferentQuantity,sum(CostAmountDifferent) CostAmountDifferent ,sum(SaleAmoutDifferent) SaleAmoutDifferent from (
+select t0.Id, count(*) TotalCount,
+sum(i.CountQuantity-i.Quantity) TotalDifferentQuantity,
+sum(i.CostPrice*i.CountQuantity-i.CostPrice*i.Quantity) CostAmountDifferent,
+sum(i.SalePrice*i.CountQuantity-i.SalePrice*i.Quantity ) SaleAmoutDifferent
+FROM stocktakingplan t0 
+inner join stocktakingplanitem i on t0.Id = i.StocktakingPlanId 
+where 1=1  {0} 
+group by t0.Id  ) t";
+            sqlSum = string.Format(sqlSum, where);
+            var sumModel = this._query.Find<SumStocktakingSummary>(sqlSum, param) as SumStocktakingSummary;
+            page.Total = sumModel.TotalCount;
+            page.SumColumns.Add(new SumColumn("TotalDifferentQuantity", sumModel.TotalDifferentQuantity.ToString()));
+            page.SumColumns.Add(new SumColumn("CostAmountDifferent", sumModel.CostAmountDifferent.ToString("F4")));
+            page.SumColumns.Add(new SumColumn("SaleAmoutDifferent", sumModel.SaleAmoutDifferent.ToString("F2")));
             return rows;
+
         }
 
         public Dictionary<int, string> GetStocktakingPlanStatus()

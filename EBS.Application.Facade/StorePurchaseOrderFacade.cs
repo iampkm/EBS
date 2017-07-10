@@ -174,5 +174,21 @@ namespace EBS.Application.Facade
             _db.SaveChange();
 
         }
+
+
+        public void CancelAudit(int id, int editBy, string editor)
+        {
+            var entity = _db.Table.Find<StorePurchaseOrder>(id);
+            entity.CancelAudited(editBy, editor);
+            _db.Update(entity);
+            var reason = "撤销已审";
+            var billIdentity = BillIdentity.StorePurchaseOrder;
+            if (entity.OrderType == OrderType.Refund)
+            {
+                billIdentity = BillIdentity.StorePurchaseRefundOrder;
+            }
+            _processHistoryService.Track(editBy, editor, (int)entity.Status, entity.Id, billIdentity.ToString(), reason);
+            _db.SaveChange();
+        }
     }
 }

@@ -18,6 +18,8 @@ namespace EBS.Application
        void MergeDetial(int id, int editedBy, string editor);
 
        void EndPlan(int id, int editedBy, string editor, string loginPassword);
+
+       void Cancel(int id, int editedBy, string editor,string reason);
     }
 
 }

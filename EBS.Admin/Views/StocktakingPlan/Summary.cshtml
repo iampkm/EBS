@@ -21,20 +21,39 @@
         <div class="box-body">
             <vue-table v-ref:vtable v-bind:columns="gridColumns"
                        v-bind:url="url"
-                       v-bind:args="searchArgs" v-bind:data.sync="rows">
+                       v-bind:args="searchArgs" v-bind:data.sync="rows" v-bind:show-sum="true">
                 <div class="row" style="margin-bottom:10px;" slot="customSearch">
                     <div class="col-xs-3 col-sm-2">
                         <input class="form-control" v-model="searchArgs.code" placeholder="单编号" debounce="500" />
                     </div>
+                    @*<div class="col-sm-2 col-xs-3">
+                    <div class="input-group date" data-provide="datepicker" data-date-format="yyyy-mm-dd"
+                         data-date-language="zh-CN" data-date-clear-btn="true" data-date-autoclose="true">
+                        <div class="input-group-addon">
+                            <i class="fa fa-calendar"></i>
+                            <span>盘点日期</span>
+                        </div>
+                        <input type="text" class="form-control" v-model="model.stocktakingDate" readonly>
+                    </div>
+                </div>*@
                     <div class="col-sm-2 col-xs-3">
-                        @*<label for="inputPassword3" class="control-label">盘点日期：</label>*@
                         <div class="input-group date" data-provide="datepicker" data-date-format="yyyy-mm-dd"
                              data-date-language="zh-CN" data-date-clear-btn="true" data-date-autoclose="true">
                             <div class="input-group-addon">
                                 <i class="fa fa-calendar"></i>
-                                <span>盘点日期</span>
+                                <span></span>
                             </div>
-                            <input type="text" class="form-control" v-model="model.stocktakingDate" readonly>
+                            <input type="text" class="form-control" v-model="searchArgs.startDate" placeholder="开始日期" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-2 col-xs-3">
+                        <div class="input-group date " data-provide="datepicker" data-date-format="yyyy-mm-dd"
+                             data-date-language="zh-CN" data-date-clear-btn="true" data-date-autoclose="true">
+                            <div class="input-group-addon">
+                                <i class="fa fa-calendar"></i>
+                                <span></span>
+                            </div>
+                            <input type="text" class="form-control" v-model="searchArgs.endDate" placeholder="结束日期" readonly>
                         </div>
                     </div>
                     <div class="col-sm-2 col-xs-3" v-show="selectStore.view">
@@ -46,16 +65,17 @@
                                 <button class="btn btn-flat btn-default" type="button" v-on:click="clearStore"><i class="fa fa-eraser"></i></button>
                             </span>
                         </div>
-                    </div> 
+                    </div>
                     <div class="col-sm-2 col-xs-3" style="display:inline-block">
                         <v-radio button v-bind:checked.sync="searchArgs.method" value="1" type="info">大盘</v-radio>
                         <v-radio button v-bind:checked.sync="searchArgs.method" value="2" type="info">小盘</v-radio>
                         <v-radio button v-bind:checked.sync="searchArgs.method" value="0" type="info">所有</v-radio>
-                    </div>                  
+                    </div>
                 </div>
-                <span class="input-group-btn" slot="customButtons">                   
+                <span class="input-group-btn" slot="customButtons">
                     <button type="button" class="btn btn-warning btn-flat" v-on:click="mergeDetial()" v-bind:disabled="isSubmit">合并盘点</button>
-                    <button type="button" class="btn btn-danger btn-flat" v-on:click="endPlan()" v-bind:disabled="isSubmit">结束盘点</button>                  
+                    <button type="button" class="btn btn-primary btn-flat" v-on:click="endPlan()" v-bind:disabled="isSubmit">结束盘点</button>
+                    <button type="button" class="btn btn-danger btn-flat" v-on:click="remove()">作 废</button>
                     <a class="btn btn-success btn-flat" href="/StocktakingPlan/Help">盘点操作流程</a>
                 </span>
             </vue-table>
@@ -76,6 +96,12 @@
                     <input type="password" class="form-control" v-model="inputBox.password" placeholder="输入登录密码确认" />
                 </div>
             </div>            
+        </div>
+    </v-modal>
+    <v-modal title="作废原因" ok-text="确 定" cancel-text="取 消" v-bind:callback="callback" v-bind:show.sync="modal" v-bind:effect="fade" width="300">
+        <div slot="modal-body" class="modal-body">
+            <input type="hidden" v-model="selectedId" />
+            <v-input type="textarea" v-bind:value.sync="removeReason" placeholder="请录入作废理由" required icon></v-input>
         </div>
     </v-modal>
     <v-alert v-bind:show.sync="isSubmit" placement="top" duration="0" type="danger" width="400px" dismissable>
@@ -107,16 +133,16 @@
                     { name: 'StocktakingPlanStatus', localName: '状态', width: '80' },
                     { name: 'TotalInventoryQuantity', localName: '库存数', width: '80' },
                     { name: 'TotalCountQuantity', localName: '盘点数', width: '80' },
-                    { name: 'TotalDifferentQuantity', localName: '差异数', width: '80', style: "<strong class='text-danger'>{column}</strong>" },
+                    { name: 'TotalDifferentQuantity', localName: '差异数', width: '80', style: "<strong class='text-danger'>{column}</strong>",sum:'' },
                     { name: 'CostAmount', localName: '库存成本金额', width: '120' },
                     { name: 'CostCountAmount', localName: '盘点成本金额', width: '120' },
-                    { name: 'CostAmountDifferent', localName: '成本差异金额', width: '120',style: "<strong class='text-danger'>{column}</strong>" },
+                    { name: 'CostAmountDifferent', localName: '成本差异金额', width: '120',style: "<strong class='text-danger'>{column}</strong>",sum:''  },
                     { name: 'SaleAmout', localName: '售价金额', width: '100' },
                     { name: 'SaleCountAmount', localName: '盘点售价金额', width: '120' },
-                    { name: 'SaleAmoutDifferent', localName: '售价差异金额', width: '120',style: "<strong class='text-danger'>{column}</strong>" },
+                    { name: 'SaleAmoutDifferent', localName: '售价差异金额', width: '120',style: "<strong class='text-danger'>{column}</strong>",sum:''  },
                     ],
                     url: "/StocktakingPlan/LoadSummaryData",
-                    searchArgs: { code: '', stocktakingDate: '', storeId:'@ViewBag.StoreId', status: '2,3',method:0, },
+                    searchArgs: { code: '', stocktakingDate: '', storeId:'@ViewBag.StoreId', status: '2,3',method:0,startDate: '', endDate: '' },
                     rows: [],
                     selectStore: {
                         modal: false,
@@ -128,7 +154,10 @@
                         password:'',
                         selectId:0,
                     },
-                    isSubmit:false
+                    isSubmit:false,
+                    modal: false,
+                    selectedId: 0,
+                    removeReason: '',
                 },
                 methods: {
                     mergeDetial: function () {
@@ -246,7 +275,34 @@
                             return ;
                         }
                         window.location.href="/StocktakingPlan/Detail/"+id;
-                    }
+                    },
+                    remove: function () {
+                        var selectRow = this.rows.filter(function (item, index) {
+                            if (item.checked) {
+                                return true;
+                            }
+                        });
+                        if (selectRow.length == 0) {
+                            bootbox.alert("请选择一条记录");
+                            return;
+                        }
+                        this.selectedId = selectRow[0].Id;
+                        this.modal = true;
+                    },
+                    callback: function () {
+                        var v_self = this;
+                        var selectId = v_self.selectedId;
+                        var remark = v_self.removeReason;
+                        $.post("/StocktakingPlan/Delete", { id: selectId, reason: remark }, function (result) {
+                            if (result.success) {
+                                v_self.$refs.vtable.loadData();
+                                v_self.modal = false;
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
+                    },
                 }
 
             });

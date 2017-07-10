@@ -40,7 +40,11 @@ namespace EBS.Query.DTO
        /// <summary>
        /// 分组方式
        /// </summary>
-       public string GroupBy { get; set; } 
+       public string GroupBy { get; set; }
+       /// <summary>
+       /// 审核人字
+       /// </summary>
+       public string AuditName { get; set; } 
 
     }
 }

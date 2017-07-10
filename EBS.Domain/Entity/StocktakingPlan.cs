@@ -54,6 +54,8 @@ namespace EBS.Domain.Entity
         /// </summary>
         public int StoreId { get; set; }
 
+        public string Note { get; set; }
+
         public List<StocktakingPlanItem> Items { get; set; }
 
 
@@ -79,6 +81,16 @@ namespace EBS.Domain.Entity
             this.UpdatedBy = editedBy;
             this.UpdatedByName = editor;
             this.UpdatedOn = DateTime.Now;
+        }
+
+        public void Cancel(int editedBy, string editor, string reason)
+        {
+            if (this.Status != StocktakingPlanStatus.Complete)
+            {
+                this.Status = StocktakingPlanStatus.Cancel;
+            }
+            UpdateInfo(editedBy, editor);
+            this.Note = reason;
         }
         
     }

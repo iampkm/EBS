@@ -113,6 +113,7 @@
     <Compile Include="DTO\SumPurchaseSaleInventory.cs" />
     <Compile Include="DTO\SumSaleOrder.cs" />
     <Compile Include="DTO\SumSaleReport.cs" />
+    <Compile Include="DTO\SumStocktakingSummary.cs" />
     <Compile Include="DTO\SumStoreInventory.cs" />
     <Compile Include="DTO\SumStorePurchaseOrder.cs" />
     <Compile Include="DTO\SumTransferOrder.cs" />

@@ -93,9 +93,19 @@
                             <input type="text" class="form-control" v-model="searchArgs.storagedEnd" placeholder="出库日期止" readonly>
                         </div>
                     </div>
+                    <div class="col-xs-3 col-sm-2">
+                        <input class="form-control" v-model="searchArgs.auditName" placeholder="审核人" debounce="500" />
+                    </div>
+                    <div class="col-sm-2 col-xs-3">
+                        <button-group v-bind:value.sync="searchArgs.status" type="info" buttons="true">
+                            <v-radio value="@ViewBag.FinishedStatus">已完成</v-radio>
+                            <v-radio value="@ViewBag.FinanceAuditd">财务已审</v-radio>
+                        </button-group>
+                    </div>
                 </div>
                 <span class="input-group-btn" slot="customButtons">
-                    <button type="button" class="btn btn-warning btn-flat" v-on:click="showDetail()">审 核</button>
+                    <button type="button" class="btn btn-success btn-flat" v-on:click="showDetail()">审 核</button>
+                    <button type="button" class="btn btn-warning btn-flat" v-on:click="cancelAudited()" v-bind:disabled="isSubmit">撤销审核</button>
                     <button type="button" class="btn btn-primary btn-flat" v-on:click="print()">打 印</button>
                 </span>
             </vue-table>
@@ -241,7 +251,9 @@
         var vue = new Vue({
             components: {
                 'v-modal': VueStrap.modal,
-                'v-input': VueStrap.input
+                'v-input': VueStrap.input,
+                'button-group':VueStrap.buttonGroup,
+                'v-radio':VueStrap.radio
             },
             el: '#app',
             data: {
@@ -257,14 +269,15 @@
                 { name: 'ActualQuantity', localName: '实收数', width: '100',sum:''  },
                 { name: 'Amount', localName: '实收金额', width: '100',sum:''  },
                 { name: 'PurchaseOrderStatus', localName: '状态', width: '80' },
-                { name: 'CreatedByName', localName: '创建人' },
+                { name: 'AuditName', localName: '审核人', width: '100' },
+                { name: 'CreatedByName', localName: '创建人', width: '100'  },
                 { name: 'CreatedTime', localName: '创建时间' },
                  { name: 'StoragedTime', localName: '出库时间' },
                  { name: 'SupplierBill', localName: '备注', width: '250' }
                 ],
                 url: "/StorePurchaseOrder/LoadData",
                 searchArgs: { code: '', supplierId: 0, storeId: '@ViewBag.StoreId', status:'@ViewBag.ShowStatus' ,
-                    productCodeOrBarCode:'',orderType:@ViewBag.ShowType,startDate: '', endDate: '',storagedBegin:'',storagedEnd:''},
+                    productCodeOrBarCode:'',orderType:@ViewBag.ShowType,startDate: '', endDate: '',storagedBegin:'',storagedEnd:'',auditName:''},
                 rows: [],
                 selectSupplier: {
                     modal: false,
@@ -289,6 +302,8 @@
                     items: [],
                     model: {}
                 },
+                checkFinished:'@ViewBag.FinishedStatus',
+                checkFinanceAuditd:null,
             },
             methods: {
                 remove: function () {
@@ -438,7 +453,39 @@
                         $("#printDiv").html("");
                     });
                 },
-            }
+                cancelAudited:function(){
+                    var selectRow = this.rows.filter(function (item, index) {
+                        if (item.checked) {
+                            return true;
+                        }
+                    });
+                    if (selectRow.length == 0) {
+                        bootbox.alert("请选择一条记录");
+                        return;
+                    }
+                    var selectId = selectRow[0].Id;
+                    var _self = this;                  
+                    bootbox.confirm("您确定撤销审核该记录？", function (result) {
+                        if (result) {
+                            _self.isSubmit = true;
+                            $.post("/StorePurchaseOrder/CancelAuditd", { id:selectId }, function (result) {
+                                if (result.success) {
+                                    bootbox.alert("撤销审核成功",function(){
+                                        _self.$refs.vtable.loadData();
+                                        _self.closeDetail();
+                                    });                           
+                                }
+                                else {
+                                    bootbox.alert(result.error);
+                                }
+                                _self.isSubmit = false;
+                            }, "json");
+                        }
+                    });
+                    
+                }
+            },
+            
         });
         //加载门店tree
         var zTreeObj;

@@ -96,5 +96,14 @@ namespace EBS.Application.Facade
             _db.Update(entity);
             _db.SaveChange();
         }
+
+
+        public void Cancel(int id, int editedBy, string editor, string reason)
+        {
+            var entity = _db.Table.Find<StocktakingPlan>(id);
+            entity.Cancel(editedBy, editor, reason);
+            _db.Update(entity);
+            _db.SaveChange();
+        }
     }
 }

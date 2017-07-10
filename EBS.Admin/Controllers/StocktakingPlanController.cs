@@ -68,7 +68,7 @@ namespace EBS.Admin.Controllers
         {
             var rows = _stocktakingPlanQuery.GetSummaryData(page, condition);
 
-            return Json(new { success = true, data = rows, total = page.Total });
+            return Json(new { success = true, data = rows, total = page.Total, sum = page.SumColumns });
         }
 
         public ActionResult Finish()
@@ -168,6 +168,10 @@ namespace EBS.Admin.Controllers
             return Json(new { success = true });
         }
 
-
+        public JsonResult Delete(int id, string reason)
+        {
+            _stocktakingPlanFacade.Cancel(id, _context.CurrentAccount.AccountId, _context.CurrentAccount.NickName, reason);
+            return Json(new { success = true });
+        }
 	}
 }

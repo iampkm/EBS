@@ -118,6 +118,23 @@ namespace EBS.Domain.Entity
                 throw new Exception("单据未结束，不能进行财务审核");
             }
         }
+
+        /// <summary>
+        /// 取消已审
+        /// </summary>
+        /// <param name="editBy"></param>
+        /// <param name="editor"></param>
+        public void CancelAudited(int editBy, string editor)
+        {
+            if (this.Status == PurchaseOrderStatus.FinanceAuditd)
+            {
+                this.Status = PurchaseOrderStatus.Finished;
+            }
+            else
+            {
+                throw new Exception("财务审核已审单据才能撤销");
+            }
+        }
        
         /// <summary>
         /// 更新收货明细中的 ，数量，生成日期，保质期

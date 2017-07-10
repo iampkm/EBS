@@ -10,6 +10,11 @@ namespace EBS.Domain.ValueObject
     public enum StocktakingPlanStatus
     {
         /// <summary>
+        /// 作废
+        /// </summary>
+        [Description("作废")]
+        Cancel = -1,
+        /// <summary>
         /// 待盘点
         /// </summary>
         [Description("待盘点")]

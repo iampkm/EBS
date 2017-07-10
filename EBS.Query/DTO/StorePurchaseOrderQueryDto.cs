@@ -65,7 +65,9 @@ namespace EBS.Query.DTO
                 return StoragedOn.ToString("yyyy-MM-dd HH:mm");
             }
         }
-
-
+        /// <summary>
+        /// 审核人
+        /// </summary>
+        public string AuditName { get; set; }
     }
 }

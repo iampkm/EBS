@@ -43,6 +43,9 @@ namespace EBS.Query.DTO
        public DateTime? StocktakingDate { get; set; }
 
        public int StoreId { get; set; }
+       public DateTime? StartDate { get; set; }
+
+       public DateTime? EndDate { get; set; }
    }
 
     public class SearchStocktakingPlanSummary
@@ -60,5 +63,8 @@ namespace EBS.Query.DTO
         /// 盘点方式：大盘，小盘
         /// </summary>
         public int Method { get; set; }
+        public DateTime? StartDate { get; set; }
+
+        public DateTime? EndDate { get; set; }
     }
 }

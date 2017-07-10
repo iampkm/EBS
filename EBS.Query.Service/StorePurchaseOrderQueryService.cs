@@ -50,7 +50,7 @@ namespace EBS.Query.Service
                 //where += "and t3.ProductId in (select Id from Product where Code=@ProductCodeOrBarCode or BarCode=@ProductCodeOrBarCode) ";
                 //param.Code = condition.Code;
                 pwhere = string.Format("left join product p on p.Id = i.productid  where p.Code='{0}' or p.BarCode='{0}' ", condition.ProductCodeOrBarCode);
-            }
+            }           
             if (condition.OrderType > 0)
             {
                 where += " and t0.OrderType=@OrderType ";
@@ -77,25 +77,30 @@ namespace EBS.Query.Service
                 where += "and t0.StoragedOn < @StoragedEnd ";
                 param.StoragedEnd = condition.StoragedEnd.Value.AddDays(1);
             }
-
-            string sql = @"select t0.Id,t0.Code,t0.SupplierId,t0.CreatedOn,t0.CreatedByName,t0.Status,t0.SupplierBill,t1.Code as SupplierCode,t1.Name as SupplierName,t2.Name as StoreName,t3.Quantity,t3.ActualQuantity,t3.Amount,t0.StoragedOn  
+            if (!string.IsNullOrEmpty(condition.AuditName))
+            {
+                where += "and h.CreatedByName  like @AuditName ";
+                param.AuditName = string.Format("%{0}%",condition.AuditName);
+            }
+             string formType=condition.OrderType==1?"StorePurchaseOrder": "StorePurchaseRefundOrder";
+            string sql = @"select t0.Id,t0.Code,t0.SupplierId,t0.CreatedOn,t0.CreatedByName,t0.Status,t0.SupplierBill,t1.Code as SupplierCode,t1.Name as SupplierName,t2.Name as StoreName,t3.Quantity,t3.ActualQuantity,t3.Amount,t0.StoragedOn,h.CreatedByName as AuditName   
 from  (select i.StorePurchaseOrderId,SUM(i.Quantity) as Quantity,SUM(i.ActualQuantity) as ActualQuantity,SUM(i.Price* i.ActualQuantity ) as Amount 
 from  storepurchaseorderitem i {3} GROUP BY i.StorePurchaseOrderId) t3 left join 
- storepurchaseorder t0 on t0.Id = t3.StorePurchaseOrderId left join supplier t1 on t0.SupplierId = t1.Id left join store t2 on t0.StoreId = t2.Id where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
+ storepurchaseorder t0 on t0.Id = t3.StorePurchaseOrderId left join supplier t1 on t0.SupplierId = t1.Id left join store t2 on t0.StoreId = t2.Id 
+left join processhistory h on  t0.Id = h.formId and FormType='{4}' and h.`Status` =5  where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
             
-            sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize,pwhere);
+            sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize,pwhere,formType);
             var rows = this._query.FindAll<StorePurchaseOrderQueryDto>(sql, param);
-            string sqlCount = @"select count(*) from  (select i.StorePurchaseOrderId,SUM(i.Quantity) as Quantity,SUM(i.ActualQuantity) as ActualQuantity,SUM(i.Price* i.ActualQuantity ) as Amount from  storepurchaseorderitem i {1} GROUP BY i.StorePurchaseOrderId) t3 left join 
- storepurchaseorder t0 on t0.Id = t3.StorePurchaseOrderId left join supplier t1 on t0.SupplierId = t1.Id left join store t2 on t0.StoreId = t2.Id where 1=1 {0} ";
-            sqlCount = string.Format(sqlCount, where, pwhere);
-            page.Total = this._query.Context.ExecuteScalar<int>(sqlCount, param);
+
             // 统计列
-            string sqlSum = @"select sum(t3.Quantity) as Quantity ,sum(t3.ActualQuantity) as ActualQuantity ,sum(t3.Amount) as Amount  
+            string sqlSum = @"select count(*) as TotalCount, sum(t3.Quantity) as Quantity ,sum(t3.ActualQuantity) as ActualQuantity ,sum(t3.Amount) as Amount  
 from  (select i.StorePurchaseOrderId,SUM(i.Quantity) as Quantity,SUM(i.ActualQuantity) as ActualQuantity,SUM(i.Price* i.ActualQuantity ) as Amount 
 from  storepurchaseorderitem i {1} GROUP BY i.StorePurchaseOrderId) t3 left join 
- storepurchaseorder t0 on t0.Id = t3.StorePurchaseOrderId left join supplier t1 on t0.SupplierId = t1.Id left join store t2 on t0.StoreId = t2.Id where 1=1 {0} ";
-            sqlSum = string.Format(sqlSum, where, pwhere);
+ storepurchaseorder t0 on t0.Id = t3.StorePurchaseOrderId left join supplier t1 on t0.SupplierId = t1.Id left join store t2 on t0.StoreId = t2.Id 
+left join processhistory h on  t0.Id = h.formId and FormType='{2}' and h.`Status` =5 where 1=1 {0} ";
+            sqlSum = string.Format(sqlSum, where, pwhere,formType);
             var sumStoreInventory = this._query.Find<SumStorePurchaseOrder>(sqlSum, param) as SumStorePurchaseOrder;
+            page.Total = sumStoreInventory.TotalCount;
             page.SumColumns.Add(new SumColumn("Quantity", sumStoreInventory.Quantity.ToString()));
             page.SumColumns.Add(new SumColumn("ActualQuantity", sumStoreInventory.ActualQuantity.ToString()));
             page.SumColumns.Add(new SumColumn("Amount", sumStoreInventory.Amount.ToString("F4")));
