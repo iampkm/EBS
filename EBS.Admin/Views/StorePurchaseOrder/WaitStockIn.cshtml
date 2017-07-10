@@ -261,14 +261,9 @@
                                 _self.isSubmit = true;
                                 $.post("/StorePurchaseOrder/SaveInventory", {id:_self.model.id}, function (result) {
                                     if (result.success) {
-                                        bootbox.confirm("入库成功！您要打印此单据吗？选择是 打印，选择取消返回列表！", function (sure) {
-                                            if(sure){
-                                                _self.print();
-                                            }
-                                            else{
-                                                window.location.href = "/StorePurchaseOrder/ReceiveIndex";
-                                            }                                           
-                                        });
+                                        bootbox.alert("入库成功！", function () {
+                                            window.location.href = "/StorePurchaseOrder/ReceiveIndex";
+                                        });                                        
                                     }
                                     else {
                                         bootbox.alert(result.error);

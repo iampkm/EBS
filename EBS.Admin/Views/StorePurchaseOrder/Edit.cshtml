@@ -298,10 +298,15 @@
                     _self.model.items = data;
                     var v_data = _self.model;
                     $.post("/StorePurchaseOrder/Edit", v_data, function (result) {
-                        if (result.success) {
-                            bootbox.alert("保存成功！", function () {
-                                window.location.href = "/StorePurchaseOrder/Index";
-                            });
+                        if (result.success) {                            
+                            bootbox.confirm("制单成功！您要打印此单据吗？选择是 打印，选择取消返回列表！", function (sure) {
+                                if(sure){
+                                    _self.print();
+                                }
+                                else{
+                                    window.location.href = "/StorePurchaseOrder/Index";
+                                }                                           
+                            }); 
                         }
                         else {
                             bootbox.alert(result.error);
