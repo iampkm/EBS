@@ -55,5 +55,29 @@ namespace EBS.Query.DTO
         public List<StorePurchaseOrderItemDto> Items { get; set; }
 
         public OrderType OrderType { get; set; }
+
+        public decimal SumAmount { get {
+            return this.Items.Sum(n => n.Price * n.Quantity);
+        } }
+        public decimal SumActualAmount
+        {
+            get
+            {
+                return this.Items.Sum(n => n.Price * n.ActualQuantity);
+            }
+        }
+
+        public int SumQuantity {
+            get {
+                return this.Items.Sum(n => n.Quantity);
+            }
+        }
+        public int SumActualQuantity
+        {
+            get
+            {
+                return this.Items.Sum(n => n.ActualQuantity);
+            }
+        }
     }
 }

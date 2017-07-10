@@ -114,10 +114,10 @@
                                             <td class="hidden-print">@item.SpecificationQuantity</td>
                                             <td>@item.PackageQuantity</td>
                                             <td>@item.Quantity</td>
-                                            <td>@((item.Price * item.Quantity).ToString("F2"))</td>
+                                            <td>@((item.Amount).ToString("F2"))</td>
                                             <td class="hidden-print">@item.ActualPackageQuantity</td>
                                             <td>@item.ActualQuantity</td>
-                                            <td>@(item.Amount.ToString("F2"))</td>
+                                            <td>@(item.ActualAmount.ToString("F2"))</td>
                                             @*<td>@item.ProductionDate</td>
                         <td>@item.ShelfLife</td>*@
                                         </tr>

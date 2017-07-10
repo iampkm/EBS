@@ -108,7 +108,7 @@
                     </div>
                 </div>
                 <span class="input-group-btn" slot="customButtons">
-                    @*<button type="button" class="btn btn-warning btn-flat" v-on:click="submitAudit()">审核</button>*@
+                    <button type="button" class="btn btn-primary btn-flat" v-on:click="print()">打 印</button>
                 </span>
             </vue-table>
         </div>
@@ -143,11 +143,13 @@
             <div style="min-height:350px;max-height:500px;overflow:auto;"><ul id="ztree" class="ztree"></ul></div>
         </div>
     </v-modal>
+    <div id="printDiv"></div>
 </div>
 @{Html.RenderPartial("VueTableTemplate");}
 @section scripts{
     <script src="~/Content/Vue/vuetable/vuetable.js"></script>
     <script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
+<script src="~/Scripts/jquery.PrintArea.js"></script>
     <script>
 
         var vue = new Vue({
@@ -300,6 +302,23 @@
                             bootbox.alert("请选择一个门店");
                         }
                     }
+                },
+                print: function () {
+                    var selectRow = this.rows.filter(function (item, index) {
+                        if (item.checked) {
+                            return true;
+                        }
+                    });
+                    if (selectRow.length == 0) {
+                        bootbox.alert("请选择一条记录");
+                        return;
+                    }                   
+                    var data = {id:selectRow[0].Id};
+                    $.get("/StorePurchaseOrder/Print", data, function (result) {
+                        $("#printDiv").html(result);
+                        $("#printTemplate").printArea();
+                        $("#printDiv").html("");
+                    });
                 },
             },
             watch:{

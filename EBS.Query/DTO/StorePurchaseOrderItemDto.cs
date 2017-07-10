@@ -71,8 +71,15 @@ namespace EBS.Query.DTO
         public int Quantity { get; set; }
 
         public decimal Amount { get {
-            return Price * ActualQuantity;
+            return Price * Quantity;
         } }
+
+        public decimal ActualAmount {
+            get
+            {
+                return Price * ActualQuantity;
+            }
+        }
 
        /// <summary>
        /// 实收件数
