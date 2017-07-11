@@ -83,5 +83,13 @@ namespace EBS.Query.DTO
             }
         }
 
+        public DateTime UpdatedOn { get; set; }
+
+        public string UpdatedOnString {
+            get {
+                return this.UpdatedOn.ToString("yyyy-MM-dd HH:mm");
+            }
+        }
+
     }
 }

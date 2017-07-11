@@ -80,12 +80,16 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
                 where += " and t0.Method=@Method ";
                 param.Method = condition.Method;
             }
-            //if (condition.StocktakingDate.HasValue)
-            //{
-            //    where += "and t0.StocktakingDate>=@beginDate and t0.StocktakingDate<@endDate ";
-            //    param.beginDate = condition.StocktakingDate;
-            //    param.endDate = condition.StocktakingDate.Value.AddDays(1);
-            //}
+            if (condition.UpdateStartDate.HasValue)
+            {
+                where += " and t0.UpdatedOn >=@UpdateStartDate ";
+                param.UpdateStartDate = condition.UpdateStartDate.Value;
+            }
+            if (condition.UpdateEndDate.HasValue)
+            {
+                where += " and t0.UpdatedOn < @UpdateEndDate ";
+                param.UpdateEndDate = condition.UpdateEndDate.Value.AddDays(1);
+            }
             if (condition.StartDate.HasValue)
             {
                 where += " and t0.StocktakingDate >=@StartDate ";
@@ -96,7 +100,7 @@ where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
                 where += " and t0.StocktakingDate < @EndDate ";
                 param.EndDate = condition.EndDate.Value.AddDays(1);
             }
-            string sql = @"select t0.Id,t0.`Code`,t2.`Name` as StoreName,t0.`Status`,t0.Method,t0.StocktakingDate,t1.TotalInventoryQuantity,t1.TotalCountQuantity,
+            string sql = @"select t0.Id,t0.`Code`,t2.`Name` as StoreName,t0.`Status`,t0.Method,t0.StocktakingDate,t0.UpdatedOn,t1.TotalInventoryQuantity,t1.TotalCountQuantity,
 t1.CostAmount,t1.CostCountAmount,t1.SaleAmout,t1.SaleCountAmount
 from stocktakingplan t0
 left join

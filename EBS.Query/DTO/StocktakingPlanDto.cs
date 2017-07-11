@@ -63,8 +63,19 @@ namespace EBS.Query.DTO
         /// 盘点方式：大盘，小盘
         /// </summary>
         public int Method { get; set; }
+        /// <summary>
+        /// 盘点开始日期
+        /// </summary>
         public DateTime? StartDate { get; set; }
-
+        /// <summary>
+        /// 盘点结束日期
+        /// </summary>
         public DateTime? EndDate { get; set; }
+        /// <summary>
+        /// 完成
+        /// </summary>
+        public DateTime? UpdateStartDate { get; set; }
+
+        public DateTime? UpdateEndDate { get; set; }
     }
 }
