@@ -54,8 +54,9 @@ namespace EBS.Domain.Service
                 var inventoryQuantity = inventory.Quantity;
                 inventory.Quantity += item.ActualQuantity;
                 inventory.SaleQuantity += item.ActualQuantity;
-                inventory.AvgCostPrice = CalculatedAveragePrice(inventory, item.Price, item.ActualQuantity);  // 修改库存均价
-                inventory.LastCostPrice = item.Price > 0 ? item.Price : inventory.LastCostPrice;                
+                inventory.AvgCostPrice = CalculatedAveragePrice(inventory.AvgCostPrice,inventoryQuantity, item.Price, item.ActualQuantity);  // 修改库存均价
+                inventory.LastCostPrice = item.Price > 0 ? item.Price : inventory.LastCostPrice;
+                
 
                 //记录库存流水
                 var history = new StoreInventoryHistory(item.ProductId, entity.StoreId, inventoryQuantity, item.ActualQuantity,
@@ -119,8 +120,7 @@ namespace EBS.Domain.Service
                         break;
                     }
                     else
-                    {
-                                         
+                    {                                         
                         inventoryHistorys.Add(new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventoryQuantity, -batchItem.Quantity,
                                                      batchItem.Price, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.StorePurchaseRefundOrder, entity.CreatedBy, entity.SupplierId));
                         // 剩余扣减数
@@ -204,8 +204,7 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
                         break;
                     }
                     else
-                    {
-                       
+                    {                       
                         // 记录流水
                         inventoryHistorys.Add(new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventoryQuantity, -batchItem.Quantity,
                                                     batchItem.Price, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.SaleOrder, entity.CreatedBy, entity.UpdatedOn, batchItem.SupplierId, item.RealPrice));
@@ -268,7 +267,8 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
                 var inventoryQuantity = inventory.Quantity; 
                 inventory.Quantity += returnQuantity;
                 inventory.SaleQuantity += returnQuantity;
-                inventory.AvgCostPrice = CalculatedAveragePrice(inventory, contractItem.ContractPrice, returnQuantity); 
+                inventory.AvgCostPrice = CalculatedAveragePrice(inventory.AvgCostPrice, inventoryQuantity, contractItem.ContractPrice, returnQuantity);
+                 
 
                 //记录库存流水
                 var history = new StoreInventoryHistory(item.ProductId, entity.StoreId, inventoryQuantity, returnQuantity,
@@ -352,14 +352,14 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
                     // 记录入库价格, // 修改最后一次进价,如果是赠品，不修改价格
                     toInventoryItem.LastCostPrice = batchProduct.Price > 0 ? batchProduct.Price : toInventoryItem.LastCostPrice;
                     // 修改库存均价
-                    toInventoryItem.AvgCostPrice = CalculatedAveragePrice(toInventoryItem, batchProduct.Price, transaferQuantity);
-
+                    toInventoryItem.AvgCostPrice = CalculatedAveragePrice(toInventoryItem.AvgCostPrice, toInventoryQuantity, batchProduct.Price, transaferQuantity);
+                    
                     //记录库存流水
                     var toHistory = new StoreInventoryHistory(item.ProductId, entity.ToStoreId, toInventoryQuantity, transaferQuantity,
                    batchProduct.Price, toBatchNo, entity.Id, entity.Code, BillIdentity.TransferOrder, entity.UpdatedBy,batchProduct.SupplierId);
                     inventoryHistorys.Add(toHistory);
                     // 入库批次时，先检查总库存是否为负库存，有负库存先抵扣负库存。抵扣后库存依然为0，入库批次数量为0，抵扣后有剩余，按剩余数记录入库批次库存                    
-                    var batchQuantity = CalculatedBatchQuantity(toInventoryItem.Quantity, transaferQuantity);
+                    var batchQuantity = CalculatedBatchQuantity(toInventoryQuantity, transaferQuantity);
 
                     var batch = new StoreInventoryBatch(item.ProductId, entity.ToStoreId, batchProduct.SupplierId, batchQuantity,
                 batchProduct.ContractPrice, batchProduct.Price, toBatchNo, item.ProductionDate, item.ShelfLife, entity.UpdatedBy);
@@ -414,20 +414,21 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
             }
             return reSortBatchs;
         }
-
+        
         /// <summary>
         /// 计算库存移动平均价
         /// </summary>
-        /// <param name="inventory">库存数据项</param>
-        /// <param name="price">新进商品价格</param>
+        /// <param name="CurrentAvgCostPrice">当前库存均价</param>
+        /// <param name="CurrentQuantity">当前库存</param>
+        /// <param name="price">新进单价</param>
         /// <param name="quantity">新进数量</param>
         /// <returns></returns>
-        private decimal CalculatedAveragePrice(StoreInventory inventory, decimal price, int quantity)
+        private decimal CalculatedAveragePrice(decimal CurrentAvgCostPrice,int CurrentQuantity, decimal price, int quantity)
         {
             // 修改库存均价
-            int totalQuantity = inventory.Quantity + quantity;
-            inventory.AvgCostPrice = totalQuantity == 0 ? price : Math.Round((inventory.AvgCostPrice * inventory.Quantity + price * quantity) / totalQuantity, 4);
-            return inventory.AvgCostPrice;
+            int totalQuantity = CurrentQuantity + quantity;
+            var avgCostPrice = totalQuantity == 0 ? price : Math.Round((CurrentAvgCostPrice * CurrentQuantity + price * quantity) / totalQuantity, 4);
+            return avgCostPrice;
         }
 
         /// <summary>
@@ -497,7 +498,7 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
                 if (differenceQuantity > 0) 
                 {                    
                     //重新计算均价成本
-                    inventory.AvgCostPrice = CalculatedAveragePrice(inventory, item.CostPrice, differenceQuantity);
+                    inventory.AvgCostPrice = CalculatedAveragePrice(inventory.AvgCostPrice, inventoryQuantity, item.CostPrice, differenceQuantity);                     
                     if (batchNo == 0)
                     {
                         batchNo = _sequenceService.GenerateBatchNo(entity.StoreId);
