@@ -42,7 +42,7 @@ namespace EBS.Domain.Service
             }
             //把库存明细导入盘点表
             string sql = @"insert into stocktakingPlanItem( StocktakingPlanId,ProductId,CostPrice,SalePrice,Quantity,CountQuantity )
-  SELECT  s.Id,p.Id as ProductId ,i.LastCostPrice ,p.SalePrice ,i.Quantity ,0  
+  SELECT  s.Id,p.Id as ProductId ,i.LastCostPrice ,case when i.StoreSalePrice>0 then i.StoreSalePrice else p.SalePrice END as SalePrice  ,i.Quantity ,0  
 FROM    StoreInventory i 
 INNER JOIN StocktakingPlan s ON s.StoreId = i.StoreId 
 INNER JOIN Product p ON p.Id=i.ProductId  

@@ -147,22 +147,26 @@ where 1=1 {0} ORDER BY t0.Id desc ";
         public IEnumerable<StocktakingItemDto> QueryShelf(int planId, int storeId, string shelfCode)
         {            
             // 查询货架商品信息
-            string sql = @"select g.Id,g.Code as ShelfCode,g.ProductId,p.Code as ProductCode,p.Name as ProductName,p.Specification,p.BarCode,p.Unit, p.SalePrice ,t.costprice,t.Quantity  
-  from ShelfLayerProduct g inner join Product p on g.ProductId = p.Id  
-  left join (select costprice,ProductId,quantity from stocktakingplanitem where stocktakingplanId = @PlanId) t on t.ProductId =p.Id
-  where g.Code like @Code and g.StoreId=@StoreId order by g.Code";
-            var rows = _query.FindAll<StocktakingItemDto>(sql, new { PlanId = planId, StoreId = storeId, Code = string.Format("{0}%", shelfCode) });
+            string sql = @" SELECT sh.Id,sh.Code as ShelfCode,st.ProductId,p.Code as ProductCode,p.Name as ProductName,p.Specification,p.BarCode,p.Unit, st.SalePrice ,st.costprice,st.Quantity 
+FROM StocktakingPlanItem AS st 
+inner join stocktakingplan sp on sp.id = st.StocktakingPlanId
+left join ShelfLayerProduct sh on sh.ProductId = st.ProductId and sh.StoreId = sp.StoreId
+left join product p on p.Id = st.ProductId
+  where sh.Code like @Code and st.StocktakingPlanId=@StocktakingPlanId order by sh.Code";
+            var rows = _query.FindAll<StocktakingItemDto>(sql, new { StocktakingPlanId = planId, Code = string.Format("{0}%", shelfCode) });
            return rows;
         }
 
 
         public StocktakingItemDto QueryShelfProduct(int planId, int storeId, string productCodeOrBarCode)
         {
-            string sql = @"SELECT st.ProductId,p.Code as ProductCode,p.Name as ProductName,p.Specification,p.BarCode,p.Unit, p.SalePrice ,st.costprice ,st.Quantity ,sh.Code ShelfCode 
-FROM StocktakingPlanItem AS st LEFT JOIN (SELECT * FROM ShelfLayerProduct WHERE StoreId=@StoreId) AS sh on st.ProductId=sh.ProductId 
-left join product p on p.id = st.ProductId
+            string sql = @"SELECT st.ProductId,p.Code as ProductCode,p.Name as ProductName,p.Specification,p.BarCode,p.Unit, st.SalePrice ,st.costprice ,st.Quantity ,sh.Code ShelfCode 
+FROM StocktakingPlanItem AS st 
+inner join stocktakingplan sp on sp.id = st.StocktakingPlanId
+left join ShelfLayerProduct sh on sh.ProductId = st.ProductId and sh.StoreId = sp.StoreId
+left join product p on p.Id = st.ProductId
  WHERE st.StocktakingPlanId=@StocktakingPlanId and (p.Code = @ProductCodeOrBarCode or p.BarCode=@ProductCodeOrBarCode)";
-            var model = _query.Find<StocktakingItemDto>(sql, new { StocktakingPlanId = planId, StoreId = storeId, ProductCodeOrBarCode = productCodeOrBarCode });
+            var model = _query.Find<StocktakingItemDto>(sql, new { StocktakingPlanId = planId, ProductCodeOrBarCode = productCodeOrBarCode });
             if (model == null) {
                 throw new Exception("商品不存在");
             }
@@ -172,7 +176,7 @@ left join product p on p.id = st.ProductId
 
         public StocktakingItemDto QueryStocktaingItem(int planId, string productCodeOrBarCode)
         {
-            string sql = @"SELECT i.ProductId,p.`Code` as ProductCode,p.`Name` as ProductName,p.Specification,p.BarCode,p.Unit, p.SalePrice ,i.CostPrice,Quantity,CountQuantity FROM StocktakingPlanItem i
+            string sql = @"SELECT i.ProductId,p.`Code` as ProductCode,p.`Name` as ProductName,p.Specification,p.BarCode,p.Unit, i.SalePrice ,i.CostPrice,Quantity,CountQuantity FROM StocktakingPlanItem i
 LEFT JOIN product p on p.id = i.productid   
 WHERE i.StocktakingPlanId=@StocktakingPlanId and (p.Code = @ProductCodeOrBarCode or p.BarCode=@ProductCodeOrBarCode)";
             var model = _query.Find<StocktakingItemDto>(sql, new { StocktakingPlanId = planId, ProductCodeOrBarCode = productCodeOrBarCode });

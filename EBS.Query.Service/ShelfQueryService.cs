@@ -174,7 +174,9 @@ where s.shelflayerid=@ShelfLayerId ";
                 //门店 和货架码是必填参数
                 param.StoreId = storeId;
                 param.Code = code + "%";
-                string psql = @"select s.*,p.Name as ProductName,p.code as ProductCode,p.BarCode,p.Specification,p.SalePrice from shelflayerproduct s inner join product p on s.productId= p.id
+                string psql = @"select s.*,p.Name as ProductName,p.code as ProductCode,p.BarCode,p.Specification,
+case when t.StoreSalePrice>0 then t.StoreSalePrice else p.SalePrice END as SalePrice  from shelflayerproduct s inner join product p on s.productId= p.id 
+left join storeinventory t on t.storeId=s.storeid and t.ProductId = s.ProductId 
 where s.StoreId=@StoreId and s.code like @Code " + where;
                 var rows = _query.FindAll<ShelfLayerProductDto>(psql, param);
                 return rows;
