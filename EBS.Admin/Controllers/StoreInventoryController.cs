@@ -11,6 +11,7 @@ using EBS.Query.DTO;
 using Newtonsoft.Json;
 using EBS.Admin.Services;
 using EBS.Infrastructure.Extension;
+using EBS.Infrastructure.File;
 using EBS.Domain.Entity;
 using EBS.Domain.ValueObject;
 namespace EBS.Admin.Controllers
@@ -24,13 +25,15 @@ namespace EBS.Admin.Controllers
         IAreaQuery _areaQuery;
         IContextService _context;
         ICategoryQuery _categoryQuery;
-        public StoreInventoryController(IContextService contextService, IQuery query, IStoreInventoryQuery storeInventoryQuery, IAreaQuery areaQuery,ICategoryQuery categoryQuery)
+        IExcel _excelService;
+        public StoreInventoryController(IContextService contextService, IQuery query, IStoreInventoryQuery storeInventoryQuery, IAreaQuery areaQuery,ICategoryQuery categoryQuery ,IExcel iexcel)
         {
             this._query = query;
             this._storeInventoryQuery = storeInventoryQuery;
             this._areaQuery = areaQuery;
             this._context = contextService;
             this._categoryQuery = categoryQuery;
+            this._excelService = iexcel;
         }
 
         public ActionResult Index()
@@ -40,11 +43,16 @@ namespace EBS.Admin.Controllers
             return View();
         }       
 
-        public JsonResult LoadData(Pager page, SearchStoreInventory condition)
+        public ActionResult LoadData(Pager page, SearchStoreInventory condition)
         {
             if (string.IsNullOrEmpty(condition.StoreId)||condition.StoreId=="0") { condition.StoreId = _context.CurrentAccount.CanViewStores; }
             var rows = _storeInventoryQuery.GetPageList(page, condition);
-
+            if (page.toExcel)
+            {
+                var data = _excelService.WriteToExcelStream(rows.ToList(), ExcelVersion.Above2007, false, true).ToArray();
+                var fileName = string.Format("Inventory_{0}.xlsx", DateTime.Now.ToString("yyyyMMdd"));
+                return File(data, "application/ms-excel", fileName);
+            }
             return Json(new { success = true, data = rows, total = page.Total,sum = page.SumColumns });
         }
 

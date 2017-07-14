@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Web;
 using EBS.Infrastructure.Events;
 using EBS.Infrastructure.Caching;
+using EBS.Infrastructure.File;
 namespace EBS.Infrastructure
 {
     public abstract class AppContext
@@ -23,6 +24,7 @@ namespace EBS.Infrastructure
             //  builder.RegisterType<Log4NetWritter>().As<ILogger>();
             builder.RegisterInstance(NLog.LogManager.GetCurrentClassLogger()).As<NLog.ILogger>();
             builder.RegisterType<NLogWriter>().As<ILogger>();
+            builder.RegisterType<ExcelService>().As<IExcel>();
             // register dependency
             var typeFinder = new DefaultTypeFinder();
             // builder.RegisterInstance(typeFinder).As<ITypeFinder>().SingleInstance();           

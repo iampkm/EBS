@@ -11,6 +11,7 @@ namespace EBS.Query.DTO
        public Pager()
        {
            this.SumColumns = new List<SumColumn>();
+           this.toExcel = false;
        }
        /// <summary>
        /// 当前页索引
@@ -30,6 +31,8 @@ namespace EBS.Query.DTO
        public bool IsPaging { get; set; }
 
        public List<SumColumn> SumColumns { get; set; }
+
+       public bool toExcel { get; set; }
     }
 
     /// <summary>

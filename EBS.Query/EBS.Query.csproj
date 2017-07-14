@@ -54,6 +54,10 @@
     <Compile Include="DTO\AreaTreeNode.cs" />
     <Compile Include="DTO\CacheKeys.cs" />
     <Compile Include="DTO\CategoryTreeNode.cs" />
+    <Compile Include="DTO\OutInOrderDto.cs" />
+    <Compile Include="DTO\OutInOrderItemDto.cs" />
+    <Compile Include="DTO\OutInOrderListDto.cs" />
+    <Compile Include="DTO\OutInOrderSummaryDto.cs" />
     <Compile Include="DTO\PriceTagDto.cs" />
     <Compile Include="DTO\ProductCheckDto.cs" />
     <Compile Include="DTO\ProductQueryDto.cs" />
@@ -79,6 +83,7 @@
     <Compile Include="DTO\SearchAdjustContractPrice.cs" />
     <Compile Include="DTO\SearchAdjustSalePrice.cs" />
     <Compile Include="DTO\SearchAdjustStorePrice.cs" />
+    <Compile Include="DTO\SearchOutInOrder.cs" />
     <Compile Include="DTO\SearchSaleAnalysis.cs" />
     <Compile Include="DTO\SearchSaleOrder.cs" />
     <Compile Include="DTO\SearchSaleReport.cs" />
@@ -110,6 +115,7 @@
     <Compile Include="DTO\StorePurchaseOrderQueryDto.cs" />
     <Compile Include="DTO\StorePurchaseOrderSummaryDto.cs" />
     <Compile Include="DTO\StoreTreeNode.cs" />
+    <Compile Include="DTO\SumOutInOrderSummary.cs" />
     <Compile Include="DTO\SumPurchaseSaleInventory.cs" />
     <Compile Include="DTO\SumSaleOrder.cs" />
     <Compile Include="DTO\SumSaleReport.cs" />
@@ -137,6 +143,7 @@
     <Compile Include="IBrandQuery.cs" />
     <Compile Include="ICategoryQuery.cs" />
     <Compile Include="IMenuQuery.cs" />
+    <Compile Include="IOutInOrderQuery.cs" />
     <Compile Include="IPosSyncQuery.cs" />
     <Compile Include="IProcessHistoryQuery.cs" />
     <Compile Include="IProductQuery.cs" />

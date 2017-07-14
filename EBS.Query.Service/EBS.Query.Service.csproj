@@ -51,6 +51,7 @@
     <Compile Include="AreaQueryService.cs" />
     <Compile Include="BrandQueryService.cs" />
     <Compile Include="CategoryQueryService.cs" />
+    <Compile Include="OutInOrderQueryService.cs" />
     <Compile Include="PosSyncQueryService.cs" />
     <Compile Include="MenuQueryService.cs" />
     <Compile Include="ProductQueryService.cs" />

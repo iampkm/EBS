@@ -61,6 +61,9 @@
     <Compile Include="Entity\Area.cs" />
     <Compile Include="Entity\BillSequence.cs" />
     <Compile Include="Entity\Brand.cs" />
+    <Compile Include="Entity\OutInOrder.cs" />
+    <Compile Include="Entity\OutInOrderItem.cs" />
+    <Compile Include="Entity\OutInOrderType.cs" />
     <Compile Include="Entity\ProcessHistory.cs" />
     <Compile Include="Entity\ProductAreaPrice.cs" />
     <Compile Include="Entity\ProductCodeSequence.cs" />
@@ -129,6 +132,8 @@
     <Compile Include="ValueObject\AdjustSalePriceStatus.cs" />
     <Compile Include="ValueObject\AdjustStorePriceStatus.cs" />
     <Compile Include="ValueObject\OrderType.cs" />
+    <Compile Include="ValueObject\OutInInventoryType.cs" />
+    <Compile Include="ValueObject\OutInOrderStatus.cs" />
     <Compile Include="ValueObject\SaleOrderLevel.cs" />
     <Compile Include="ValueObject\SaleOrderStatus.cs" />
     <Compile Include="ValueObject\PurchaseOrderStatus.cs" />

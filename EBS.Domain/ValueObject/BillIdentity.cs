@@ -76,8 +76,10 @@ namespace EBS.Domain.ValueObject
 
         [Description("调拨单")]
         TransferOrder = 60,
-         [Description("残损单")]
-        LossOrder  = 61
+         [Description("其他入库单")]
+        StockInOrder = 61,
+        [Description("其他出库单")]
+        StockOutOrder = 62
         
     }
 }

@@ -18,6 +18,7 @@ namespace EBS.Domain.Entity
            this.CreatedOn = DateTime.Now;
            this.UpdatedOn = DateTime.Now;
            this.Status = TransferOrderStatus.Create;
+           this.Items = new List<TransferOrderItem>();
        }
 
         public int FromStoreId { get; set; }

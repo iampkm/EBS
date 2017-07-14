@@ -1,0 +1,527 @@
+﻿@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+@section styles{
+    <link href="~/Content/zTree.min.css" rel="stylesheet" />
+    <style>
+        .ztree li span {
+            font-size: 14px;
+        }
+
+        .dataRow div {
+            margin-bottom: 0px;
+        }
+    </style>
+}
+<!-- demo root element -->
+<div id="app" class="box box-primary">
+    <div class="box-header with-border">
+        <ol class="breadcrumb" style="padding:0px;margin:1px;">
+            <li><a href="/OutInOrder/Index"><i class="fa fa-dashboard"></i>其他出库单</a></li>
+            <li class="active"><a href="/OutInOrder/Refund">新增其他出库单</a></li>
+        </ol>
+    </div>
+    <!-- /.box-header -->
+    <!-- form start -->
+    <form>
+        <div class="box-body">
+            <div class="row">
+                <div class="form-group col-sm-4 col-xs-6">
+                    <button type="button" class="btn btn-warning btn-flat" v-on:click="onSubmit" v-bind:disabled="isSubmit">保 存</button>
+                    <button type="button" class="btn btn-success btn-flat" v-on:click="showModal()">导入商品</button>
+                    <a class="btn btn-default btn-flat" href="/OutInOrder/Index">取 消</a>
+                    <input type="hidden" v-model="model.id" />
+                </div>
+            </div>
+            <div class="row">                
+                <div class="col-sm-2 col-xs-3" v-show="selectStore.view">
+                    <div class="input-group ">
+                        <input type="hidden" class="form-control" v-model="model.storeId">
+                        <input type="text" class="form-control" v-model="selectStore.name" placeholder="选择门店" readonly>
+                        <span class="input-group-btn">
+                            <button class="btn btn-flat btn-default" type="button" v-on:click="showStore"><i class="fa fa-search"></i></button>
+                            @*<button class="btn btn-flat btn-default" type="button" v-on:click="clearStore"><i class="fa fa-eraser"></i></button>*@
+                        </span>
+                    </div>
+                </div>
+                <div class="col-sm-2 col-xs-3">
+                    <div class="input-group">
+                        <span class="input-group-addon">业务类别</span>
+                        <select name="brand" class="form-control" v-model="model.OutInOrderTypeId">
+                            <option value="0">-请选择-</option>
+                            <option value="1">新店转出</option>
+                            <option value="2">报损单</option>
+                            <option value="3">盘亏调整</option>
+                            @*@foreach (var item in ViewBag.Status)
+                                {
+                                    <option value="@item.Key">@item.Value</option>
+                                }*@
+                        </select>
+                    </div>
+
+                </div>
+                <div class="col-sm-2 col-xs-3">
+                    <v-input type="text" v-bind:value.sync="model.remark" placeholder="录入备注" maxlength="100" required icon></v-input>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-4 col-sm-4"></div>
+                <div class="col-xs-4 col-sm-4"><h3 class="text-center text-danger" style="border-bottom:2px solid;padding-bottom:1px;"><b>其他出库单</b></h3></div>
+                <div class="col-xs-4 col-sm-4"></div>
+            </div>
+            <div class="row">
+                <div class="col-xs-4 col-sm-4">
+                    <span>单据号：</span>
+                </div>
+                <div class="col-xs-4 col-sm-4 ">
+                    <span></span>
+                </div>
+                <div class="col-xs-4 col-sm-4 ">
+                    <span>备注：</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-4 col-sm-4">
+                    <span>门店：{{selectStore.name}}</span>
+                </div>
+                <div class="col-xs-4 col-sm-4 ">
+                    <span class="text-danger">单据状态：</span>
+                </div>
+                <div class="col-xs-4 col-sm-4">
+                    <span>制单日期：@DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="width:90px;"></th>
+                                    <th style="width:50px;">序号</th>
+                                    <th style="width:150px;">商品编码</th>
+                                    <th>条码</th>
+                                    <th>品名</th>
+                                    <th>规格</th>
+                                    <th>单位</th>
+                                    <th style="width:100px;">最近进价</th>
+                                    <th style="width:100px;">单价</th>
+                                    <th style="width:100px;">数量</th>
+                                    <th>金额</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody">
+                                <tr v-for="(index,item) in products">
+                                    <td>
+                                        <button type="button" class="btn btn-flat  btn-sm" title="添加行" v-on:click="addRow($event)"><span class="fa fa-plus"></span></button>
+                                        <button type="button" class="btn btn-flat  btn-sm" v-show="index>0" title="删除行" v-on:click="removeRow(index)"><span class="fa fa-trash"></span></button>
+                                    </td>
+                                    <td class="text-center">{{index+1}}</td>
+                                    <td>
+                                        <input type="text" class="form-control productCode" v-model="item.ProductCode" v-on:keyup.enter="inputProduct(item.ProductCode,index)" placeholder="录入编码或扫码" />
+                                    </td>
+                                    <td>{{item.BarCode}}</td>
+                                    <td>{{item.ProductName}}</td>
+                                    <td>{{item.Specification}}</td>
+                                    <td>{{item.Unit}}</td>
+                                    <td>{{item.CostPrice}}</td>
+                                    <td>
+                                        <input type="text" class="form-control price" v-model="item.CostPrice" v-on:keyup.enter="inputNext($event)" />
+                                    </td>
+                                    @*<td v-bind:class="{'text-danger':item.CostPrice>item.Price}">{{model.isGift?0:item.CostPrice.toFixed(4)}}</td>*@
+                                    <td>
+                                        <input type="number" class="form-control quantity" v-model="item.Quantity" v-on:keyup.enter="inputNext($event)" />
+                                    </td>
+                                    <td>{{item.Amount.toFixed(2)}}</td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td></td>
+                                    <td style="width:50px;"></td>
+                                    <td>合计：</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>{{totalQuantity}}</td>
+                                    <td></td>
+                                    <td>{{countTotal.toFixed(2)}}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-3 col-sm-3">
+                    <span>制单人： </span>
+                </div>
+                <div class="col-xs-3 col-sm-3">
+                    <span></span>
+                </div>
+                <div class="col-xs-3 col-sm-3">
+                    <span></span>
+                </div>
+                <div class="col-xs-3 col-sm-3">
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    </form>
+    <!-- modal -->
+    <v-modal title="导入商品" ok-text="确 定" cancel-text="取 消" v-bind:callback="importProduct" v-bind:show.sync="modal" v-bind:effect="fade" width="300">
+        <div slot="modal-body" class="modal-body">
+            <v-input type="textarea" help="请将excel中商品编号和数量两列粘贴到文本框中" v-bind:value.sync="inputProducts" placeholder="输入商品" required icon></v-input>
+        </div>
+    </v-modal>
+    <v-modal title="选择门店" ok-text="确 定" cancel-text="取 消" v-bind:callback="getStore" v-bind:show.sync="selectStore.modal" v-bind:effect="fade" width="60%">
+        <div slot="modal-body" class="modal-body">
+            <div style="min-height:350px;max-height:500px;overflow:auto;"><ul id="ztree" class="ztree"></ul></div>
+        </div>
+    </v-modal>
+    <v-modal title="选择供应商" ok-text="确 定" cancel-text="取 消" v-bind:callback="getSupplier" v-bind:show.sync="selectSupplier.modal" v-bind:effect="fade" width="50%">
+        <div slot="modal-body" class="modal-body">
+            <vue-table v-bind:columns="selectSupplier.gridColumns"
+                       v-bind:url="selectSupplier.url" v-bind:show-toolbar="false"
+                       v-bind:args="selectSupplier.searchArgs" v-bind:data.sync="selectSupplier.rows">
+                <div class="row" style="margin-bottom:10px;" slot="customSearch">
+                    <div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="selectSupplier.searchArgs.code" placeholder="输入供应编码" debounce="300" />
+                    </div>
+                    <div class="col-xs-4 col-sm-3">
+                        <input class="form-control" v-model="selectSupplier.searchArgs.name" placeholder="输入供应商名" debounce="300" />
+                    </div>
+                </div>
+            </vue-table>
+        </div>
+    </v-modal>
+</div>
+@{Html.RenderPartial("VueTableTemplate");}
+@section scripts{
+    <script src="~/Content/Vue/vuetable/vuetable.js"></script>
+    <script src="~/Scripts/jquery.ztree.all-3.5.min.js"></script>
+    <script>
+        $("doucument").ready(function () {
+            var demo = new Vue({
+                components: {
+                    'v-modal': VueStrap.modal,
+                    'v-input': VueStrap.input,
+                    'v-form': VueStrap.formGroup,
+                    'v-checkbox': VueStrap.checkbox
+                },
+                el: '#app',
+                data: {
+                    valid: false,
+                    modal: false,
+                    model: {
+                        id: 0,
+                        code: '',
+                        storeId: @ViewBag.StoreId,
+                        supplierId: 0,
+                        items: '',
+                        orderType:1,
+                        remark:'',
+                        OutInOrderTypeId:0
+                    },
+                    products: [{
+                        ProductId: 0, ProductCode: '10007437', BarCode: '6947012800058', ProductName: '昆仑山小瓶', Specification: '', Unit: '', CostPrice: 3.75,Quantity: 1,  Amount: 0,
+                    }],
+                    totalQuantity: 0,
+                    inputProducts: '',
+                    selectSupplier: {
+                        modal: false,
+                        name: '',
+                        gridColumns: [
+                            { name: 'Code', localName: '编码', width: '100' },
+                            { name: 'Name', localName: '供应商名', width: '300' },
+                            { name: 'SupplierType', localName: '类型', width: '100' },
+                        ],
+                        url: "/Supplier/LoadData",
+                        searchArgs: { name: '', code: '' },
+                        rows: []
+                    },
+                    selectStore: {
+                        modal: false,
+                        name: '@ViewBag.StoreName',
+                        view:@ViewBag.View,
+                    },
+                    isSubmit:false,
+                },
+                methods: {
+                    onSubmit: function () {
+                        //获取选择节点
+                        var _self = this;
+                        var data = "";
+                        for (var i = 0; i < _self.products.length; i++) {
+                            var item = _self.products[i];
+                            if (item.ProductId > 0 && item.Quantity > 0) {
+                                var price = item.CostPrice;
+                                data += "{\"ProductId\":" + item.ProductId + ",\"CostPrice\":" + item.CostPrice
+                                     + ",\"Price\":" + price + ",\"Quantity\":" + item.Quantity + ",\"SpecificationQuantity\":" + item.SpecificationQuantity +"},";
+                            }
+                        }
+                        if (data == "") {
+                            bootbox.alert("请导入商品");
+                            return;
+                        }
+                        data = data.substring(0, data.length - 1);
+                        data = "[" + data + "]";
+                        _self.model.items = data;
+                        var v_data = _self.model;
+                        _self.isSubmit = true;
+                        $.post("/OutInOrder/Create", v_data, function (result) {
+                            if (result.success) {
+                                bootbox.alert("制单成功！", function () {
+                                    window.location.href = "/OutInOrder/Create";
+                                });
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                            _self.isSubmit = false;
+                        }, "json");
+                    },
+                    importProduct: function () {
+                        var inputItems = this.inputProducts;
+                        var _self = this;
+                        if (inputItems == "") { return; }
+                        if (_self.model.storeId == 0) { bootbox.alert("请选择门店"); return; }
+                        if(_self.model.supplierId==0)  { bootbox.alert("请选择供应商"); return; }
+                        var data = {
+                            inputProducts: inputItems,
+                            storeId: _self.model.storeId,
+                            supplierId:_self.model.supplierId
+                        }
+                        $.post("/OutInOrder/ImportProduct", data, function (result) {
+                            if (result.success) {
+                                _self.products = [];
+                                for(var i=0;i<result.data.length;i++)
+                                {
+                                    var item = result.data[i];
+                                    if(_self.model.supplierId==0){
+                                        _self.model.supplierId = item.SupplierId;
+                                        _self.selectSupplier.name = item.SupplierName;
+                                    }
+                                    else{
+                                        //同一个单子，供应商应该一致
+                                        if(_self.model.supplierId!=item.SupplierId)
+                                        {
+                                            bootbox.alert("录入的商品供应商不一致");break;
+                                        }
+                                    }
+                                    _self.products.push(item);
+                                }
+
+                                _self.modal = false;
+                                //设置焦点,延迟500，等待vue.js 渲染完毕
+                                setTimeout(function () {
+                                    var selector = "tr:eq(0)";
+                                    var row = $("#tbody").find(selector);
+                                    row.find("input.quantity").focus().select();
+                                }, 300);
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
+                    },
+                    showModal: function () {
+                        this.modal = true;
+                    },
+                    addRow: function (event) {
+                        this.products.push({
+                            ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', CostPrice: 0,Quantity: 1,  Amount: 0,
+                        });
+                        //设置焦点
+                        var target = event.srcElement || event.target;
+                        var row = target.localName == "span" ? $(target).parent().parent().parent() : $(target).parent().parent();
+                        setfocus();
+                        function setfocus()
+                        {
+                            setTimeout(function () {
+                                var nextRow = row.next();
+                                if (nextRow) { // 等待 vue.js 渲染完成后，才设置
+                                    nextRow.find("input.productCode").focus().select();
+                                }
+                                else {
+                                    setfocus();
+                                }
+                            }, 200);
+                        }
+                    },
+                    removeRow: function (index) {
+                        this.products.splice(index, 1);
+                    },
+                    inputProduct: function (codeOrBarCode, index) {
+                        var _self = this;
+                        if (codeOrBarCode == "") { return; }
+                        if (_self.model.storeId == 0) { bootbox.alert("请选择门店"); return; }
+                        if(_self.model.supplierId==0)  { bootbox.alert("请选择供应商"); return; }
+                        var data = {
+                            productCodeOrBarCode: codeOrBarCode,
+                            storeId: _self.model.storeId,
+                            supplierId:_self.model.supplierId
+                        }
+                        //设置焦点
+                        $.get("/OutInOrder/GetPurchaseOrderItem", data, function (result) {
+                            if (result.success) {
+                                if(_self.model.supplierId==0){
+                                    _self.model.supplierId = result.data.SupplierId;
+                                    _self.selectSupplier.name = result.data.SupplierName;
+                                }
+                                else{
+                                    //同一个单子，供应商应该一致
+                                    if(_self.model.supplierId!=result.data.SupplierId)
+                                    {
+                                        bootbox.alert("录入的商品供应商不一致");return;
+                                    }
+                                }
+                                _self.products.$set(index, result.data);
+
+                                //设置焦点,延迟500，等待vue.js 渲染完毕
+                                setTimeout(function () {
+                                    var selector = "tr:eq(" + index + ")";
+                                    var row= $("#tbody").find(selector);
+                                    row.find("input.quantity").focus().select();
+                                }, 300);
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
+
+                    },
+                    inputNext: function (event) {
+                        var target = event.target;
+                        var row = $(target).parent().parent();
+                        if (row.next().length > 0) {
+                            row.next().find("input.quantity").focus().select();
+                        }
+                        else {
+                            this.addRow(event);
+                        }
+                    },
+                    showStore: function () {
+                        this.selectStore.modal = true;
+                    },
+                    clearStore: function () {
+                        this.model.storeId = 0;
+                        this.selectStore.name = "";
+                    },
+                    getStore: function () {
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                        var selecteds= treeObj.getCheckedNodes(true);
+                        if (selecteds) {
+                            var idArray = new Array();
+                            var nameArray = new Array();
+                            selecteds.forEach(function(item){
+                                if(item.level==1){
+                                    idArray.push(item.id);
+                                    nameArray.push(item.name);
+                                }
+                            })
+                            if(idArray.length>0){
+                                this.model.storeId = idArray[0];
+                                this.selectStore.name = nameArray[0];
+                                this.selectStore.modal = false;
+                                this.clearItems();
+                            }
+                            else
+                            {
+                                bootbox.alert("请选择一个门店");
+                            }
+
+                        }
+                    },
+                    showSupplier: function () {
+                        this.selectSupplier.modal = true;
+                    },
+                    getSupplier: function () {
+                        this.clearItems();
+                        var selecteds = this.selectSupplier.rows.filter(function (item) {
+                            return item.checked;
+                        });
+                        if (selecteds) {
+                            this.model.supplierId = selecteds[0].Id;
+                            this.selectSupplier.name = selecteds[0].Name;
+                            this.selectSupplier.modal = false;
+
+                            //清空选择项
+                            this.clearItems();
+                        }
+                    },
+                    clearItems:function(){
+                        if(this.products.length>0)
+                        {
+                            this.products = [{
+                                ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '', Unit: '', CostPrice: 0,Quantity: 1,  Amount: 0,
+                            }];
+                        }
+                    }
+                },
+                computed: {
+                    countTotal: function () {
+                        var total = 0;
+                        var bookQty = 0;
+                        var _self = this;
+                        this.products.forEach(function (item) {
+                            if(item.Quantity==undefined||item.Quantity==""||item.Quantity==null){
+                                item.Quantity =0;
+                            }
+                            var qty = parseInt(item.Quantity);
+                            var price = _self.model.isGift?0:item.CostPrice;
+                            item.Amount = price * qty;
+                            item.Amount =parseFloat(item.Amount.toFixed(2));
+                            bookQty += qty;
+                            total += item.Amount;
+                            item.PackageQuantity =item.SpecificationQuantity==1?0: parseInt(qty / item.SpecificationQuantity);
+                        })
+                        _self.totalQuantity = bookQty;
+                        return total;
+                    }
+                }
+            });
+
+            //加载门店tree
+            var zTreeObj;
+            var setting = {
+                check: {
+                    enable:true
+                },
+                async: {
+                    enable: true,
+                    url: "/Store/LoadStore",
+                    //autoParam: ["id", "name"]
+                },
+                callback:{
+                    onClick:function(event, treeId, treeNode){
+                        //点击展开/折叠节点
+                        var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                        var open = !treeNode.open;
+                        treeObj.expandNode(treeNode, open, false, false);
+                        // vue.searchArgs.categoryId =treeNode.id;
+                    }
+                }
+            };
+            zTreeObj = $.fn.zTree.init($("#ztree"), setting);
+
+        });
+
+
+    </script>
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

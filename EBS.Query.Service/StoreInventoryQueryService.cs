@@ -49,21 +49,22 @@ namespace EBS.Query.Service
             {
                 where +=string.Format("and t0.Quantity {0} @Quantity ",condition.Operate);
                 param.Quantity = condition.Quantity; 
-            }
+            }            
 
             string sql = @"select t0.*,t1.`Code` as ProductCode ,t1.`Name` as ProductName,t1.BarCode,t1.Specification,t1.SalePrice,t2.`name` as StoreName,t3.FullName as CategoryName 
 from storeinventory t0 left join product t1 on t0.productId = t1.Id
 left join store t2 on t2.Id = t0.StoreId
 left join category t3 on t1.CategoryId = t3.Id
-where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
-            //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<Product>(where, param);
-            sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
+where 1=1 {0} ORDER BY t0.Id desc ";
+
+            if (!page.toExcel)
+            {
+              //  sql += string.Format(" LIMIT {0},{1}", (page.PageIndex - 1) * page.PageSize, page.PageSize);
+                sql += string.Format(" LIMIT {0},{1}", 0, 100);
+            }
+
+            sql = string.Format(sql, where);
             var rows = this._query.FindAll<StoreInventoryQueryDto>(sql, param);
-//            string sqlCount = @"select count(*) from storeinventory t0 left join product t1 on t0.productId = t1.Id
-//inner join store t2 on t2.Id = t0.StoreId
-//where 1=1 {0} ";
-//            sqlCount = string.Format(sqlCount, where);
-//            page.Total = this._query.Context.ExecuteScalar<int>(sqlCount, param);
 
             // 查询统计列数据
             string sqlSum = @"select count(*) as TotalCount, sum(t0.Quantity) as Quantity,sum(t0.AvgCostPrice*t0.Quantity) as Amount,sum(t1.SalePrice*t0.Quantity) as SaleAmount

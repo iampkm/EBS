@@ -152,6 +152,7 @@
     <Compile Include="Controllers\CommonController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\MenuController.cs" />
+    <Compile Include="Controllers\OutInOrderController.cs" />
     <Compile Include="Controllers\PosSyncController.cs" />
     <Compile Include="Controllers\ProductController.cs" />
     <Compile Include="Controllers\PurchaseContractController.cs" />
@@ -1316,6 +1317,10 @@
     <Content Include="Views\SaleOrder\SaleReport.cshtml" />
     <Content Include="Views\StorePurchaseOrder\Summary.cshtml" />
     <Content Include="Views\TransferOrder\Summary.cshtml" />
+    <Content Include="Views\OutInOrder\Index.cshtml" />
+    <Content Include="Views\OutInOrder\OutIndex.cshtml" />
+    <Content Include="Views\OutInOrder\Create.cshtml" />
+    <Content Include="Views\OutInOrder\Refund.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">

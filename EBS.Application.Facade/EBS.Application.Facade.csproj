@@ -63,6 +63,7 @@
     <Compile Include="Mapping\AutoMappingExtension.cs" />
     <Compile Include="Mapping\ModelExtension.cs" />
     <Compile Include="MenuFacade.cs" />
+    <Compile Include="OutInOrderFacade.cs" />
     <Compile Include="PosSyncFacade.cs" />
     <Compile Include="ProductFacade.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -33,6 +33,7 @@
             showLoading: false,
             columnWidth: '150',
             indexWidth: '40',
+            exportExcel:false,
         }
     },
     methods: {
@@ -190,7 +191,16 @@
             return (times + 1) * this.pageNumber + 1;
         },
         toExcel: function () {
-            $('#btnToExcel').bootstrapExcelExport({ tableSelector: '#tableData' });
+            // $('#btnToExcel').bootstrapExcelExport({ tableSelector: '#tableData' });
+            var href = this.url + "?toExcel=true";
+            //附加参数
+            var parameters = this.args;
+            for (var name in parameters)
+            {
+                href += "&" + name + "=" + encodeURIComponent(parameters[name]);
+            }
+            
+            window.location.href = href;
         },
         selectRow: function (index) {
              var item = this.data[index];
