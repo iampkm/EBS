@@ -475,7 +475,8 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
             foreach (var item in differenceItems)
             {
                 var inventory = inventorys.FirstOrDefault(n => n.ProductId == item.ProductId);
-                if (inventory == null) {
+                if (inventory == null)
+                {
                     var product = _db.Table.Find<Product>(item.ProductId);
                     throw new FriendlyException(string.Format("库存商品[{0}]{1}不存在！", product.Code, product.Name));
                 }
@@ -486,19 +487,13 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
                 inventory.SaleQuantity += differenceQuantity;
 
                 //按盘盈，盘亏记录库存历史和批次
-                // 查询商品合同价
-                var contract = _db.Table.Find<PurchaseContract>(@"SELECT c.Id,c.SupplierId from purchasecontract c inner join purchasecontractitem i on c.id = i.PurchaseContractId where FIND_IN_SET(@StoreId,c.StoreIds) and c.`Status`=3 and i.ProductId = @productId order by c.Id desc", new { StoreId = entity.StoreId, ProductId = inventory.ProductId });
-                var contractItem = _db.Table.Find<PurchaseContractItem>("select * from purchasecontractitem where PurchaseContractId=@PurchaseContractId and ProductId=@ProductId", new { PurchaseContractId = contract.Id, ProductId = inventory.ProductId });
-
-                //记录库存结转记录, 成本Price统一使用盘点计划明细的价格
-                var history = new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventoryQuantity, differenceQuantity,
-                    item.CostPrice, batchNo, entity.Id, entity.Code, ValueObject.BillIdentity.StoreStocktakingPlan, entity.UpdatedBy, entity.UpdatedOn, contract.SupplierId);
-                inventoryHistorys.Add(history);
-
-                if (differenceQuantity > 0) 
-                {                    
+                if (differenceQuantity > 0)
+                {
+                    // 查询商品合同价
+                    var contract = _db.Table.Find<PurchaseContract>(@"SELECT c.Id,c.SupplierId from purchasecontract c inner join purchasecontractitem i on c.id = i.PurchaseContractId where FIND_IN_SET(@StoreId,c.StoreIds) and c.`Status`=3 and i.ProductId = @productId order by c.Id desc", new { StoreId = entity.StoreId, ProductId = inventory.ProductId });
+                    var contractItem = _db.Table.Find<PurchaseContractItem>("select * from purchasecontractitem where PurchaseContractId=@PurchaseContractId and ProductId=@ProductId", new { PurchaseContractId = contract.Id, ProductId = inventory.ProductId });
                     //重新计算均价成本
-                    inventory.AvgCostPrice = CalculatedAveragePrice(inventory.AvgCostPrice, inventoryQuantity, item.CostPrice, differenceQuantity);                     
+                    inventory.AvgCostPrice = CalculatedAveragePrice(inventory.AvgCostPrice,inventoryQuantity, contractItem.ContractPrice, differenceQuantity);
                     if (batchNo == 0)
                     {
                         batchNo = _sequenceService.GenerateBatchNo(entity.StoreId);
@@ -506,14 +501,18 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
                     //入库批次
                     var batchQuantity = CalculatedBatchQuantity(inventoryQuantity, differenceQuantity);
                     var batch = new StoreInventoryBatch(inventory.ProductId, entity.StoreId, contract.SupplierId, batchQuantity,
-            contractItem.ContractPrice, item.CostPrice, batchNo, null, 0, entity.UpdatedBy);
-                    inventoryProfit.Add(batch);                    
+            contractItem.ContractPrice, contractItem.ContractPrice, batchNo, null, 0, entity.UpdatedBy);
+                    inventoryProfit.Add(batch);
+
+                    //入库历史记录
+                    var history = new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventoryQuantity, differenceQuantity,
+                        contractItem.ContractPrice, batchNo, entity.Id, entity.Code, ValueObject.BillIdentity.StoreStocktakingPlan, entity.UpdatedBy, entity.UpdatedOn,contract.SupplierId);
+                    inventoryHistorys.Add(history);
                 }
                 else
                 {
-                     // 盘亏, 库存扣减用先进先出， 批次库存扣减到0 就不再减。
+                    // 盘亏
                     var leftQuantity = Math.Abs(differenceQuantity);
-
                     var productBatchs = inventoryBatchs.Where(n => n.ProductId == inventory.ProductId).OrderBy(n => n.BatchNo);
                     foreach (var batchItem in productBatchs)
                     {
@@ -521,11 +520,16 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
                         {
                             batchItem.Quantity -= leftQuantity;
                             inventoryLoss.Add(batchItem);
+                            //记录修改历史
+                            inventoryHistorys.Add(new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventoryQuantity, -leftQuantity,
+                                batchItem.Price, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.StoreStocktakingPlan, entity.UpdatedBy, entity.UpdatedOn, batchItem.SupplierId));
                             leftQuantity = 0;
                             break;
                         }
                         else
                         {
+                            inventoryHistorys.Add(new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventoryQuantity, -batchItem.Quantity,
+                                                         batchItem.Price, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.StoreStocktakingPlan, entity.UpdatedBy, entity.UpdatedOn, batchItem.SupplierId));
                             // 剩余扣减数
                             inventoryQuantity = inventoryQuantity - batchItem.Quantity;  // 第1+N次扣减后总库存
                             leftQuantity = leftQuantity - batchItem.Quantity;
@@ -533,8 +537,21 @@ where s.Id is null  and i.`TransferOrderId`=@TransferOrderId";
                             inventoryLoss.Add(batchItem);
                         }
                     }
-                 }
-            }            
+                    //当扣减批次后，剩余数量依然大于0，存在两种情况：1 无批次数据，2 批次数量不够扣
+                    if (leftQuantity > 0)
+                    {
+                        //用最新的合同商品价来记录
+                        var contract = _db.Table.Find<PurchaseContract>(@"SELECT c.Id,c.SupplierId from purchasecontract c inner join purchasecontractitem i on c.id = i.PurchaseContractId where FIND_IN_SET(@StoreId,c.StoreIds) and c.`Status`=3 and i.ProductId = @productId order by c.Id desc", new { StoreId = entity.StoreId, ProductId = inventory.ProductId });
+                        var contractItem = _db.Table.Find<PurchaseContractItem>("select * from purchasecontractitem where PurchaseContractId=@PurchaseContractId and ProductId=@ProductId", new { PurchaseContractId = contract.Id, ProductId = inventory.ProductId });
+
+                        inventoryHistorys.Add(new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventoryQuantity, -leftQuantity,
+                                                 contractItem.ContractPrice, 0, entity.Id, entity.Code, BillIdentity.StoreStocktakingPlan, entity.CreatedBy, entity.UpdatedOn, contract.SupplierId));
+                        // 第1+N次扣减后总库存
+                        inventoryQuantity = inventoryQuantity - leftQuantity;
+                    }
+
+                }
+            }             
 
             if (inventoryProfit.Count > 0)
             {
