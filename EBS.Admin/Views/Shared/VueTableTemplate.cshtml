@@ -146,7 +146,14 @@
                                     <td v-bind:style="{width:key.width}">{{{setColumnStyle(key.style,entry[key.name],entry[id],entry)}}}</td>
                                 </template>
                             </template>
-                            <td><slot name="customColumn"></slot></td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group" aria-label="...">
+                                    <button v-for="(idx,btn) in buttons" type="button" class="btn btn-flat {{btn.className==undefined?'btn-default':btn.className}}"
+                                            v-on:click.stop="clickButton(entry,btn)">
+                                        {{btn.text}}
+                                    </button>
+                                </div>
+                            </td>
                         </tr>
                     </tbody>
                     @*<tfoot v-show="showSum">

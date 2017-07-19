@@ -8,6 +8,8 @@ namespace EBS.Query.DTO
 {
    public class OutInOrderItemDto
     {
+
+       public int StoreId { get; set; }
         public int ProductId { get; set; }
 
         public string BarCode { get; set; }
@@ -23,11 +25,12 @@ namespace EBS.Query.DTO
         /// 单位
         /// </summary>
         public string Unit { get; set; }
+        public decimal LastCostPrice { get; set; }
 
         public decimal CostPrice { get; set; }
 
         /// <summary>
-        /// 预订数量
+        /// 数量
         /// </summary>
         public int Quantity { get; set; }
 
@@ -38,5 +41,10 @@ namespace EBS.Query.DTO
                 return CostPrice * Quantity;
             }
         }
+
+        /// <summary>
+        /// 库存数量，出库单用
+        /// </summary>
+        public int InventoryQuantity { get; set; }
     }
 }

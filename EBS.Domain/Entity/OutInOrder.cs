@@ -36,6 +36,22 @@ namespace EBS.Domain.Entity
 
         public virtual List<OutInOrderItem> Items { get; set; }
 
+        public void SetList(List<OutInOrderItem> items,OutInOrderType orderType)
+        {
+            foreach (var line in items)
+            {
+                line.SetPlusMinus(orderType);
+                if (this.Items.Exists(n => n.ProductId == line.ProductId))
+                {
+                    var first = this.Items.FirstOrDefault(n => n.ProductId == line.ProductId);
+                    first.Quantity += line.Quantity;
+                }
+                else {
+                    this.Items.Add(line);
+                }
+            }           
+        }
+
         public void Audit(int editBy, string editByName)
         {
             if (this.Status != OutInOrderStatus.WaitAudit)

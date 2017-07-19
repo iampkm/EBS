@@ -13,7 +13,7 @@ namespace EBS.Application
        void Edit(OutInOrderModel model);
         void Submit(int id, int editBy, string editByName);
         void Audit(int id, int editBy, string editByName);
-        void Cancel(int id, int editBy, string editByName);
+        void Cancel(int id, int editBy, string editByName, string reason);
         void Reject(int id, int editBy, string editByName);
     }
 }

@@ -13,7 +13,8 @@
         id: { type: String, default: "Id" },
         height: '500px',
         showSum: { type: Boolean, default: false },
-        sum: { type: Array, default: [] }
+        sum: { type: Array, default: [] },
+        buttons: { type: Array, default: [] }
     },
     data: function () {
         var sortOrders = {};
@@ -71,14 +72,7 @@
             if (columnStyle == "") {
                 return column;
             }
-            columnStyle = columnStyle.replace('{column}', column).replace("{id}", key);
-            // 替换 自定义列
-            //for (var i = 0; i < data.length; i++) {
-            //    var item = data[i];
-            //    for (var col in item) {
-            //        columnStyle = columnStyle.replace("{" + col + "}", item[col]);
-            //    }
-            //}
+            columnStyle = columnStyle.replace('{column}', column).replace("{id}", key);            
             for (var col in item) {
                 columnStyle = columnStyle.replace("{" + col + "}", item[col]);
             }
@@ -205,7 +199,12 @@
         selectRow: function (index) {
              var item = this.data[index];
             item.checked = !item.checked;
-            this.data.$set(index, item);           
+            this.data.$set(index, item);
+            //触发行点击事件
+            this.$emit('row-click', item);
+        },
+        clickButton: function (row, btn) {
+            this.$emit('btn-click', row, btn);
         }
     },
     watch: {

@@ -15,6 +15,8 @@ namespace EBS.Domain.ValueObject
         [Description("待审")]
         WaitAudit = 2,
         [Description("已审")]
-        Audited = 3
+        Audited = 3,
+        [Description("财务复审")]
+        FinanceAudited = 4
     }
 }

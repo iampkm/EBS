@@ -1321,6 +1321,8 @@
     <Content Include="Views\OutInOrder\OutIndex.cshtml" />
     <Content Include="Views\OutInOrder\Create.cshtml" />
     <Content Include="Views\OutInOrder\Refund.cshtml" />
+    <Content Include="Views\OutInOrder\AuditIndex.cshtml" />
+    <Content Include="Views\OutInOrder\FinanceIndex.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">

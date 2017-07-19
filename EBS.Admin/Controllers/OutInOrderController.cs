@@ -39,12 +39,15 @@ namespace EBS.Admin.Controllers
         public ActionResult Index()
         {
             SetUserAuthention();
+            ViewBag.Dics = _outInOrderQuery.GetOutInOrderTypes(1);
+            ViewBag.OrderStatus = (int)OutInOrderStatus.Create;
             return View();
         }
 
         public ActionResult Create()
         {
             SetUserAuthention();
+            ViewBag.Dics = _outInOrderQuery.GetOutInOrderTypes(1);
             return View(); 
         }
 
@@ -74,6 +77,15 @@ namespace EBS.Admin.Controllers
         public ActionResult AuditIndex()
         {
             SetUserAuthention();
+            ViewBag.Dics = _outInOrderQuery.GetOutInOrderTypes(1);
+            ViewBag.OrderStatus = (int)OutInOrderStatus.WaitAudit;
+            return View();
+        }
+        public ActionResult FinanceIndex()
+        {
+            SetUserAuthention();
+            ViewBag.Dics = _outInOrderQuery.GetOutInOrderTypes(1);
+            ViewBag.OrderStatus = (int)OutInOrderStatus.Audited;
             return View();
         }
 
@@ -89,7 +101,7 @@ namespace EBS.Admin.Controllers
             if (string.IsNullOrEmpty(condition.StoreId) || condition.StoreId == "0") { condition.StoreId = _context.CurrentAccount.CanViewStores; }
             var rows = _outInOrderQuery.GetPageList(page, condition);
 
-            return Json(new { success = true, data = rows, total = page.Total });
+            return Json(new { success = true, data = rows, total = page.Total, sum = page.SumColumns });
         }
 
         public JsonResult LoadFinishData(Pager page, SearchOutInOrder condition)
@@ -133,9 +145,9 @@ namespace EBS.Admin.Controllers
             return Json(new { success = true });
         }
         [HttpPost]
-        public JsonResult Cancel(int id)
+        public JsonResult Cancel(int id,string reason)
         {
-            _outInOrderFacade.Cancel(id, _context.CurrentAccount.AccountId, _context.CurrentAccount.NickName);
+            _outInOrderFacade.Cancel(id, _context.CurrentAccount.AccountId, _context.CurrentAccount.NickName, reason);
             return Json(new { success = true });
         }
 
@@ -151,11 +163,18 @@ namespace EBS.Admin.Controllers
             return Json(new { success = true });
         }
 
-        public JsonResult QueryProduct(string productCodeOrBarCode, int storeId)
+        public JsonResult QueryProduct(string productCodeOrBarCode, int storeId,int supplierId)
         {
-            var model = _outInOrderQuery.QueryProduct(productCodeOrBarCode, storeId);
+            var model = _outInOrderQuery.QueryProduct(productCodeOrBarCode, storeId, supplierId);
             return Json(new { success = true, data = model });
         }
+
+        public JsonResult QueryProductList(string inputProducts, int storeId, int supplierId)
+        {
+            var model = _outInOrderQuery.QueryProductList(inputProducts, storeId, supplierId);
+            return Json(new { success = true, data = model });
+        }
+
 
         public JsonResult GetDetail(int id)
         {

@@ -11,6 +11,9 @@ namespace EBS.Domain.Entity
     {
        public string TypeName { get; set; }
 
-       public OutInInventoryType OutInInventory { get; set; }
+       /// <summary>
+       /// 出入库类型：  1 入库，2 出库
+       /// </summary>
+       public int OutInInventory { get; set; }
     }
 }

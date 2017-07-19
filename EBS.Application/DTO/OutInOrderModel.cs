@@ -13,10 +13,8 @@ namespace EBS.Application.DTO
 
         public int SupplierId { get; set; }
 
-        public int OutInInventoryId { get; set; }
+        public int OutInOrderTypeId { get; set; }
         public string Code { get; set; }
-
-        public int  Status { get; set; }
 
         public int EditBy { get; set; }
 
@@ -26,5 +24,7 @@ namespace EBS.Application.DTO
         /// 明细 json 串
         /// </summary>
        public string ItemsJson { get; set; }
+
+       public bool SaveAndSubmit { get; set; }
     }
 }

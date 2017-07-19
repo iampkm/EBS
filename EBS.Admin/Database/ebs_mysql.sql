@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2017-04-01 16:40:14                          */
+/* Created on:     2017-07-19 10:48:16                          */
 /*==============================================================*/
 
 
@@ -46,6 +46,26 @@ drop table if exists InventoryHistory;
 
 drop table if exists Menu;
 
+drop index idx_OutInOrder_UpdateStoreIdStats on OutInOrder;
+
+drop index idx_OutInOrder_Code on OutInOrder;
+
+drop table if exists OutInOrder;
+
+drop table if exists OutInOrderItem;
+
+drop table if exists OutInOrderType;
+
+drop table if exists Pay_App;
+
+drop table if exists Pay_NotifyBack;
+
+drop index IX_Pay_Request_OrderId_PayType on Pay_Request;
+
+drop table if exists Pay_Request;
+
+drop table if exists Pay_Result;
+
 drop table if exists Picture;
 
 drop index idx_ProcessHistory_fromId on ProcessHistory;
@@ -90,8 +110,6 @@ drop table if exists RoleMenu;
 
 drop index idx_saleorder_StoreIdAndupdatedOn on SaleOrder;
 
-drop index idx_saleorder_updatedOn on SaleOrder;
-
 drop index idx_saleorder_code on SaleOrder;
 
 drop table if exists SaleOrder;
@@ -102,9 +120,7 @@ drop index idx_saleorderitem_saleorderid on SaleOrderItem;
 
 drop table if exists SaleOrderItem;
 
-drop index idx_saleReport_productId on SaleReport;
-
-drop index idx_saleReport_CreatedOn on SaleReport;
+drop index idx_saleReport_CreatedOnPIdSId on SaleReport;
 
 drop table if exists SaleReport;
 
@@ -140,11 +156,9 @@ drop index idx_storeInventoryBath_pid on StoreInventoryBatch;
 
 drop table if exists StoreInventoryBatch;
 
-drop index idx_storeinventoryhistory_productid on StoreInventoryHistory;
+drop index idx_SIHistory_CreatedOnStoreIdProductid on StoreInventoryHistory;
 
 drop index idx_storeinventoryhistory_billCode on StoreInventoryHistory;
-
-drop index idx_storeinventoryhistory_CreatedOn on StoreInventoryHistory;
 
 drop table if exists StoreInventoryHistory;
 
@@ -474,6 +488,154 @@ create table Menu
 alter table Menu comment '系统菜单';
 
 /*==============================================================*/
+/* Table: OutInOrder                                            */
+/*==============================================================*/
+create table OutInOrder
+(
+   Id                   int not null auto_increment comment '编号',
+   Code                 varchar(20) not null comment '单号',
+   StoreId              int not null comment '门店id',
+   SupplierId           int comment '供应商Id',
+   Status               int not null comment '状态',
+   OutInOrderTypeId     int not null comment '出入库类别',
+   CreatedOn            datetime not null comment '创建时间',
+   CreatedBy            int not null comment '创建人',
+   CreatedByName        varchar(20) comment '创建人名',
+   UpdatedOn            datetime not null comment '修改时间',
+   UpdatedBy            int not null comment '修改人',
+   UpdatedByName        varchar(20) comment '修改人名',
+   Remark               varchar(1000) comment '备注',
+   primary key (Id)
+);
+
+alter table OutInOrder comment '其他出入库单';
+
+/*==============================================================*/
+/* Index: idx_OutInOrder_Code                                   */
+/*==============================================================*/
+create unique index idx_OutInOrder_Code on OutInOrder
+(
+   Code
+);
+
+/*==============================================================*/
+/* Index: idx_OutInOrder_UpdateStoreIdStats                     */
+/*==============================================================*/
+create index idx_OutInOrder_UpdateStoreIdStats on OutInOrder
+(
+   StoreId,
+   Status,
+   UpdatedOn
+);
+
+/*==============================================================*/
+/* Table: OutInOrderItem                                        */
+/*==============================================================*/
+create table OutInOrderItem
+(
+   Id                   int not null auto_increment comment '编号',
+   OutInOrderId         int not null,
+   ProductId            int not null comment 'SKU编码',
+   Quantity             int not null comment '数量',
+   CostPrice            decimal(12,4) not null comment '实际成本价',
+   LastCostPrice        decimal(12,4) not null comment '最近进价',
+   PlusMinus            smallint not null comment '正负（正，入库，负，出库）',
+   primary key (Id)
+);
+
+alter table OutInOrderItem comment '其他出入库单明细';
+
+/*==============================================================*/
+/* Table: OutInOrderType                                        */
+/*==============================================================*/
+create table OutInOrderType
+(
+   Id                   int not null auto_increment,
+   TypeName             varchar(32) not null,
+   OutInInventory       smallint not null comment '（入/出）库',
+   primary key (Id)
+);
+
+/*==============================================================*/
+/* Table: Pay_App                                               */
+/*==============================================================*/
+create table Pay_App
+(
+   SysNo                int not null auto_increment,
+   AppId                varchar(64),
+   AppSecret            varchar(64),
+   AppName              varchar(1024),
+   Status               int,
+   CreateTime           datetime,
+   primary key (SysNo)
+);
+
+/*==============================================================*/
+/* Table: Pay_NotifyBack                                        */
+/*==============================================================*/
+create table Pay_NotifyBack
+(
+   SysNo                int not null auto_increment,
+   ResultSysNo          int,
+   Msg                  varchar(1024),
+   Status               int,
+   CreateTime           datetime,
+   RequestData          varchar(2048),
+   primary key (SysNo)
+);
+
+/*==============================================================*/
+/* Table: Pay_Request                                           */
+/*==============================================================*/
+create table Pay_Request
+(
+   SysNo                int not null auto_increment,
+   OrderId              varchar(256),
+   PaymentAmt           decimal(19,2),
+   PayType              int,
+   NotifyUrl            varchar(1024),
+   ReturnUrl            varchar(1024),
+   RequestData          varchar(2048),
+   ExecuteResult        int,
+   ResultDesc           varchar(1024),
+   AppId                varchar(64),
+   Status               int,
+   CreateTime           datetime,
+   primary key (SysNo)
+);
+
+alter table Pay_Request comment '支付请求';
+
+/*==============================================================*/
+/* Index: IX_Pay_Request_OrderId_PayType                        */
+/*==============================================================*/
+create index IX_Pay_Request_OrderId_PayType on Pay_Request
+(
+   OrderId,
+   PayType
+);
+
+/*==============================================================*/
+/* Table: Pay_Result                                            */
+/*==============================================================*/
+create table Pay_Result
+(
+   SysNo                int not null auto_increment,
+   RequestSysNo         int,
+   OrderId              varchar(256),
+   TradeNo              varchar(256),
+   PaymentAmt           decimal(19,2),
+   PayType              int,
+   RequestData          varchar(2048),
+   ExecuteResult        int,
+   ResultDesc           varchar(1024),
+   NotifyStatus         int,
+   CreateTime           datetime,
+   ExtTradeNo           varchar(256),
+   primary key (SysNo)
+);
+
+/*==============================================================*/
 /* Table: Picture                                               */
 /*==============================================================*/
 create table Picture
@@ -577,7 +739,7 @@ create table ProductAreaPrice
    Id                   int not null auto_increment,
    ProductId            int,
    AreaId               char(6),
-   SalePrice            decimal(8,2),
+   SalePrice            decimal(12,2),
    primary key (Id)
 );
 
@@ -808,9 +970,9 @@ create table SaleOrder
    OrderType            int comment '订单类型',
    RefundAccount        varchar(60) comment '退款账号',
    Status               int comment '状态',
-   OrderAmount          decimal(8,2) comment '订单金额',
-   PayAmount            decimal(8,2) comment '现金支付金额',
-   OnlinePayAmount      decimal(8,2) comment '在线支付金额',
+   OrderAmount          decimal(12,2) comment '订单金额',
+   PayAmount            decimal(12,2) comment '现金支付金额',
+   OnlinePayAmount      decimal(12,2) comment '在线支付金额',
    PaymentWay           int comment '支付方式',
    PaidDate             datetime comment '支付时间',
    Hour                 int comment '时段',
@@ -834,14 +996,6 @@ create unique index idx_saleorder_code on SaleOrder
 );
 
 /*==============================================================*/
-/* Index: idx_saleorder_updatedOn                               */
-/*==============================================================*/
-create index idx_saleorder_updatedOn on SaleOrder
-(
-   UpdatedOn
-);
-
-/*==============================================================*/
 /* Index: idx_saleorder_StoreIdAndupdatedOn                     */
 /*==============================================================*/
 create index idx_saleorder_StoreIdAndupdatedOn on SaleOrder
@@ -861,9 +1015,9 @@ create table SaleOrderItem
    ProductId            int comment '商品Id',
    ProductCode          nvarchar(20) comment '商品编码',
    ProductName          nvarchar(50) comment '商品名',
-   AvgCostPrice         decimal(8,2) comment '平均成本价',
-   SalePrice            decimal(8,2) comment '销售价',
-   RealPrice            decimal(8,2) comment '实际售价',
+   AvgCostPrice         decimal(12,2) comment '平均成本价',
+   SalePrice            decimal(12,2) comment '销售价',
+   RealPrice            decimal(12,2) comment '实际售价',
    Quantity             int comment '数量',
    primary key (Id)
 );
@@ -910,19 +1064,11 @@ create table SaleReport
 alter table SaleReport comment '从 storeinventoryHistory  中提取的销售数据，报表用';
 
 /*==============================================================*/
-/* Index: idx_saleReport_CreatedOn                              */
+/* Index: idx_saleReport_CreatedOnPIdSId                        */
 /*==============================================================*/
-create index idx_saleReport_CreatedOn on SaleReport
+create index idx_saleReport_CreatedOnPIdSId on SaleReport
 (
    CreatedOn
-);
-
-/*==============================================================*/
-/* Index: idx_saleReport_productId                              */
-/*==============================================================*/
-create index idx_saleReport_productId on SaleReport
-(
-   ProductId
 );
 
 /*==============================================================*/
@@ -1126,6 +1272,7 @@ create table StoreInventory
    LastCostPrice        decimal(8,2) comment '最新进价',
    StoreSalePrice       decimal(8,2) comment '门店售价',
    Status               int comment '状态',
+   RowVersion           timestamp comment '行版本',
    primary key (Id)
 );
 
@@ -1165,6 +1312,7 @@ create table StoreInventoryBatch
    CreatedOn            datetime comment '创建时间',
    CreatedBy            int comment '创建人',
    BatchNo              bigint comment '批次号',
+   RowVersion           timestamp comment '行版本',
    primary key (Id)
 );
 
@@ -1194,20 +1342,13 @@ create table StoreInventoryHistory
    BillCode             varchar(20) comment '单据编码',
    BillType             int comment '单据类型',
    BatchNo              bigint comment '批次号',
-   Price                decimal(8,4) comment '进价',
+   Price                decimal(14,4) comment '进价',
    SupplierId           int comment '供应商Id',
+   SalePrice            decimal(10,2) comment '售价',
    primary key (Id)
 );
 
 alter table StoreInventoryHistory comment '门店库存历史记录';
-
-/*==============================================================*/
-/* Index: idx_storeinventoryhistory_CreatedOn                   */
-/*==============================================================*/
-create index idx_storeinventoryhistory_CreatedOn on StoreInventoryHistory
-(
-   CreatedOn
-);
 
 /*==============================================================*/
 /* Index: idx_storeinventoryhistory_billCode                    */
@@ -1218,11 +1359,13 @@ create index idx_storeinventoryhistory_billCode on StoreInventoryHistory
 );
 
 /*==============================================================*/
-/* Index: idx_storeinventoryhistory_productid                   */
+/* Index: idx_SIHistory_CreatedOnStoreIdProductid               */
 /*==============================================================*/
-create index idx_storeinventoryhistory_productid on StoreInventoryHistory
+create index idx_SIHistory_CreatedOnStoreIdProductid on StoreInventoryHistory
 (
-   ProductId
+   ProductId,
+   StoreId,
+   CreatedOn
 );
 
 /*==============================================================*/

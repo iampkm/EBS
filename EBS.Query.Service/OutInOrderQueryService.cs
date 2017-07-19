@@ -26,51 +26,81 @@ namespace EBS.Query.Service
             string where = "";
             if (!string.IsNullOrEmpty(condition.Code))
             {
-                where += "and o.Code=@Code ";
+                where += "and t0.Code=@Code ";
                 param.Code = condition.Code;
             }
-            if (condition.Status != 0)
+            if (condition.SupplierId > 0)
             {
-                where += "and o.Status=@Status ";
-                param.Status = condition.Status;
+                where += "and t0.SupplierId=@SupplierId ";
+                param.SupplierId = condition.SupplierId;
             }
             if (!string.IsNullOrEmpty(condition.StoreId) && condition.StoreId != "0")
             {
-                where += "and  o.StoreId in @StoreId  ";
-                param.StoreId = condition.StoreId.Split(',').ToIntArray();                
+                where += "and t0.StoreId in @StoreId ";
+                param.StoreId = condition.StoreId.Split(',').ToIntArray(); ;
+            }
+            if (!string.IsNullOrEmpty(condition.Status))
+            {
+                where += "and t0.Status in (" + condition.Status + ") ";
+                // param.Status = condition.Status;
+            }
+            string pwhere = "";
+            if (!string.IsNullOrEmpty(condition.ProductCodeOrBarCode))
+            {                
+                pwhere = string.Format("left join product p on p.Id = i.productid  where p.Code='{0}' or p.BarCode='{0}' ", condition.ProductCodeOrBarCode);
+            }
+            if (condition.OutInOrderTypeId > 0)
+            {
+                where += " and t0.OutInOrderTypeId=@OutInOrderTypeId ";
+                param.OutInOrderTypeId = condition.OutInOrderTypeId;
+            }
+            if (condition.OutInInventory > 0)
+            {
+                where += " and t.OutInInventory=@OutInInventory ";
+                param.OutInInventory = condition.OutInInventory;
             }
 
             if (condition.StartDate.HasValue)
             {
-                where += "and o.CreatedOn >=@StartDate ";
+                where += "and t0.UpdatedOn >=@StartDate ";
                 param.StartDate = condition.StartDate.Value;
             }
             if (condition.EndDate.HasValue)
             {
-                where += "and o.CreatedOn < @EndDate ";
+                where += "and t0.UpdatedOn < @EndDate ";
                 param.EndDate = condition.EndDate.Value.AddDays(1);
             }
-            if (!string.IsNullOrEmpty(condition.ProductCodeOrBarCode))
+            
+            if (!string.IsNullOrEmpty(condition.AuditName))
             {
-                where += @"and o.Id in (select d.OutInOrderId from OutInOrderitem d left join product p on p.id = d.productid  where p.code=@ProductCodeOrBarCode or p.barcode =@ProductCodeOrBarCode  ) ";
-                param.ProductCodeOrBarCode = condition.ProductCodeOrBarCode;
+                where += "and h.CreatedByName  like @AuditName ";
+                param.AuditName = string.Format("%{0}%", condition.AuditName);
             }
+            string formType = condition.OutInInventory == 1 ? "OtherInOrder" : "OtherOutOrder";
+            string sql = @"select t0.Id,t0.Code,t0.SupplierId,t0.CreatedOn,t0.CreatedByName,t0.Status,t0.remark,t1.Code as SupplierCode,t1.Name as SupplierName,t2.Name as StoreName,t3.Quantity,t3.Amount,t0.UpdatedOn,h.CreatedByName as AuditName,t.TypeName   
+from  (select i.OutInOrderId,SUM(i.Quantity) as Quantity,SUM(i.CostPrice* i.Quantity ) as Amount  
+from  OutInOrderitem i {3} GROUP BY i.OutInOrderId) t3 left join 
+ OutInOrder t0 on t0.Id = t3.OutInOrderId left join supplier t1 on t0.SupplierId = t1.Id left join store t2 on t0.StoreId = t2.Id 
+left join processhistory h on  t0.Id = h.formId and FormType='{4}' and h.`Status` =4  
+left join OutInOrderType t on t.Id = t0.OutInOrderTypeId 
+where 1=1 {0} ORDER BY t0.Id desc LIMIT {1},{2}";
 
-            string sql = @"select o.Id,o.Code,o.FromStoreName,o.ToStoreName,o.Status,o.CreatedByName,o.UpdatedByName,o.CreatedOn, t.TotalQuantity,t.TotalAmount
-from OutInOrder o left join 
-(select i.OutInOrderId,sum(i.Quantity) as TotalQuantity ,sum(i.price* i.Quantity) as TotalAmount 
-from OutInOrderitem i GROUP BY i.OutInOrderId ) t on o.Id = t.OutInOrderId
-where 1=1 {0} ORDER BY o.Id desc LIMIT {1},{2}";
-            //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<Product>(where, param);
-            sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
+            sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize, pwhere, formType);
             var rows = this._query.FindAll<OutInOrderDto>(sql, param);
-            string sqlCount = @"select count(*) from OutInOrder o left join 
-(select i.OutInOrderId,sum(i.Quantity) as TotalQuantity ,sum(i.price* i.Quantity) as TotalAmount 
-from OutInOrderitem i GROUP BY i.OutInOrderId ) t on o.Id = t.OutInOrderId
-where 1=1 {0} ORDER BY o.Id desc ";
-            sqlCount = string.Format(sqlCount, where);
-            page.Total = this._query.Context.ExecuteScalar<int>(sqlCount, param);
 
+            // 统计列
+            string sqlSum = @"select count(*) as TotalCount, sum(t3.Quantity) as Quantity ,sum(t3.Amount) as Amount  
+from  (select i.OutInOrderId,SUM(i.Quantity) as Quantity,SUM(i.CostPrice* i.Quantity ) as Amount 
+from  OutInOrderitem i {1} GROUP BY i.OutInOrderId) t3 left join 
+ OutInOrder t0 on t0.Id = t3.OutInOrderId left join supplier t1 on t0.SupplierId = t1.Id left join store t2 on t0.StoreId = t2.Id 
+left join processhistory h on  t0.Id = h.formId and FormType='{2}' and h.`Status` =4 
+left join OutInOrderType t on t.Id = t0.OutInOrderTypeId 
+where 1=1 {0} ";
+            sqlSum = string.Format(sqlSum, where, pwhere, formType);
+            var sumStoreInventory = this._query.Find<SumOutInOrderSummary>(sqlSum, param) as SumOutInOrderSummary;
+            page.Total = sumStoreInventory.TotalCount;
+            page.SumColumns.Add(new SumColumn("Quantity", sumStoreInventory.Quantity.ToString()));
+            page.SumColumns.Add(new SumColumn("Amount", sumStoreInventory.Amount.ToString("F4")));
             return rows;
         }
 
@@ -88,59 +118,66 @@ ORDER BY b.Id ";
             return rows;
         }
 
-        public OutInOrderItemDto QueryProduct(string productCodeOrBarCode, int storeId)
+        public OutInOrderItemDto QueryProduct(string productCodeOrBarCode, int storeId, int supplierId)
         {
-            string sql = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.Specification,p.BarCode,p.Unit,p.SpecificationQuantity as ProductSpecificationQuantity, 
- b.ContractPrice,b.Price,b.SupplierId,b.BatchNo ,s.`Name` as SupplierName,i.Quantity AS InventoryQuantity
-from storeinventorybatch b left join  product p on p.Id = b.ProductId
-left join supplier s on b.SupplierId = s.Id
-left join (select productId,Quantity from storeinventory where storeid = @StoreId ) i on b.productId = i.productId
-where (p.`Code`=@productCodeOrBarCode or p.BarCode=@productCodeOrBarCode)  and  b.Quantity>0   and b.StoreId = @StoreId
-ORDER BY b.Id Limit 1";
-            var model = this._query.Find<OutInOrderItemDto>(sql, new { ProductCodeOrBarCode = productCodeOrBarCode, StoreId = storeId });
-            if (model == null)
-            {
-                throw new FriendlyException("商品不存在");
-            }
-         
-            return model;
+            if (string.IsNullOrEmpty(productCodeOrBarCode)) { throw new FriendlyException("请输入商品编码或条码"); }
+            // 有调整价，有先使用最新的调整价；无才使用合同价
+            string sql = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.Specification,p.BarCode,p.Unit,i.ContractPrice as LastCostPrice, 
+ i.ContractPrice as CostPrice,c.SupplierId,s.`Name` as SupplierName
+ from purchasecontract c inner join purchasecontractitem i on c.Id= i.PurchaseContractId
+inner join product p on p.Id = i.ProductId
+left join supplier s on c.SupplierId = s.Id
+where (p.`Code`=@productCodeOrBarCode or p.BarCode=@productCodeOrBarCode) and c.EndDate>@Today and c.`Status` = 3 and c.SupplierId=@SupplierId 
+and FIND_IN_SET(@StoreId,c.StoreIds) order by c.Id desc  LIMIT 1";
+            var item = _query.Find<OutInOrderItemDto>(sql, new { ProductCodeOrBarCode = productCodeOrBarCode, StoreId = storeId, SupplierId = supplierId, Today = DateTime.Now });
+            //设置当前件规            
+            if (item == null) { throw new FriendlyException("查无商品，请检查供应商合同"); }
+           
+            return item;
         }
 
-        public IEnumerable<OutInOrderItemDto> ImportProducts(int storeId, string inputBarCodes)
+        public IEnumerable<OutInOrderItemDto> QueryProductList(string inputBarCodes, int storeId, int supplierId)
         {
-            if (string.IsNullOrEmpty(inputBarCodes)) throw new FriendlyException("商品明细为空");
-            // var dic = GetProductDic(inputProducts);
+            if (string.IsNullOrEmpty(inputBarCodes)) throw new FriendlyException("请粘贴导入的商品条码");
             var dic = inputBarCodes.ToIntDic();
-            string sql = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.BarCode,p.Specification,
-p.Unit,p.SalePrice,s.LastCostPrice ,s.StoreSalePrice
-from storeinventory s left join product  p on p.Id = s.ProductId
-where p.`BarCode` in @BarCode and s.StoreId =@StoreId ";
-            var productItems = _query.FindAll<OutInOrderItemDto>(sql, new { BarCode = dic.Keys.ToArray(), StoreId = storeId });
+            // 有调整价，有先使用最新的调整价；无才使用合同价
+            string sql = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.Specification,p.BarCode,p.Unit,i.ContractPrice as LastCostPrice, 
+ i.ContractPrice as CostPrice,c.SupplierId,s.`Name` as SupplierName
+ from purchasecontract c inner join purchasecontractitem i on c.Id= i.PurchaseContractId
+inner join product p on p.Id = i.ProductId
+left join supplier s on c.SupplierId = s.Id
+where p.BarCode in @ProductCode  and c.EndDate>@Today and c.`Status` = 3 and c.SupplierId=@SupplierId
+and FIND_IN_SET(@StoreId,c.StoreIds) order by c.Id desc ";
+            var productItems = _query.FindAll<OutInOrderItemDto>(sql, new { ProductCode = dic.Keys.ToArray(), StoreId = storeId, SupplierId = supplierId, Today = DateTime.Now });
+            if (!productItems.Any()) { throw new FriendlyException("查无商品，请检查供应商合同"); }
             foreach (var product in productItems)
             {
                 if (dic.ContainsKey(product.BarCode))
                 {
                     product.Quantity = dic[product.BarCode];
-                }
-
+                }              
             }
             return productItems;
         }
 
         public OutInOrderDto GetById(int id)
         {
-            string sql = "select * from OutInOrder where Id=@Id";
+            string sql = @"select o.*,t.TypeName,s.`Name` as StoreName,l.`Name` as SupplierName from OutInOrder o left join outinordertype t on o.OutInOrderTypeId= t.id 
+left join store s on o.StoreId = s.Id 
+left join supplier l on l.Id = o.SupplierId where o.Id=@Id";
             var model = _query.Find<OutInOrderDto>(sql, new { Id = id });
             if (model == null)
             {
                 throw new FriendlyException("单据不存在");
             }
-            string sqlItem = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.Specification,p.BarCode,p.Unit,p.SpecificationQuantity as ProductSpecificationQuantity, i.SupplierId,i.ContractPrice,i.Price,i.Quantity,i.BatchNo,s.Quantity as InventoryQuantity 
+            string sqlItem = @"select p.Id as ProductId,p.`Name` as ProductName,p.`Code` as ProductCode,p.Specification,p.BarCode,p.Unit, i.LastCostPrice,i.CostPrice,i.Quantity,s.Quantity as InventoryQuantity 
 from OutInOrderitem i left join  product p on p.Id = i.ProductId 
-left join storeinventory s on s.productid = i.productid and s.storeId =@FromStoreId  
+left join storeinventory s on s.productid = i.productid and s.storeId =@StoreId  
 where i.OutInOrderId=@OutInOrderId";
             var items = _query.FindAll<OutInOrderItemDto>(sqlItem, new { OutInOrderId = model.Id, StoreId = model.StoreId }).ToList();
-            model.Items = items;           
+            model.Items = items;
+            model.Quantity = model.Items.Sum(n => n.Quantity);
+            model.Amount = model.Items.Sum(n => n.Amount);
             return model;
 
         }
@@ -158,10 +195,10 @@ where i.OutInOrderId=@OutInOrderId";
                 where += "and o.Code=@Code ";
                 param.Code = condition.Code;
             }
-            if (condition.Status != 0)
+            if (!string.IsNullOrEmpty(condition.Status))
             {
-                where += "and o.Status=@Status ";
-                param.Status = condition.Status;
+                where += "and t0.Status in (" + condition.Status + ") ";
+                // param.Status = condition.Status;
             }
             if (!string.IsNullOrEmpty(condition.StoreId) && condition.StoreId != "0")
             {
@@ -280,6 +317,15 @@ GROUP BY storeid ORDER BY o.Id desc
             //page.SumColumns.Add(new SumColumn("DifferenceQuantity", sumStoreInventory.DifferenceQuantity.ToString()));
             //page.SumColumns.Add(new SumColumn("DifferenceAmount", sumStoreInventory.DifferenceAmount.ToString("F4")));
             return rows;
+        }
+
+
+        public IDictionary<int, string> GetOutInOrderTypes(int outInInventory)
+        {           
+            var rows= _query.FindAll<OutInOrderType>(n => n.OutInInventory == outInInventory);
+            Dictionary<int, string> dic = new Dictionary<int, string>();
+            rows.ToList().ForEach(n=>dic.Add(n.Id,n.TypeName));
+            return dic;
         }
     }
 }

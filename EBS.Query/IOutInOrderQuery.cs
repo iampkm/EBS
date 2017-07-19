@@ -10,9 +10,9 @@ namespace EBS.Query
     {
         IEnumerable<OutInOrderDto> GetPageList(Pager page, SearchOutInOrder condition);
 
-        OutInOrderItemDto QueryProduct(string productCodeOrBarCode, int storeId);
+        OutInOrderItemDto QueryProduct(string productCodeOrBarCode, int storeId, int supplierId);
 
-        IEnumerable<OutInOrderItemDto> ImportProducts(int storeId, string inputBarCodes);
+        IEnumerable<OutInOrderItemDto> QueryProductList(string inputBarCodes, int storeId, int supplierId);
         List<OutInOrderItemDto> QueryProductBatch(string productCodeOrBarCode, int storeId);
 
         OutInOrderDto GetById(int id);
@@ -20,5 +20,7 @@ namespace EBS.Query
         IEnumerable<OutInOrderListDto> GetFinishList(Pager page, SearchOutInOrder condition);
 
         IEnumerable<OutInOrderSummaryDto> GetSummaryList(Pager page, SearchOutInOrder condition);
+
+        IDictionary<int, string> GetOutInOrderTypes(int outInInventory);
     }
 }

@@ -19,7 +19,7 @@
     <div class="box box-primary">
         <div class="box-header">
             <ol class="breadcrumb" style="padding:0px;margin:1px;">
-                <li><a href="/OutInOrder/Index"><i class="fa fa-dashboard"></i>其他入库单-制单</a></li>
+                <li><a href="/OutInOrder/FinanceIndex"><i class="fa fa-dashboard"></i>其他入库单-财务复审</a></li>
             </ol>
         </div>
         <div class="box-body">
@@ -32,7 +32,7 @@
                     </div>
                     <div class="col-xs-3 col-sm-2">
                         <input class="form-control" v-model="searchArgs.productCodeOrBarCode" placeholder="商品编码/条码" debounce="500" />
-                    </div>                   
+                    </div>
                     <div class="col-sm-2 col-xs-3" v-show="selectStore.view">
                         <div class="input-group ">
                             <input type="hidden" class="form-control" v-model="searchArgs.storeId">
@@ -42,7 +42,7 @@
                                 <button class="btn btn-flat btn-default" type="button" v-on:click="clearStore"><i class="fa fa-eraser"></i></button>
                             </span>
                         </div>
-                    </div>                    
+                    </div>
                     <div class="form-group  col-sm-2 col-xs-3">
                         <div class="input-group ">
                             <input type="hidden" class="form-control" v-model="searchArgs.supplierId">
@@ -72,7 +72,7 @@
                             </div>
                             <input type="text" class="form-control" v-model="searchArgs.endDate" placeholder="结束日期" readonly>
                         </div>
-                    </div> 
+                    </div>
                     <div class="col-sm-2 col-xs-3">
                         <div class="input-group">
                             <span class="input-group-addon">业务类别</span>
@@ -84,13 +84,11 @@
                                 }
                             </select>
                         </div>
-                    </div>                   
+                    </div>
                 </div>
                 <span class="input-group-btn" slot="customButtons">
-                    <a class="btn btn-warning btn-flat" href="/OutInOrder/Create">新 增</a>
-                    <button type="button" class="btn btn-success btn-flat" v-on:click="submit()">提交待审</button>                  
-                    <button type="button" class="btn btn-primary btn-flat" v-on:click="print()">打 印</button>
-                    <button type="button" class="btn btn-danger btn-flat" v-on:click="remove()">作 废</button>
+                    <button type="button" class="btn btn-success btn-flat" v-on:click="showDetail()">审 核</button>
+                    <button type="button" class="btn btn-warning btn-flat" v-on:click="reject()">撤销审核</button>                   
                 </span>
             </vue-table>
         </div>
@@ -125,6 +123,107 @@
             <div style="min-height:350px;max-height:500px;overflow:auto;"><ul id="ztree" class="ztree"></ul></div>
         </div>
     </v-modal>
+    <v-modal title="审阅明细" ok-text="审核通过" cancel-text="取 消" v-bind:callback="submitAudit" v-bind:show.sync="selectDetail.modal" v-bind:effect="fade" width="60%">
+        <div slot="modal-body" class="modal-body">
+            <div class="row">
+                <div class="col-xs-4 col-sm-4"></div>
+                <div class="col-xs-4 col-sm-4">
+                    <h4 class="text-center text-success" style="border-bottom:2px solid;padding-bottom:1px;">
+                        <b>
+                            其他入库单
+                        </b>
+                    </h4>
+                </div>
+                <div class="col-xs-4 col-sm-4"></div>
+            </div>
+            <div class="row">
+                <div class="col-xs-4 col-sm-4">
+                    <span>供应商：{{selectDetail.model.SupplierName}}</span>
+                </div>
+                <div class="col-xs-4 col-sm-4 text-center">
+                    业务类别：{{selectDetail.model.TypeName}}
+                </div>
+                <div class="col-xs-4 col-sm-4 ">
+                    <span>单据号：{{selectDetail.model.Code}}</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-4 col-sm-4">
+                    <span>门店：{{selectDetail.model.StoreName}}</span>
+                </div>
+                <div class="col-xs-4 col-sm-4 text-center">
+                    单据状态：{{selectDetail.model.OrderStatus}}
+                </div>
+                <div class="col-xs-4 col-sm-4">
+                    <span>制单日期：{{selectDetail.model.CreatedTime}}</span>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered table-printfontsize">
+                    <thead>
+                        <tr>
+                            <th style="width:50px;">序号</th>
+                            <th>商品编码</th>
+                            <th>条码</th>
+                            <th>品名</th>
+                            <th>规格</th>
+                            <th>单位</th>
+                            <th>最新进价</th>
+                            <th>进价</th>
+                            <th>数量</th>
+                            <th>金额</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody">
+                        <tr v-for="(index,item) in selectDetail.items">
+                            <td class="text-center">{{index+1}}</td>
+                            <td>
+                                {{item.ProductCode}}
+                            </td>
+                            <td>{{item.BarCode}}</td>
+                            <td>{{item.ProductName}}</td>
+                            <td>{{item.Specification}}</td>
+                            <td>{{item.Unit}}</td>
+                            <td>{{item.LastCostPrice.toFixed(4)}}</td>
+                            <td>{{item.CostPrice.toFixed(4)}}</td>
+                            <td>
+                                <span class="text-primary"><strong>{{item.Quantity}}</strong></span>
+                            </td>
+                            <td>{{item.Amount.toFixed(4)}}</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td style="width:50px;"></td>
+                            <td>合计：</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>{{selectDetail.model.Quantity}}</td>
+                            <td>{{selectDetail.model.Amount.toFixed(2)}}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="row">
+                <div class="col-xs-3 col-sm-3">
+                    <span>制单人：{{selectDetail.model.CreatedByName}}</span>
+                </div>
+                <div class="col-xs-3 col-sm-3">
+                    <span>审核人：{{selectDetail.model.UpdatedByName}}</span>
+                </div>
+                <div class="col-xs-3 col-sm-3">
+                    <span></span>
+                </div>
+                <div class="col-xs-3 col-sm-3">
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    </v-modal>
     <div id="printDiv"></div>
 </div>
 @{Html.RenderPartial("VueTableTemplate");}
@@ -146,16 +245,17 @@
                 removeReason: '',
                 searchQuery: '',
                 gridColumns: [
-                { name: 'Code', localName: '单据号', style: "<a href='/OutInOrder/Edit/{id}'>{column}</a>" },
+                { name: 'Code', localName: '单据号'},
                 { name: 'StoreName', localName: '门店' },
                 { name: 'SupplierName', localName: '供应商', width: '250' },
                 { name: 'TypeName', localName: '业务类别', width: '100' },
-                { name: 'Quantity', localName: '数量', width: '100',sum:'' },              
+                { name: 'Quantity', localName: '数量', width: '100',sum:'' },
                 { name: 'Amount', localName: '金额', width: '100',sum:'' },
                 { name: 'OrderStatus', localName: '状态', width: '80' },
-                { name: 'CreatedByName', localName: '创建人' },
+                { name: 'AuditName', localName: '财务复核', width: '110', },
+                { name: 'CreatedByName', localName: '创建人', width: '110', },
                 { name: 'CreatedTime', localName: '创建时间' },
-                { name: 'Remark', localName: '备注', width: '250' }
+                { name: 'Remark', localName: '备注', width: '200' }
                 ],
                 url: "/OutInOrder/LoadData",
                 searchArgs: { code: '',productName:'', supplierId: 0, storeId: '@ViewBag.StoreId', status: '@ViewBag.OrderStatus' ,
@@ -177,7 +277,12 @@
                     modal: false,
                     name: '@ViewBag.StoreName',
                     view: @ViewBag.View,
-                }
+                },
+                selectDetail: {
+                    modal: false,
+                    items: [],
+                    model: {}
+                },
             },
             methods: {
                 remove: function () {
@@ -197,42 +302,15 @@
                     var v_self = this;
                     var selectId = v_self.selectedId;
                     var remark = v_self.removeReason;
-                    $.post("/OutInOrder/Delete", { id: selectId, reason: remark }, function (result) {
+                    v_self.modal = false;
+                    $.post("/OutInOrder/Cancel", { id: selectId, reason: remark }, function (result) {
                         if (result.success) {
                             v_self.$refs.vtable.loadData();
-                            v_self.modal = false;
                         }
                         else {
                             bootbox.alert(result.error);
                         }
                     }, "json");
-                },
-                submit: function () {
-                    var selectRow = this.rows.filter(function (item, index) {
-                        if (item.checked) {
-                            return true;
-                        }
-                    });
-                    if (selectRow.length == 0) {
-                        bootbox.alert("请选择一条记录");
-                        return;
-                    }
-                    var selectId = selectRow[0].Id;
-                    var v_self = this;
-                    bootbox.confirm("您确定提交该记录？", function (result) {
-                        if (result) {
-                            $.post("/OutInOrder/Submit", { id: selectId }, function (result) {
-                                if (result.success) {
-                                    bootbox.alert("提交成功!",function(){
-                                        v_self.$refs.vtable.loadData(); 
-                                    });                                       
-                                }
-                                else {
-                                    bootbox.alert(result.error);
-                                }
-                            }, "json");
-                        }
-                    });
                 },
                 showSupplier: function () {
                     this.selectSupplier.modal = true;
@@ -298,6 +376,88 @@
                         $("#printDiv").html("");
                     });
                 },
+                showDetail: function () {
+                    var selectRow = this.rows.filter(function (item, index) {
+                        if (item.checked) {
+                            return true;
+                        }
+                    });
+                    if (selectRow.length == 0) {
+                        bootbox.alert("请选择一条记录");
+                        return;
+                    }
+                    this.selectedId = selectRow[0].Id;
+                    var v_self = this;
+                    //加载明细
+                    $.post("/OutInOrder/GetDetail", { id: v_self.selectedId }, function (result) {
+                        if (result.success) {
+                            v_self.selectDetail.items = [];
+                            v_self.selectDetail.model = result.data;
+                            result.data.Items.forEach(function (item) {
+                                v_self.selectDetail.items.push(item);
+                            })
+                            v_self.selectDetail.modal = true;
+                        }
+                        else {
+                            bootbox.alert(result.error);
+                        }
+                    }, "json");
+
+                },
+                closeDetail: function () {
+                    this.selectDetail.modal = false;
+                },
+                submitAudit: function () {
+                    var selectRow = this.rows.filter(function (item, index) {
+                        if (item.checked) {
+                            return true;
+                        }
+                    });
+                    if (selectRow.length == 0) {
+                        bootbox.alert("请选择一条记录");
+                        return;
+                    }
+                    var selectId = selectRow[0].Id;
+                    var _self = this;
+                    _self.isSubmit = true;
+                    $.post("/OutInOrder/Audit", { id: selectId }, function (result) {
+                        if (result.success) {
+                            bootbox.alert("审核成功!", function () {
+                                _self.$refs.vtable.loadData();
+                                _self.closeDetail();
+                            });
+                        }
+                        else {
+                            bootbox.alert(result.error);
+                        }
+                        _self.isSubmit = false;
+                    }, "json");
+                },
+                reject:function(){
+                    var selectRow = this.rows.filter(function (item, index) {
+                        if (item.checked) {
+                            return true;
+                        }
+                    });
+                    if (selectRow.length == 0) {
+                        bootbox.alert("请选择一条记录");
+                        return;
+                    }
+                    this.selectedId = selectRow[0].Id;
+                    var v_self = this;
+                    bootbox.confirm("您确定驳回该单据？", function (result) {
+                        if (result) {
+                            $.post("/OutInOrder/Reject", { id: v_self.selectedId }, function (result) {
+                                if (result.success) {
+                                    v_self.$refs.vtable.loadData();
+                                }
+                                else {
+                                    bootbox.alert(result.error);
+                                }
+                            }, "json");
+                        }
+                    });
+                },
             }
         });
         //加载门店tree
@@ -325,5 +485,13 @@
 
     </script>
 }
+
+
+
+
+
+
+
+
 
 

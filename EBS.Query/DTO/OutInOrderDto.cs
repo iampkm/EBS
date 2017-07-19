@@ -9,6 +9,9 @@ namespace EBS.Query.DTO
 {
    public class OutInOrderDto
     {
+       public OutInOrderDto() {
+           this.Items = new List<OutInOrderItemDto>();
+       }
        public int Id { get; set; }
         public string Code { get; set; }
 
@@ -19,7 +22,7 @@ namespace EBS.Query.DTO
         public string SupplierName { get; set; }
 
         public OutInOrderStatus Status { get; set; }
-        public string StatusName
+        public string OrderStatus
         {
             get
             {
@@ -33,13 +36,40 @@ namespace EBS.Query.DTO
         {
             get
             {
-                return CreatedOn.ToString("yyyy-MM-dd HH:mm:ss");
+                return CreatedOn.ToString("yyyy-MM-dd HH:mm");
+            }
+        }
+
+        /// <summary>
+        /// 业务类别名称
+        /// </summary>
+        public string TypeName { get; set; }
+        
+        /// <summary>
+        /// 入库时间
+        /// </summary>
+        public DateTime UpdatedOn { get; set; }
+
+        public string UpdatedOnTime
+        {
+            get
+            {
+                return UpdatedOn.ToString("yyyy-MM-dd HH:mm");
             }
         }
 
         public string CreatedByName { get; set; }
-
         public string UpdatedByName { get; set; }
+        /// <summary>
+        /// 财务复核
+        /// </summary>
+        public string AuditName { get; set; }
+
+        public int Quantity { get; set; }
+
+        public decimal Amount { get; set; }
+
+        public string Remark { get; set; }
 
         public List<OutInOrderItemDto> Items { get; set; }
     }

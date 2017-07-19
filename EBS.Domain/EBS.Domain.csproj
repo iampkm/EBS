@@ -132,7 +132,6 @@
     <Compile Include="ValueObject\AdjustSalePriceStatus.cs" />
     <Compile Include="ValueObject\AdjustStorePriceStatus.cs" />
     <Compile Include="ValueObject\OrderType.cs" />
-    <Compile Include="ValueObject\OutInInventoryType.cs" />
     <Compile Include="ValueObject\OutInOrderStatus.cs" />
     <Compile Include="ValueObject\SaleOrderLevel.cs" />
     <Compile Include="ValueObject\SaleOrderStatus.cs" />
