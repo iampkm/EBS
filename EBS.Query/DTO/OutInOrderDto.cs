@@ -71,6 +71,9 @@ namespace EBS.Query.DTO
 
         public string Remark { get; set; }
 
+        public int OutInOrderTypeId { get; set; }
+
+
         public List<OutInOrderItemDto> Items { get; set; }
     }
 }

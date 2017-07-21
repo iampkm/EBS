@@ -28,7 +28,7 @@
             <div class="row">
                 <div class="form-group col-sm-4 col-xs-6">
                     <button type="button" class="btn btn-warning btn-flat" v-on:click="onSubmit" v-bind:disabled="isSubmit">保 存</button>
-                    <button type="button" class="btn btn-success btn-flat" v-on:click="showModal()">导入商品</button>
+                    @*<button type="button" class="btn btn-success btn-flat" v-on:click="showModal()">导入商品</button>*@
                     <a class="btn btn-default btn-flat" href="/OutInOrder/Index">取 消</a>
                     <input type="hidden" v-model="model.id" />
                 </div>
@@ -293,14 +293,16 @@
                         _self.model.ItemsJson = data;
                         var v_data = _self.model;
                         //是否立即提交
+                        var msg ="保存成功!";
                         bootbox.confirm("保存订单后，是否立即提交待审？OK 保存后提交，Cancel 只保存", function (result) {
                             if(result){
                                 _self.model.saveAndSubmit = true;
+                                msg += "已提交待审";
                             }
                             _self.isSubmit = true;
                             $.post("/OutInOrder/Create", v_data, function (result) {
                                 if (result.success) {
-                                    bootbox.alert("制单成功！", function () {
+                                    bootbox.alert(msg, function () {
                                         window.location.href = "/OutInOrder/Create";
                                     });
                                 }
@@ -326,24 +328,7 @@
                         $.post("/OutInOrder/QueryProductList", data, function (result) {
                             if (result.success) {
                                 _self.products = [];
-                                _self.products = result.data;
-                                //for(var i=0;i<result.data.length;i++)
-                                //{
-                                //    var item = result.data[i];
-                                //    if(_self.model.supplierId==0){
-                                //        _self.model.supplierId = item.SupplierId;
-                                //        _self.selectSupplier.name = item.SupplierName;
-                                //    }
-                                //    else{
-                                //        //同一个单子，供应商应该一致
-                                //        if(_self.model.supplierId!=item.SupplierId)
-                                //        {
-                                //            bootbox.alert("录入的商品供应商不一致");break;
-                                //        }
-                                //    }
-                                //    _self.products.push(item);
-                                //}
-
+                                _self.products = result.data;                                
                                 _self.modal = false;
                                 //设置焦点,延迟500，等待vue.js 渲染完毕
                                 setTimeout(function () {
@@ -400,18 +385,7 @@
                         }
                         //设置焦点
                         $.get("/OutInOrder/QueryProduct", data, function (result) {
-                            if (result.success) {
-                                if(_self.model.supplierId==0){
-                                    _self.model.supplierId = result.data.SupplierId;
-                                    _self.selectSupplier.name = result.data.SupplierName;
-                                }
-                                else{
-                                    //同一个单子，供应商应该一致
-                                    if(_self.model.supplierId!=result.data.SupplierId)
-                                    {
-                                        bootbox.alert("录入的商品供应商不一致");return;
-                                    }
-                                }
+                            if (result.success) {                                
                                 _self.products.$set(index, result.data);
 
                                 //设置焦点,延迟500，等待vue.js 渲染完毕

@@ -15,5 +15,9 @@ namespace EBS.Application
         void Audit(int id, int editBy, string editByName);
         void Cancel(int id, int editBy, string editByName, string reason);
         void Reject(int id, int editBy, string editByName);
+
+        void FinanceAudit(int id, int editBy, string editByName);
+
+        void CancelFinanceAudit(int id, int editBy, string editByName);
     }
 }

@@ -39,7 +39,8 @@ namespace EBS.Admin.Controllers
         public ActionResult Index()
         {
             SetUserAuthention();
-            ViewBag.Dics = _outInOrderQuery.GetOutInOrderTypes(1);
+            ViewBag.Dics = _outInOrderQuery.GetOtherInOrderTypes();
+            ViewBag.OutInInventory = (int)OutInInventoryType.In;
             ViewBag.OrderStatus = (int)OutInOrderStatus.Create;
             return View();
         }
@@ -47,26 +48,9 @@ namespace EBS.Admin.Controllers
         public ActionResult Create()
         {
             SetUserAuthention();
-            ViewBag.Dics = _outInOrderQuery.GetOutInOrderTypes(1);
+            ViewBag.Dics = _outInOrderQuery.GetOtherInOrderTypes();
             return View(); 
-        }
-
-
-        /// <summary>
-        /// 其他出库单
-        /// </summary>
-        /// <returns></returns>
-        public ActionResult OutIndex()
-        {
-            SetUserAuthention();
-            return View();
-        }
-
-        public ActionResult Refund()
-        {
-            SetUserAuthention();
-            return View();
-        }
+        }        
 
         public ActionResult Detail(int id)
         {
@@ -77,21 +61,30 @@ namespace EBS.Admin.Controllers
         public ActionResult AuditIndex()
         {
             SetUserAuthention();
-            ViewBag.Dics = _outInOrderQuery.GetOutInOrderTypes(1);
+            ViewBag.Dics = _outInOrderQuery.GetOtherInOrderTypes();
             ViewBag.OrderStatus = (int)OutInOrderStatus.WaitAudit;
+            ViewBag.OutInInventory = (int)OutInInventoryType.In;
             return View();
         }
         public ActionResult FinanceIndex()
         {
             SetUserAuthention();
-            ViewBag.Dics = _outInOrderQuery.GetOutInOrderTypes(1);
+            ViewBag.Dics = _outInOrderQuery.GetOtherInOrderTypes();
             ViewBag.OrderStatus = (int)OutInOrderStatus.Audited;
+            ViewBag.FinishedStatus = (int)OutInOrderStatus.Audited;
+            ViewBag.FinanceAuditd = (int)OutInOrderStatus.FinanceAudited;
+            ViewBag.OutInInventory = (int)OutInInventoryType.In;
             return View();
         }
 
         public ActionResult Finish()
         {
             SetUserAuthention();
+            ViewBag.Dics = _outInOrderQuery.GetOtherInOrderTypes();
+            ViewBag.OutInInventory = (int)OutInInventoryType.In;
+            ViewBag.FinishedStatus = (int)OutInOrderStatus.Audited;
+            ViewBag.FinanceAuditd = (int)OutInOrderStatus.FinanceAudited;
+            ViewBag.OrderStatus = string.Format("{0},{1}", (int)OutInOrderStatus.FinanceAudited, (int)OutInOrderStatus.FinanceAudited);
             SetThisMonth();
             return View();
         }
@@ -123,6 +116,8 @@ namespace EBS.Admin.Controllers
 
         public ActionResult Edit(int id)
         {
+            SetUserAuthention();
+            ViewBag.Dics = _outInOrderQuery.GetOtherInOrderTypes();
             var model = _outInOrderQuery.GetById(id);
             ViewBag.OutInOrderItems = JsonConvert.SerializeObject(model.Items.ToArray());
             ViewBag.Status = model.Status.Description();
@@ -160,6 +155,19 @@ namespace EBS.Admin.Controllers
         public JsonResult Reject(int id)
         {
             _outInOrderFacade.Reject(id, _context.CurrentAccount.AccountId, _context.CurrentAccount.NickName);
+            return Json(new { success = true });
+        }
+
+        [HttpPost]
+        public JsonResult FinanceAudit(int id)
+        {
+            _outInOrderFacade.FinanceAudit(id, _context.CurrentAccount.AccountId, _context.CurrentAccount.NickName);
+            return Json(new { success = true });
+        }
+        [HttpPost]
+        public JsonResult CancelFinanceAudit(int id)
+        {
+            _outInOrderFacade.CancelFinanceAudit(id, _context.CurrentAccount.AccountId, _context.CurrentAccount.NickName);
             return Json(new { success = true });
         }
 
@@ -212,5 +220,83 @@ namespace EBS.Admin.Controllers
             ViewBag.StoreId = _context.CurrentAccount.StoreId;
             ViewBag.StoreName = _context.CurrentAccount.StoreName;
         }
-	}
+
+        #region 其他出库单
+
+        /// <summary>
+        /// 其他出库单
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult RefundIndex()
+        {
+            SetUserAuthention();
+            ViewBag.Dics = _outInOrderQuery.GetOtherOutOrderTypes();
+            ViewBag.OutInInventory = (int)OutInInventoryType.Out;
+            ViewBag.OrderStatus = (int)OutInOrderStatus.Create;
+            return View();
+        }
+
+        public ActionResult Refund()
+        {
+            SetUserAuthention();
+            ViewBag.Dics = _outInOrderQuery.GetOtherOutOrderTypes();
+            ViewBag.OutInInventory = (int)OutInInventoryType.Out;
+            return View();
+        }
+       
+        public ActionResult RefundAuditIndex()
+        {
+            SetUserAuthention();
+            ViewBag.Dics = _outInOrderQuery.GetOtherOutOrderTypes();
+            ViewBag.OrderStatus = (int)OutInOrderStatus.WaitAudit;
+            ViewBag.OutInInventory = (int)OutInInventoryType.Out;
+            return View();
+        }
+        public ActionResult RefundFinanceIndex()
+        {
+            SetUserAuthention();
+            ViewBag.Dics = _outInOrderQuery.GetOtherOutOrderTypes();
+            ViewBag.OrderStatus = (int)OutInOrderStatus.Audited;
+            ViewBag.FinishedStatus = (int)OutInOrderStatus.Audited;
+            ViewBag.FinanceAuditd = (int)OutInOrderStatus.FinanceAudited;
+            ViewBag.OutInInventory = (int)OutInInventoryType.Out;
+            return View();
+        }
+
+        public ActionResult RefundFinish()
+        {
+            SetUserAuthention();
+            ViewBag.Dics = _outInOrderQuery.GetOtherOutOrderTypes();
+            ViewBag.OutInInventory = (int)OutInInventoryType.Out;
+            ViewBag.FinishedStatus = (int)OutInOrderStatus.Audited;
+            ViewBag.FinanceAuditd = (int)OutInOrderStatus.FinanceAudited;
+            ViewBag.OrderStatus = string.Format("{0},{1}", (int)OutInOrderStatus.FinanceAudited, (int)OutInOrderStatus.FinanceAudited);
+            SetThisMonth();
+            return View();
+        }
+       
+
+        public ActionResult RefundEdit(int id)
+        {
+            SetUserAuthention();
+            ViewBag.Dics = _outInOrderQuery.GetOtherOutOrderTypes();
+            var model = _outInOrderQuery.GetById(id);
+            ViewBag.OutInOrderItems = JsonConvert.SerializeObject(model.Items.ToArray());
+            ViewBag.Status = model.Status.Description();
+            return View(model);
+        }
+
+        public JsonResult QueryRefundProduct(string productCodeOrBarCode, int storeId)
+        {
+            var model = _outInOrderQuery.QueryRefundProduct(productCodeOrBarCode, storeId);
+            return Json(new { success = true, data = model });
+        }
+        public JsonResult QueryRefundProductList(string inputProducts, int storeId)
+        {
+            var model = _outInOrderQuery.QueryRefundProductList(inputProducts, storeId);
+            return Json(new { success = true, data = model });
+        }
+
+        #endregion
+    }
 }

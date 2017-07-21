@@ -27,17 +27,7 @@ namespace EBS.Domain.Entity
 
        public void SetPlusMinus(OutInOrderType orderType)
        {
-           if (orderType.OutInInventory == 1)
-           {
-               this.PlusMinus = 1;
-           }
-           else if (orderType.OutInInventory == 2)
-           {
-               this.PlusMinus = -1;
-           }
-           else {
-               throw new FriendlyException("出入库类别参数异常");
-           }
+           this.PlusMinus = (int)orderType.OutInInventory;           
        }
     }
 }

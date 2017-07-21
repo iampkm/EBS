@@ -110,6 +110,7 @@
     <Compile Include="Service\BillSequenceService.cs" />
     <Compile Include="Service\BrandService.cs" />
     <Compile Include="Service\CategoryService.cs" />
+    <Compile Include="Service\OutInOrderService.cs" />
     <Compile Include="Service\ProcessHistoryService.cs" />
     <Compile Include="Service\ProductService.cs" />
     <Compile Include="Service\PurchaseContractService.cs" />
@@ -132,6 +133,7 @@
     <Compile Include="ValueObject\AdjustSalePriceStatus.cs" />
     <Compile Include="ValueObject\AdjustStorePriceStatus.cs" />
     <Compile Include="ValueObject\OrderType.cs" />
+    <Compile Include="ValueObject\OutInInventoryType.cs" />
     <Compile Include="ValueObject\OutInOrderStatus.cs" />
     <Compile Include="ValueObject\SaleOrderLevel.cs" />
     <Compile Include="ValueObject\SaleOrderStatus.cs" />

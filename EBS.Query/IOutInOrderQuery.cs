@@ -13,7 +13,9 @@ namespace EBS.Query
         OutInOrderItemDto QueryProduct(string productCodeOrBarCode, int storeId, int supplierId);
 
         IEnumerable<OutInOrderItemDto> QueryProductList(string inputBarCodes, int storeId, int supplierId);
-        List<OutInOrderItemDto> QueryProductBatch(string productCodeOrBarCode, int storeId);
+        OutInOrderItemDto QueryRefundProduct(string productCodeOrBarCode, int storeId);
+
+        IEnumerable<OutInOrderItemDto> QueryRefundProductList(string inputBarCodes, int storeId);
 
         OutInOrderDto GetById(int id);
 
@@ -21,6 +23,15 @@ namespace EBS.Query
 
         IEnumerable<OutInOrderSummaryDto> GetSummaryList(Pager page, SearchOutInOrder condition);
 
-        IDictionary<int, string> GetOutInOrderTypes(int outInInventory);
+        /// <summary>
+        /// 查询其他入库单类型
+        /// </summary>
+        /// <returns></returns>
+        IDictionary<int, string> GetOtherInOrderTypes();
+        /// <summary>
+        /// 查询其他出库单类型
+        /// </summary>
+        /// <returns></returns>
+        IDictionary<int, string> GetOtherOutOrderTypes();
     }
 }

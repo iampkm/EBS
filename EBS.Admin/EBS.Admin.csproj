@@ -1318,11 +1318,13 @@
     <Content Include="Views\StorePurchaseOrder\Summary.cshtml" />
     <Content Include="Views\TransferOrder\Summary.cshtml" />
     <Content Include="Views\OutInOrder\Index.cshtml" />
-    <Content Include="Views\OutInOrder\OutIndex.cshtml" />
     <Content Include="Views\OutInOrder\Create.cshtml" />
     <Content Include="Views\OutInOrder\Refund.cshtml" />
     <Content Include="Views\OutInOrder\AuditIndex.cshtml" />
     <Content Include="Views\OutInOrder\FinanceIndex.cshtml" />
+    <Content Include="Views\OutInOrder\Finish.cshtml" />
+    <Content Include="Views\OutInOrder\Edit.cshtml" />
+    <Content Include="Views\OutInOrder\RefundIndex.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">

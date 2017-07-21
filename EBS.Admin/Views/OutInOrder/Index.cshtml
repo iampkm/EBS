@@ -159,7 +159,7 @@
                 ],
                 url: "/OutInOrder/LoadData",
                 searchArgs: { code: '',productName:'', supplierId: 0, storeId: '@ViewBag.StoreId', status: '@ViewBag.OrderStatus' ,
-                    productCodeOrBarCode:'',outInInventory:1,outInOrderTypeId:0,startDate: '', endDate: '' },
+                    productCodeOrBarCode:'',outInInventory:@ViewBag.OutInInventory,outInOrderTypeId:0,startDate: '', endDate: '' },
                 rows: [],
                 selectSupplier: {
                     modal: false,
@@ -197,7 +197,7 @@
                     var v_self = this;
                     var selectId = v_self.selectedId;
                     var remark = v_self.removeReason;
-                    $.post("/OutInOrder/Delete", { id: selectId, reason: remark }, function (result) {
+                    $.post("/OutInOrder/Cancel", { id: selectId, reason: remark }, function (result) {
                         if (result.success) {
                             v_self.$refs.vtable.loadData();
                             v_self.modal = false;

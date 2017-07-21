@@ -259,7 +259,7 @@
                 ],
                 url: "/OutInOrder/LoadData",
                 searchArgs: { code: '',productName:'', supplierId: 0, storeId: '@ViewBag.StoreId', status: '@ViewBag.OrderStatus' ,
-                    productCodeOrBarCode:'',outInInventory:1,outInOrderTypeId:0,startDate: '', endDate: '' },
+                    productCodeOrBarCode:'',outInInventory:@ViewBag.OutInInventory,outInOrderTypeId:0,startDate: '', endDate: '' },
                 rows: [],
                 selectSupplier: {
                     modal: false,

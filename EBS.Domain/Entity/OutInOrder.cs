@@ -36,10 +36,11 @@ namespace EBS.Domain.Entity
 
         public virtual List<OutInOrderItem> Items { get; set; }
 
-        public void SetList(List<OutInOrderItem> items,OutInOrderType orderType)
+        public void AddRange(List<OutInOrderItem> items,OutInOrderType orderType)
         {
             foreach (var line in items)
             {
+                line.OutInOrderId = this.Id;
                 line.SetPlusMinus(orderType);
                 if (this.Items.Exists(n => n.ProductId == line.ProductId))
                 {
@@ -50,6 +51,11 @@ namespace EBS.Domain.Entity
                     this.Items.Add(line);
                 }
             }           
+        }
+
+        public void SetItems(List<OutInOrderItem> items)
+        {
+            this.Items = items;
         }
 
         public void Audit(int editBy, string editByName)
@@ -97,6 +103,24 @@ namespace EBS.Domain.Entity
             this.UpdatedBy = editBy;
             this.UpdatedByName = editByName;
             this.UpdatedOn = DateTime.Now;
+        }
+
+        public void FinanceAudit(int editBy, string editByName)
+        {
+            if (this.Status != OutInOrderStatus.Audited)
+            {
+                throw new Exception("必须是已审单据");
+            }
+            this.Status = OutInOrderStatus.FinanceAudited;
+           
+        }
+        public void CancelFinanceAudit(int editBy, string editByName)
+        {
+            if (this.Status != OutInOrderStatus.FinanceAudited)
+            {
+                throw new Exception("必须是财务已审单据");
+            }
+            this.Status = OutInOrderStatus.Audited;           
         }
     }
 }
