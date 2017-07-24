@@ -246,12 +246,12 @@ where i.OutInOrderId=@OutInOrderId";
                 where = string.Format("and p.Name like @ProductName ", condition.ProductName);
                 param.ProductName = string.Format("%{0}%", condition.ProductName);
             }
-            if (condition.OutInOrderTypeId > 0)
+            if (condition.OutInOrderTypeId != 0)
             {
                 where += " and t0.OutInOrderTypeId=@OutInOrderTypeId ";
                 param.OutInOrderTypeId = condition.OutInOrderTypeId;
             }
-            if (condition.OutInInventory > 0)
+            if (condition.OutInInventory != 0)
             {
                 where += " and t.OutInInventory=@OutInInventory ";
                 param.OutInInventory = condition.OutInInventory;

@@ -42,29 +42,12 @@ namespace EBS.Application.Facade
            // entity.Code = _sequenceService.GenerateNewCode(BillIdentity.OtherInOrder);
             // 明细
             var items = JsonConvert.DeserializeObject<List<OutInOrderItem>>(model.ItemsJson);
+            entity.SetItems(items);
             var orderType = _db.Table.Find<OutInOrderType>(entity.OutInOrderTypeId);
             if (orderType == null)
             {
                 throw new FriendlyException("业务类别为空");
-            }
-            //entity.SetList(items, orderType);
-            //_db.Insert(entity);
-
-            ////跟踪记录
-            //var reason = "创建其他入库单";
-            //var history = new ProcessHistory(model.EditBy, model.EditByName, (int)entity.Status, entity.Id, BillIdentity.OtherInOrder.ToString(), reason);
-            //_db.Command.AddExecute(history.CreateSql(entity.GetType().Name, entity.Code), history);
-
-            //_db.SaveChange();
-            //var modelEntity = _db.Table.Find<OutInOrder>(n => n.Code == entity.Code);
-            //model.Id = modelEntity.Id;
-            //model.Code = entity.Code;
-            //entity.Id = modelEntity.Id;
-
-            //if (model.SaveAndSubmit)
-            //{
-            //    Submit(model.Id, model.EditBy, model.EditByName);
-            //}
+            }            
 
             var reason = "创建其他入库单";
             var billIdentity = BillIdentity.OtherInOrder;
@@ -83,6 +66,13 @@ namespace EBS.Application.Facade
                 var history = new ProcessHistory(entity.CreatedBy, entity.CreatedByName, (int)entity.Status, entity.Id, billIdentity.ToString(), reason);
                 _db.Command.AddExecute(history.CreateSql(entity.GetType().Name, entity.Code), history);
                 _db.SaveChange();
+
+                if (model.SaveAndSubmit)
+                {
+                    var modelEntity = _db.Table.Find<OutInOrder>(n => n.Code == entity.Code);
+                    model.Id = modelEntity.Id;
+                    Submit(model.Id, model.EditBy, model.EditByName);
+                }               
             }
 
         }
@@ -94,11 +84,26 @@ namespace EBS.Application.Facade
             var entityItems = _db.Table.FindAll<OutInOrderItem>(n => n.OutInOrderId == id).ToList();
             entity.Items = entityItems;
             entity.Audit(editBy, editByName);
-            var reason = "审核单据";
             _db.Update(entity);
-            _processHistoryService.Track(entity.UpdatedBy, editByName, (int)entity.Status, entity.Id, BillIdentity.OtherInOrder.ToString(), reason);
-            // _inventoryService.CheckIsExists(entity.Code);
-            // _inventoryService.TransaferInventory(entity);
+             _inventoryService.CheckIsExists(entity.Code);
+            
+            var orderType = _db.Table.Find<OutInOrderType>(entity.OutInOrderTypeId);
+            if (orderType == null)
+            {
+                throw new FriendlyException("业务类别为空");
+            }
+            var billIdentity = BillIdentity.OtherInOrder;
+            if (orderType.OutInInventory == OutInInventoryType.Out)
+            {
+                billIdentity = BillIdentity.OtherOutOrder;
+                _inventoryService.StockOut(entity);
+            }
+            else {
+                _inventoryService.StockIn(entity);
+            }
+            var reason = "审核单据";            
+            _processHistoryService.Track(entity.UpdatedBy, editByName, (int)entity.Status, entity.Id, billIdentity.ToString(), reason);           
+         
             _db.SaveChange();
         }
 
@@ -106,8 +111,18 @@ namespace EBS.Application.Facade
         {
             var entity = _db.Table.Find<OutInOrder>(id);
             entity.Cancel(editBy, editByName);
+            var orderType = _db.Table.Find<OutInOrderType>(entity.OutInOrderTypeId);
+            if (orderType == null)
+            {
+                throw new FriendlyException("业务类别为空");
+            }
+            var billIdentity = BillIdentity.OtherInOrder;
+            if (orderType.OutInInventory == OutInInventoryType.Out)
+            {
+                billIdentity = BillIdentity.OtherOutOrder;
+            }
             _db.Update(entity);
-            _processHistoryService.Track(entity.UpdatedBy, editByName, (int)entity.Status, entity.Id, BillIdentity.OtherInOrder.ToString(), reason);
+            _processHistoryService.Track(entity.UpdatedBy, editByName, (int)entity.Status, entity.Id, billIdentity.ToString(), reason);
             _db.SaveChange();
         }
 
@@ -116,6 +131,7 @@ namespace EBS.Application.Facade
             var entity = _db.Table.Find<OutInOrder>(model.Id);
             entity = model.MapTo<OutInOrder>(entity);
             entity.UpdatedBy = model.EditBy;
+            entity.UpdatedByName = model.EditByName;
             entity.UpdatedOn = DateTime.Now;
             _db.Update(entity);
 
@@ -126,10 +142,23 @@ namespace EBS.Application.Facade
             {
                 throw new FriendlyException("业务类别为空");
             }
+            var billIdentity = BillIdentity.OtherInOrder;
+            if (orderType.OutInInventory == OutInInventoryType.Out)
+            {
+                billIdentity = BillIdentity.OtherOutOrder;
+            }
+            var reason = "编辑";
             entity.AddRange(items, orderType);
             _db.Delete<OutInOrderItem>(n => n.OutInOrderId == entity.Id);
             _db.Insert(entity.Items.ToArray());
+            _processHistoryService.Track(entity.UpdatedBy, entity.UpdatedByName, (int)entity.Status, entity.Id, billIdentity.ToString(), reason);
             _db.SaveChange();
+            if (model.SaveAndSubmit)
+            {
+                var modelEntity = _db.Table.Find<OutInOrder>(n => n.Code == entity.Code);
+                model.Id = modelEntity.Id;
+                Submit(model.Id, model.EditBy, model.EditByName);               
+            }     
         }
 
         public void Submit(int id, int editBy, string editByName)
@@ -141,7 +170,17 @@ namespace EBS.Application.Facade
             entity.Submit(editBy, editByName);
             _db.Update(entity);
             var reason = "提交单据";
-            _processHistoryService.Track(editBy, editByName, (int)entity.Status, entity.Id, BillIdentity.OtherInOrder.ToString(), reason);
+            var orderType = _db.Table.Find<OutInOrderType>(entity.OutInOrderTypeId);
+            if (orderType == null)
+            {
+                throw new FriendlyException("业务类别为空");
+            }
+            var billIdentity = BillIdentity.OtherInOrder;
+            if (orderType.OutInInventory == OutInInventoryType.Out)
+            {
+                billIdentity = BillIdentity.OtherOutOrder;
+            }
+            _processHistoryService.Track(editBy, editByName, (int)entity.Status, entity.Id, billIdentity.ToString(), reason);
             // 如果调入库存商品不存在，创建商品信息
             var notExistsProduct = _inventoryService.CheckNotExistsProduct(entity);
             if (notExistsProduct.Count() > 0)
@@ -157,8 +196,18 @@ namespace EBS.Application.Facade
             var entity = _db.Table.Find<OutInOrder>(id);
             entity.Reject(editBy, editByName);
             _db.Update(entity);
+            var orderType = _db.Table.Find<OutInOrderType>(entity.OutInOrderTypeId);
+            if (orderType == null)
+            {
+                throw new FriendlyException("业务类别为空");
+            }
+            var billIdentity = BillIdentity.OtherInOrder;
+            if (orderType.OutInInventory == OutInInventoryType.Out)
+            {
+                billIdentity = BillIdentity.OtherOutOrder;
+            }
             var reason = "驳回单据";
-            _processHistoryService.Track(editBy, editByName, (int)entity.Status, entity.Id, BillIdentity.OtherInOrder.ToString(), reason);
+            _processHistoryService.Track(editBy, editByName, (int)entity.Status, entity.Id, billIdentity.ToString(), reason);
             _db.SaveChange();
         }
 
@@ -169,7 +218,17 @@ namespace EBS.Application.Facade
             entity.FinanceAudit(editBy, editByName);
             var reason = "财务复审";
             _db.Update(entity);
-            _processHistoryService.Track(entity.UpdatedBy, editByName, (int)entity.Status, entity.Id, BillIdentity.OtherInOrder.ToString(), reason);
+            var orderType = _db.Table.Find<OutInOrderType>(entity.OutInOrderTypeId);
+            if (orderType == null)
+            {
+                throw new FriendlyException("业务类别为空");
+            }
+            var billIdentity = BillIdentity.OtherInOrder;
+            if (orderType.OutInInventory == OutInInventoryType.Out)
+            {
+                billIdentity = BillIdentity.OtherOutOrder;
+            }
+            _processHistoryService.Track(entity.UpdatedBy, editByName, (int)entity.Status, entity.Id, billIdentity.ToString(), reason);
             _db.SaveChange();
         }
 
@@ -179,7 +238,17 @@ namespace EBS.Application.Facade
             entity.CancelFinanceAudit(editBy, editByName);
             var reason = "撤销财务复审";
             _db.Update(entity);
-            _processHistoryService.Track(entity.UpdatedBy, editByName, (int)entity.Status, entity.Id, BillIdentity.OtherInOrder.ToString(), reason);
+            var orderType = _db.Table.Find<OutInOrderType>(entity.OutInOrderTypeId);
+            if (orderType == null)
+            {
+                throw new FriendlyException("业务类别为空");
+            }
+            var billIdentity = BillIdentity.OtherInOrder;
+            if (orderType.OutInInventory == OutInInventoryType.Out)
+            {
+                billIdentity = BillIdentity.OtherOutOrder;
+            }
+            _processHistoryService.Track(entity.UpdatedBy, editByName, (int)entity.Status, entity.Id, billIdentity.ToString(), reason);
             _db.SaveChange();
         }
     }

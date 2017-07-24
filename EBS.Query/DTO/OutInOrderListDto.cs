@@ -93,7 +93,9 @@ namespace EBS.Query.DTO
         public decimal CostPrice { get; set; }
         public int Quantity { get; set; }
 
-        public int Amount { get; set; }
+        public decimal Amount { get {
+            return this.CostPrice * this.Quantity;
+        } }
 
         #endregion
     }

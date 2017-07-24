@@ -54,7 +54,10 @@ namespace EBS.Admin.Controllers
 
         public ActionResult Detail(int id)
         {
+            SetUserAuthention();          
             var model = _outInOrderQuery.GetById(id);
+            ViewBag.OutInOrderItems = JsonConvert.SerializeObject(model.Items.ToArray());
+            ViewBag.OrderStatus = model.Status.Description();
             return View(model);
         }
 
@@ -104,6 +107,13 @@ namespace EBS.Admin.Controllers
 
             return Json(new { success = true, data = rows, total = page.Total, sum = page.SumColumns });
         }
+
+        //public JsonResult LoadSummayData(Pager page, SearchOutInOrder condition)
+        //{
+        //    var rows = _storePurchaseOrderQuery.GetSummaryList(page, condition);
+
+        //    return Json(new { success = true, data = rows, total = page.Total, sum = page.SumColumns });
+        //}
 
         [HttpPost]
         public JsonResult Create(OutInOrderModel model)
@@ -274,8 +284,15 @@ namespace EBS.Admin.Controllers
             SetThisMonth();
             return View();
         }
-       
 
+        public ActionResult RefundDetail(int id)
+        {
+            SetUserAuthention();
+            var model = _outInOrderQuery.GetById(id);
+            ViewBag.OutInOrderItems = JsonConvert.SerializeObject(model.Items.ToArray());
+            ViewBag.OrderStatus = model.Status.Description();
+            return View(model);
+        }
         public ActionResult RefundEdit(int id)
         {
             SetUserAuthention();

@@ -34,6 +34,8 @@ namespace EBS.Domain.Entity
         public string UpdatedByName { get; set; }
         public OutInOrderStatus Status { get; set; }
 
+        public string Remark { get; set; }
+
         public virtual List<OutInOrderItem> Items { get; set; }
 
         public void AddRange(List<OutInOrderItem> items,OutInOrderType orderType)

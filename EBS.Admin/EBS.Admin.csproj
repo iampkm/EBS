@@ -1325,6 +1325,12 @@
     <Content Include="Views\OutInOrder\Finish.cshtml" />
     <Content Include="Views\OutInOrder\Edit.cshtml" />
     <Content Include="Views\OutInOrder\RefundIndex.cshtml" />
+    <Content Include="Views\OutInOrder\RefundAuditIndex.cshtml" />
+    <Content Include="Views\OutInOrder\RefundFinanceIndex.cshtml" />
+    <Content Include="Views\OutInOrder\RefundFinish.cshtml" />
+    <Content Include="Views\OutInOrder\RefundEdit.cshtml" />
+    <Content Include="Views\OutInOrder\Detail.cshtml" />
+    <Content Include="Views\OutInOrder\RefundDetail.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">

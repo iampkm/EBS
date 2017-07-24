@@ -587,5 +587,104 @@ where s.Id is null  and i.`OutInOrderId`=@OutInOrderId";
             _db.Command.AddExecute(sql, parma);
         }
 
+        public void StockIn(OutInOrder entity)
+        {
+            if (entity == null) { throw new FriendlyException("单据不存在"); }
+            if (entity.Items.Count() == 0) { throw new FriendlyException("单据明细为空"); }
+            //记录库存批次
+            var productIdArray = entity.Items.Select(n => n.ProductId).ToArray();
+            var inventorys = _db.Table.FindAll<StoreInventory>("select * from storeinventory where productId in @ProductIds and StoreId=@StoreId", new { ProductIds = productIdArray, StoreId = entity.StoreId });
+            var inventoryBatchs = new List<StoreInventoryBatch>();
+            var inventoryHistorys = new List<StoreInventoryHistory>();
+            var batchNo = _sequenceService.GenerateBatchNo(entity.StoreId);
+
+            foreach (var item in entity.Items)
+            {               
+                if (item.Quantity == 0) { continue; }              
+                var inventory = inventorys.FirstOrDefault(n => n.ProductId == item.ProductId);
+                if (inventory == null) throw new FriendlyException(string.Format("商品{0}不存在", item.ProductId));
+
+                var inventoryQuantity = inventory.Quantity;
+                inventory.Quantity += item.Quantity;
+                inventory.SaleQuantity += item.Quantity;
+                inventory.AvgCostPrice = CalculatedAveragePrice(inventory.AvgCostPrice, inventoryQuantity, item.CostPrice, item.Quantity);  // 修改库存均价
+               
+                //记录库存流水
+                var history = new StoreInventoryHistory(item.ProductId, entity.StoreId, inventoryQuantity, item.Quantity,
+                    item.CostPrice, batchNo, entity.Id, entity.Code, BillIdentity.OtherInOrder, entity.UpdatedBy, entity.SupplierId);
+                inventoryHistorys.Add(history);
+                //记录库存批次
+                var batchQuantity = CalculatedBatchQuantity(inventoryQuantity, item.Quantity);
+                var batch = new StoreInventoryBatch(item.ProductId, entity.StoreId, entity.SupplierId, batchQuantity,
+                    item.LastCostPrice, item.CostPrice, batchNo, null,0, entity.UpdatedBy);
+                inventoryBatchs.Add(batch);
+            }
+
+            _db.Update(entity.Items.ToArray());
+            _db.Update(inventorys.ToArray());
+            _db.Insert(inventoryHistorys.ToArray());
+            _db.Insert(inventoryBatchs.ToArray());  
+        }
+
+        public void StockOut(OutInOrder entity)
+        {
+            if (entity == null) { throw new FriendlyException("单据不存在"); }
+            if (entity.Items.Count() == 0) { throw new FriendlyException("单据明细为空"); }
+            var entityItems = entity.Items;
+            var productIdArray = entity.Items.Select(n => n.ProductId).ToArray();
+            var inventorys = _db.Table.FindAll<StoreInventory>("select * from storeinventory where productId in @ProductIds and StoreId=@StoreId", new { ProductIds = productIdArray, StoreId = entity.StoreId }).ToList();
+            var inventoryBatchs = _db.Table.FindAll<StoreInventoryBatch>("select * from storeinventorybatch where  storeId=@StoreId and productId in @ProductIds and Quantity>0", new { StoreId = entity.StoreId, ProductIds = productIdArray }).ToList();
+            var inventoryHistorys = new List<StoreInventoryHistory>();
+            var inventoryBatchUpdates = new List<StoreInventoryBatch>(); //批次更新
+            foreach (var item in entity.Items)
+            {
+                var inventory = inventorys.FirstOrDefault(n => n.ProductId == item.ProductId);
+                if (inventory == null) { throw new FriendlyException(string.Format("商品{0}库存记录不存在", item.ProductId)); }
+                // 先检查总库存是否够扣减
+                if (inventory.Quantity < item.Quantity)
+                {
+                    var product = _db.Table.Find<Product>(inventory.ProductId);
+                    throw new FriendlyException(string.Format("{0}库存不足！", product.Code));
+                }
+                // 扣减总库存
+                var inventoryQuantity = inventory.Quantity;
+                inventory.Quantity -= item.Quantity;
+                inventory.SaleQuantity -= item.Quantity;
+
+                //按照先进先出扣减批次库存
+                var productBatchs = SortBatchByFIFO(inventoryBatchs, item.ProductId, 0);
+                var leftQuantity = item.Quantity; // 需要扣减的总数量
+                foreach (var batchItem in productBatchs)
+                {
+                    if (batchItem.Quantity >= leftQuantity)
+                    {
+                        batchItem.Quantity -= leftQuantity;
+                        inventoryBatchUpdates.Add(batchItem);
+                        //记录修改历史
+                        inventoryHistorys.Add(new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventoryQuantity, -leftQuantity,
+                            batchItem.Price, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.OtherOutOrder, entity.UpdatedBy, batchItem.SupplierId));
+                        break;
+                    }
+                    else
+                    {
+                        inventoryHistorys.Add(new StoreInventoryHistory(inventory.ProductId, entity.StoreId, inventoryQuantity, -batchItem.Quantity,
+                                                     batchItem.Price, batchItem.BatchNo, entity.Id, entity.Code, BillIdentity.OtherOutOrder, entity.UpdatedBy, batchItem.SupplierId));
+                        // 剩余扣减数
+                        inventoryQuantity = inventoryQuantity - batchItem.Quantity;  // 第1+N次扣减后总库存
+                        leftQuantity = leftQuantity - batchItem.Quantity;
+                        batchItem.Quantity = 0;  //扣完
+                        inventoryBatchUpdates.Add(batchItem);
+                    }
+                }
+            }
+
+            _db.Update(inventorys.ToArray());
+            if (inventoryBatchUpdates.Count > 0)
+            {
+                _db.Update(inventoryBatchUpdates.ToArray());
+            }
+            _db.Insert(inventoryHistorys.ToArray());
+        }
+
     }
 }
