@@ -208,3 +208,26 @@
         <strong>Copyright &copy; 2016 <a href="http://almsaeedstudio.com"></a>.</strong> 备案信息
     </footer>*@
 </div>
+@section scripts{
+    <script type="text/javascript">
+        function MenuaddOverflow() {
+            $(".sidebar").css("max-height", "");
+            $(".sidebar").css("overflow-y", "");
+            if ($('body').hasClass("sidebar-collapse")) {
+                var windowHight = $(document).height();
+                if (windowHight < 750) {
+                    $(".sidebar").css("max-height", 570 + "px");
+                    $(".sidebar").css("overflow-y", "auto");
+                }
+            }
+        };
+        $(document).ready(function () {
+            var windowHight = $(document).height();
+            if (windowHight < 750) {
+                $(".sidebar").css("max-height", 570 + "px");
+                $(".sidebar").css("overflow-y", "auto");
+            }
+        });
+        $(".sidebar-toggle").click(function () { MenuaddOverflow() });
+    </script>
+}

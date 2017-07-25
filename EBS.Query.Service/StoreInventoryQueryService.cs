@@ -67,7 +67,7 @@ where 1=1 {0} ORDER BY t0.Id desc ";
             var rows = this._query.FindAll<StoreInventoryQueryDto>(sql, param);
 
             // 查询统计列数据
-            string sqlSum = @"select count(*) as TotalCount, sum(t0.Quantity) as Quantity,sum(t0.AvgCostPrice*t0.Quantity) as Amount,sum(t1.SalePrice*t0.Quantity) as SaleAmount
+            string sqlSum = @"select count(*) as TotalCount, sum(t0.Quantity) as Quantity,sum(t0.LastCostPrice*t0.Quantity) as Amount,sum(t1.SalePrice*t0.Quantity) as SaleAmount
 from storeinventory t0 left join product t1 on t0.productId = t1.Id
 left join store t2 on t2.Id = t0.StoreId
 left join category t3 on t1.CategoryId = t3.Id

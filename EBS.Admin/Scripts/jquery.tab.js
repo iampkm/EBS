@@ -152,6 +152,9 @@
                         _tabDatas[i].tabs.push(opt);
                     } else {
                         _showTab(htmlID, index);
+                        //刷新ifrrame 连接
+                        var iframe = $("#" + htmlID + "-content-" + index + "> iframe");
+                        iframe.attr('src', iframe.attr('src'));
                         allowDo = false;
                     }
                     break;

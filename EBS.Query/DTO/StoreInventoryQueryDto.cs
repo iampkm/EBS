@@ -30,11 +30,11 @@ namespace EBS.Query.DTO
         /// </summary>
         public int Quantity { get; set; }
          [Description("成本")]
-        public decimal AvgCostPrice { get; set; }
+        public decimal LastCostPrice { get; set; }
          [Description("成本金额")]
         public decimal Amount {
             get {
-                return AvgCostPrice * Quantity;
+                return LastCostPrice * Quantity;
             }
         }
         [Description("售价")]

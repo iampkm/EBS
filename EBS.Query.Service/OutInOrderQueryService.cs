@@ -315,61 +315,68 @@ where 1=1 {0} ";
 
             if (!string.IsNullOrEmpty(condition.StoreId) && condition.StoreId != "0")
             {
-                where += "and o.StoreId in @StoreId ";
-                param.StoreId = condition.StoreId.Split(',').ToIntArray();
+                where += "and h.StoreId in @StoreId ";
+                param.StoreId = condition.StoreId.Split(',').ToIntArray(); ;
+            }
+            //if (!string.IsNullOrEmpty(condition.Status) && condition.Status != "0")
+            //{
+            //    where += "and t0.Status in (" + condition.Status + ") ";
+            //    // param.Status = condition.Status;
+            //}
+
+           
+           
+            if (condition.OutInOrderTypeId != 0)
+            {
+                where += " and t.Id=@OutInOrderTypeId ";
+                param.OutInOrderTypeId = condition.OutInOrderTypeId;
+            }
+            if (condition.OutInInventory != 0)
+            {
+                where += " and t.OutInInventory=@OutInInventory ";
+                param.OutInInventory = condition.OutInInventory;
             }
 
             if (condition.StartDate.HasValue)
             {
-                where += "and o.CreatedOn >=@StartDate ";
+                where += "and h.CreatedOn >=@StartDate ";
                 param.StartDate = condition.StartDate.Value;
             }
             if (condition.EndDate.HasValue)
             {
-                where += "and o.CreatedOn < @EndDate ";
+                where += "and h.CreatedOn < @EndDate ";
                 param.EndDate = condition.EndDate.Value.AddDays(1);
             }
-            //if (!string.IsNullOrEmpty(condition.ProductCodeOrBarCode))
-            //{
-            //    where += @"and ( p.code=@ProductCodeOrBarCode or p.barcode =@ProductCodeOrBarCode  ) ";
-            //    param.ProductCodeOrBarCode = condition.ProductCodeOrBarCode;
-            //}
-            //if (!string.IsNullOrEmpty(condition.ProductName))
-            //{
-            //    where += "and p.Name like @ProductName ";
-            //    param.ProductName = string.Format("%{0}%", condition.ProductName);
-            //}
 
-            string sql = @"select s.`Name` as StoreName,t.InQuantity,t.InAmount,t.OutQuantity,t.OutAmount,t.InQuantity+t.OutQuantity as DifferenceQuantity,t.InAmount+t.OutAmount as DifferenceAmount from ( 
-select StoreId,
-sum(case when ChangeQuantity<0 then ChangeQuantity end) OutQuantity,sum(case when ChangeQuantity<0 then price* ChangeQuantity end) OutAmount,
-sum(case when ChangeQuantity>=0 then ChangeQuantity end) InQuantity,sum(case when ChangeQuantity>=0 then price* ChangeQuantity end) InAmount from storeinventoryhistory o 
-where BillType=60 {0}  
-GROUP BY storeid ORDER BY o.Id desc
-) t
-left join store s on s.id = t.storeid  LIMIT {1},{2}";
+            string sql = @"select s.name as StoreName,b.typeName,a.Quantity,a.Amount from (
+select h.StoreId,t.Id outinordertypeId,sum(h.ChangeQuantity) as Quantity,sum( h.ChangeQuantity*h.Price) as amount from storeinventoryhistory h 
+inner join outinorder o on o.code = h.BillCode 
+inner join outinordertype t on t.Id = o.OutInOrderTypeId
+where h.BillType in (61,62) {0}
+GROUP BY h.StoreId,t.Id
+) a 
+left join store s on a.storeid = s.id
+left join outinordertype b on b.id = a.outinordertypeId  LIMIT {1},{2}";
             //rows = this._query.FindPage<ProductDto>(page.PageIndex, page.PageSize).Where<Product>(where, param);
             sql = string.Format(sql, where, (page.PageIndex - 1) * page.PageSize, page.PageSize);
             var rows = this._query.FindAll<OutInOrderSummaryDto>(sql, param);
             string sqlSum = @"
-select count(*) as TotalCount,sum(t.InQuantity) as InQuantity,sum(InAmount) as InAmount, sum(t.OutQuantity) as OutQuantity,sum(OutAmount) as OutAmount,sum(t.InQuantity+t.OutQuantity) as DifferenceQuantity,sum(t.InAmount+t.OutAmount) as DifferenceAmount
-from ( 
-select 
-sum(case when ChangeQuantity<0 then ChangeQuantity end) OutQuantity,sum(case when ChangeQuantity<0 then price* ChangeQuantity end) OutAmount,
-sum(case when ChangeQuantity>=0 then ChangeQuantity end) InQuantity,sum(case when ChangeQuantity>=0 then price* ChangeQuantity end) InAmount from storeinventoryhistory o 
-where BillType=60 {0}  
-GROUP BY storeid ORDER BY o.Id desc
-) t ";
+select count(*) as TotalCount,sum(Quantity) as Quantity,sum( amount) as amount 
+from (
+select h.StoreId,t.Id outinordertypeId,count(*) as TotalCount,sum(h.ChangeQuantity) as Quantity,sum( h.ChangeQuantity*h.Price) as amount from storeinventoryhistory h 
+inner join outinorder o on o.code = h.BillCode 
+inner join outinordertype t on t.Id = o.OutInOrderTypeId
+where h.BillType in (61,62) {0} 
+GROUP BY h.StoreId,t.Id
+) a ";
 
             sqlSum = string.Format(sqlSum, where);
             var sumStoreInventory = this._query.Find<SumOutInOrderSummary>(sqlSum, param) as SumOutInOrderSummary;
             page.Total = sumStoreInventory.TotalCount;
-            //page.SumColumns.Add(new SumColumn("InQuantity", sumStoreInventory.InQuantity.ToString()));
-            //page.SumColumns.Add(new SumColumn("InAmount", sumStoreInventory.InAmount.ToString("F4")));
-            //page.SumColumns.Add(new SumColumn("OutQuantity", sumStoreInventory.OutQuantity.ToString()));
-            //page.SumColumns.Add(new SumColumn("OutAmount", sumStoreInventory.OutAmount.ToString("F4")));
-            //page.SumColumns.Add(new SumColumn("DifferenceQuantity", sumStoreInventory.DifferenceQuantity.ToString()));
-            //page.SumColumns.Add(new SumColumn("DifferenceAmount", sumStoreInventory.DifferenceAmount.ToString("F4")));
+
+            page.SumColumns.Add(new SumColumn("Quantity", sumStoreInventory.Quantity.ToString()));
+            page.SumColumns.Add(new SumColumn("Amount", sumStoreInventory.Amount.ToString("F4")));
+           
             return rows;
         }
 

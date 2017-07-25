@@ -205,6 +205,10 @@ namespace EBS.Admin.Controllers
         {
             SetUserAuthention();
             SetThisMonth();
+            ViewBag.InTypes =JsonConvert.SerializeObject( _outInOrderQuery.GetOtherInOrderTypes().ToArray());
+            ViewBag.OutTypes =JsonConvert.SerializeObject(  _outInOrderQuery.GetOtherOutOrderTypes().ToArray());
+            ViewBag.OrderTypes = typeof(OutInInventoryType).GetValueToDescription();
+            ViewBag.OrderStatus = string.Format("{0},{1}", (int)OutInOrderStatus.FinanceAudited, (int)OutInOrderStatus.FinanceAudited);
             return View();
         }
 
