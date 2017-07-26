@@ -73,6 +73,7 @@ namespace EBS.Query.DTO
 
         public int OutInOrderTypeId { get; set; }
 
+        public OutInInventoryType OutInInventory { get; set; }
 
         public List<OutInOrderItemDto> Items { get; set; }
     }

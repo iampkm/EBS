@@ -49,13 +49,14 @@ namespace EBS.Query.Service
             {
                 where +=string.Format("and t0.Quantity {0} @Quantity ",condition.Operate);
                 param.Quantity = condition.Quantity; 
-            }            
+            }
 
-            string sql = @"select t0.*,t1.`Code` as ProductCode ,t1.`Name` as ProductName,t1.BarCode,t1.Specification,t1.SalePrice,t2.`name` as StoreName,t3.FullName as CategoryName 
+            string sql = @"select t0.Quantity,t0.LastCostPrice,t1.`Code` as ProductCode ,t1.`Name` as ProductName,t1.BarCode,t1.Specification,
+case when t0.StoreSalePrice>0 then t0.StoreSalePrice else t1.SalePrice END as SalePrice,t2.`name` as StoreName,t3.FullName as CategoryName 
 from storeinventory t0 left join product t1 on t0.productId = t1.Id
 left join store t2 on t2.Id = t0.StoreId
 left join category t3 on t1.CategoryId = t3.Id
-where 1=1 {0} ORDER BY t0.Id desc ";
+where 1=1 {0} ORDER BY t2.Id,t1.Id ";
 
             if (!page.toExcel)
             {

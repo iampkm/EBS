@@ -187,7 +187,7 @@ where p.BarCode in @ProductCode and i.StoreId=@StoreId ";
 
         public OutInOrderDto GetById(int id)
         {
-            string sql = @"select o.*,t.TypeName,s.`Name` as StoreName,l.`Name` as SupplierName from OutInOrder o left join outinordertype t on o.OutInOrderTypeId= t.id 
+            string sql = @"select o.*,t.TypeName,s.`Name` as StoreName,l.`Name` as SupplierName,t.OutInInventory from OutInOrder o left join outinordertype t on o.OutInOrderTypeId= t.id 
 left join store s on o.StoreId = s.Id 
 left join supplier l on l.Id = o.SupplierId where o.Id=@Id";
             var model = _query.Find<OutInOrderDto>(sql, new { Id = id });
@@ -317,14 +317,7 @@ where 1=1 {0} ";
             {
                 where += "and h.StoreId in @StoreId ";
                 param.StoreId = condition.StoreId.Split(',').ToIntArray(); ;
-            }
-            //if (!string.IsNullOrEmpty(condition.Status) && condition.Status != "0")
-            //{
-            //    where += "and t0.Status in (" + condition.Status + ") ";
-            //    // param.Status = condition.Status;
-            //}
-
-           
+            }            
            
             if (condition.OutInOrderTypeId != 0)
             {

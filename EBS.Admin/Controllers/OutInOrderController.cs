@@ -318,6 +318,12 @@ namespace EBS.Admin.Controllers
             return Json(new { success = true, data = model });
         }
 
+        public ActionResult Print(int id)
+        {
+            var model = _outInOrderQuery.GetById(id);
+            return PartialView("_OutInOrderTemplate", model);
+        }
+
         #endregion
     }
 }

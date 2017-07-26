@@ -25,7 +25,7 @@
         <div class="box-body">
             <vue-table v-ref:vtable v-bind:columns="gridColumns"
                        v-bind:url="url"
-                       v-bind:args="searchArgs" v-bind:data.sync="rows" v-bind:show-sum="true">
+                       v-bind:args="searchArgs" v-bind:data.sync="rows" v-bind:show-sum="true" v-bind:showtoexcel="true">
                 <div class="row" style="margin-bottom:10px;" slot="customSearch" >
                     <div class="col-xs-3 col-sm-2">
                         <input class="form-control" v-model="searchArgs.productCodeOrBarCode" placeholder="商品编码/条码" debounce="500" />

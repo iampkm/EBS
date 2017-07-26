@@ -16,24 +16,32 @@ namespace EBS.Query.DTO
         public int StoreId { get; set; }
         [Description("门店")]
         public string StoreName { get; set; }
+        [Description("商品编码")]
+        public string ProductCode { get; set; }
+        [Description("条码")]
+        public string BarCode { get; set; }
+       
+        [Description("品名")]
+        public string ProductName { get; set; }
+        [Description("规格")]
         /// <summary>
-        /// 可售数量
+        /// 规格
         /// </summary>
-        public int SaleQuantity { get; set; }
-        /// <summary>
-        /// 预订数量
-        /// </summary>
-        public int OrderQuantity { get; set; }
+        public string Specification { get; set; }
+        [Description("品类")]
+        public string CategoryName { get; set; }
         [Description("库存")]
         /// <summary>
         /// 库存数量
         /// </summary>
         public int Quantity { get; set; }
-         [Description("成本")]
+        [Description("最新进价")]
         public decimal LastCostPrice { get; set; }
-         [Description("成本金额")]
-        public decimal Amount {
-            get {
+        [Description("成本金额")]
+        public decimal Amount
+        {
+            get
+            {
                 return LastCostPrice * Quantity;
             }
         }
@@ -47,6 +55,15 @@ namespace EBS.Query.DTO
                 return SalePrice * Quantity;
             }
         }
+        /// <summary>
+        /// 可售数量
+        /// </summary>
+        public int SaleQuantity { get; set; }
+        /// <summary>
+        /// 预订数量
+        /// </summary>
+        public int OrderQuantity { get; set; }
+        
 
         /// <summary>
         /// 预警数量
@@ -55,23 +72,9 @@ namespace EBS.Query.DTO
         /// <summary>
         /// 是否退市（例如不再进货销售）
         /// </summary>
-        public bool IsQuit { get; set; }
-        [Description("条码")]
-        public string BarCode { get; set; }
-        [Description("商品编码")]
-        public string ProductCode { get; set; }
-        [Description("品名")]
-        public string ProductName { get; set; }
-        [Description("规格")]
-        /// <summary>
-        /// 规格
-        /// </summary>
-        public string Specification { get; set; }
-        [Description("供应商")]
+        public bool IsQuit { get; set; }        
 
         public string SupplierName { get; set; }
-        [Description("品类")]
-
-        public string CategoryName { get; set; }
+        
     }
 }

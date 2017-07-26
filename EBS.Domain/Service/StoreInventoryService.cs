@@ -608,6 +608,9 @@ where s.Id is null  and i.`OutInOrderId`=@OutInOrderId";
                 inventory.Quantity += item.Quantity;
                 inventory.SaleQuantity += item.Quantity;
                 inventory.AvgCostPrice = CalculatedAveragePrice(inventory.AvgCostPrice, inventoryQuantity, item.CostPrice, item.Quantity);  // 修改库存均价
+                if (inventory.LastCostPrice == 0) {
+                    inventory.LastCostPrice = item.CostPrice>0?item.CostPrice:item.LastCostPrice;
+                }
                
                 //记录库存流水
                 var history = new StoreInventoryHistory(item.ProductId, entity.StoreId, inventoryQuantity, item.Quantity,

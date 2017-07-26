@@ -1,0 +1,118 @@
+﻿@using EBS.Infrastructure.Extension;
+@model EBS.Query.DTO.OutInOrderDto
+ @{
+     var title = "其他入库单";
+     var bgColor = "text-success";
+     if (Model.OutInInventory == EBS.Domain.ValueObject.OutInInventoryType.Out)
+     {
+         title = "其他出库单";
+         bgColor = "text-dagner";
+     }
+     
+ }
+<div id="printTemplate" class="table-printfontsize12">
+    <div class="row">
+        <div class="col-xs-4 col-sm-4"></div>
+        <div class="col-xs-4 col-sm-4"><h4 class="text-center @bgColor" style="border-bottom:2px solid;padding-bottom:1px;"><b>@title</b></h4></div>
+        <div class="col-xs-4 col-sm-4"></div>
+    </div>
+    <div class="row">
+        <div class="col-xs-4 col-sm-4">
+            <span>供应商：@Model.SupplierName</span>
+        </div>
+        <div class="col-xs-4 col-sm-4 ">
+            <span>单据号：@Model.Code</span>
+        </div>
+        <div class="col-xs-4 col-sm-4 ">
+            <span>备注：@Model.Remark</span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-4 col-sm-4">
+            <span>门店：@Model.StoreName</span>
+        </div>
+        <div class="col-xs-4 col-sm-4 ">
+            <span class="text-primary">单据状态：@Model.OrderStatus  业务类别：@Model.TypeName</span>
+        </div>
+        <div class="col-xs-4 col-sm-4">
+            <span>制单日期：@Model.CreatedTime</span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12">
+            <div class="table-responsive">
+                <table class="table table-bordered table-printfontsize">
+                    <thead>
+                        <tr>
+                            <th style="width:50px;">序号</th>
+                            <th>商品编码</th>
+                            <th>条码</th>
+                            <th>品名</th>
+                            <th>规格</th>
+                            <th>单位</th>
+                            <th>最新进价</th>
+                            <th>进价</th>
+                            <th>数量</th>
+                            <th>金额</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody">
+                        @{
+                            var index = 0;
+                            var totalQuanttiy = 0;
+                            var totalAmount = 0m;
+                        }
+                        @foreach (var item in Model.Items)
+                        {
+                            index += 1;
+                            totalQuanttiy += item.Quantity;
+                            totalAmount += item.CostPrice * item.Quantity;
+                            <tr>
+                                <td class="text-center">@index</td>
+                                <td>
+                                    @item.ProductCode
+                                </td>
+                                <td>@item.BarCode</td>
+                                <td>@item.ProductName</td>
+                                <td>@item.Specification</td>
+                                <td>@item.Unit</td>
+                                <td>@item.LastCostPrice.ToString("F4")</td>
+                                <td>@item.CostPrice.ToString("F4")</td>
+                                <td>@item.Quantity</td>
+                                <td>@item.Amount.ToString("F2")</td>                        
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td></td>
+                            <td>合计：</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>@totalQuanttiy</td>
+                            <td>@totalAmount.ToString("F2")</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-3 col-sm-3">
+            <span>制单人：@Model.CreatedByName</span>
+        </div>
+        <div class="col-xs-3 col-sm-3">
+            <span>审核人：@Model.UpdatedByName</span>
+        </div>
+        <div class="col-xs-3 col-sm-3">
+            <span></span>
+        </div>
+        <div class="col-xs-3 col-sm-3">
+            <span></span>
+        </div>
+    </div>
+</div>

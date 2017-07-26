@@ -19,6 +19,13 @@ namespace EBS.Admin.Services
             {
                 var friendException = filterContext.Exception as FriendlyException;
                 log.Info(friendException.Message);
+                if (friendException.Message == "账号已过期")
+                {
+                    filterContext.ExceptionHandled = true;                   
+                    UrlHelper url = new UrlHelper(filterContext.RequestContext);
+                    filterContext.Result = new RedirectResult(url.Action("Login", "Account"));
+                    return;
+                }
             }
             else {
                 log.Error(filterContext.Exception);    

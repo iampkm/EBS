@@ -14,7 +14,8 @@
         height: '500px',
         showSum: { type: Boolean, default: false },
         sum: { type: Array, default: [] },
-        buttons: { type: Array, default: [] }
+        buttons: { type: Array, default: [] },
+        showtoexcel :{ type: Boolean, default: false }
     },
     data: function () {
         var sortOrders = {};

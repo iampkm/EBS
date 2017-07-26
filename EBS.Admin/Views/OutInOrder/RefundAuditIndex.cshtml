@@ -88,8 +88,9 @@
                 </div>
                 <span class="input-group-btn" slot="customButtons">
                     <button type="button" class="btn btn-success btn-flat" v-on:click="showDetail()">审 核</button>
-                    <button type="button" class="btn btn-primary btn-flat" v-on:click="reject()">驳 回</button>
+                    <button type="button" class="btn btn-warning btn-flat" v-on:click="reject()">驳 回</button>
                     <button type="button" class="btn btn-danger btn-flat" v-on:click="remove()">作 废</button>
+                    <button type="button" class="btn btn-primary btn-flat" v-on:click="print()">打 印</button>
                 </span>
             </vue-table>
         </div>
@@ -224,6 +225,10 @@
                 </div>
             </div>
         </div>
+        <div slot="modal-footer" class="modal-footer">
+            <button type="button" class="btn btn-default btn-flat" v-on:click="closeDetail()">取 消</button>
+            <button type="button" class="btn btn-success btn-flat" v-on:click="submitAudit()" v-bind:disabled="isSubmit">审核通过</button>
+        </div>
     </v-modal>
     <div id="printDiv"></div>
 </div>
@@ -283,6 +288,7 @@
                     items: [],
                     model: {}
                 },
+                isSubmit:false
             },
             methods: {
                 remove: function () {

@@ -43,7 +43,7 @@ group by storeid
 ) t1 on t.Id = t1.storeid left join 
 (
 		select storeid,SUM(changequantity) as qty,sum(changequantity*price) as amount from storeinventoryhistory
-where createdOn BETWEEN @StartDate and @EndDate   and BillType in (51,52,53,60)
+where createdOn BETWEEN @StartDate and @EndDate   and BillType in (51,52,53,60,61,62)
 group by storeid
 ) t2 on t.Id = t2.storeid
 left  join 

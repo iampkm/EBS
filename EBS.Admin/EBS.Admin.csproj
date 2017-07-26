@@ -1332,6 +1332,7 @@
     <Content Include="Views\OutInOrder\Detail.cshtml" />
     <Content Include="Views\OutInOrder\RefundDetail.cshtml" />
     <Content Include="Views\OutInOrder\Summary.cshtml" />
+    <Content Include="Views\OutInOrder\_OutInOrderTemplate.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EBS.Application.Facade\EBS.Application.Facade.csproj">
