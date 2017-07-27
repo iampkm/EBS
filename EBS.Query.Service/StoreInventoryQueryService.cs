@@ -60,8 +60,7 @@ where 1=1 {0} ORDER BY t2.Id,t1.Id ";
 
             if (!page.toExcel)
             {
-              //  sql += string.Format(" LIMIT {0},{1}", (page.PageIndex - 1) * page.PageSize, page.PageSize);
-                sql += string.Format(" LIMIT {0},{1}", 0, 100);
+               sql += string.Format(" LIMIT {0},{1}", (page.PageIndex - 1) * page.PageSize, page.PageSize);              
             }
 
             sql = string.Format(sql, where);

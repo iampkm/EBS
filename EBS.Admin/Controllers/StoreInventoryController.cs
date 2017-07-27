@@ -50,7 +50,7 @@ namespace EBS.Admin.Controllers
             if (page.toExcel)
             {
                 var data = _excelService.WriteToExcelStream(rows.ToList(), ExcelVersion.Above2007, false, true).ToArray();
-                var fileName = string.Format("Inventory_{0}.xlsx", DateTime.Now.ToString("yyyyMMdd"));
+                var fileName = string.Format("库存_{0}.xlsx", DateTime.Now.ToString("yyyyMMdd"));
                 return File(data, "application/ms-excel", fileName);
             }
             return Json(new { success = true, data = rows, total = page.Total,sum = page.SumColumns });

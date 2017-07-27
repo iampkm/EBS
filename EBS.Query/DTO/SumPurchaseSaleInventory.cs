@@ -8,7 +8,8 @@ namespace EBS.Query.DTO
 {
    public class SumPurchaseSaleInventory
     {
-       public decimal PreInventoryQuantity { get; set; }
+       public int TotalCount { get; set; }
+       public int PreInventoryQuantity { get; set; }
        public decimal PreInventoryAmount { get; set; }
 
        public int PurchaseQuantity { get; set; }

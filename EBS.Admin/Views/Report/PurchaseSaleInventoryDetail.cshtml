@@ -19,17 +19,29 @@
     <div class="box box-primary">
         <div class="box-header">
             <ol class="breadcrumb" style="padding:0px;margin:1px;">
-                <li><a href="/Report/PurchaseSaleInventory"><i class="fa fa-dashboard"></i>进销存报表</a></li>
-                <li><a href="/Report/PurchaseSaleInventoryDetail/{{searchArgs.storeId}}?yearMonth={{searchArgs.year}}{{searchArgs.month}}">进销存明细报表</a></li>
+                <li><a href="/Report/PurchaseSaleInventoryDetail"><i class="fa fa-dashboard"></i>进销存明细报表</a></li>             
             </ol>
         </div>
         <div class="box-body">
             <vue-table v-ref:vtable v-bind:columns="gridColumns"
                        v-bind:url="url"
-                       v-bind:args="searchArgs" v-bind:data.sync="rows" v-bind:show-toolbar="isAdmin">
+                       v-bind:args="searchArgs" v-bind:data.sync="rows" v-bind:show-toolbar="isAdmin" v-bind:show-sum="true" v-bind:showtoexcel="true">
                 <div class="row" style="margin-bottom:10px;" slot="customSearch">
                     <div class="col-xs-2">
                         <input class="form-control" v-model="searchArgs.productCodeOrBarCode" placeholder="商品编码/条码" debounce="500" />
+                    </div>
+                    <div class="col-xs-2">
+                        <input class="form-control" v-model="searchArgs.productName" placeholder="品名" debounce="500" />
+                    </div>
+                    <div class="form-group col-sm-2 col-xs-3">
+                        <div class="input-group ">
+                            <input type="hidden" class="form-control" v-model="searchArgs.categoryId">
+                            <input type="text" class="form-control" v-model="selectCategory.name" placeholder="选择品类" readonly>
+                            <span class="input-group-btn">
+                                <button class="btn btn-flat btn-default" type="button" v-on:click="showCategory"><i class="fa fa-search"></i></button>
+                                <button class="btn btn-flat btn-default" type="button" v-on:click="clearCategory"><i class="fa fa-eraser"></i></button>
+                            </span>
+                        </div>
                     </div>
                     <div class="col-sm-2 col-xs-3" v-show="selectStore.view">
                         <div class="input-group ">
@@ -65,7 +77,7 @@
                     </div>
                 </div>
                 <span class="input-group-btn" slot="customButtons">
-                    <button type="button" class="btn btn-success btn-flat" v-show="isAdmin" v-bind:disabled="enabled" v-on:click="execute()">生成进销存明细报表</button>
+                    <button type="button" class="btn btn-success btn-flat" v-show="isAdmin" v-bind:disabled="isSubmit" v-on:click="execute()">生成进销存明细报表</button>
                     <a class="btn btn-default btn-flat" href="javascript:history.back()">返 回</a>
                 </span>
             </vue-table>
@@ -77,6 +89,11 @@
     <v-modal title="选择门店" ok-text="确 定" cancel-text="取 消" v-bind:callback="getStore" v-bind:show.sync="selectStore.modal" v-bind:effect="fade" width="60%">
         <div slot="modal-body" class="modal-body">
             <div style="min-height:350px;max-height:500px;overflow:auto;"><ul id="ztree" class="ztree"></ul></div>
+        </div>
+    </v-modal>
+    <v-modal title="选择品类" ok-text="确 定" cancel-text="取 消" v-bind:callback="getCategory" v-bind:show.sync="selectCategory.modal" v-bind:effect="fade" large>
+        <div slot="modal-body" class="modal-body">
+            <div style="min-height:350px;max-height:500px;overflow:auto;"><ul id="ztree1" class="ztree"></ul></div>
         </div>
     </v-modal>
 </div>
@@ -94,9 +111,12 @@
         el: '#app',
         data: {
             gridColumns: [
+                { name: 'StoreName', localName: '门店',width:120 },
                 { name: 'ProductCode', localName: '商品编码',width:100 },
-                { name: 'BarCode', localName: '条码',visiable:false },
+                { name: 'BarCode', localName: '条码',visible:false },
                 { name: 'ProductName', localName: '品名',width:200 },
+                { name: 'CategoryName', localName: '品类',width:200 },
+                { name: 'Specification', localName: '规格',width:100 },
                 { name: 'PreInventoryQuantity', localName: '期初库存' ,width:100},
                 { name: 'PreInventoryAmount', localName: '期初库存金额'},
                 { name: 'PurchaseQuantity', localName: '本期入库',width:120 },
@@ -110,23 +130,27 @@
                 { name: 'EndInventoryAmount', localName: '期末库存金额' },
             ],
             url: "/Report/QueryPurchaseSaleInventoryDetail",
-            searchArgs: { storeId: @ViewBag.StoreId,  year: '@ViewBag.Year',month:'@ViewBag.Month',productCodeOrBarCode:''},
-                rows: [],
-                selectStore: {
-                    modal: false,
-                    name: '@ViewBag.StoreName',
+            searchArgs: { storeId: @ViewBag.StoreId,  year: '@ViewBag.Year',month:'@ViewBag.Month',productCodeOrBarCode:'',categoryId:''},
+            rows: [],
+            selectStore: {
+                modal: false,
+                name: '@ViewBag.StoreName',
                 view: @ViewBag.View,
-                },
-            isAdmin:@ViewBag.IsAdmin,
-            enabled:false
+            },
+            selectCategory: {
+                modal: false,
+                name: '',                   
+            }, 
+            isAdmin:@ViewBag.IsAdmin,          
+            isSubmit:false
 
         },
         methods: {
             execute:function(){
                 var _self =this;
                 bootbox.confirm("您确定提交该记录？", function (result) {
-                    if (result) {
-                        _self.enabled = true;
+                    if (result) {                       
+                        _self.isSubmit = true;
                         $.post("/Report/GenerateDetail", { year: _self.searchArgs.year,month:_self.searchArgs.month }, function (result) {
                             if (result.success) {
                                 bootbox.alert("生成成功！", function () {
@@ -135,8 +159,8 @@
                             }
                             else {
                                 bootbox.alert(result.error);
-                            }
-                            _self.enabled = false;
+                            }                          
+                            _self.isSubmit = false;
                         }, "json");
                     }
                 });
@@ -171,6 +195,25 @@
                     }
                 }
             },
+            showCategory:function () {
+                this.selectCategory.modal=true;
+            },
+            clearCategory:function () {
+                vue.searchArgs.categoryId ="";
+                this.selectCategory.name = "";
+            },
+            getCategory:function(){
+                var treeObj = $.fn.zTree.getZTreeObj("ztree1");
+                var nodes = treeObj.getSelectedNodes();
+                if(nodes.length==0){
+                    bootbox.alert("请选择品类");
+                    return;
+                }                    
+                // 设置 选中的分类
+                this.searchArgs.categoryId = nodes[0].id;
+                this.selectCategory.name = nodes[0].name;
+                this.selectCategory.modal = false;
+            },
         }
     });
     //加载门店tree
@@ -195,6 +238,32 @@
         }
     };
     zTreeObj = $.fn.zTree.init($("#ztree"), setting);
+
+    //加载品类
+    var zTreeObj1;
+    // zTree 的参数配置，深入使用请参考 API 文档（setting 配置详解）
+    var setting1 = {
+        data: {
+            simpleData: {
+                enable: true,
+            }
+        },
+        callback:{
+            onClick:function(event, treeId, treeNode){
+                //点击展开/折叠节点
+                var treeObj = $.fn.zTree.getZTreeObj("ztree");
+                var open = !treeNode.open;
+                treeObj.expandNode(treeNode, open, false, false);
+                //vue.searchArgs.categoryId =treeNode.id;
+                //vue.selectCategory.name = treeNode.text; 
+                //vue.searchArgs.categoryId =treeNode.id;
+                //vue.selectCategory.modal=false;
+            }
+        }
+    };
+    // zTree 的数据属性，深入使用请参考 API 文档（zTreeNode 节点数据详解）
+    var zNodes =@Html.Raw(ViewBag.Tree) ;
+    zTreeObj = $.fn.zTree.init($("#ztree1"), setting1, zNodes);
 
     </script>
 }

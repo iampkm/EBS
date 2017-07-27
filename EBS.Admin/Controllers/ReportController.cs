@@ -10,6 +10,8 @@ using EBS.Infrastructure;
 using Dapper.DBContext;
 using EBS.Domain.Entity;
 using EBS.Application;
+using Newtonsoft.Json;
+using EBS.Infrastructure.File;
 namespace EBS.Admin.Controllers
 {
     [Permission]
@@ -22,12 +24,16 @@ namespace EBS.Admin.Controllers
         IContextService _context;
         IQuery _query;
         IPurchaseSaleInventoryFacade _purchaseSaleInventoryFacade;
-        public ReportController(IContextService contextService, IReportQuery reportQuery,IQuery query, IPurchaseSaleInventoryFacade psiFacade)
+        ICategoryQuery _categoryQuery;
+        IExcel _excelService;
+        public ReportController(IContextService contextService, IReportQuery reportQuery,IQuery query, IPurchaseSaleInventoryFacade psiFacade, ICategoryQuery categoryQuery, IExcel excelService)
         {
             _reportQuery = reportQuery;
             this._context = contextService;
             _query = query;
             _purchaseSaleInventoryFacade = psiFacade;
+            this._categoryQuery = categoryQuery;
+            this._excelService = excelService;
         }
            
         /// <summary>
@@ -44,10 +50,15 @@ namespace EBS.Admin.Controllers
             return View();
         }
 
-        public JsonResult QueryPurchaseSaleInventorySummary(Pager page, PurchaseSaleInventorySearch condition)
+        public ActionResult QueryPurchaseSaleInventorySummary(Pager page, PurchaseSaleInventorySearch condition)
         {
             var rows = _reportQuery.QueryPurchaseSaleInventorySummary(page, condition);
-
+            if (page.toExcel)
+            {
+                var data = _excelService.WriteToExcelStream(rows.ToList(), ExcelVersion.Above2007, false, true).ToArray();
+                var fileName = string.Format("进销存_{0}.xlsx", DateTime.Now.ToString("yyyyMMdd"));
+                return File(data, "application/ms-excel", fileName);
+            }
             return Json(new { success = true, data = rows, total = page.Total, sum = page.SumColumns });
         }
 
@@ -58,24 +69,28 @@ namespace EBS.Admin.Controllers
         /// <param name="startDate"></param>
         /// <param name="endDate"></param>
         /// <returns></returns>
-        public ActionResult PurchaseSaleInventoryDetail(int id,string yearMonth)
+        public ActionResult PurchaseSaleInventoryDetail()
         {
-            var model = _query.Find<Store>(id);
-            ViewBag.StoreId = id;
-            ViewBag.StoreName = model.Name;          
-            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+            SetUserAuthention();
+            LoadCategory();
             ViewBag.IsAdmin = _context.CurrentAccount.AccountId == 1 ? "true" : "false";
-            ViewBag.Year = yearMonth.Substring(0, 4);
-            ViewBag.Month = yearMonth.Substring(yearMonth.Length-2, 2);
+            ViewBag.Year = DateTime.Now.Year;
+            ViewBag.Month = DateTime.Now.Month.ToString().PadLeft(2, '0'); 
             ViewBag.Years = _reportQuery.GetYears();
             return View();
         }
 
-        public JsonResult QueryPurchaseSaleInventoryDetail(Pager page, PurchaseSaleInventoryDetailSearch condition)
+        public ActionResult QueryPurchaseSaleInventoryDetail(Pager page, PurchaseSaleInventoryDetailSearch condition)
         {
+            if (string.IsNullOrEmpty(condition.StoreId) || condition.StoreId == "0") { condition.StoreId = _context.CurrentAccount.CanViewStores; }
             var rows = _reportQuery.QueryPurchaseSaleInventoryDetail(page, condition);
-
-            return Json(new { success = true, data = rows, total = page.Total });
+            if (page.toExcel)
+            {
+                var data = _excelService.WriteToExcelStream(rows.ToList(), ExcelVersion.Above2007, false, true).ToArray();
+                var fileName = string.Format("进销存明细_{0}.xlsx", DateTime.Now.ToString("yyyyMMdd"));
+                return File(data, "application/ms-excel", fileName);
+            }
+            return Json(new { success = true, data = rows, total = page.Total, sum = page.SumColumns });
         }
 
         public JsonResult Generate(int year, int month)
@@ -92,6 +107,18 @@ namespace EBS.Admin.Controllers
             return Json(new { success = true });
         }
 
-       
+        private void SetUserAuthention()
+        {
+            ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
+            ViewBag.StoreId = _context.CurrentAccount.StoreId;
+            ViewBag.StoreName = _context.CurrentAccount.StoreName;
+        }
+
+        private void LoadCategory()
+        {
+            var treeNodes = _categoryQuery.GetCategoryTree();
+            var tree = JsonConvert.SerializeObject(treeNodes);
+            ViewBag.Tree = tree;
+        }
     }
 }

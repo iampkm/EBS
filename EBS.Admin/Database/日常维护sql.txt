@@ -365,16 +365,43 @@ left join store s on s.id = t.storeid
 
 
 ================= 进销存明细sql
- select h.storeid,h.productid,
--- IFNULL(sum(case when h.CreatedOn < '2017-05-01' then h.ChangeQuantity end),0) as PreInventoryQuantity, 
--- IFNULL(sum(case when h.CreatedOn < '2017-05-01' then h.ChangeQuantity*h.Price end),0)  as PreInventoryAmount, 
-IFNULL(sum(case when h.BillType in (51,52,53,60) and h.CreatedOn BETWEEN '2017-05-01' and '2017-06-01' then h.ChangeQuantity end),0)  as PurchaseQuantity, 
-IFNULL(sum(case when  h.BillType in (51,52,53,60) and h.CreatedOn BETWEEN '2017-05-01' and '2017-06-01' then h.ChangeQuantity*h.Price end),0)  as PurchaseAmount, 
-IFNULL(sum(case when h.BillType in (1,2) and h.CreatedOn BETWEEN '2017-05-01' and '2017-06-01' then h.ChangeQuantity end),0)  as SaleQuantity, 
-IFNULL(sum(case when  h.BillType in (1,2) and h.CreatedOn BETWEEN '2017-05-01' and '2017-06-01' then h.ChangeQuantity*h.Price end),0)  as SaleCostAmount 
--- IFNULL(sum(case when h.CreatedOn < '2017-06-01' then h.ChangeQuantity end),0)  as EndInventoryQuantity, 
--- IFNULL(sum(case when h.CreatedOn < '2017-06-01' then h.ChangeQuantity*h.Price end),0)  as EndInventoryAmount
+select 201705,s.StoreId,s.ProductId, 
+IFNULL(d.EndInventoryQuantity,0) as PreInventoryQuantity,IFNULL(d.EndInventoryAmount,0)  as PreInventoryAmount,
+IFNULL(c.PurchaseQuantity,0) as PurchaseQuantity,IFNULL(c.PurchaseAmount,0) as PurchaseAmount,IFNULL(c.SaleQuantity,0) as SaleQuantity,IFNULL(c.SaleCostAmount,0) as SaleCostAmount,IFNULL(c.SaleAmount,0) as SaleAmount,
+(IFNULL(d.EndInventoryQuantity,0)+ IFNULL(c.PurchaseQuantity,0)- IFNULL(c.SaleQuantity,0)) as EndInventoryQuantity ,
+(IFNULL(d.EndInventoryAmount,0) + IFNULL(c.PurchaseAmount,0)-IFNULL(c.SaleCostAmount,0)) as EndInventoryAmount 
+from storeinventory s 
+LEFT JOIN purchasesaleinventorydetail d on s.StoreId = d.StoreId and s.ProductId = d.ProductId and d.YearMonth = 201604
+left join (
+	select h.storeid,h.productid,
+IFNULL(sum(case when h.BillType in (51,52,53,60,61,62)  then h.ChangeQuantity	end),0)  as PurchaseQuantity, 
+IFNULL(sum(case when  h.BillType in (51,52,53,60,61,62)  then h.ChangeQuantity*h.Price end),0)  as PurchaseAmount, 
+IFNULL(sum(case when h.BillType in (1,2)  then h.ChangeQuantity*-1 end),0)  as SaleQuantity, 
+IFNULL(sum(case when  h.BillType in (1,2)  then h.ChangeQuantity*h.Price*-1 end),0)  as SaleCostAmount ,
+IFNULL(sum(case when  h.BillType in (1,2)  then h.ChangeQuantity*h.SalePrice*-1 end),0)  as SaleAmount 
 from StoreInventoryHistory h 
--- where h.storeid=2
+where h.CreatedOn BETWEEN '2017-05-01' and '2017-06-01'
 group by h.storeid,h.productid 
-LIMIT 10;
+) c on c.storeid = s.storeid and c.productid = s.productid
+order by s.storeid,s.productid
+
+================== 进销存
+select 201705,s.Id as StoreId,
+IFNULL(d.EndInventoryQuantity,0) as PreInventoryQuantity,IFNULL(d.EndInventoryAmount,0)  as PreInventoryAmount,
+IFNULL(c.PurchaseQuantity,0) as PurchaseQuantity,IFNULL(c.PurchaseAmount,0) as PurchaseAmount,IFNULL(c.SaleQuantity,0) as SaleQuantity,IFNULL(c.SaleCostAmount,0) as SaleCostAmount,IFNULL(c.SaleAmount,0) as SaleAmount,
+(IFNULL(d.EndInventoryQuantity,0)+ IFNULL(c.PurchaseQuantity,0)- IFNULL(c.SaleQuantity,0)) as EndInventoryQuantity ,
+(IFNULL(d.EndInventoryAmount,0) + IFNULL(c.PurchaseAmount,0)-IFNULL(c.SaleCostAmount,0)) as EndInventoryAmount 
+from store s 
+LEFT JOIN purchasesaleinventory d on s.Id = d.StoreId  and d.YearMonth = 201604
+left join (
+	select h.storeid,
+IFNULL(sum(case when h.BillType in (51,52,53,60,61,62)  then h.ChangeQuantity	end),0)  as PurchaseQuantity, 
+IFNULL(sum(case when  h.BillType in (51,52,53,60,61,62)  then h.ChangeQuantity*h.Price end),0)  as PurchaseAmount, 
+IFNULL(sum(case when h.BillType in (1,2)  then h.ChangeQuantity*-1 end),0)  as SaleQuantity, 
+IFNULL(sum(case when  h.BillType in (1,2)  then h.ChangeQuantity*h.Price*-1 end),0)  as SaleCostAmount ,
+IFNULL(sum(case when  h.BillType in (1,2)  then h.ChangeQuantity*h.SalePrice*-1 end),0)  as SaleAmount 
+from StoreInventoryHistory h 
+where h.CreatedOn BETWEEN '2017-05-01' and '2017-06-01'
+group by h.storeid
+) c on c.storeid = s.Id 
+order by s.Id

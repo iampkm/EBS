@@ -117,6 +117,7 @@
     <Compile Include="DTO\StoreTreeNode.cs" />
     <Compile Include="DTO\SumOutInOrderSummary.cs" />
     <Compile Include="DTO\SumPurchaseSaleInventory.cs" />
+    <Compile Include="DTO\SumPurchaseSaleInventoryDetail.cs" />
     <Compile Include="DTO\SumSaleOrder.cs" />
     <Compile Include="DTO\SumSaleReport.cs" />
     <Compile Include="DTO\SumStocktakingSummary.cs" />
