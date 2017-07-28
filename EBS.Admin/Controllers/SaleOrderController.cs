@@ -193,7 +193,7 @@ namespace EBS.Admin.Controllers
         public ActionResult RealTimeSaleReport()
         {
             SetUserAuthention();
-            ViewBag.Today = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd");
+            ViewBag.Today = DateTime.Now.ToString("yyyy-MM-dd");
             return View();
         }
 
