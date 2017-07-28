@@ -371,14 +371,15 @@ IFNULL(c.PurchaseQuantity,0) as PurchaseQuantity,IFNULL(c.PurchaseAmount,0) as P
 (IFNULL(d.EndInventoryQuantity,0)+ IFNULL(c.PurchaseQuantity,0)- IFNULL(c.SaleQuantity,0)) as EndInventoryQuantity ,
 (IFNULL(d.EndInventoryAmount,0) + IFNULL(c.PurchaseAmount,0)-IFNULL(c.SaleCostAmount,0)) as EndInventoryAmount 
 from storeinventory s 
-LEFT JOIN purchasesaleinventorydetail d on s.StoreId = d.StoreId and s.ProductId = d.ProductId and d.YearMonth = 201604
+LEFT JOIN purchasesaleinventorydetail d on s.StoreId = d.StoreId and s.ProductId = d.ProductId and d.YearMonth = 201704
 left join (
 	select h.storeid,h.productid,
 IFNULL(sum(case when h.BillType in (51,52,53,60,61,62)  then h.ChangeQuantity	end),0)  as PurchaseQuantity, 
 IFNULL(sum(case when  h.BillType in (51,52,53,60,61,62)  then h.ChangeQuantity*h.Price end),0)  as PurchaseAmount, 
-IFNULL(sum(case when h.BillType in (1,2)  then h.ChangeQuantity*-1 end),0)  as SaleQuantity, 
-IFNULL(sum(case when  h.BillType in (1,2)  then h.ChangeQuantity*h.Price*-1 end),0)  as SaleCostAmount ,
-IFNULL(sum(case when  h.BillType in (1,2)  then h.ChangeQuantity*h.SalePrice*-1 end),0)  as SaleAmount 
+IFNULL(abs(sum(case when h.BillType in (1,2)  then h.ChangeQuantity end)),0)  as SaleQuantity, 
+IFNULL(abs(sum(case when  h.BillType in (1,2)  then h.ChangeQuantity*h.Price end)),0)  as SaleCostAmount ,
+IFNULL(abs(sum(case when  h.BillType in (1,2)  then h.ChangeQuantity*h.SalePrice end)),0)  as SaleAmount ,
+avg(h.price) as avgCostPrice 
 from StoreInventoryHistory h 
 where h.CreatedOn BETWEEN '2017-05-01' and '2017-06-01'
 group by h.storeid,h.productid 
@@ -392,7 +393,7 @@ IFNULL(c.PurchaseQuantity,0) as PurchaseQuantity,IFNULL(c.PurchaseAmount,0) as P
 (IFNULL(d.EndInventoryQuantity,0)+ IFNULL(c.PurchaseQuantity,0)- IFNULL(c.SaleQuantity,0)) as EndInventoryQuantity ,
 (IFNULL(d.EndInventoryAmount,0) + IFNULL(c.PurchaseAmount,0)-IFNULL(c.SaleCostAmount,0)) as EndInventoryAmount 
 from store s 
-LEFT JOIN purchasesaleinventory d on s.Id = d.StoreId  and d.YearMonth = 201604
+LEFT JOIN purchasesaleinventory d on s.Id = d.StoreId  and d.YearMonth = 201704
 left join (
 	select h.storeid,
 IFNULL(sum(case when h.BillType in (51,52,53,60,61,62)  then h.ChangeQuantity	end),0)  as PurchaseQuantity, 

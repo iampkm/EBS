@@ -9,6 +9,8 @@ namespace EBS.Query.DTO
 {
    public class PurchaseSaleInventoryDetailDto
    {
+       [Description("日期")]
+       public string YearMonth { get; set; }
        [Description("门店")]
        public string StoreName { get; set; }
         [Description("商品编码")]
@@ -28,6 +30,8 @@ namespace EBS.Query.DTO
         public decimal PreInventoryAmount { get; set; }
         [Description("本期入库")]
         public int PurchaseQuantity { get; set; }
+        [Description("均价成本")]
+        public decimal AvgCostPrice { get; set; }
         [Description("本期入库金额")]
         public decimal PurchaseAmount { get; set; }
         [Description("本期销售数")]
@@ -70,5 +74,6 @@ namespace EBS.Query.DTO
         public int EndInventoryQuantity { get; set; }
         [Description("期末库存金额")]
         public decimal EndInventoryAmount { get; set; }
+       
     }
 }

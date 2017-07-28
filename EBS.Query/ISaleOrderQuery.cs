@@ -22,6 +22,7 @@ namespace EBS.Query
         IEnumerable<SingleProductSaleDto> QuerySingleProductSale(Pager page, SearchSingleProductSale condition);
 
         IEnumerable<SaleReportDto> QuerySaleReport(Pager page, SearchSaleReport condition);
+        IEnumerable<RealTimeSaleReportDto> QueryRealTimeSaleReport(Pager page, SearchSaleReport condition);
 
     }
 }

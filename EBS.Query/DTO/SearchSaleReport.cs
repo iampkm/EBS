@@ -33,7 +33,9 @@ namespace EBS.Query.DTO
         public int CategoryLevel { get; set; }
 
         public int OrderLevel { get; set; }
-
+        /// <summary>
+        /// 订单类型 1 销售单，2 销售退单
+        /// </summary>
         public int OrderType { get; set; }
 
         public int PaymentWay { get; set; }

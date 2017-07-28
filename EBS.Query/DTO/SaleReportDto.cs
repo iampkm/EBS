@@ -8,6 +8,7 @@ namespace EBS.Query.DTO
 {
    public class SaleReportDto
     {
+      
        public string Name { get; set; }
 
        /// <summary>
@@ -20,6 +21,16 @@ namespace EBS.Query.DTO
        public decimal SaleCostAmount { get; set; }
 
        public decimal SaleAmount { get; set; }
+       /// <summary>
+       /// 客单价
+       /// </summary>
+       public decimal PerCustomerPrice
+       {
+           get
+           {
+               return Math.Round(SaleAmount /OrderCount,2);
+           }
+       }
 
        /// <summary>
        /// 毛利额
@@ -43,5 +54,6 @@ namespace EBS.Query.DTO
                return result;
            }
        }
+       
     }
 }

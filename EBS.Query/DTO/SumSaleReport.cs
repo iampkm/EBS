@@ -8,6 +8,7 @@ namespace EBS.Query.DTO
 {
    public class SumSaleReport
     {
+       public int TotalCount { get; set; }
        public int OrderCount { get; set; }
 
        public int SaleQuantity { get; set; }

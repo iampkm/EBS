@@ -9,14 +9,15 @@ namespace EBS.Query.DTO
 {
    public class PurchaseSaleInventoryDto
     {
+      
        /// <summary>
        /// 门店Id
        /// </summary>
        public int StoreId { get; set; }
-        [Description("门店名")]
-       public string StoreName { get; set; }
-
+       [Description("日期")]
        public string YearMonth { get; set; }
+        [Description("门店名")]
+       public string StoreName { get; set; }      
          [Description("期初库存")]
        public int PreInventoryQuantity { get; set; }
          [Description("期初库存金额")]

@@ -45,7 +45,7 @@ namespace EBS.Admin.Controllers
             ViewBag.StoreId = _context.CurrentAccount.StoreId == 0 ? "" : _context.CurrentAccount.StoreId.ToString();
             ViewBag.StoreName = _context.CurrentAccount.StoreName;
             ViewBag.View = _context.CurrentAccount.ShowSelectStore() ? "true" : "false";
-            ViewBag.IsAdmin = _context.CurrentAccount.AccountId == 1 ? "true" : "false";
+            ViewBag.IsAdmin = _context.CurrentAccount.RoleId == 1 || _context.CurrentAccount.RoleId == 2 ? "true" : "false";
             ViewBag.Years = _reportQuery.GetYears();
             return View();
         }
@@ -73,7 +73,7 @@ namespace EBS.Admin.Controllers
         {
             SetUserAuthention();
             LoadCategory();
-            ViewBag.IsAdmin = _context.CurrentAccount.AccountId == 1 ? "true" : "false";
+            ViewBag.IsAdmin = _context.CurrentAccount.RoleId == 1 || _context.CurrentAccount.RoleId == 2 ? "true" : "false";
             ViewBag.Year = DateTime.Now.Year;
             ViewBag.Month = DateTime.Now.Month.ToString().PadLeft(2, '0'); 
             ViewBag.Years = _reportQuery.GetYears();

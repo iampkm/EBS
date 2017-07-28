@@ -8,6 +8,7 @@ using EBS.Query.DTO;
 using EBS.Admin.Services;
 using Newtonsoft.Json;
 using EBS.Application;
+using EBS.Infrastructure.File;
 namespace EBS.Admin.Controllers
 {
     [Permission]
@@ -17,12 +18,14 @@ namespace EBS.Admin.Controllers
         IContextService _context;
         ICategoryQuery _categoryQuery;
         ISaleReportFacade _saleReportFacade;
-        public SaleOrderController(IContextService contextService, ISaleOrderQuery saleQuery,ICategoryQuery categoryQuery,ISaleReportFacade saleReportFacade)
+        IExcel _excelService;
+        public SaleOrderController(IContextService contextService, ISaleOrderQuery saleQuery, ICategoryQuery categoryQuery, ISaleReportFacade saleReportFacade, IExcel excelService)
         {
             _saleOrderQuery = saleQuery;
             this._context = contextService;
              this._categoryQuery = categoryQuery;
              _saleReportFacade = saleReportFacade;
+             this._excelService = excelService;
         }
         //
         // GET: /SaleOrder/
@@ -155,7 +158,7 @@ namespace EBS.Admin.Controllers
             SetUserAuthention();
             ViewBag.Today = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd");
             LoadCategory();
-            ViewBag.IsAdmin = _context.CurrentAccount.AccountId == 1 ? "true" : "false";
+            ViewBag.IsAdmin = _context.CurrentAccount.RoleId == 1 || _context.CurrentAccount.RoleId == 2? "true" : "false";
             return View();
         }
 
@@ -184,5 +187,29 @@ namespace EBS.Admin.Controllers
         {
             return Json(new { success = true });
         }
+
+        #region 门店销售实时报表
+
+        public ActionResult RealTimeSaleReport()
+        {
+            SetUserAuthention();
+            ViewBag.Today = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd");
+            return View();
+        }
+
+        public ActionResult QueryRealTimeSaleReport(Pager page, SearchSaleReport condition)
+        {
+
+            var rows = _saleOrderQuery.QueryRealTimeSaleReport(page, condition);
+            if (page.toExcel)
+            {
+                var data = _excelService.WriteToExcelStream(rows.ToList(), ExcelVersion.Above2007, false, true).ToArray();
+                var fileName = string.Format("实时销售报表_{0}.xlsx", DateTime.Now.ToString("yyyyMMdd"));
+                return File(data, "application/ms-excel", fileName);
+            }
+            return Json(new { success = true, data = rows, total = page.Total, sum = page.SumColumns });
+        }
+
+        #endregion
     }
 }

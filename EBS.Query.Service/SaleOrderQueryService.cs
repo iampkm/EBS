@@ -666,5 +666,61 @@ where 1=1 {0} GROUP BY DATE_FORMAT(r.createdOn,'%Y-%m-%d')  ) t";
             page.SumColumns.Add(new SumColumn("ProfitPercent", sumStoreInventory.ProfitPercent.ToString("F2")+"%"));
             return rows;
         }
+
+
+        public IEnumerable<RealTimeSaleReportDto> QueryRealTimeSaleReport(Pager page, SearchSaleReport condition)
+        {
+            dynamic param = new ExpandoObject();
+            string where = "";
+
+            if (condition.StartDate.HasValue)
+            {
+                where += "and h.CreatedOn >=@StartDate ";
+                param.StartDate = condition.StartDate.Value;
+            }
+            if (condition.EndDate.HasValue)
+            {
+                where += "and h.CreatedOn < @EndDate ";
+                param.EndDate = condition.EndDate.Value.AddDays(1);
+            }
+
+            if (!string.IsNullOrEmpty(condition.StoreId) && condition.StoreId != "0")
+            {
+                where += "and h.StoreId in @StoreId ";
+                param.StoreId = condition.StoreId.Split(',').ToIntArray();
+            }
+            if (condition.OrderType != 0)
+            {
+                where += condition.OrderType == 1 ? "and h.ChangeQuantity<0 " : "and h.ChangeQuantity>0 ";
+            }
+
+            var sql = @"select s.name ,t.* from (
+select h.storeid,count(DISTINCT h.billcode) as orderCount, abs(sum(h.ChangeQuantity)) as SaleQuantity,abs(sum(h.ChangeQuantity*h.Price)) as SaleCostAmount,abs(sum(h.ChangeQuantity*h.SalePrice)) as SaleAmount 
+from StoreInventoryHistory h 
+where h.BillType in (1,2)  {0}
+group by h.storeid) t left join store s on t.storeid = s.id ";
+            if (!page.toExcel)
+            {
+                sql += string.Format(" LIMIT {0},{1}", (page.PageIndex - 1) * page.PageSize, page.PageSize);
+            }
+            sql = string.Format(sql, where);
+            var rows = this._query.FindAll<RealTimeSaleReportDto>(sql, param);
+            var sqlSum = @"select count(*) as totalCount,sum(t.OrderCount) as OrderCount,sum(Quantity) as SaleQuantity, sum(SaleCostAmount) as SaleCostAmount,sum(SaleAmount) as SaleAmount from (
+select h.storeid,count(DISTINCT h.billcode) as orderCount, abs(sum(h.ChangeQuantity)) as Quantity,abs(sum(h.ChangeQuantity*h.Price)) as SaleCostAmount,abs(sum(h.ChangeQuantity*h.SalePrice)) as SaleAmount 
+from StoreInventoryHistory h 
+where h.BillType in (1,2)  {0}
+group by h.storeid) t left join store s on t.storeid = s.id";
+            //汇总数据
+            sqlSum = string.Format(sqlSum, where);
+            var sumStoreInventory = this._query.Find<SumSaleReport>(sqlSum, param) as SumSaleReport;
+            page.Total = sumStoreInventory.TotalCount;
+            page.SumColumns.Add(new SumColumn("OrderCount", sumStoreInventory.OrderCount.ToString()));
+            page.SumColumns.Add(new SumColumn("SaleQuantity", sumStoreInventory.SaleQuantity.ToString()));
+            page.SumColumns.Add(new SumColumn("SaleCostAmount", sumStoreInventory.SaleCostAmount.ToString("F4")));
+            page.SumColumns.Add(new SumColumn("SaleAmount", sumStoreInventory.SaleAmount.ToString("F2")));
+            page.SumColumns.Add(new SumColumn("ProfitAmount", sumStoreInventory.ProfitAmount.ToString("F2")));
+            page.SumColumns.Add(new SumColumn("ProfitPercent", sumStoreInventory.ProfitPercent.ToString("F2") + "%"));
+            return rows;
+        }
     }
 }
