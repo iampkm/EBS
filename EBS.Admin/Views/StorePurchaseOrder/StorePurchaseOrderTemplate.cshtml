@@ -4,7 +4,7 @@
     //Layout = "~/Views/Shared/_AdminLayout.cshtml";
     Layout = null;
     var title = string.Format("采购{0}", Model.OrderType.Description());
-    var aqtyName = Model.OrderType == EBS.Domain.ValueObject.OrderType.Order ? "实收数" : "实退数";
+    var aqtyName = Model.OrderType == EBS.Domain.ValueObject.OrderType.Order ? "实收" : "实退";
     var aAmountName = Model.OrderType == EBS.Domain.ValueObject.OrderType.Order ? "实收金额" : "实退金额";
     var operateName = Model.OrderType == EBS.Domain.ValueObject.OrderType.Order ? "收货人" : "退货人";
     var operateInventoryName = Model.OrderType == EBS.Domain.ValueObject.OrderType.Order ? "入库人" : "出库人";
@@ -59,7 +59,7 @@
                             <thead>
                                 <tr>
                                     <th></th>
-                                    <th>商品编码</th>
+                                    <th>编码</th>
                                     <th>条码</th>
                                     <th>品名</th>
                                     <th>规格</th>
@@ -82,7 +82,7 @@
                                         <td class="text-center">@(index++)</td>
                                         <td>@item.ProductCode</td>
                                         <td>@item.BarCode</td>
-                                        <td>@item.ProductName</td>
+                                        <td>@(item.ProductName.Length>8?item.ProductName.Substring(0,8):item.ProductName)</td>
                                         <td>@item.Specification</td>
                                         <td>@item.Unit</td>
                                         <td>@item.Price.ToString("F2")</td>
