@@ -1,17 +1,8 @@
 ﻿<template id="grid-template">
     <style>
-        .table-fixed-data {
-            height: 550px;
-            overflow-x: auto;
-            overflow-y: hidden;
-            table-layout: fixed;
-            position: relative;
-            border: 1px solid #CCC;
+        .table-fixed-data table {
+            margin: 0px;
         }
-
-            .table-fixed-data table {
-                margin: 0px;
-            }
 
         .table-fixed-hidden {
             margin-top: -40px !important;
@@ -20,14 +11,14 @@
         #search {
             margin-bottom: 10px;
         }
-
-        .table-fixed-body {
-            position: absolute;
-            top: 40px;
-            left: 0px;
-            height: 450px;
-            overflow-y: auto;
-            overflow-x: hidden;
+        /* 数据父层*/
+        .table-fixed-data {
+            height: 520px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            table-layout: fixed;
+            border: 1px solid #CCC;
+            position: relative;
         }
 
         .table-fixed-header {
@@ -35,14 +26,25 @@
             left: 0px;
         }
 
-        .table-fixed-foot  {
-            position: absolute;           
+        .table-fixed-body {
+            position: absolute;
+            top: 40px;
+            left: 0px;
+            height: 420px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .table-fixed-foot {
+            position: absolute;
             left: 0px;
             bottom: 0px;
         }
-        .table-fixed-foot table {
-            margin-bottom: 2px;
-        }
+
+            .table-fixed-foot table {
+                margin-bottom: 2px;
+            }
+
         .fixed-table-pagination .pagination-detail, .fixed-table-pagination div.pagination {
             margin-top: 10px;
             margin-bottom: 10px;
@@ -74,7 +76,6 @@
 
         .table-fixed {
             table-layout: fixed;
-
         }
 
             .table-fixed td {
@@ -86,8 +87,8 @@
         <div class="table-toolBar row" v-show="showToolbar" style="margin-bottom:10px;">
             <div class="col-xs-4 col-md-4">
                 <div class="input-group">
-                    <span class="input-group-addon" v-if="showSearch"><i class="fa fa-search"></i></span>
-                    <input name="query" class="form-control" placeholder="表内搜索" v-model="filterKey" v-if="showSearch">
+                    @*<span class="input-group-addon" v-if="showSearch"><i class="fa fa-search"></i></span>*@
+                    @*<input name="query" class="form-control" placeholder="表内搜索" v-model="filterKey" v-if="showSearch">*@
                     <slot name="customButtons"></slot>
                 </div>
             </div>
@@ -107,7 +108,7 @@
                     </div>
                     <button class="btn btn-default" type="button" title="刷新" v-on:click="loadData"><i class="glyphicon glyphicon-refresh icon-refresh"></i></button>
                     <button class="btn btn-default" type="button" title="显示分页" v-on:click="showPage"><i class="glyphicon glyphicon-list"></i></button>
-                    <button class="btn btn-default" title="导出excel" v-on:click="toExcel" v-if="showtoexcel"><i class="glyphicon glyphicon-export icon-share"></i></button>                    
+                    <button class="btn btn-default" title="导出excel" v-on:click="toExcel" v-if="showtoexcel"><i class="glyphicon glyphicon-export icon-share"></i></button>
                 </div>
             </div>
         </div>
@@ -121,10 +122,10 @@
                             <th v-else width="30px"></th>
                             <template v-for="key in columns">
                                 <template v-if="key.visible">
-                                    <th v-on:click="sortBy(key.name)" v-bind:class="{active: sortKey == key.name}" v-bind:style="{width:key.width}">
+                                    <th @*v-on:click="sortBy(key.name)"*@ v-bind:class="{active: sortKey == key.name}" v-bind:style="{width:key.width}">
                                         <div>
                                             {{key.localName | capitalize}}
-                                            <span class="glyphicon" v-bind:class="sortOrders[key.name] > 0 ? ' glyphicon-triangle-top' : 'glyphicon-triangle-bottom'"></span>
+                                            @*<span class="glyphicon" v-bind:class="sortOrders[key.name] > 0 ? ' glyphicon-triangle-top' : 'glyphicon-triangle-bottom'"></span>*@
                                         </div>
                                     </th>
                                 </template>
@@ -134,11 +135,29 @@
                     </thead>
                 </table>
             </div>
-            <div id="tbBody" class="table-fixed-body " >
+            <div id="tbBody" class="table-fixed-body ">
                 <table class="table table-bordered table-hover table-fixed">
+                    @*<thead>
+                            <tr>
+                                <th class="text-center" width="{{indexWidth}}"></th>
+                                <th v-if="showallcheckbox" width="30px"><input v-on:click="checkAll($event.target.checked)" type="checkbox" /></th>
+                                <th v-else width="30px"></th>
+                                <template v-for="key in columns">
+                                    <template v-if="key.visible">
+                                        <th v-on:click="sortBy(key.name)" v-bind:class="{active: sortKey == key.name}" v-bind:style="{width:key.width}">
+                                            <div>
+                                                {{key.localName | capitalize}}
+                                                <span class="glyphicon" v-bind:class="sortOrders[key.name] > 0 ? ' glyphicon-triangle-top' : 'glyphicon-triangle-bottom'"></span>
+                                            </div>
+                                        </th>
+                                    </template>
+                                </template>
+                                <th></th>
+                            </tr>
+                        </thead>*@
                     <tbody>
                         <tr v-show="data.length==0"><td class="text-center text-danger">暂无数据</td></tr>
-                        <tr v-for="(index,entry) in data | filterBy filterKey | orderBy sortKey sortOrders[sortKey]" v-on:click="selectRow(index)" style="cursor: pointer">
+                        <tr v-for="(index,entry) in data | filterBy filterKey | orderBy sortKey sortOrders[sortKey]" v-on:click="selectRow(index)" style="cursor: pointer" class="{{rowClassName(entry,index)}}">
                             <td class="text-center" width="{{indexWidth}}">{{index+1}}</td>
                             <td v-show="showCheckbox" width="30px"><input type="checkbox" v-model="data[index].checked" /></td>
                             <template v-for="key in columns">
@@ -157,17 +176,17 @@
                         </tr>
                     </tbody>
                     @*<tfoot v-show="showSum">
-                        <tr>
-                            <td width="{{indexWidth}}"></td>
-                            <td v-show="showCheckbox" width="30px"></td>
-                            <template v-for="key in columns">
-                                <template v-if="key.visible">
-                                    <td v-bind:style="{width:key.width}"><b class="text-danger">{{key.sum}}</b></td>
+                            <tr>
+                                <td width="{{indexWidth}}"></td>
+                                <td v-show="showCheckbox" width="30px"></td>
+                                <template v-for="key in columns">
+                                    <template v-if="key.visible">
+                                        <td v-bind:style="{width:key.width}"><b class="text-danger">{{key.sum}}</b></td>
+                                    </template>
                                 </template>
-                            </template>
-                            <td></td>
-                        </tr>
-                    </tfoot>*@
+                                <td></td>
+                            </tr>
+                        </tfoot>*@
                 </table>
             </div>
             <div v-show="showSum" class="table-fixed-foot">
@@ -185,9 +204,9 @@
                         </tr>
                     </table>
                 </div>
-            </div>          
+            </div>
         </div>
-        
+
         <div class="fixed-table-pagination" v-if="showPagination">
             <div class="pull-left pagination-detail">
                 <span class="pagination-info">总共<span class="text-red"> {{total}} </span>条记录 每页 </span>

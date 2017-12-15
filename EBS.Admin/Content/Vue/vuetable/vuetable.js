@@ -7,6 +7,7 @@
         args: Object,
         showSearch: { type: Boolean, default: true },
         showCheckbox: { type: Boolean, default: true },
+        showallcheckbox: { type: Boolean, default: true },
         showPagination: { type: Boolean, default: true },
         showToolbar: { type: Boolean, default: true },
         pageSizes: { type: Array, default: [20, 50, 100, 200, 500] },
@@ -14,8 +15,13 @@
         height: '500px',
         showSum: { type: Boolean, default: false },
         sum: { type: Array, default: [] },
+        singleselectionmodel: { type: Boolean, default: false },
         buttons: { type: Array, default: [] },
-        showtoexcel :{ type: Boolean, default: false }
+        showtoexcel: { type: Boolean, default: false },
+        showtoexcel: { type: Boolean, default: false },
+        firstLoadShowData: { type: Boolean, default: true }, // first-Load-Show-Data
+        autoQuery: { type: Boolean, default: true }, // 查询args 条件变化，自动查询数据
+        rowClassName: { type: Function, default: function (row, index) { } }
     },
     data: function () {
         var sortOrders = {};
@@ -35,7 +41,6 @@
             showLoading: false,
             columnWidth: '150',
             indexWidth: '40',
-            exportExcel:false,
         }
     },
     methods: {
@@ -73,7 +78,14 @@
             if (columnStyle == "") {
                 return column;
             }
-            columnStyle = columnStyle.replace('{column}', column).replace("{id}", key);            
+            columnStyle = columnStyle.replace('{column}', column).replace("{id}", key);
+            // 替换 自定义列
+            //for (var i = 0; i < data.length; i++) {
+            //    var item = data[i];
+            //    for (var col in item) {
+            //        columnStyle = columnStyle.replace("{" + col + "}", item[col]);
+            //    }
+            //}
             for (var col in item) {
                 columnStyle = columnStyle.replace("{" + col + "}", item[col]);
             }
@@ -108,18 +120,17 @@
                         self.setPages();
                         // 设置列合计值
                         if (result.sum != undefined && self.showSum) {
-                            result.sum.forEach(function(line)
-                            {
-                                self.columns.forEach(function (column,index) {                                   
+                            result.sum.forEach(function (line) {
+                                self.columns.forEach(function (column, index) {
                                     if (index == 0) {
                                         column.sum = "合计："
                                     }
                                     if (line.Column == column.name) {
                                         column.sum = line.Value;
                                         return;
-                                    }                                    
-                                })                               
-                            })                            
+                                    }
+                                })
+                            })
                         }
                     }
                 },
@@ -187,20 +198,28 @@
         },
         toExcel: function () {
             // $('#btnToExcel').bootstrapExcelExport({ tableSelector: '#tableData' });
-            var href = this.url + "?toExcel=true";
             //附加参数
+            var href = this.url + "?toExcel=true";
             var parameters = this.args;
-            for (var name in parameters)
-            {
+            for (var name in parameters) {
                 href += "&" + name + "=" + encodeURIComponent(parameters[name]);
             }
-            
+
             window.location.href = href;
         },
         selectRow: function (index) {
-             var item = this.data[index];
+            var self = this;
+            var item = this.data[index];
             item.checked = !item.checked;
             this.data.$set(index, item);
+            if (this.singleselectionmodel && item.checked) {
+                this.data.forEach(function (item, index1) {
+                    if (index1 != index && item.checked) {
+                        item.checked = false;
+                        self.data.$set(index1, item);
+                    }
+                });
+            }
             //触发行点击事件
             this.$emit('row-click', item);
         },
@@ -211,7 +230,10 @@
     watch: {
         args: {
             handler: function () {
-                this.loadData();
+                this.pageIndex = 1;
+                if (this.autoQuery) {
+                    this.loadData();
+                }
             },
             deep: true
         }
@@ -219,11 +241,7 @@
     created: function () {
         //实例初始化时调用
         this.initColumns();
-        if (this.url == "") {
-            this.$data.total = this.data.length;
-            this.setPages();
-        }
-        else {
+        if (this.firstLoadShowData) {
             this.loadData();
         }
     }
