@@ -298,6 +298,7 @@
     <Content Include="Content\zTree.theme.metro.css" />
     <Content Include="Content\zTree.theme.metro.min.css" />
     <Content Include="Database\AccessToken.txt" />
+    <Content Include="Database\ebs_mysql_linux.sql" />
     <Content Include="Database\init_admin_menu.sql" />
     <Content Include="Database\init_area.sql" />
     <Content Include="Database\init_brand.sql" />
