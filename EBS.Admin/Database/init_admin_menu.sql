@@ -72,3 +72,19 @@ INSERT INTO `menu` VALUES ('56', '52', '合同调价-制单', '/AdjustContractPrice/In
 INSERT INTO `menu` VALUES ('57', '52', '合同调价-待审', '/AdjustContractPrice/AuditIndex', 'fa-folder', '0', '1');
 INSERT INTO `menu` VALUES ('58', '52', '合同调价-已审', '/AdjustContractPrice/Audited', 'fa-folder', '0', '1');
 
+INSERT INTO `menu` VALUES ('59', '0', '其他出入库', '#', 'fa-bus', '0', '1');
+INSERT INTO `menu` VALUES ('60', '59', '其他入库-制单', '/OutInOrder/Index', 'fa-folder', '0', '1');
+INSERT INTO `menu` VALUES ('61', '59', '其他入库单-审核', '/OutInOrder/AuditIndex', 'fa-folder', '0', '1');
+INSERT INTO `menu` VALUES ('62', '59', '其他入库单-财务复审', '/OutInOrder/FinanceIndex', 'fa-folder', '0', '1');
+INSERT INTO `menu` VALUES ('63', '59', '其他入库-查询', '/OutInOrder/Finish', 'fa-folder', '0', '1');
+
+INSERT INTO `menu` VALUES ('64', '59', '其他出库-制单', '/OutInOrder/RefundIndex', 'fa-folder', '0', '1');
+INSERT INTO `menu` VALUES ('65', '59', '其他出库单-审核', '/OutInOrder/RefundAuditIndex', 'fa-folder', '0', '1');
+INSERT INTO `menu` VALUES ('66', '59', '其他出库单-财务复审', '/OutInOrder/RefundFinanceIndex', 'fa-folder', '0', '1');
+INSERT INTO `menu` VALUES ('67', '59', '其他出库-查询', '/OutInOrder/RefundFinish', 'fa-folder', '0', '1');
+INSERT INTO `menu` VALUES ('68', '59', '其他出入库-汇总', '/OutInOrder/Summary', 'fa-folder', '0', '1');
+
+INSERT INTO `menu` VALUES ('69', '5', '门店授权码', '/Store/EditLicense', 'fa-folder', '0', '1');
+INSERT INTO `menu` VALUES ('70', '34', '会员价管理', '/VipProduct/Index', 'fa-folder', '0', '1');
+INSERT INTO `menu` VALUES ('71', '34', '商品价格校对', '/Product/PriceCheck', 'fa-folder', '0', '1');
+
