@@ -136,6 +136,7 @@ namespace EBS.Admin
             var db = AppContext.Current.Resolve<IDBContext>();
             var settings = db.Table.FindAll<Setting>(n => n.KeyType.Like("pay.%")).ToList();  // 所有支付参数
             var normalSettings = settings.ToDictionary(n => n.KeyName);
+            //按门店设置商户号参数
             var storeSettings = settings.GroupBy(n => n.StoreId);
 
             foreach (var storeSettingGroup in storeSettings)
@@ -149,6 +150,7 @@ namespace EBS.Admin
                     ReturnUrl = normalSettings.ContainsKey("pay.return.url") ? alipaySetting["pay.alipay.notify.url"].Value : "",
                     AlipayPublicKey = alipaySetting.ContainsKey("pay.alipay.publickey") ? alipaySetting["pay.alipay.publickey"].Value : "",
                     Privatekey = alipaySetting.ContainsKey("pay.alipay.privatekey") ? alipaySetting["pay.alipay.publickey"].Value : "",
+                    StoreId = storeSettingGroup.Key
                 };
                 gateways.Add(new AlipayGateway(alipayMerchant)
                 {
@@ -166,6 +168,7 @@ namespace EBS.Admin
                     //SslCertPath = AppDomain.CurrentDomain.BaseDirectory + "Certs/apiclient_cert.p12",
                     //SslCertPassword = "1233410002",
                     NotifyUrl = normalSettings.ContainsKey("pay.notify.url") ? alipaySetting["pay.notify.url"].Value : "",
+                    StoreId = storeSettingGroup.Key
                 };
                 gateways.Add(new WechatpayGateway(wechatpayMerchant));
             }

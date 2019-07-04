@@ -19,5 +19,10 @@
         /// 网关回发通知URL
         /// </summary>
         string NotifyUrl { get; set; }
+
+        /// <summary>
+        ///  商户对应门店ID
+        /// </summary>
+        int StoreId { get; set; }
     }
 }

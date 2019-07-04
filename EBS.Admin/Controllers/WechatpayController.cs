@@ -10,6 +10,9 @@ using Microsoft.AspNetCore.Mvc;
 using System.Web.Mvc;
 #endif
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using PaySharp.Core.Exceptions;
 
 namespace EBS.Admin.Controllers
 {
@@ -17,9 +20,23 @@ namespace EBS.Admin.Controllers
     {
         private readonly IGateway _gateway;
 
+        IGateways _gateways;
+
         public WechatpayController(IGateways gateways)
         {
-            _gateway = gateways.Get<WechatpayGateway>();
+           _gateway = gateways.Get<WechatpayGateway>();
+
+            _gateways = gateways;
+        }
+
+        private IGateway GetGatewayByStore(int storeId)
+        {
+            var gatewayList = _gateways.GetList()
+                .Where(a => a is WechatpayGateway && (a.Merchant.StoreId == storeId || a.Merchant.StoreId == 0))
+                .OrderByDescending(a => a.Merchant.StoreId)
+                .ToList();           
+            var gateway = gatewayList.Count > 0 ? gatewayList[0] : throw new GatewayException("找不到指定网关");
+            return gateway;
         }
 
         [HttpPost]

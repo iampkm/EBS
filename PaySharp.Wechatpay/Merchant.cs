@@ -64,6 +64,12 @@ namespace PaySharp.Wechatpay
         [Ignore]
         public string PublicKey { get; set; }
 
+        /// <summary>
+        ///  商户对应门店ID
+        /// </summary>
+        [Ignore]
+        public int StoreId { get ; set ; }
+
         #endregion
     }
 }

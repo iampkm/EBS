@@ -82,6 +82,12 @@ namespace PaySharp.Alipay
         /// </summary>
         public string NotifyUrl { get; set; }
 
+        /// <summary>
+        ///  商户对应门店ID
+        /// </summary>
+        [Ignore]
+        public int StoreId { get ; set ; }
+
         #endregion
     }
 }
