@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--<Import Project="../../packaging.props" />-->
+  
+  <PropertyGroup>
+    <TargetFrameworks>net45;netstandard2.0</TargetFrameworks>
+    <Title>PaySharp.Alipay</Title>
+    <Description>支付宝支付</Description>
+    <Version>1.0.3</Version>
+    <PackageTags>dotnetcore;pay;alipay;</PackageTags>
+    <PackageReleaseNotes>
+      优化回调通知中支付成功的判断
+    </PackageReleaseNotes>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\PaySharp.Core\PaySharp.Core.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder">
+      <Version>2.2.4</Version>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+    <Reference Include="System.Configuration" />
+  </ItemGroup>
+
+  <!--<Import Project="../../output.props" />
+  
+  <Import Project="../../dependencies.props" />-->
+
+</Project>

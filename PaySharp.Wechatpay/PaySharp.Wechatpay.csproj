@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net45;netstandard2.0</TargetFrameworks>
+    <Title>PaySharp.Wechatpay</Title>
+    <Description>微信支付</Description>
+    <Version>1.0.3</Version>
+    <PackageTags>dotnetcore;pay;wechatpay;</PackageTags>
+    <PackageReleaseNotes>
+      修复Azure下证书无法使用的问题
+    </PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Portable.BouncyCastle" Version="1.8.1.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PaySharp.Core\PaySharp.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder">
+      <Version>2.2.4</Version>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+    <Reference Include="System.Configuration" />
+  </ItemGroup>
+
+</Project>

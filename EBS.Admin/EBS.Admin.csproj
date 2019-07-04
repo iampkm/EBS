@@ -139,6 +139,7 @@
     <Folder Include="App_Data\" />
     <Folder Include="Content\Vue\css\" />
     <Folder Include="Models\" />
+    <Folder Include="Views\Pay\" />
     <Folder Include="Views\PosSync\" />
   </ItemGroup>
   <ItemGroup>
@@ -151,12 +152,14 @@
     <Compile Include="Controllers\AdjustContractPriceController.cs" />
     <Compile Include="Controllers\AdjustSalePriceController.cs" />
     <Compile Include="Controllers\AdjustStorePriceController.cs" />
+    <Compile Include="Controllers\AlipayController.cs" />
     <Compile Include="Controllers\BrandController.cs" />
     <Compile Include="Controllers\CategoryController.cs" />
     <Compile Include="Controllers\CommonController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\MenuController.cs" />
     <Compile Include="Controllers\OutInOrderController.cs" />
+    <Compile Include="Controllers\NotifyController.cs" />
     <Compile Include="Controllers\PosSyncController.cs" />
     <Compile Include="Controllers\ProductController.cs" />
     <Compile Include="Controllers\PurchaseContractController.cs" />
@@ -173,6 +176,7 @@
     <Compile Include="Controllers\ToolController.cs" />
     <Compile Include="Controllers\TransferOrderController.cs" />
     <Compile Include="Controllers\VipProductController.cs" />
+    <Compile Include="Controllers\WechatpayController.cs" />
     <Compile Include="FluentValidationResource.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -185,6 +189,7 @@
     <Compile Include="Services\ContextService.cs" />
     <Compile Include="Services\CustomHandleErrorAttribute.cs" />
     <Compile Include="Services\JsonRequestBehaviorAttribute.cs" />
+    <Compile Include="Services\PaySharpConfig.cs" />
     <Compile Include="Services\PermissionAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\IAuthenticationService.cs" />
@@ -305,6 +310,7 @@
     <Content Include="Content\zTree.min.css" />
     <Content Include="Content\zTree.theme.metro.css" />
     <Content Include="Content\zTree.theme.metro.min.css" />
+    <Content Include="Database\20190704-支付功能\payment_history.sql" />
     <Content Include="Database\AccessToken.txt" />
     <Content Include="Database\ebs_mysql_linux.sql" />
     <Content Include="Database\init_admin_menu.sql" />
@@ -1377,6 +1383,18 @@
     <ProjectReference Include="..\EBS.Query\EBS.Query.csproj">
       <Project>{a2914150-71a6-4088-94bd-56f03da06622}</Project>
       <Name>EBS.Query</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PaySharp.Alipay\PaySharp.Alipay.csproj">
+      <Project>{8cdd6856-c4e0-4d0b-bc6c-b2a3a3fb2c2a}</Project>
+      <Name>PaySharp.Alipay</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PaySharp.Core\PaySharp.Core.csproj">
+      <Project>{d44de793-3b85-40a7-b25e-75f4e76d4246}</Project>
+      <Name>PaySharp.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PaySharp.Wechatpay\PaySharp.Wechatpay.csproj">
+      <Project>{196ff7c1-796b-41cd-9940-9b2dcc5bd0f7}</Project>
+      <Name>PaySharp.Wechatpay</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

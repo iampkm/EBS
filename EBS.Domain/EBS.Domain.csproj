@@ -38,9 +38,6 @@
       <HintPath>..\packages\Dapper.DBContext.0.2.0\lib\net45\Dapper.DBContext.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="MySql.Data, Version=6.9.8.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -66,6 +63,7 @@
     <Compile Include="Entity\OutInOrder.cs" />
     <Compile Include="Entity\OutInOrderItem.cs" />
     <Compile Include="Entity\OutInOrderType.cs" />
+    <Compile Include="Entity\PaymentHistory.cs" />
     <Compile Include="Entity\ProcessHistory.cs" />
     <Compile Include="Entity\ProductAreaPrice.cs" />
     <Compile Include="Entity\ProductCodeSequence.cs" />
@@ -78,6 +76,7 @@
     <Compile Include="Entity\RoleMenu.cs" />
     <Compile Include="Entity\SaleReport.cs" />
     <Compile Include="Entity\SaleSync.cs" />
+    <Compile Include="Entity\Setting.cs" />
     <Compile Include="Entity\Shelf.cs" />
     <Compile Include="Entity\ShelfLayer.cs" />
     <Compile Include="Entity\ShelfLayerProduct.cs" />
