@@ -35,7 +35,7 @@ namespace EBS.Admin.Services
                 filterContext.ExceptionHandled = true;
                 filterContext.Result = new JsonResult
                 {
-                    Data = new { success = false, error = filterContext.Exception.Message },
+                    Data = new { success = false, message = filterContext.Exception.Message },
                     JsonRequestBehavior = JsonRequestBehavior.AllowGet
                 };
             }

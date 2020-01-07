@@ -73,7 +73,10 @@ namespace EBS.Domain.Entity
 
         public SaleOrderLevel OrderLevel { get; set; }
 
-        
+        /// <summary>
+        /// 原销售单单号，只有ordertype=2 时有值
+        /// </summary>
+        public string SourceSaleOrderCode { get; set; }
 
         public virtual List<SaleOrderItem> Items   { get; set; }
 

@@ -7,7 +7,7 @@ namespace PaySharp.Core.Utils
     /// <summary>
     /// 验证工具类
     /// </summary>
-    internal static class ValidateUtil
+    public static class ValidateUtil
     {
         /// <summary>
         /// 验证

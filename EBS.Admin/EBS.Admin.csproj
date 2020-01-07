@@ -160,6 +160,7 @@
     <Compile Include="Controllers\MenuController.cs" />
     <Compile Include="Controllers\OutInOrderController.cs" />
     <Compile Include="Controllers\NotifyController.cs" />
+    <Compile Include="Controllers\PayController.cs" />
     <Compile Include="Controllers\PosSyncController.cs" />
     <Compile Include="Controllers\ProductController.cs" />
     <Compile Include="Controllers\PurchaseContractController.cs" />
@@ -185,6 +186,15 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="PayServices\AlipayAgent.cs" />
+    <Compile Include="PayServices\DefaultPayRoute.cs" />
+    <Compile Include="PayServices\IPayAgent.cs" />
+    <Compile Include="PayServices\IPayRoute.cs" />
+    <Compile Include="PayServices\PayRouteAttribute.cs" />
+    <Compile Include="PayServices\PayRouteMapper.cs" />
+    <Compile Include="PayServices\PayRequest.cs" />
+    <Compile Include="PayServices\SignatureUtil.cs" />
+    <Compile Include="PayServices\WechatPayAgent.cs" />
     <Compile Include="Services\AuthenticationService.cs" />
     <Compile Include="Services\ContextService.cs" />
     <Compile Include="Services\CustomHandleErrorAttribute.cs" />

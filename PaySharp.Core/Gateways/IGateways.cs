@@ -31,5 +31,13 @@ namespace PaySharp.Core
         /// </summary>
         /// <returns></returns>
         ICollection<BaseGateway> GetList();
+
+        /// <summary>
+        /// 通过storeId获取网关，通常用来对接支付接入放自己的门店
+        /// </summary>
+        /// <typeparam name="T">网关类型</typeparam>
+        /// <param name="storeId">storeId  商户自定义门店ID</param>
+        /// <returns></returns>
+        BaseGateway GetByStoreId<T>(int storeId);
     }
 }

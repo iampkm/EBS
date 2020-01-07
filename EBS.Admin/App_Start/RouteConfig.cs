@@ -11,13 +11,7 @@ namespace EBS.Admin
     {
         public static void RegisterRoutes(RouteCollection routes)
         {
-            routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
-
-            routes.MapRoute(
-               name: "Notify",
-               url: "{controller}",
-               defaults: new { controller = "Notify", action = "Index", id = UrlParameter.Optional }
-           );
+            routes.IgnoreRoute("{resource}.axd/{*pathInfo}");          
 
             routes.MapRoute(
                 name: "Default",

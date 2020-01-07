@@ -119,5 +119,36 @@ namespace EBS.Infrastructure.Extension
             }
             return dt;
         }
+
+        /// <summary>
+        /// 
+        /// 将对象属性转换为key-value对
+        /// </summary>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        public static Dictionary<String, string> ToKeyValueDic(this Object target)
+        {
+            Dictionary<String, string> map = new Dictionary<string, string>();
+
+            Type t = target.GetType();
+
+            PropertyInfo[] pi = t.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+            foreach (PropertyInfo p in pi)
+            {
+                var value = p.GetValue(target) == null ? "" : p.GetValue(target).ToString();
+                map.Add(p.Name, value);
+
+                //  MethodInfo mi = p.GetGetMethod();
+                //if (mi != null && mi.IsPublic)
+                //{
+                //   map.Add(p.Name, mi.Invoke(target, new Object[] { }));
+                //}
+            }
+
+            return map;
+
+        }
+
     }
 }

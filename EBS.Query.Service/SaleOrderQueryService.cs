@@ -305,7 +305,7 @@ where 1=1 {0}";
             //客户端数据
             string csql = @"select s.`Name` as StoreName ,y.*,t.ServerOrderCount,t.ServerOrderTotalAmount from (
 select o.StoreId,o.PosId,date_format(o.CreatedOn,'%Y-%m-%d') as SaleDate,count(*) ServerOrderCount,sum(OrderAmount) ServerOrderTotalAmount
- from saleorder o where o.`Status` in (-1,3) and o.UpdatedOn >= @BeginDate and o.UpdatedOn < @EndDate {0} GROUP BY o.StoreId,o.PosId,date_format(o.UpdatedOn, '%Y-%m-%d')
+ from saleorder o where o.`Status` in (-1,3) and o.CreatedOn >= @BeginDate and o.CreatedOn < @EndDate {0} GROUP BY o.StoreId,o.PosId,date_format(o.CreatedOn, '%Y-%m-%d')
 ) t RIGHT JOIN Store s on s.Id = t.StoreId
 LEFT JOIN salesync y on s.Id = y.StoreId
 where t.PosId= y.PosId and y.SaleDate=@SaleDate";
@@ -322,7 +322,7 @@ where t.PosId= y.PosId and y.SaleDate=@SaleDate";
             var rows = _query.FindAll<SaleSyncDto>(csql, param);
             string sqlCount = @"select count(*) from (
 select o.StoreId,o.PosId,date_format(o.CreatedOn,'%Y-%m-%d') as SaleDate,count(*) ServerOrderCount,sum(OrderAmount) ServerOrderTotalAmount
- from saleorder o where o.`Status` in (-1,3) and o.UpdatedOn >= @BeginDate and o.UpdatedOn < @EndDate {0} GROUP BY o.StoreId,o.PosId,date_format(o.UpdatedOn, '%Y-%m-%d')
+ from saleorder o where o.`Status` in (-1,3) and o.CreatedOn >= @BeginDate and o.CreatedOn < @EndDate {0} GROUP BY o.StoreId,o.PosId,date_format(o.CreatedOn, '%Y-%m-%d')
 ) t RIGHT JOIN Store s on s.Id = t.StoreId
 LEFT JOIN salesync y on s.Id = y.StoreId
 where t.PosId= y.PosId and y.SaleDate=@SaleDate";

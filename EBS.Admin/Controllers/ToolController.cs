@@ -64,7 +64,7 @@ namespace EBS.Admin.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = true, error = ex.Message });
+                return Json(new { success = true, message = ex.Message });
             }
 
         }

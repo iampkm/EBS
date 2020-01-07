@@ -109,6 +109,25 @@ namespace PaySharp.Core
             return _list;
         }
 
+
+        /// <summary>
+        /// 通过storeId获取网关
+        /// </summary>
+        /// <typeparam name="T">网关类型</typeparam>
+        /// <param name="storeId">storeId  商户自定义门店ID</param>
+        /// <returns></returns>
+        public BaseGateway GetByStoreId<T>(int storeId)
+        {
+            var gatewayList = _list
+                .Where(a => a is T && (a.Merchant.StoreId == storeId || a.Merchant.StoreId==0))
+                .OrderByDescending(a=>a.Merchant.StoreId)
+                .ToList();
+
+            var gateway = gatewayList.Count > 0 ? gatewayList[0] : throw new GatewayException("找不到指定网关");
+
+            return gateway;
+        }
+
         #endregion
     }
 }

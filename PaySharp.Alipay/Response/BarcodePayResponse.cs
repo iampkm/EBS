@@ -28,7 +28,7 @@ namespace PaySharp.Alipay.Response
         /// <summary>
         /// 订单金额
         /// </summary>
-        public double TotalAmount { get; set; }
+        public decimal TotalAmount { get; set; }
 
         /// <summary>
         /// 标价币种
@@ -43,7 +43,7 @@ namespace PaySharp.Alipay.Response
         /// <summary>
         /// 结算金额
         /// </summary>
-        public double SettleAmount { get; set; }
+        public decimal SettleAmount { get; set; }
 
         /// <summary>
         /// 支付币种
@@ -53,22 +53,22 @@ namespace PaySharp.Alipay.Response
         /// <summary>
         /// 支付金额
         /// </summary>
-        public double PayAmount { get; set; }
+        public decimal PayAmount { get; set; }
 
         /// <summary>
         /// 结算币种兑换标价币种汇率
         /// </summary>
-        public double SettleTransRate { get; set; }
+        public decimal SettleTransRate { get; set; }
 
         /// <summary>
         /// 标价币种兑换支付币种汇率
         /// </summary>
-        public double TransPayRate { get; set; }
+        public decimal TransPayRate { get; set; }
 
         /// <summary>
         /// 实收金额
         /// </summary>
-        public double ReceiptAmount { get; set; }
+        public decimal ReceiptAmount { get; set; }
 
         /// <summary>
         /// 付款金额
@@ -78,12 +78,12 @@ namespace PaySharp.Alipay.Response
         /// <summary>
         /// 集分宝金额
         /// </summary>
-        public double PointAmount { get; set; }
+        public decimal PointAmount { get; set; }
 
         /// <summary>
         /// 开票金额
         /// </summary>
-        public double InvoiceAmount { get; set; }
+        public decimal InvoiceAmount { get; set; }
 
         /// <summary>
         /// 交易付款时间
@@ -98,7 +98,7 @@ namespace PaySharp.Alipay.Response
         /// <summary>
         /// 支付宝卡余额
         /// </summary>
-        public double CardBalance { get; set; }
+        public decimal CardBalance { get; set; }
 
         /// <summary>
         /// 发生支付交易的商户门店名称
@@ -142,12 +142,12 @@ namespace PaySharp.Alipay.Response
         /// <summary>
         /// 商家优惠金额
         /// </summary>
-        public double MdiscountAmount { get; set; }
+        public decimal MdiscountAmount { get; set; }
 
         /// <summary>
         /// 平台优惠金额
         /// </summary>
-        public double DiscountAmount { get; set; }
+        public decimal DiscountAmount { get; set; }
 
         private Merchant _merchant;
         internal override void Execute<TModel, TResponse>(Merchant merchant, Request<TModel, TResponse> request)

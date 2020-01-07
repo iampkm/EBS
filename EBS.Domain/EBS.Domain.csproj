@@ -102,6 +102,7 @@
     <Compile Include="Entity\WorkSchedule.cs" />
     <Compile Include="Event\SaleOrderSyncEvent.cs" />
     <Compile Include="Event\SaleOrderSyncHander.cs" />
+    <Compile Include="ISettings.cs" />
     <Compile Include="Service\AccessTokenService.cs" />
     <Compile Include="Service\AccountService.cs" />
     <Compile Include="Entity\AccountLoginHistory.cs" />
@@ -130,6 +131,8 @@
     <Compile Include="Service\StoreInventoryBatchService.cs" />
     <Compile Include="Service\TransferOrderService.cs" />
     <Compile Include="Service\VipProductService.cs" />
+    <Compile Include="SettingKeys.cs" />
+    <Compile Include="SettingsCollection.cs" />
     <Compile Include="ValueObject\AdjustContractPriceStatus.cs" />
     <Compile Include="ValueObject\AdjustSalePriceStatus.cs" />
     <Compile Include="ValueObject\AdjustStorePriceStatus.cs" />
