@@ -36,7 +36,7 @@
                 </div>
                 <span class="input-group-btn" slot="customButtons">
                     <a class="btn btn-warning btn-flat" href="/AdjustSalePrice/Create">新 增</a>
-                    <button type="button" class="btn btn-success btn-flat" v-on:click="submitAudit()">调价生效</button>
+                    <button type="button" class="btn btn-success btn-flat" v-if="false" v-on:click="submitAudit()">调价生效</button>
                     <button type="button" class="btn btn-danger btn-flat" v-on:click="remove()">作 废</button>
                 </span>
             </vue-table>

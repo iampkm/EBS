@@ -11,7 +11,7 @@
     <div class="box-header with-border">
         <ol class="breadcrumb" style="padding:0px;margin:1px;">
             <li><a href="/AdjustSalePrice/Index"><i class="fa fa-dashboard"></i>商品调价单管理</a></li>
-            <li class="active"><a href="/AdjustSalePrice/Create">新增商品调价单</a></li>
+            <li class="active"><a href="{{source?'/AdjustSalePrice/Create?source='+source:'/AdjustSalePrice/Create'}}">新增商品调价单</a></li>
         </ol>
     </div>
     <!-- /.box-header -->
@@ -133,6 +133,7 @@
             </div>
         </div>
     </form>
+    {{source}}
     <!-- modal -->
     <v-modal title="导入商品" ok-text="确 定" cancel-text="取 消" v-bind:callback="importProduct" v-bind:show.sync="modal" v-bind:effect="fade" width="300">
         <div slot="modal-body" class="modal-body">
@@ -161,7 +162,8 @@
                         ProductId: 0, ProductCode: '', BarCode: '', ProductName: '', Specification: '',
                         Unit: '', SalePrice: 0, AdjustPrice: 0, ContractPrice: 0, Profit: 0, ProfitMargin: 0
                     }],
-                    inputProducts: ''                    
+                    inputProducts: '',
+                    source:'@ViewBag.source'
                 },
                 methods: {
                     onSubmit: function () {
@@ -310,6 +312,27 @@
 
                         return _profitTotal;
                     }                   
+                },
+                created:function() {
+                    var _self = this;
+                    var data = {
+                        source: _self.source
+                        }
+                     //设置焦点
+                        $.get("/AdjustSalePrice/ImportProductBySource", data, function (result) {
+                            if (result.success) {
+                                _self.products= result.data;
+                                //设置焦点,延迟500，等待vue.js 渲染完毕
+                                setTimeout(function () {
+                                    var selector = "tr:eq(" + index + ")";
+                                    var row= $("#tbody").find(selector);
+                                    row.find("input.quantity").focus().select();
+                                }, 300);
+                            }
+                            else {
+                                bootbox.alert(result.error);
+                            }
+                        }, "json");
                 }
             });
 

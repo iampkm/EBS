@@ -19,7 +19,7 @@
     <div class="box box-primary">
         <div class="box-header">
             <ol class="breadcrumb" style="padding:0px;margin:1px;">
-                <li><a href="/Product/PriceCheck"><i class="fa fa-dashboard"></i>价格检查</a></li>
+                <li><a href="/Product/PriceCheck"><i class="fa fa-dashboard"></i>商品价格校对</a></li>
             </ol>
         </div>
         <div class="box-body">
@@ -29,6 +29,9 @@
                 <div class="row" style="margin-bottom:10px;" slot="customSearch">
                     <div class="col-xs-3 col-sm-2">
                         <input class="form-control" v-model="searchArgs.productCodeOrBarCode" placeholder="商品编码/条码" debounce="500" />
+                    </div>
+                    <div class="col-xs-3 col-sm-3">                       
+                        <a class="btn btn-success btn-flat" href="/AdjustSalePrice/Create?source=PriceCheck">一键调价</a>
                     </div>
                     @*<div class="col-sm-2 col-xs-3" v-show="selectStore.view">
                             <div class="input-group ">

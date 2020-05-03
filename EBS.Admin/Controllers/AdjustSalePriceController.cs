@@ -51,9 +51,15 @@ namespace EBS.Admin.Controllers
             return Json(new { success = true, data = rows, total = page.Total }, JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult Create()
+        /// <summary>
+        /// 创建调价单
+        /// </summary>
+        /// <param name="source">调价来源：为空表示手动创建，source=PriceCheck 来自价格检查页面</param>
+        /// <returns></returns>
+        public ActionResult Create(string source ="")
         {
             ViewBag.CreatedByName = _context.CurrentAccount.NickName;
+            ViewBag.Source = source;
             return View();
         }
 
@@ -63,6 +69,8 @@ namespace EBS.Admin.Controllers
             var tree = JsonConvert.SerializeObject(treeNodes);
             return tree;
         }
+
+
 
         [HttpPost]
         public JsonResult Create(AdjustSalePriceModel model)
@@ -141,6 +149,12 @@ namespace EBS.Admin.Controllers
         public JsonResult ImportProduct(string inputProducts)
         {
             var result = _adjustSalePriceQuery.GetAdjustSalePriceList(inputProducts);
+            return Json(new { success = true, data = result });
+        }
+
+        public JsonResult ImportProductBySource(string source)
+        {
+            var result = _adjustSalePriceQuery.GetProductBySource(source);
             return Json(new { success = true, data = result });
         }
     }

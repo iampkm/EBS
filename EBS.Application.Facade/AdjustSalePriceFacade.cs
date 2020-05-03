@@ -28,14 +28,27 @@ namespace EBS.Application.Facade
             _sequenceService = new BillSequenceService(this._db);
             _productService = new ProductService(this._db);
         }
+        /// <summary>
+        /// 创建调价单就立即生效
+        /// </summary>
+        /// <param name="model"></param>
         public void Create(AdjustSalePriceModel model)
         {
+            // 创建调价单
             var entity = new AdjustSalePrice();
             entity = model.MapTo<AdjustSalePrice>();
-            entity.AddItems(model.ConvertJsonToItem());
+            var items = model.ConvertJsonToItem();
+            entity.AddItems(items);
             entity.CreatedBy = model.UpdatedBy;
             entity.Code = _sequenceService.GenerateNewCode(BillIdentity.AdjustSalePrice);
             _service.Create(entity);
+            // 修改商品价格
+            Dictionary<int, decimal> productSalePriceDic = new Dictionary<int, decimal>();
+            items.ToList().ForEach(n => productSalePriceDic.Add(n.ProductId, n.AdjustPrice));
+            _productService.UpdateSalePrice(productSalePriceDic);
+            // 修改单据状态
+            entity.Submit();
+
             _db.SaveChange();
             var reason = "创建商品调价单";
             entity = _db.Table.Find<AdjustSalePrice>(n => n.Code == entity.Code);

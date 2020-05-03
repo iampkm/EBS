@@ -18,5 +18,7 @@ namespace EBS.Query
         IEnumerable<AdjustSalePriceItemDto> GetAdjustSalePriceList(string inputProducts);
 
         Dictionary<int, string> GetAdjustSalePriceStatus();
+
+        IEnumerable<AdjustSalePriceItemDto> GetProductBySource(string source);
     }
 }

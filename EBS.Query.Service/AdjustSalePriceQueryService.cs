@@ -120,5 +120,21 @@ where p.`BarCode` in @BarCode order by i.Id DESC";
             var dic = typeof(AdjustSalePriceStatus).GetValueToDescription();
             return dic;
         }
+
+        public IEnumerable<AdjustSalePriceItemDto> GetProductBySource(string source)
+        {
+            if (source.ToLower() != "pricecheck")
+            { 
+                 throw new Exception("商品来源source有错");
+            }
+
+            string sql = @"select p.Id as ProductId,p.`Code` as ProductCode,p.BarCode,p.`Name` as ProductName,p.Specification,p.Unit,p.SalePrice,i.contractPrice from purchasecontract c 
+inner join purchasecontractitem i on c.Id = i.PurchaseContractId
+left join product p on i.ProductId= p.Id
+where c.`Status` =3 and p.SalePrice<=0  limit 1000";
+
+            var rows = this._query.FindAll<AdjustSalePriceItemDto>(sql, null);
+            return rows;
+        }
     }
 }
