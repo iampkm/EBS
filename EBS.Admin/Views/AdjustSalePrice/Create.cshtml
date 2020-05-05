@@ -313,8 +313,10 @@
                         return _profitTotal;
                     }                   
                 },
-                created:function() {
+                created: function () {
+                   
                     var _self = this;
+                    if (!_self.source) {return }
                     var data = {
                         source: _self.source
                         }

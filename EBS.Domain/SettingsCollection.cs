@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace EBS.Domain
 {
-   public class SettingsCollection:ISettings
+    public class SettingsCollection : ISettings
     {
         List<Setting> _settings;
         public SettingsCollection(List<Setting> settings)
@@ -22,7 +22,12 @@ namespace EBS.Domain
 
         public Dictionary<string, Setting> GetAll()
         {
-            return _settings.ToDictionary(n=>n.KeyName);
+            return _settings.ToDictionary(n => n.KeyName);
+        }
+
+        public Dictionary<string, Setting> GetAll(string startKey)
+        {
+            return _settings.Where(n => n.KeyName.StartsWith(startKey)).ToDictionary(n => n.KeyName);
         }
 
         public Setting GetByStartKey(string keyName)

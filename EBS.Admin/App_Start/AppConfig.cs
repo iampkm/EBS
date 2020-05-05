@@ -54,7 +54,7 @@ namespace EBS.Admin
             builder.Update(AppContext.Container);
 
             // 注册支付组件
-            RegisterPaySetting();
+           // RegisterPaySetting();
 
 
             //ModelValidatorProviders.Providers.Add(new FluentValidationModelValidatorProvider(new AutofacValidatorFactory(AppContext.Container)));

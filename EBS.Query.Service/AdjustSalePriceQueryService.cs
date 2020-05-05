@@ -123,6 +123,9 @@ where p.`BarCode` in @BarCode order by i.Id DESC";
 
         public IEnumerable<AdjustSalePriceItemDto> GetProductBySource(string source)
         {
+            IEnumerable<AdjustSalePriceItemDto> rows = new List<AdjustSalePriceItemDto>();
+            if (string.IsNullOrEmpty(source)) { return rows; }
+
             if (source.ToLower() != "pricecheck")
             { 
                  throw new Exception("商品来源source有错");
@@ -133,7 +136,7 @@ inner join purchasecontractitem i on c.Id = i.PurchaseContractId
 left join product p on i.ProductId= p.Id
 where c.`Status` =3 and p.SalePrice<=0  limit 1000";
 
-            var rows = this._query.FindAll<AdjustSalePriceItemDto>(sql, null);
+            rows = this._query.FindAll<AdjustSalePriceItemDto>(sql, null);
             return rows;
         }
     }

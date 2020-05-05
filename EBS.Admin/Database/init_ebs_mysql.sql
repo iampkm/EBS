@@ -770,7 +770,7 @@ alter table RoleMenu comment '角色菜单对应表';
 create table SaleOrder
 (
    Id                   int not null auto_increment,
-   Code                 nvarchar(20) comment '编码',
+   Code                 nvarchar(64) comment '编码',
    StoreId              int comment '门店',
    PosId                int comment 'Pos机Id',
    OrderType            int comment '订单类型',
@@ -788,6 +788,7 @@ create table SaleOrder
    UpdatedBy            int comment '修改人',
    WorkScheduleCode     varchar(32) comment '班次代码',
    OrderLevel           int comment '订单级别：1 普通订单，2 Vip订单',
+   SourceSaleOrderCode  varchar(64)
    primary key (Id)
 );
 
@@ -1078,7 +1079,7 @@ create table StoreInventory
    LastCostPrice        decimal(8,2) comment '最新进价',
    StoreSalePrice       decimal(8,2) comment '门店售价',
    Status               int comment '状态',
-   RowVersion           timestamp comment '行版本',
+   RowVersion           timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '行版本',
    primary key (Id)
 );
 
@@ -1118,7 +1119,7 @@ create table StoreInventoryBatch
    CreatedOn            datetime comment '创建时间',
    CreatedBy            int comment '创建人',
    BatchNo              bigint comment '批次号',
-   RowVersion           timestamp comment '行版本',
+   RowVersion           timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '行版本',
    primary key (Id)
 );
 
@@ -1434,4 +1435,65 @@ create unique index idx_workschedule_code on WorkSchedule
 (
    Code
 );
+
+-- ----------------------------
+-- Table structure for payment_history
+-- ----------------------------
+DROP TABLE IF EXISTS `payment_history`;
+CREATE TABLE `payment_history`  (
+  `Id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Id',
+  `OrderCode` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '订单号',
+  `OrderType` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '订单类型',
+  `PaymentType` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '支付类型：微信，支付宝，银联',
+  `Amount` varchar(255) NOT NULL COMMENT '金额(单位分)',
+  `RefundCode` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '退款单号',
+  `TradeNo` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '支付企业交易号',
+  `TradeAction` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '交易动作 request.pay  ;response.pay.notify;request.refund;response.refund.notify ',
+  `RequestUrl` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '请求Url',
+  `RawData` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '原始报文数据',
+  `CreatedOn` datetime(6) NOT NULL COMMENT '创建时间',
+  PRIMARY KEY (`Id`) USING BTREE,
+  INDEX `idx_payhistory_ordercode`(`OrderCode`, `RefundCode`, `TradeAction`, `OrderType`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+
+-- ----------------------------
+-- Table structure for setting
+-- ----------------------------
+DROP TABLE IF EXISTS `setting`;
+CREATE TABLE `setting`  (
+  `Id` int(11) NOT NULL AUTO_INCREMENT,
+  `KeyTitle` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'key标题，提示key作用',
+  `KeyName` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'key名字，程序使用',
+  `ValueTitle` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '值描述',
+  `Value` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '值',
+  `StoreId` int(11) NULL DEFAULT NULL COMMENT '门店Id,无门店为 0',
+  `DisplayOrder` int(11) NULL DEFAULT NULL COMMENT '显示顺序',
+  PRIMARY KEY (`Id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of setting
+-- ----------------------------
+INSERT INTO `setting` VALUES (1, '本机域名', 'system.domain', '', 'http://localhost', 0, 0);
+INSERT INTO `setting` VALUES (2, '支付回调url', 'pay.notify.url', '', '/Pay/Notify', 0, 0);
+INSERT INTO `setting` VALUES (3, '支付跳转url', 'pay.return.url', '', '/Pay/Return', 0, 0);
+INSERT INTO `setting` VALUES (4, '支付宝appid', 'pay.alipay.appid', '', 'alipay1', 0, 0);
+INSERT INTO `setting` VALUES (5, '支付宝公密', 'pay.alipay.public.key', '', '', 0, 0);
+INSERT INTO `setting` VALUES (6, '支付宝私密', 'pay.alipay.private.key', '', '', 0, 0);
+INSERT INTO `setting` VALUES (7, '微信appid', 'pay.wechat.appid', '', 'wx2428e34e0e7dc6ef', 0, 0);
+INSERT INTO `setting` VALUES (8, '微信密匙', 'pay.wechat.appsecret', '', '51c56b886b5be869567dd389b3e5d1d6', 0, 0);
+INSERT INTO `setting` VALUES (9, '微信商户号', 'pay.wechat.mchid', '', '1233410002', 0, 0);
+INSERT INTO `setting` VALUES (10, '微信商户密匙', 'pay.wechat.mchkey', '', 'e10adc3849ba56abbe56e056f20f883e', 0, 0);
+
+-- ----------------------------
+-- Records of outinordertype
+-- ----------------------------
+
+INSERT INTO `outinordertype` VALUES (1, '期初转入', 1);
+INSERT INTO `outinordertype` VALUES (2, '期末转出', -1);
+INSERT INTO `outinordertype` VALUES (3, '盘盈调账', 1);
+INSERT INTO `outinordertype` VALUES (4, '盘亏调账', -1);
+INSERT INTO `outinordertype` VALUES (5, '商品益余', 1);
+INSERT INTO `outinordertype` VALUES (6, '商品残损', -1);
 
