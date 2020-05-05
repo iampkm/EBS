@@ -331,6 +331,10 @@
     <Content Include="Database\ebs_mysql.sql" />
     <Content Include="Database\init_ebs_mysql.sql" />
     <Content Include="Database\init_product.sql" />
+    <Content Include="Database\init_readme.txt" />
+    <Content Include="Database\products-demo\brand.sql" />
+    <Content Include="Database\products-demo\category.sql" />
+    <Content Include="Database\products-demo\product.sql" />
     <Content Include="Database\日常维护sql.txt" />
     <Content Include="favicon.ico" />
     <Content Include="Content\bootstrap\fonts\glyphicons-halflings-regular.svg" />
